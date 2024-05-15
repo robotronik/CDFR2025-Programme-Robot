@@ -24,3 +24,5 @@ void printLidarAxial(lidarAnalize_t* data, int count);
 void printAngular(lidarAnalize_t* data, int count);
 
 void pixelArtPrint(lidarAnalize_t* data, int count,int sizeX,int sizeY,int scale,position_t position);
+
+void position
