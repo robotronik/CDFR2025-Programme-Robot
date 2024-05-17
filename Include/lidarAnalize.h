@@ -9,7 +9,7 @@
 
 #define MAP(value, fromLow, fromHigh, toLow, toHigh) ((toLow) + (((value) - (fromLow)) * ((toHigh) - (toLow)) / ((fromHigh) - (fromLow))))
 
-
+void getTableValid(lidarAnalize_t* data, int count);
 
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t position);
 
@@ -25,4 +25,3 @@ void printAngular(lidarAnalize_t* data, int count);
 
 void pixelArtPrint(lidarAnalize_t* data, int count,int sizeX,int sizeY,int scale,position_t position);
 
-void position

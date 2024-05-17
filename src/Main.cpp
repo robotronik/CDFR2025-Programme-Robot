@@ -1,5 +1,8 @@
-#include <lidar.h>
-define SIZEDATALIDAR 10000
+#include "lidar.h"
+#include "lidarAnalize.h"
+#include "logger.hpp"
+#include <pigpio.h>
+#define SIZEDATALIDAR 10000
 
 int main(int argc, char *argv[]) {
     LOG_INIT();
@@ -35,12 +38,14 @@ while (1) {
                 int distance;
                 position_t position = {x,y,teta,0};
                 convertAngularToAxial(lidarData,count,position);
-                if(ctrl_z_pressed){
-                    ctrl_z_pressed = false;
+                if(1){
+                //if(crtl_z_pressed){
+                    //ctrl_z_pressed = false;
                     pixelArtPrint(lidarData,count,50,50,100,position);
                 }                
                 //printAngular(lidarData,count);
                 
                 }
             }
+}
        

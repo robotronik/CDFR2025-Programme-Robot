@@ -1,3 +1,5 @@
+#pragma once
+
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
@@ -72,3 +74,27 @@
 
 /* Version number of package */
 #define VERSION "1.0"
+
+#define RAD_TO_DEG 57.29577951
+#define DEG_TO_RAD 0.01745329252
+
+#define ROBOT_X_OFFSET 155
+#define ROBOT_Y_OFFSET 60
+
+typedef struct 
+{
+    int   x;// x d'un robot
+    int   y;// y d'un robot
+    int   teta;// téta d'un robot
+    int   time;// date des données
+}position_t;
+
+typedef struct 
+{
+    bool   valid;
+    double   angle;
+    double   dist;
+    int   x;
+    int   y;
+    bool   onTable;
+}lidarAnalize_t;
