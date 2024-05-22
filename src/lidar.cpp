@@ -89,7 +89,7 @@ bool getlidarData(lidarAnalize_t* data, int& countdata){
     sl_result     op_result;
     
     op_result = drv->grabScanDataHq(nodes, count,0);
-    drv->ascendScanData(nodes, count);
+    //drv->ascendScanData(nodes, count);
     if (SL_IS_OK(op_result)) {
         drv->ascendScanData(nodes, count);
         int pos;
