@@ -1,5 +1,9 @@
 #pragma once
+#include "utils.h"
 
+#define NOMBRE_ACTIONS 4
+#define LARGEUR_ROBOT 320
+#define SECURITE 1
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
@@ -81,20 +85,62 @@
 #define ROBOT_X_OFFSET 155
 #define ROBOT_Y_OFFSET 60
 
+//Structure contenant toutes les informations sur une position
+// int   x;
+// int   y;
+// int   teta;// téta d'un robot
+// int   time;// date des données
 typedef struct 
 {
-    int   x;// x d'un robot
-    int   y;// y d'un robot
+    int   x;// x
+    int   y;// y
     int   teta;// téta d'un robot
     int   time;// date des données
 }position_t;
 
+typedef struct
+{
+    int x,y;
+    float teta;
+} vect_t;
+
+//structure contenant toutes les informations sur un robot
+// colorTeam_t color; équipe du robot
+// position_t pos; position
+// double vit; vitesse instantannée
+// double vit_moy; vitesse moyenne
+// bool robotHavePlante; le robot a des plantes
+typedef struct
+{
+    colorTeam_t color;// équipe du robot
+    position_t pos; //position du robot
+    double vit_x,vit_y; //vitesse instantannée du robot
+    bool robotHavePlante;// le robot a des plantes
+    obstacle_t obstacle;
+}robot_t;
+
+//Structure contenant un point obtenu par traitement des données du lidar
+// bool   valid; Si data valable
+// double   angle; angle par rapport au robot
+// double   dist; distance par rapport au robot
+// int   x; x du point dans le référentiel de la table
+// int   y; y du point dans le référentiel de la table
+// bool   onTable;  si le point est sur la table
 typedef struct 
 {
     bool   valid;
-    double   angle;
-    double   dist;
-    int   x;
-    int   y;
-    bool   onTable;
+    double   angle;//angle par rapport au robot
+    double   dist;//distance par rapport au robot
+    int   x;// x du point dans le référentiel de la table
+    int   y;// y du point dans le référentiel de la table
+    bool   onTable;// si le point est sur la table
 }lidarAnalize_t;
+
+
+typedef struct
+{
+    int centre_x,centre_y;
+    int demie_longueur,demie_largeur;
+    int teta;
+    forme_type_t forme;
+} obstacle_t;

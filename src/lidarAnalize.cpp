@@ -1,4 +1,4 @@
-#include "../Include/lidarAnalize.h"
+#include "lidarAnalize.h"
 
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t position){
     for(int i = 0; i< count; i++){

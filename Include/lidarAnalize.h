@@ -9,8 +9,10 @@
 
 #define MAP(value, fromLow, fromHigh, toLow, toHigh) ((toLow) + (((value) - (fromLow)) * ((toHigh) - (toLow)) / ((fromHigh) - (fromLow))))
 
+//détermine si un point est sur la table
 void getTableValid(lidarAnalize_t* data, int count);
 
+//Converti les données envoyées par le lidar en lidarAnalize_t
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t position);
 
 bool collideFordward(lidarAnalize_t* data, int count);

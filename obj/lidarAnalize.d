@@ -1,11 +1,9 @@
-obj/lidarAnalize.o: src/lidarAnalize.cpp src/../Include/lidarAnalize.h \
- src/../Include/config.h src/../Include/logger.hpp \
- src/../Include/../Include/asser.hpp \
- src/../Include/../Include/I2CDevice.hpp \
- src/../Include/../Include/smbus.h
-src/../Include/lidarAnalize.h:
-src/../Include/config.h:
-src/../Include/logger.hpp:
-src/../Include/../Include/asser.hpp:
-src/../Include/../Include/I2CDevice.hpp:
-src/../Include/../Include/smbus.h:
+obj/lidarAnalize.o: src/lidarAnalize.cpp Include/lidarAnalize.h \
+ Include/config.h Include/logger.hpp Include/../Include/asser.hpp \
+ Include/../Include/I2CDevice.hpp Include/../Include/smbus.h
+Include/lidarAnalize.h:
+Include/config.h:
+Include/logger.hpp:
+Include/../Include/asser.hpp:
+Include/../Include/I2CDevice.hpp:
+Include/../Include/smbus.h:
