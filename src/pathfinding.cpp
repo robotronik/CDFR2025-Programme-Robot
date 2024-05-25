@@ -4,6 +4,24 @@ int getOrientation(int x, int y){
     return (int)((x/ abs(x) == 1 ? 0 : 1*M_PI) -  atan(x / y)/DEG_TO_RAD);
 }
 
+float distance2(position_t p1, position_t p2){
+    return sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2));
+}
+
+instruction_t stack_pop(Astack* stack, position_t* parent){
+    while(!stack->empty() && &(stack->top()) != parent){
+        stack->pop();
+    }
+    if(stack->empty()){
+        perror("Stack vide");
+    }
+    else{
+        instruction_t previous = stack->top();
+        stack->pop();
+        return previous;
+    }
+}
+
 void RobotAdverse_obstacle(tableState* itable, float pastemps, int numpas ){
     robot_t* adversaire = itable->adversaire;
     obstacle_t *obstacle = adversaire->obstacle;
@@ -32,32 +50,44 @@ int RobotGetZone(position_t pos, int N){
     return zone;
 }
 
-float Euristique(position_t current, position_t objectif){
+instruction_t Euristique(position_t current, position_t* objectif){
+    instruction_t next;
+    next.parent = objectif;
 
+
+    return next;
 }
 
 
 instruction_t* A_star(tableState* itable, position_t objectif){
-
+    heap Calculer;
+    Astack traiter;
     position_t currentPos = itable->nous->pos;
-    position_t nextPos = itable->nous->pos;
 
+    CalculeNext(&Calculer,objectif,currentPos);
+    int zone = RobotGetZone(currentPos, itable->dimensionZone);
+    
+}
+
+
+void CalculeNext(heap* Calculer, position_t objectif, position_t currentPos){
+    position_t nextPos = currentPos;
     int tetaIdeal = getOrientation(objectif.x-currentPos.x,objectif.y-currentPos.y);
     int MouvDist = 0;
     int tetaMouv = 0;
     for (int i = 0; i < NOMBRE_TEST_Angle; i++)
     {
-        nextPos.teta = tetaIdeal + i*360/(NOMBRE_TEST_Angle-2);
+        nextPos.teta = tetaIdeal + i* ( 360/(NOMBRE_TEST_Angle-2));
         tetaMouv = nextPos.teta-currentPos.teta;
-        itable->A_star_heap.push(Euristique(nextPos,objectif,tetaMouv,MouvDist));
+        *Calculer.push(Euristique(nextPos,objectif,tetaMouv,MouvDist));
     }
 
     nextPos = itable->nous->pos;
     tetaMouv = 0;
-    for (int i = 0; i < NOMBRE_TEST_DROIT; i++)
+    for (int i = 1; i <= NOMBRE_TEST_DROIT; i++)
     {
-        MouvDist = 0;
-        itable->A_star_heap.push(Euristique(nextPos,objectif,tetaMouv,MouvDist));
+        MouvDist = (int)(distance2(objectif,currentPos)>200 ? 200:distance2(objectif,currentPos) )/i ;
+        *Calculer.push(Euristique(nextPos,objectif,tetaMouv,MouvDist));
+        *Calculer.push(Euristique(nextPos,objectif,tetaMouv,-MouvDist));
     }
-    
 }

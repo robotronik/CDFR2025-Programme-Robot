@@ -4,13 +4,6 @@
 #include "utils.h"
 #include "actionContainer.hpp"
 
-struct CompareInstruction{
-    bool operator()(const instruction_t& a, const instruction_t& b){
-        return a.cout > b.cout;
-    }
-};
-
-typedef std::priority_queue<instruction_t,std::vector<instruction_t>, CompareInstruction> heap;
 
 class tableState
 {
@@ -26,8 +19,7 @@ public:
     bool solarPanelTurn = false;
     unsigned long startTime;
     int dimensionZone;
-
-    heap A_star_heap;
+    
 
     //Poistion
     const cartesian_position_t plantPosition[6] =

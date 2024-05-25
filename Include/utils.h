@@ -1,3 +1,4 @@
+#pramga once
 #ifndef UTILS_H
 #define UTILS_H
 #include <time.h>
@@ -26,12 +27,13 @@ typedef struct
     colorTeam_t team;
 }cartesian_position_t;
 
-typedef struct
+typedef struct instruction
 {
     int x;
     int y;
     int cout;
     type_deplacement_t type;
+    struct instruction* parent;
 } instruction_t;
 
 

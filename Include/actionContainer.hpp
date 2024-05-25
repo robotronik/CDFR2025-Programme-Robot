@@ -48,6 +48,7 @@ public:
     tableState* table;
 
     std::vector<action*> listeAction;
+    (std::vector<action*>)** listeAction;
 
 public:
     actionContainer(robotCDFR* imainRobot, Asser* irobot, Arduino* iarduino, tableState* itable);

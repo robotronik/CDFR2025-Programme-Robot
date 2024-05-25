@@ -207,7 +207,7 @@ void action::setObstacle(obstacle_t* obst, int id){
     obstacle.centre_y = table->centre_action[id].y;
 }
 
-void action::setZone(int dim){
+void action::setZone(int dim, tableState *itable){
     cartesian_position_t z1,z2;
     z1.x = (int)((obstacle.centre_x+obstacle.demie_largeur)*2);
     z1.y = (int)((obstacle.centre_y+obstacle.demie_longueur)*2);
@@ -222,6 +222,7 @@ void action::setZone(int dim){
         {
             zone[count] = i + dim*j;
             count++;
+            itable-
         }
     }
     return;
