@@ -11,7 +11,7 @@ public:
     /* data */
     colorTeam_t panneauSolaireRotate[9];
     
-    actionContainer* Actions;
+    
 
     colorTeam_t colorTeam;
     robot_t* nous,*adversaire;
@@ -20,6 +20,7 @@ public:
     unsigned long startTime;
     int dimensionZone;
     
+    actionContainer* Actions;
 
     //Poistion
     const cartesian_position_t plantPosition[6] =

@@ -67,7 +67,7 @@ private:
     obstacle_t obstacle;
 
     int* zone; 
-
+    
 public:
     action(std::string name, robotCDFR* imainRobot, Asser* irobot, Arduino* iarduino, tableState* itable);
     int runAction(void);
@@ -90,9 +90,10 @@ public:
     void setObstacle(obstacle_t* obstacle, int id);
 
     int getZone(void);
-    void action::setZone(int dim);
+    void setZone(int dim);
     obstacle_t* getObstacle(void);
     
+    int sizeof_action;
 
     std::string getName(void);
     ~action();

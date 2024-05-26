@@ -112,6 +112,13 @@ typedef struct
 // bool robotHavePlante; le robot a des plantes
 typedef struct
 {
+    int centre_x,centre_y;
+    int demie_longueur,demie_largeur;
+    int teta;
+    forme_type_t forme;
+}obstacle_t;
+typedef struct
+{
     colorTeam_t color;// équipe du robot
     position_t pos; //position du robot
     double vit_x,vit_y; //vitesse instantannée du robot
@@ -137,10 +144,14 @@ typedef struct
 }lidarAnalize_t;
 
 
-typedef struct
-{
-    int centre_x,centre_y;
-    int demie_longueur,demie_largeur;
-    int teta;
-    forme_type_t forme;
-} obstacle_t;
+typedef enum {
+    INIT,
+    INITIALIZE,
+    SETHOME,
+    WAITSTART,
+    START,
+    RUN,
+    RETURNHOME,
+    FIN,
+    STOP
+} main_State_t;
