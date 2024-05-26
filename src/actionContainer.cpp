@@ -6,7 +6,7 @@ actionContainer::actionContainer(robotCDFR* imainRobot, Asser* irobot, Arduino* 
     robot = irobot;
     arduino = iarduino;
     table = itable;
-    listeAction = ((std::vector<action*>)**) malloc( sizeof( (std::vector<action*>)* ) * itable->dimensionZone );
+    listeAction = (Action_liste_t**)malloc( sizeof(Action_liste_t*) * (itable->dimensionZone) );
     action* PlanteTab[6]{ takePlante0 = new action("takePlante0",imainRobot,irobot,iarduino,itable),
     takePlante1 = new action("takePlante1",imainRobot,irobot,iarduino,itable),
     takePlante2 = new action("takePlante2",imainRobot,irobot,iarduino,itable),

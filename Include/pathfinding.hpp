@@ -15,7 +15,7 @@ typedef std::stack<instruction_t> Astack;
 instruction_t stack_pop(Astack* stack, position_t* parent);
 
 
-float distance2(position_t p1, position_t p2)
+float distance2(position_t p1, position_t p2);
 
 int getOrientation(int x1, int y1, int x2, int y2);
 

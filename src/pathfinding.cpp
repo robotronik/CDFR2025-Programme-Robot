@@ -52,7 +52,7 @@ int RobotGetZone(position_t pos, int N){
 
 instruction_t Euristique(position_t current, position_t* objectif){
     instruction_t next;
-    next.parent = objectif;
+    next.parent = current;
 
 
     return next;

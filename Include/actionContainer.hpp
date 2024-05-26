@@ -3,7 +3,7 @@
 #include "action.hpp"
 #include "fonction.h"
 #include <vector>
-
+typedef std::vector<action*> Action_liste_t;
 
 #define MARGESTOCKPLANT 300
 #define MARGEJADINIERE 450
@@ -47,8 +47,8 @@ public:
     Arduino* arduino;
     tableState* table;
 
-    std::vector<action*> listeAction;
-    (std::vector<action*>)** listeAction;
+    //std::vector<action*> listeAction;
+    Action_liste_t** listeAction;
 
 public:
     actionContainer(robotCDFR* imainRobot, Asser* irobot, Arduino* iarduino, tableState* itable);
