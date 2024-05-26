@@ -215,14 +215,13 @@ void action::setZone(int dim, tableState *itable){
     z2.y = (int)((obstacle.centre_y-obstacle.demie_longueur)*2);
 
     zone = (int*)calloc((z1.x-z2.x+1)*(z1.y-z2.y+1),sizeof(int));
-    int count = 0;
+    sizeof_action = 0;
     for (int i = z2.x; i <= z1.x; i++)
     {
         for (int j = z2.y; i <= z1.y; j++)
         {
-            zone[count] = i + dim*j;
-            count++;
-            itable-
+            zone[sizeof_action] = i + dim*j;
+            sizeof_action++;
         }
     }
     return;
