@@ -32,6 +32,6 @@ Arduino *arduino = new Arduino(100);
 main_State_t currentState = INIT;
 main_State_t nextState = INIT;
 bool initStat = true;
-actionContainer* actionSystem = new actionContainer(&mainRobot, robotI2C, arduino, &(mainRobot.tableStatus));
+actionContainer* Actions = new actionContainer(&mainRobot, robotI2C, arduino, &(mainRobot.tableStatus));
 int countStart = 0;
 int countSetHome = 0;

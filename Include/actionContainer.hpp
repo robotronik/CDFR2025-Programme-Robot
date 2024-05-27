@@ -2,6 +2,8 @@
 
 #include "action.hpp"
 #include "fonction.h"
+#include "tableState.hpp"
+
 #include <vector>
 typedef std::vector<action*> Action_liste_t;
 
@@ -62,6 +64,6 @@ public:
     ~actionContainer();
 private : 
 
-    int choosNextAction(void);
+    //int choosNextAction(void);
 };
 

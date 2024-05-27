@@ -422,31 +422,31 @@ void actionContainer::initAction(tableState* itable){
 
 
     //Choose first action
-    choosNextAction();
+    //choosNextAction();
 }
 
-int actionContainer::actionContainerRun(void){
-    int iActionReturn;
-    int iChoosNextReturn = 0;
-    int iRet = 0;
-    iActionReturn = currentAction->runAction();
-    if(iActionReturn == -100){
-        iRet = -100;
-    }
-    else if(iActionReturn!=0){
-        resetActionneur(robot,arduino);
-        iChoosNextReturn = choosNextAction();
-    }
-    // else if(forceNextAction()){
-    //     resetActionneur(robot,arduino);
-    //     iChoosNextReturn = choosNextAction();
-    // }
+// int actionContainer::actionContainerRun(void){
+//     int iActionReturn;
+//     int iChoosNextReturn = 0;
+//     int iRet = 0;
+//     iActionReturn = currentAction->runAction();
+//     if(iActionReturn == -100){
+//         iRet = -100;
+//     }
+//     else if(iActionReturn!=0){
+//         resetActionneur(robot,arduino);
+//         iChoosNextReturn = choosNextAction();
+//     }
+//     // else if(forceNextAction()){
+//     //     resetActionneur(robot,arduino);
+//     //     iChoosNextReturn = choosNextAction();
+//     // }
 
-    if(iChoosNextReturn == -1){
-        iRet = -1;
-    }
-    return iRet;
-}
+//     if(iChoosNextReturn == -1){
+//         iRet = -1;
+//     }
+//     return iRet;
+// }
 
 actionContainer::~actionContainer(){
 }

@@ -4,7 +4,6 @@
 #include "utils.h"
 #include "actionContainer.hpp"
 
-
 class tableState
 {
 public:
