@@ -3,7 +3,6 @@
 #include <functional>
 #include <string>
 #include "asser.hpp"
-#include "utils.h"
 #include "config.h"
 #include "arduino.hpp"
 #include "deplacement.h"
