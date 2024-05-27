@@ -97,6 +97,8 @@ bool getlidarData(lidarAnalize_t* data, int& countdata){
             data[pos].valid = (nodes[pos].quality >> SL_LIDAR_RESP_MEASUREMENT_QUALITY_SHIFT) != 0;
             data[pos].dist = nodes[pos].dist_mm_q2/4.0f;
             data[pos].angle = (nodes[pos].angle_z_q14 * 90.f) / 16384.f;
+            data[pos].onTable = true;
+
         }
         countdata = pos;
     }

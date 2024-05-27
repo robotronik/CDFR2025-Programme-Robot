@@ -83,9 +83,10 @@
 
 typedef struct 
 {
-    int   x;// x d'un robot
-    int   y;// y d'un robot
-    int   teta;// téta d'un robot
+    double   x;// x d'un robot
+    double   y;// y d'un robot
+    double   teta;// téta d'un robot
+    double dist; //me donne la précision du point ( < 20 : très bien/ <50 : bien / > 50 : nul)
     int   time;// date des données
 }position_t;
 

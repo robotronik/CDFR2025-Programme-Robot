@@ -8,6 +8,13 @@
 #include "logger.hpp"
 
 #define MAP(value, fromLow, fromHigh, toLow, toHigh) ((toLow) + (((value) - (fromLow)) * ((toHigh) - (toLow)) / ((fromHigh) - (fromLow))))
+typedef struct {
+    int i ; //indice début élément décord
+    int nb; //nombre d'élement 
+    float moy_dist ; //somme distance
+    float moy_angle; //somme angle
+    float cm; //taille object
+} element_decord;
 
 void getTableValid(lidarAnalize_t* data, int count);
 
@@ -25,3 +32,10 @@ void printAngular(lidarAnalize_t* data, int count);
 
 void pixelArtPrint(lidarAnalize_t* data, int count,int sizeX,int sizeY,int scale,position_t position);
 
+void supprimerElement(element_decord**& array, int& rows, int index);
+
+double distance_2_pts(double d1,double deg1, double d2, double deg2);
+
+void sol_eq_2cercle(double xA,double  yA,double AM,double xB,double yB,double BM,double xC, double yC, double CM,double *xM, double *yM);
+
+void init_position(lidarAnalize_t* data, int count, position_t *position);
