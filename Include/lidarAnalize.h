@@ -39,6 +39,8 @@ void sol_eq_2cercle(double xA,double  yA,double AM,double xB,double yB,double BM
 
 int desc_gradient(lidarAnalize_t* data, int count, position_t position);
 
+void regression_lineaire(lidarAnalize_t* data,int count, double X, double Y);
+
 double erreur(lidarAnalize_t* data,int count, double X, double Y);
 
 void init_position_sol(lidarAnalize_t* data, int count, position_t *position);
