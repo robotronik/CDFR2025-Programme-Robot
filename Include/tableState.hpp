@@ -1,6 +1,8 @@
 #pragma once
 #include "actionContainer.hpp"
 
+class actionContainer;
+
 class tableState
 {
 public:
