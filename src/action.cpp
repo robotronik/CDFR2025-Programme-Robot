@@ -12,9 +12,6 @@ action::action(std::string name, robotCDFR* imainRobot, Asser* irobot, Arduino* 
     currentState = FSMACTION_INIT;
     initStat = true;
     actionEnable = true;
-    actionDone = false;
-
-    actionPoint = 0;
 }
 
 action::~action(){
@@ -121,11 +118,6 @@ void action::setCostAction(std::function<int(tableState*)> ptr){
     validActionPtr = ptr;
 }
 
-int action::setActionValue(){
-    int value;
-    return value;
-}
-
 void action::setRunAction(std::function<int(action*, robotCDFR*, Asser*, Arduino*, tableState*)> ptr){
     runActionPtr = ptr;
 }
@@ -152,7 +144,7 @@ void action::setStartPoint(int x, int y, int teta, asser_direction_side Directio
     startRotation = rotation;
 }
 
-void action::setStartPointNoTeta(int x, int y, asser_direction_side Direction, asser_rotation_side rotation){
+void action::setStartPoint(int x, int y, asser_direction_side Direction, asser_rotation_side rotation){
     startPostion.x = x;
     startPostion.y = y;
     startDirection = Direction;
@@ -191,46 +183,4 @@ void action::setKeyMoment(unsigned long keyMom){
 
 bool action::actionNeedForce(void){
     return table->startTime+keyMoment < millis() && keyMomentSet;
-}
-
-bool action::isDone(void){
-    return actionDone;
-}
-
-void action::setDone(bool done){
-    actionDone = done;
-}
-
-void action::setObstacle(obstacle_t* obst, int id){
-    obstacle = *obst;
-    obstacle.centre_x = table->centre_action[id].x;
-    obstacle.centre_y = table->centre_action[id].y;
-}
-
-void action::setZone(int dim){
-    cartesian_position_t z1,z2;
-    z1.x = (int)((obstacle.centre_x+obstacle.demie_largeur)*2);
-    z1.y = (int)((obstacle.centre_y+obstacle.demie_longueur)*2);
-    z2.x = (int)((obstacle.centre_x-obstacle.demie_largeur)*2);
-    z2.y = (int)((obstacle.centre_y-obstacle.demie_longueur)*2);
-
-    zone = (int*)calloc((z1.x-z2.x+1)*(z1.y-z2.y+1),sizeof(int));
-    sizeof_action = 0;
-    for (int i = z2.x; i <= z1.x; i++)
-    {
-        for (int j = z2.y; i <= z1.y; j++)
-        {
-            zone[sizeof_action] = i + dim*j;
-            sizeof_action++;
-        }
-    }
-    return;
-}
-
-obstacle_t* action::getObstacle(void){
-    return &obstacle;
-}
-
-int action::getZone(void){
-    return *zone;
 }

@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
 
     robotCDFR mainRobot;
     Asser *robotI2C = new Asser(I2C_ASSER_ADDR);
-    LOG_SETROBOT(robotI2C);
+    //LOG_SETROBOT(robotI2C);
     lidarAnalize_t lidarData[SIZEDATALIDAR];    
     Arduino *arduino = new Arduino(100);
     main_State_t currentState = INIT;

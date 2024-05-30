@@ -1,4 +1,3 @@
-#pragma once
 #ifndef UTILS_H
 #define UTILS_H
 #include <time.h>
@@ -9,33 +8,12 @@ typedef enum {
     YELLOW
 } colorTeam_t;
 
-typedef enum {
-    CERCLE,
-    RECTANGLE
-}   forme_type_t;
-
-typedef enum {
-    DROIT,
-    ARRIERE,
-    TOURNEca
-} type_deplacement_t;
-
 typedef struct 
 {
     int   x;
     int   y;
     colorTeam_t team;
 }cartesian_position_t;
-
-typedef struct instruction
-{
-    int x;
-    int y;
-    int cout;
-    type_deplacement_t type;
-    struct instruction* parent;
-} instruction_t;
-
 
 inline unsigned long millis() {
     struct timespec ts;

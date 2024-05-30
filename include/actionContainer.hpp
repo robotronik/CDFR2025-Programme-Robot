@@ -3,7 +3,7 @@
 #include "action.hpp"
 #include "fonction.h"
 #include <vector>
-typedef std::vector<action*> Action_liste_t;
+
 
 #define MARGESTOCKPLANT 300
 #define MARGEJADINIERE 450
@@ -17,7 +17,7 @@ typedef std::vector<action*> Action_liste_t;
 
 class actionContainer
 {
-public:
+private:
     action* takePlante0;
     action* takePlante1;
     action* takePlante2;
@@ -47,21 +47,17 @@ public:
     Arduino* arduino;
     tableState* table;
 
-    
-
-    //std::vector<action*> listeAction;
-    Action_liste_t* listeAction;
+    std::vector<action*> listeAction;
 
 public:
     actionContainer(robotCDFR* imainRobot, Asser* irobot, Arduino* iarduino, tableState* itable);
-    //void initAction(robotCDFR* imainRobot, Asser* irobot, Arduino* iarduino, tableState* itable);
-    void initAction(tableState* itable);
+    void initAction(robotCDFR* imainRobot, Asser* irobot, Arduino* iarduino, tableState* itable);
     bool forceNextAction(void);
     int actionContainerRun(void);
     void resetAllAction(void);
     ~actionContainer();
 private : 
 
-    //int choosNextAction(void);
+    int choosNextAction(void);
 };
 

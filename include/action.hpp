@@ -3,11 +3,9 @@
 #include <functional>
 #include <string>
 #include "asser.hpp"
-#include "config.h"
 #include "arduino.hpp"
 #include "deplacement.h"
 #include "arduinoSubFonction.h"
-#include "logger.hpp"
 #include "robot.h"
 #include "tableState.hpp"
 
@@ -53,47 +51,26 @@ private:
     bool initStat = true;
 
     std::string actionName;
-    bool actionEnable = true;//action autorisée (paramètre général)
-    int value;//Valeur fixe de l'action dépend du type d'action
-
-    bool actionDone = false;// Action faîte ou non.
-    int actionPoint = 0; // Nombre de points que l'action rapporte à l'équipe en fin de partie
+    bool actionEnable = true;
 
     unsigned long keyMoment;
     bool keyMomentSet = false;
     bool noTetaStart = false;
 
-    obstacle_t obstacle;
-
-    int* zone; 
-    
 public:
     action(std::string name, robotCDFR* imainRobot, Asser* irobot, Arduino* iarduino, tableState* itable);
     int runAction(void);
     void setRunAction(std::function<int(action*, robotCDFR*, Asser*, Arduino*, tableState*)> ptr);
     void setStartPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation);
-    void setStartPointNoTeta(int x, int y, asser_direction_side Direction, asser_rotation_side rotation);
+    void setStartPoint(int x, int y, asser_direction_side Direction, asser_rotation_side rotation);
     void setEndPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation);
-    int costAction(void);// renvoie le coût de l'action
-    int setActionValue(void);// Fixe la valeur de l'action en points
+    int costAction(void);
     void goodEnd(std::function<void(tableState*)> ptr);
     void badEnd(std::function<void(tableState*)> ptr);
     void setCostAction(std::function<int(tableState*)> ptr);
     void resetActionEnable(void);
     void setKeyMoment(unsigned long keyMom);
     bool actionNeedForce(void);
-
-    bool isDone(void);
-    void setDone(bool done);
-
-    void setObstacle(obstacle_t* obstacle, int id);
-
-    int getZone(void);
-    void setZone(int dim);
-    obstacle_t* getObstacle(void);
-    
-    int sizeof_action;
-
     std::string getName(void);
     ~action();
 

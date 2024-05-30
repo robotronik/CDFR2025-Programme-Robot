@@ -1,5 +1,7 @@
 #include "lidarAnalize.h"
 
+void getTableValid(lidarAnalize_t* data, int count);
+
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t position){
     for(int i = 0; i< count; i++){
         if(data[i].valid){

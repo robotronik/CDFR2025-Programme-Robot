@@ -1,20 +1,19 @@
 obj/actionContainer.o: src/actionContainer.cpp \
- Include/actionContainer.hpp Include/action.hpp Include/asser.hpp \
- Include/I2CDevice.hpp Include/smbus.h Include/config.h Include/utils.h \
- Include/arduino.hpp Include/deplacement.h Include/logger.hpp \
- Include/robot.h Include/tableState.hpp Include/arduinoSubFonction.h \
- Include/fonction.h
-Include/actionContainer.hpp:
-Include/action.hpp:
-Include/asser.hpp:
-Include/I2CDevice.hpp:
-Include/smbus.h:
-Include/config.h:
-Include/utils.h:
-Include/arduino.hpp:
-Include/deplacement.h:
-Include/logger.hpp:
-Include/robot.h:
-Include/tableState.hpp:
-Include/arduinoSubFonction.h:
-Include/fonction.h:
+ include/actionContainer.hpp include/action.hpp include/asser.hpp \
+ include/I2CDevice.hpp include/arduino.hpp include/deplacement.h \
+ include/config.h include/logger.hpp include/robot.h \
+ include/tableState.hpp include/utils.h include/arduinoSubFonction.h \
+ include/fonction.h
+include/actionContainer.hpp:
+include/action.hpp:
+include/asser.hpp:
+include/I2CDevice.hpp:
+include/arduino.hpp:
+include/deplacement.h:
+include/config.h:
+include/logger.hpp:
+include/robot.h:
+include/tableState.hpp:
+include/utils.h:
+include/arduinoSubFonction.h:
+include/fonction.h:

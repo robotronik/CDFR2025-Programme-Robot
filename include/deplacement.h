@@ -1,7 +1,6 @@
 #pragma once
 
 #include "asser.hpp"
-#include "utils.h"
 #include "config.h"
 #include "arduino.hpp"
 #include "logger.hpp"
