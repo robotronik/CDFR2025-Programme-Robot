@@ -22,11 +22,11 @@ int mainMatch(tableState tableStatus, Asser* robot,Arduino* arduino){
 
     case MATCH_GOSOLARPANEL :
         if(initStat) LOG_STATE("MATCH_GOSOLARPANEL");
-        if(tableStatus.colorTeam == YELLOW){
-            deplacementreturn = deplacementgoToPoint(tableStatus.collide, robot,800,1250,-90,MOVE_FORWARD);
+        if(tableStatus.robot.colorTeam == YELLOW){
+            deplacementreturn = deplacementgoToPoint(tableStatus.robot.collide, robot,800,1250,-90,MOVE_FORWARD);
         }
         else{
-            deplacementreturn = deplacementgoToPoint(tableStatus.collide, robot,800,-1250,-90,MOVE_BACKWARD);
+            deplacementreturn = deplacementgoToPoint(tableStatus.robot.collide, robot,800,-1250,-90,MOVE_BACKWARD);
         }
         if(deplacementreturn<0){
             nextState = MATCH_INTISOLARPANEL;
@@ -38,7 +38,7 @@ int mainMatch(tableState tableStatus, Asser* robot,Arduino* arduino){
 
     case MATCH_INTISOLARPANEL :
         if(initStat) LOG_STATE("MATCH_INTISOLARPANEL");
-        if(tableStatus.colorTeam == YELLOW){
+        if(tableStatus.robot.colorTeam == YELLOW){
             if(initPositon(robot,800,1250,-90)){
                 nextState = MATCH_SOLARPANEL;
             }
@@ -60,11 +60,11 @@ int mainMatch(tableState tableStatus, Asser* robot,Arduino* arduino){
 
     case MATCH_GOHOME1 :
         if(initStat) LOG_STATE("MATCH_GOHOME1");
-        if(tableStatus.colorTeam == YELLOW){
-            deplacementreturn = deplacementgoToPoint(tableStatus.collide, robot,800,1250,-90,MOVE_FORWARD);
+        if(tableStatus.robot.colorTeam == YELLOW){
+            deplacementreturn = deplacementgoToPoint(tableStatus.robot.collide, robot,800,1250,-90,MOVE_FORWARD);
         }
         else{
-            deplacementreturn = deplacementgoToPoint(tableStatus.collide, robot,800,-1250,-90,MOVE_BACKWARD);
+            deplacementreturn = deplacementgoToPoint(tableStatus.robot.collide, robot,800,-1250,-90,MOVE_BACKWARD);
         }
         if(deplacementreturn<0){
             nextState = MATCH_GOHOME2;
@@ -76,11 +76,11 @@ int mainMatch(tableState tableStatus, Asser* robot,Arduino* arduino){
 
     case MATCH_GOHOME2 :
         if(initStat) LOG_STATE("MATCH_GOHOME2");
-        if(tableStatus.colorTeam == YELLOW){
-            deplacementreturn = deplacementgoToPoint(tableStatus.collide, robot,800,1250,-90,MOVE_FORWARD);
+        if(tableStatus.robot.colorTeam == YELLOW){
+            deplacementreturn = deplacementgoToPoint(tableStatus.robot.collide, robot,800,1250,-90,MOVE_FORWARD);
         }
         else{
-            deplacementreturn = deplacementgoToPoint(tableStatus.collide, robot,800,-1250,-90,MOVE_BACKWARD);
+            deplacementreturn = deplacementgoToPoint(tableStatus.robot.collide, robot,800,-1250,-90,MOVE_BACKWARD);
         }
 
         if(deplacementreturn){

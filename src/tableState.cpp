@@ -14,7 +14,6 @@ tableState::tableState(/* args */){
         jardiniereFree[i] = false;        
     }
         
-    robotHavePlante = false;
 }
 
 tableState::~tableState(){

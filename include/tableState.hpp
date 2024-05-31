@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "utils.h"
+#include "config.h"
 
 
 class tableState
@@ -13,12 +13,11 @@ public:
     bool zoneFull[6];
     bool jardiniereFree[4];
     colorTeam_t panneauSolaireRotate[9];
-    bool robotHavePlante;
-    colorTeam_t colorTeam;
+    
     bool solarPanelTurn = false;
     unsigned long startTime;
 
-    int collide;
+    robot_t robot;
 
     // //Poistion
     // const cartesian_position_t plantPosition[6] =

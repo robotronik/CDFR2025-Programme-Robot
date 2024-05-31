@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
                 }                
                 //printAngular(lidarData,count);
                 robotI2C->getBrakingDistance(distance);
-                tableStatus.collide = collide(lidarData,count,distance);
+                tableStatus.robot.collide = collide(lidarData,count,distance);
                 //LOG_DEBUG("collide : ", robot->collide);
                 //printf("distance : %d \t collide : %d\n",distance,robot->collide);
             }
@@ -206,13 +206,13 @@ int main(int argc, char *argv[]) {
                 int bStateCapteur2 = 0;
                 arduino->readCapteur(2,bStateCapteur2);
                 if(bStateCapteur2 == 1){
-                    tableStatus.colorTeam = YELLOW;
+                    tableStatus.robot.colorTeam = YELLOW;
                     nextState = SETHOME;
                     robotI2C->setCoords(-710,1170,90);
                     LOG_INFO("teams : YELLOW");
                 }
                 else if(bStateCapteur2 == 0){
-                    tableStatus.colorTeam = BLUE;
+                    tableStatus.robot.colorTeam = BLUE;
                     nextState = SETHOME;
                     robotI2C->setCoords(-710,-1170,-90);
                     LOG_INFO("teams : BLUE");
@@ -223,7 +223,7 @@ int main(int argc, char *argv[]) {
             //****************************************************************
             case SETHOME:{
                 if(initStat) LOG_STATE("SETHOME");
-                if(tableStatus.colorTeam == YELLOW){
+                if(tableStatus.robot.colorTeam == YELLOW){
                     if(initPositon2(&tableStatus,robotI2C,-800,1325,90)){
                         nextState = WAITSTART;
                     }
@@ -243,7 +243,7 @@ int main(int argc, char *argv[]) {
                 if(initStat) LOG_STATE("WAITSTART");
                 int bStateCapteur1 = 0;
                 arduino->readCapteur(1,bStateCapteur1);
-                if(tableStatus.colorTeam == YELLOW){
+                if(tableStatus.robot.colorTeam == YELLOW){
                     blinkLed(arduino,1,500);
                 }
                 else{
@@ -282,7 +282,7 @@ int main(int argc, char *argv[]) {
             case RUN:{
                 if(initStat) LOG_STATE("RUN");
                 bool finish;
-                if(tableStatus.colorTeam == YELLOW){
+                if(tableStatus.robot.colorTeam == YELLOW){
                     finish = actionSystem->actionContainerRun();
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }

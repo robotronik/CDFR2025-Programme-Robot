@@ -19,3 +19,15 @@ typedef struct
     int   y;
     bool   onTable;
 }lidarAnalize_t;
+
+typedef struct
+{
+    colorTeam_t colorTeam;// équipe du robot
+    position_t pos; //position du robot
+    double vit_x,vit_y; //vitesse instantannée du robot
+    int collide;
+    //obstacle_t obstacle;
+
+    bool robotHavePlante;// le robot a des plantes
+    
+}robot_t;

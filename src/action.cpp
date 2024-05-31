@@ -123,16 +123,16 @@ void action::setRunAction(std::function<int(action*, Asser*, Arduino*, tableStat
 
 int action::goToStart(void){
     if(noTetaStart){
-        return deplacementgoToPointNoTurn(table->collide, robot, startPostion.x,startPostion.y, startDirection,startRotation);
+        return deplacementgoToPointNoTurn(table->robot.collide, robot, startPostion.x,startPostion.y, startDirection,startRotation);
     }
     else{
-        return deplacementgoToPoint(table->collide, robot, startPostion.x,startPostion.y, startPostion.teta, startDirection);
+        return deplacementgoToPoint(table->robot.collide, robot, startPostion.x,startPostion.y, startPostion.teta, startDirection);
     }    
 }
 
 
 int action::goToEnd(void){
-    return deplacementgoToPoint(table->collide, robot, endPostion.x, endPostion.y, endPostion.teta, endDirection);
+    return deplacementgoToPoint(table->robot.collide, robot, endPostion.x, endPostion.y, endPostion.teta, endDirection);
 }
 
 void action::setStartPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation){
