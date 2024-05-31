@@ -1,8 +1,7 @@
 #include "action.hpp"
 
 
-action::action(std::string name, robotCDFR* imainRobot, Asser* irobot, Arduino* iarduino, tableState* itable){
-    mainRobot = imainRobot;
+action::action(std::string name, Asser* irobot, Arduino* iarduino, tableState* itable){
     robot = irobot;
     arduino = iarduino;
     table = itable;
@@ -50,7 +49,7 @@ int action::runAction(void){
 
     case FSMACTION_ACTION :
         if(initStat) LOG_STATE("FSMACTION_ACTION");
-        deplacementreturn = runActionPtr(this,mainRobot,robot,arduino,table);
+        deplacementreturn = runActionPtr(this,robot,arduino,table);
         if(deplacementreturn>0){
             if(noEndPoint){
                 nextState = FSMACTION_INIT;
@@ -118,22 +117,22 @@ void action::setCostAction(std::function<int(tableState*)> ptr){
     validActionPtr = ptr;
 }
 
-void action::setRunAction(std::function<int(action*, robotCDFR*, Asser*, Arduino*, tableState*)> ptr){
+void action::setRunAction(std::function<int(action*, Asser*, Arduino*, tableState*)> ptr){
     runActionPtr = ptr;
 }
 
 int action::goToStart(void){
     if(noTetaStart){
-        return deplacementgoToPointNoTurn(*mainRobot, robot, startPostion.x,startPostion.y, startDirection,startRotation);
+        return deplacementgoToPointNoTurn(table->collide, robot, startPostion.x,startPostion.y, startDirection,startRotation);
     }
     else{
-        return deplacementgoToPoint(*mainRobot, robot, startPostion.x,startPostion.y, startPostion.teta, startDirection);
+        return deplacementgoToPoint(table->collide, robot, startPostion.x,startPostion.y, startPostion.teta, startDirection);
     }    
 }
 
 
 int action::goToEnd(void){
-    return deplacementgoToPoint(*mainRobot, robot, endPostion.x, endPostion.y, endPostion.teta, endDirection);
+    return deplacementgoToPoint(table->collide, robot, endPostion.x, endPostion.y, endPostion.teta, endDirection);
 }
 
 void action::setStartPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation){

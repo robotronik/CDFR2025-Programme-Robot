@@ -2,16 +2,14 @@
 
 #include <functional>
 #include <string>
-#include "asser.hpp"
-#include "arduino.hpp"
 #include "deplacement.h"
 #include "arduinoSubFonction.h"
-#include "robot.h"
+
 #include "tableState.hpp"
 
 class action;
 
-typedef int (*FuncRunPtr)(action*, robotCDFR*, Asser*, Arduino*, tableState*);
+typedef int (*FuncRunPtr)(action*, Asser*, Arduino*, tableState*);
 typedef int (*FuncValidPtr)(tableState*);
 
 
@@ -28,12 +26,11 @@ private:
     }fsmAction_t;
 
 private:
-    robotCDFR* mainRobot;
     Asser* robot;
     Arduino* arduino;
     tableState* table;
 
-    std::function<int(action*, robotCDFR*, Asser*, Arduino*, tableState*)> runActionPtr;
+    std::function<int(action*, Asser*, Arduino*, tableState*)> runActionPtr;
     std::function<int(tableState*)> validActionPtr;
     std::function<void(tableState*)> goodEndPtr;
     std::function<void(tableState*)> badEndPtr;
@@ -58,9 +55,9 @@ private:
     bool noTetaStart = false;
 
 public:
-    action(std::string name, robotCDFR* imainRobot, Asser* irobot, Arduino* iarduino, tableState* itable);
+    action(std::string name, Asser* irobot, Arduino* iarduino, tableState* itable);
     int runAction(void);
-    void setRunAction(std::function<int(action*, robotCDFR*, Asser*, Arduino*, tableState*)> ptr);
+    void setRunAction(std::function<int(action*, Asser*, Arduino*, tableState*)> ptr);
     void setStartPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation);
     void setStartPoint(int x, int y, asser_direction_side Direction, asser_rotation_side rotation);
     void setEndPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation);

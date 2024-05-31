@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <iostream>
 #include "I2CDevice.hpp"
+#include "logger.hpp"
 
 class Arduino : public I2CDevice {
     using I2CDevice::I2CDevice;

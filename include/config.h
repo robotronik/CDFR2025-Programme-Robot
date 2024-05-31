@@ -1,10 +1,6 @@
 #pragma once
-
-#define RAD_TO_DEG 57.29577951
-#define DEG_TO_RAD 0.01745329252
-
-#define ROBOT_X_OFFSET 155
-#define ROBOT_Y_OFFSET 60
+#include "utils.h"
+#include "constante.h"
 
 typedef struct 
 {

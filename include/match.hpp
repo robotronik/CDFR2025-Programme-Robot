@@ -1,14 +1,11 @@
 #pragma once
 
 
-#include "asser.hpp"
-#include "utils.h"
 #include "config.h"
-#include "arduino.hpp"
 #include "deplacement.h"
 #include "arduinoSubFonction.h"
 #include "logger.hpp"
-#include "robot.h"
+
 #include "fonction.h"
 #include "action.hpp"
 
@@ -24,3 +21,5 @@ typedef enum {
     MATCH_GOHOME2,
     MATCH_END
 } fsmMatch_t;
+
+int mainMatch(tableState tableStatus, Asser* robot,Arduino* arduino);

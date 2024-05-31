@@ -3,8 +3,9 @@
 #include <cstdint>
 #include <iostream>
 #include "I2CDevice.hpp"
+#include "logger.hpp"
+#include "constante.h"
 
-#define I2C_ASSER_ADDR 42
 
 typedef enum {
     MOVING_FINISHED = 0,

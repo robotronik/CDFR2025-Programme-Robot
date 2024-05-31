@@ -18,11 +18,13 @@ public:
     bool solarPanelTurn = false;
     unsigned long startTime;
 
-    //Poistion
-    const cartesian_position_t plantPosition[6] =
-    {{500,0},{300,-500},{-300,-500},{-500,0},{-300,500},{300,500}};
-    const cartesian_position_t JardinierePosition[6] =
-    {{387,-1500,YELLOW},{-387,-1500,BLUE},{-1000,-762,BLUE},{-1000,762,YELLOW},{-387,1500,YELLOW},{387,1500,BLUE}};
+    int collide;
+
+    // //Poistion
+    // const cartesian_position_t plantPosition[6] =
+    // {{500,0},{300,-500},{-300,-500},{-500,0},{-300,500},{300,500}};
+    // const cartesian_position_t JardinierePosition[6] =
+    // {{387,-1500,YELLOW},{-387,-1500,BLUE},{-1000,-762,BLUE},{-1000,762,YELLOW},{-387,1500,YELLOW},{387,1500,BLUE}};
 
 public:
     tableState(/* args */);
