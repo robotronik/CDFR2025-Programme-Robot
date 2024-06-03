@@ -19,7 +19,7 @@ public:
 
     robot_t robot;
 
-    // //Poistion
+    // //Position
     // const cartesian_position_t plantPosition[6] =
     // {{500,0},{300,-500},{-300,-500},{-500,0},{-300,500},{300,500}};
     // const cartesian_position_t JardinierePosition[6] =

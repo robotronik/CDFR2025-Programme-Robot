@@ -929,3 +929,9 @@ int TestPinceFSM(tableState* itable, Asser* iAsser,Arduino* arduino){
     currentState = nextState;
     return ireturn;
 }
+
+void ennemieInAction(tableState* itable, int x_ennemie, int y_ennemie ){
+    //itable->jardiniereFree;
+
+
+}

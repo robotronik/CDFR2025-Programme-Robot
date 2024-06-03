@@ -83,5 +83,5 @@ bool allJardiniereFull(tableState* itable);
 void resetActionneur(Asser* iAsser, Arduino* arduino);
 int FSMMatch(tableState* itable,Asser* iAsser,Arduino* arduino);
 int TestPinceFSM(tableState* itable, Asser* iAsser,Arduino* arduino);
-
+void ennemieInAction(tableState* itable, int x_ennemie, int y_ennemie );
 #endif // MYFUNCTION_H
