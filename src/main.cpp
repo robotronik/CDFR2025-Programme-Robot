@@ -29,7 +29,6 @@ typedef enum {
     INITIALIZE,
     SETHOME,
     WAITSTART,
-    START,
     RUN,
     RETURNHOME,
     FIN,
@@ -73,8 +72,7 @@ void executePythonScript(const std::string& command) {
 int main(int argc, char *argv[]) {
     LOG_INIT();
 
-
-    if(!lidarSetup("/dev/ttyAMA0",256000)){
+    if(!lidarSetup("/dev/ttyAMA0",256000)){         //initialisation lidar
         LOG_ERROR("cannot find the lidar");
         return -1;
     }
@@ -257,25 +255,19 @@ int main(int argc, char *argv[]) {
                     countStart = 0;
                 }
                 if(countStart == 5){
-                    nextState = START;
+                    nextState = RUN;
                     arduino->ledOff(1);
                     arduino->ledOff(2);
+                    tableStatus.startTime = millis();
+                    actionSystem->initAction( robotI2C, arduino, &(tableStatus));
+                    //LAUNCH PYTHON
+                    // std::string color = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
+                    // std::filesystem::path exe_path = std::filesystem::canonical(std::filesystem::path(argv[0])).parent_path();
+                    // std::filesystem::path python_script_path = exe_path / "../startPAMI.py";
+                    // std::string command = "python3 " + python_script_path.string() + " " +  color;
+                    // python_thread = new std::thread(executePythonScript,command);
+                    //
                 }
-                break;
-            }
-            //****************************************************************      
-            case START:{
-                if(initStat) LOG_STATE("START");
-                tableStatus.startTime = millis();
-                actionSystem->initAction( robotI2C, arduino, &(tableStatus));
-                //LAUNCH PYTHON
-                // std::string color = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
-                // std::filesystem::path exe_path = std::filesystem::canonical(std::filesystem::path(argv[0])).parent_path();
-                // std::filesystem::path python_script_path = exe_path / "../startPAMI.py";
-                // std::string command = "python3 " + python_script_path.string() + " " +  color;
-                // python_thread = new std::thread(executePythonScript,command);
-                //
-                nextState = RUN;
                 break;
             }
             //****************************************************************
