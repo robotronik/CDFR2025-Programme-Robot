@@ -39,3 +39,5 @@ const cartesian_position_t plantPosition[6] =
 {{500,0},{300,-500},{-300,-500},{-500,0},{-300,500},{300,500}};
 const cartesian_position_t JardinierePosition[6] =
 {{387,-1500,YELLOW},{-387,-1500,BLUE},{-1000,-762,BLUE},{-1000,762,YELLOW},{-387,1500,YELLOW},{387,1500,BLUE}};
+const cartesian_position_t zoneFull [6]=
+{{-1275,-750,BLUE},{-1275,0,YELLOW},{-1275,750,BLUE},{1275,750,YELLOW},{1275,0,BLUE},{1275,-750,YELLOW}};

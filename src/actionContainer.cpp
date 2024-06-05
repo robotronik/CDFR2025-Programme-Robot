@@ -40,10 +40,10 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     });
     takePlante0->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = true;
-        itable->planteStockFull[0] = false;
+        itable->planteStockFull[0].etat = false;
     });
     takePlante0->setCostAction([](tableState*itable){
-        return itable->planteStockFull[0] && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ? -1 : -1;
+        return itable->planteStockFull[0].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ? -1 : -1;
     });
     listeAction.push_back(takePlante0);
 
@@ -54,11 +54,11 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     });
     takePlante1->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = true;
-        itable->planteStockFull[1] = false;
+        itable->planteStockFull[1].etat = false;
     });
     takePlante1->setCostAction([](tableState*itable){
         int cost = itable->robot.colorTeam == BLUE ? 90 : 70;
-        return itable->planteStockFull[1] && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ? cost : -1;
+        return itable->planteStockFull[1].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ? cost : -1;
     });
     listeAction.push_back(takePlante1);
 
@@ -69,11 +69,11 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     });
     takePlante2->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = true;
-        itable->planteStockFull[2] = false;
+        itable->planteStockFull[2].etat = false;
     });
     takePlante2->setCostAction([](tableState*itable){
         int cost = itable->robot.colorTeam == BLUE ? 100 : 80;
-        return itable->planteStockFull[2] && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ? cost : -1;
+        return itable->planteStockFull[2].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ? cost : -1;
     });
     listeAction.push_back(takePlante2);
 
@@ -84,10 +84,10 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     });
     takePlante3->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = true;
-        itable->planteStockFull[3] = false;
+        itable->planteStockFull[3].etat = false;
     });
     takePlante3->setCostAction([](tableState*itable){
-        return itable->planteStockFull[3] && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ? -1 : -1;
+        return itable->planteStockFull[3].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ? -1 : -1;
     });
     listeAction.push_back(takePlante3);
 
@@ -98,11 +98,11 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     });
     takePlante4->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = true;
-        itable->planteStockFull[4] = false;
+        itable->planteStockFull[4].etat = false;
     });
     takePlante4->setCostAction([](tableState*itable){
         int cost = itable->robot.colorTeam == BLUE ? 80 : 100;
-        return itable->planteStockFull[4] && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ? cost : -1;
+        return itable->planteStockFull[4].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ? cost : -1;
     });
     listeAction.push_back(takePlante4);
 
@@ -113,11 +113,11 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     });
     takePlante5->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = true;
-        itable->planteStockFull[5] = false;
+        itable->planteStockFull[5].etat = false;
     });
     takePlante5->setCostAction([](tableState*itable){
         int cost = itable->robot.colorTeam == BLUE ? 70 : 90;
-        return itable->planteStockFull[5] && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ? cost : -1;
+        return itable->planteStockFull[5].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ? cost : -1;
     });
     listeAction.push_back(takePlante5);
 
@@ -133,10 +133,10 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     });
     putInJardiniere0->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = false;
-        itable->JardiniereFull[0] = true;
+        itable->JardiniereFull[0].etat = true;
     });
     putInJardiniere0->setCostAction([](tableState*itable){
-        return !itable->JardiniereFull[0] && itable->robot.robotHavePlante && itable->robot.colorTeam == YELLOW && itable->jardiniereFree[0]? 78 : -1;
+        return !itable->JardiniereFull[0].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == YELLOW && itable->jardiniereFree[0].etat? 78 : -1;
     });
     listeAction.push_back(putInJardiniere0);
 
@@ -149,10 +149,10 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     });
     putInJardiniere1->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = false;
-        itable->JardiniereFull[1] = true;
+        itable->JardiniereFull[1].etat = true;
     });
     putInJardiniere1->setCostAction([](tableState*itable){
-        return !itable->JardiniereFull[1] && itable->robot.robotHavePlante && itable->robot.colorTeam == BLUE  && itable->jardiniereFree[1]? 89 : -1;
+        return !itable->JardiniereFull[1].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == BLUE  && itable->jardiniereFree[1].etat? 89 : -1;
     });
     listeAction.push_back(putInJardiniere1);
 
@@ -165,10 +165,10 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     });
     putInJardiniere2->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = false;
-        itable->JardiniereFull[2] = true;
+        itable->JardiniereFull[2].etat = true;
     });
     putInJardiniere2->setCostAction([](tableState*itable){
-        return !itable->JardiniereFull[2] && itable->robot.robotHavePlante && itable->robot.colorTeam == BLUE ? 99 : -1;
+        return !itable->JardiniereFull[2].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == BLUE ? 99 : -1;
     });
     listeAction.push_back(putInJardiniere2);
 
@@ -181,10 +181,10 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     });
     putInJardiniere3->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = false;
-        itable->JardiniereFull[3] = true;
+        itable->JardiniereFull[3].etat = true;
     });
     putInJardiniere3->setCostAction([](tableState*itable){
-        return !itable->JardiniereFull[3] && itable->robot.robotHavePlante && itable->robot.colorTeam == YELLOW ? 99 : -1;
+        return !itable->JardiniereFull[3].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == YELLOW ? 99 : -1;
     });
     listeAction.push_back(putInJardiniere3);
 
@@ -197,10 +197,10 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     });
     putInJardiniere4->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = false;
-        itable->JardiniereFull[4] = true;
+        itable->JardiniereFull[4].etat = true;
     });
     putInJardiniere4->setCostAction([](tableState*itable){
-        return !itable->JardiniereFull[4] && itable->robot.robotHavePlante && itable->robot.colorTeam == YELLOW  && itable->jardiniereFree[2]? 89 : -1;
+        return !itable->JardiniereFull[4].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == YELLOW  && itable->jardiniereFree[2].etat? 89 : -1;
     });
     listeAction.push_back(putInJardiniere4);
 
@@ -212,10 +212,10 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     });
     putInJardiniere5->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = false;
-        itable->JardiniereFull[5] = true;
+        itable->JardiniereFull[5].etat = true;
     });
     putInJardiniere5->setCostAction([](tableState*itable){
-        return !itable->JardiniereFull[5] && itable->robot.robotHavePlante && itable->robot.colorTeam == BLUE  && itable->jardiniereFree[3]? 78 : -1;
+        return !itable->JardiniereFull[5].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == BLUE  && itable->jardiniereFree[3].etat? 78 : -1;
     });
     listeAction.push_back(putInJardiniere5);
 
@@ -296,10 +296,10 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         return deplacementgoToPoint(itable->robot.collide, iAsser, JardinierePosition[0].x+PUSHPOTMARGEX2, -1500+PUSHPOTMARGEY, -180, MOVE_BACKWARD,ROTATION_DIRECT);
     });
     pushPotAction0->goodEnd([](tableState*itable){
-        itable->jardiniereFree[0] = true;
+        itable->jardiniereFree[0].etat = true;
     });
     pushPotAction0->setCostAction([](tableState*itable){
-        return itable->robot.colorTeam == YELLOW && !itable->jardiniereFree[0] ? -1 : -1;
+        return itable->robot.colorTeam == YELLOW && !itable->jardiniereFree[0].etat ? -1 : -1;
     });
     listeAction.push_back(pushPotAction0);
 
@@ -310,10 +310,10 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         return deplacementgoToPointNoTurn(itable->robot.collide, iAsser, JardinierePosition[1].x+PUSHPOTMARGEX2, -1500+PUSHPOTMARGEY+20, MOVE_BACKWARD,ROTATION_DIRECT);
     });
     pushPotAction1->goodEnd([](tableState*itable){
-        itable->jardiniereFree[1] = true;
+        itable->jardiniereFree[1].etat = true;
     });
     pushPotAction1->setCostAction([](tableState*itable){
-        return itable->robot.colorTeam == BLUE && !itable->jardiniereFree[1] ? 98 : -1;
+        return itable->robot.colorTeam == BLUE && !itable->jardiniereFree[1].etat ? 98 : -1;
     });
     listeAction.push_back(pushPotAction1);
 
@@ -324,10 +324,10 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         return deplacementgoToPointNoTurn(itable->robot.collide, iAsser, JardinierePosition[4].x+PUSHPOTMARGEX2, 1500-PUSHPOTMARGEY-20, MOVE_BACKWARD,ROTATION_DIRECT);
     });
     pushPotAction4->goodEnd([](tableState*itable){
-        itable->jardiniereFree[2] = true;
+        itable->jardiniereFree[2].etat = true;
     });
     pushPotAction4->setCostAction([](tableState*itable){
-        return itable->robot.colorTeam == YELLOW && !itable->jardiniereFree[2] ? 98 : -1;
+        return itable->robot.colorTeam == YELLOW && !itable->jardiniereFree[2].etat ? 98 : -1;
     });
     listeAction.push_back(pushPotAction4);
 
@@ -338,10 +338,10 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         return deplacementgoToPoint(itable->robot.collide, iAsser, JardinierePosition[5].x+PUSHPOTMARGEX2, 1500-PUSHPOTMARGEY, -180, MOVE_BACKWARD,ROTATION_DIRECT);
     });
     pushPotAction5->goodEnd([](tableState*itable){
-        itable->jardiniereFree[3] = true;
+        itable->jardiniereFree[3].etat = true;
     });
     pushPotAction5->setCostAction([](tableState*itable){
-        return itable->robot.colorTeam == BLUE && !itable->jardiniereFree[3] ? -1 : -1;
+        return itable->robot.colorTeam == BLUE && !itable->jardiniereFree[3].etat ? -1 : -1;
     });
     listeAction.push_back(pushPotAction5);
 

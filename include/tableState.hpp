@@ -1,31 +1,30 @@
 #pragma once
-
-
 #include "config.h"
 
+typedef struct 
+{
+    bool etat; // si l'action a été faite ou non
+    int cout; // points que rapporte l'action
+    float tps; //temps passé par l'ennemie dans l'action
+    colorTeam_t color; //NONE, BLUE or YELLOW
+}table_t;
 
 class tableState
 {
 public:
     /* data */
-    bool planteStockFull[6];
-    bool JardiniereFull[6];
-    bool zoneFull[6];
-    bool jardiniereFree[4];
-    colorTeam_t panneauSolaireRotate[9];
+    table_t planteStockFull[6]; //zonne des plantes
+    table_t JardiniereFull[6]; //zone des jardinières
+    table_t zoneFull[6];          // zone départ/arrivés
+    table_t jardiniereFree[4];    //zonne devant les jardinières
+    colorTeam_t panneauSolaireRotate[9]; 
     
     bool solarPanelTurn = false;
     unsigned long startTime;
 
     robot_t robot;
 
-    // //Position
-    // const cartesian_position_t plantPosition[6] =
-    // {{500,0},{300,-500},{-300,-500},{-500,0},{-300,500},{300,500}};
-    // const cartesian_position_t JardinierePosition[6] =
-    // {{387,-1500,YELLOW},{-387,-1500,BLUE},{-1000,-762,BLUE},{-1000,762,YELLOW},{-387,1500,YELLOW},{387,1500,BLUE}};
 
-public:
     tableState(/* args */);
     ~tableState();
 };

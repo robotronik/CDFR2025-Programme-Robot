@@ -682,10 +682,10 @@ int jardinierePutPlant(tableState* itable, Asser* iAsser,Arduino* arduino,int x,
 
 bool allJardiniereFull(tableState* itable){
     if(itable->robot.colorTeam == YELLOW){
-        return  itable->JardiniereFull[3] && itable->JardiniereFull[4];//itable->JardiniereFull[0] &&
+        return  itable->JardiniereFull[3].etat && itable->JardiniereFull[4].etat;//itable->JardiniereFull[0] &&
     }
     else{
-        return itable->JardiniereFull[1] && itable->JardiniereFull[2] ;//&& itable->JardiniereFull[5]
+        return itable->JardiniereFull[1].etat && itable->JardiniereFull[2].etat ;//&& itable->JardiniereFull[5]
     }
 }
 
