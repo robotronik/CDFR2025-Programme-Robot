@@ -273,7 +273,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
 
 
     //Choose first action
-    choosNextAction();
+    //choosNextAction();
 }
 
 int actionContainer::actionContainerRun(void){
@@ -317,6 +317,7 @@ int actionContainer::choosNextAction(void){
     int bestCost = -1;
     for (action* elem : listeAction) {
         int cost = elem->costAction();
+        LOG_GREEN_INFO("CHOOSE : ",currentAction->getName(), "POINTS = ",currentAction->costAction());
         if(cost>bestCost){
             bestCost = cost;
             currentAction = elem;
