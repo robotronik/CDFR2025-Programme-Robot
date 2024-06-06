@@ -114,6 +114,10 @@ int action::costAction(void){
 }
 
 void action::setCostAction(std::function<int(tableState*)> ptr){
+    /*
+    pts = my_color*pts*(10*(1 + 2*zone_take*plante_take) - 2d - d_ennemie) + other_color*pts*(5*tps - d)
+    
+    */
     validActionPtr = ptr;
 }
 
