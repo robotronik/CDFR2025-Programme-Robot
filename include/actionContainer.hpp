@@ -5,6 +5,8 @@
 #include <vector>
 #include "logger.hpp"
 #include "constante.h"
+#include "lidarAnalize.h"
+#include "lidar.h"
 
 class actionContainer
 {
@@ -42,7 +44,7 @@ public:
     actionContainer( Asser* irobot, Arduino* iarduino, tableState* itable);
     void initAction( Asser* irobot, Arduino* iarduino, tableState* itable);
     bool forceNextAction(void);
-    int actionContainerRun(void);
+    int actionContainerRun(lidarAnalize_t* data);
     void resetAllAction(void);
     ~actionContainer();
 private : 

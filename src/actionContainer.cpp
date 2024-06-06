@@ -271,15 +271,14 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     choosNextAction();
 }
 
-int actionContainer::actionContainerRun(void){
-    int iActionReturn;
-    int iChoosNextReturn = 0;
-    int iRet = 0;
+int actionContainer::actionContainerRun(lidarAnalize_t* data){
+    int iActionReturn, iChoosNextReturn = 0, iRet = 0;
     iActionReturn = currentAction->runAction();
     if(iActionReturn == -100){
         iRet = -100;
     }
     else if(iActionReturn!=0){
+        verif_position(robot,data);
         resetActionneur(robot,arduino);
         initAction(robot, arduino, table);
     }

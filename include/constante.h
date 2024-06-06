@@ -1,6 +1,6 @@
 #pragma once
 #include "config.h"
-
+#define SIZEDATALIDAR 10000
 #define MARGESTOCKPLANT 300
 #define MARGEJADINIERE 350
 
@@ -33,7 +33,7 @@
 #define DEG_TO_RAD 0.01745329252
 
 #define ROBOT_X_OFFSET 155
-#define ROBOT_Y_OFFSET 60
+#define ROBOT_Y_OFFSET 50
 
 const cartesian_position_t plantPosition[6] =
 {{500,0},{300,-500},{-300,-500},{-500,0},{-300,500},{300,500}};

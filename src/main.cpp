@@ -135,11 +135,14 @@ int main(int argc, char *argv[]) {
         int count = SIZEDATALIDAR;
         if(currentState != FIN){
             if(getlidarData(lidarData,count)){
-                int x, y, teta;
+                int x, y, teta, x_ennemie= 0, y_ennemie= 0;
+                double teta_ennemie= 0,norme, dx,dy;
                 int distance;
                 robotI2C->getCoords(x,y,teta);
-                position_t position = {x,y,teta,0};
-                convertAngularToAxial(lidarData,count,position);
+                position_t position = {x,y,0,teta,0};
+                convertAngularToAxial(lidarData,count,&position,350);
+                //verif_position(robotI2C,lidarData);
+                
                 if(ctrl_z_pressed){
                     ctrl_z_pressed = false;
                     pixelArtPrint(lidarData,count,50,50,100,position);
@@ -276,16 +279,18 @@ int main(int argc, char *argv[]) {
             case RUN:{
                 if(initStat) LOG_STATE("RUN");
                 bool finish;
+                lidarAnalize_t lidarData[SIZEDATALIDAR]; 
+                getlidarData(lidarData,count);
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    finish = actionSystem->actionContainerRun();
+                    finish = actionSystem->actionContainerRun(lidarData);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
                 else{
-                    finish = actionSystem->actionContainerRun();
+                    finish = actionSystem->actionContainerRun(lidarData);
                     //finish =  TestPinceFSM(mainRobot,robotI2C, arduino);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
-                if(tableStatus.startTime+90000+20000 < millis()){
+                if(tableStatus.startTime+90000+15000 < millis()){
                     LOG_STATE("RETURNHOME");
                     nextState = RETURNHOME;
                 }
@@ -299,7 +304,7 @@ int main(int argc, char *argv[]) {
                 if(initStat) 
                 LOG_GREEN_INFO("END BY TIMER");
                 bool finish =  returnToHome(&tableStatus,robotI2C);
-                if(tableStatus.startTime+95000+20000 < millis() || finish){
+                if(tableStatus.startTime+95000+15000 < millis() || finish){
                     nextState = FIN;
                 }
                 break;

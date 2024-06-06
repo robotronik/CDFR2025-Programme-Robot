@@ -5,6 +5,8 @@
 #include "deplacement.h"
 #include "arduinoSubFonction.h"
 #include "tableState.hpp"
+#include "lidarAnalize.h"
+#include "constante.h"
 #include <math.h>
 
 
@@ -68,7 +70,7 @@ typedef enum {
     LASTPLANT_TURN
 } fsminitLastPlant_t;
 
-
+void verif_position(Asser* robotI2C,lidarAnalize_t* lidarData);
 int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta);
 int turnSolarPannel(tableState* itable,Asser* iAsser,Arduino* arduino);
 int takePlant(Asser* iAsser,Arduino* arduino,tableState*itable,int yPos,int xStart, int xEnd, int numPlante);

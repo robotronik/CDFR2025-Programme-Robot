@@ -1,5 +1,25 @@
 #include "fonction.h"
+void verif_position(Asser* robotI2C,lidarAnalize_t *data){
+    int count = SIZEDATALIDAR;
+    int x, y, teta;
+    double norme, dx,dy;
+    int distance;
+    robotI2C->getCoords(x,y,teta);
+    position_t position = {x,y,0,teta,0};
+    position_t position_test = {x,y,0,teta,0};
+    convertAngularToAxial(data,count,&position,0);
+    init_position_balise(data, count, &position_test);
+    norme = sqrt(pow(position.x - position_test.x,2) + pow(position.y - position_test.y,2));
+    //LOG_INFO("diff Position : ", norme,"Position : ", position.x ,"/",position.y ,"/",position_test.x ,"/",position_test.y );
+    convertAngularToAxial(data,count,&position,350);
+    dx = position_test.x - 55*cos(position.teta*DEG_TO_RAD) - position.x;
+    dy = position_test.y + 55*sin(position.teta*DEG_TO_RAD) - position.y;
+    if (fabs(dx) > 30 && norme != 0) {LOG_GREEN_INFO("Position set");robotI2C->setCoords(position.x + dx/2,position.y,teta);}
+    if (fabs(dy) > 30 && norme != 0) {robotI2C->setCoords(position.x,position.y + dy/2,teta);}
+    LOG_INFO("diff Position : ", norme,"Position : ", position.x ,"/",position.y ,"/",position_test.x ,"/",position_test.y, "dx = ",dx, "/ dy = ", dy);
+    
 
+}
 int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
     LOG_SCOPE("initPositon2");
     int ireturn = 0;
@@ -124,7 +144,7 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
     {
     case SOLARPANEL_INIT :
         if(initStat) LOG_STATE("SOLARPANEL_INIT");
-        nextState = SOLARPANEL_SETHOME;
+        nextState = SOLARPANEL_FORWARD;
         if(itable->robot.colorTeam == YELLOW){
             solarPanelNumber = 0;
         }
