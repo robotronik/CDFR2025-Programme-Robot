@@ -72,12 +72,8 @@ void executePythonScript(const std::string& command) {
 int main(int argc, char *argv[]) {
     LOG_INIT();
 
-<<<<<<< HEAD
     
     if(!lidarSetup("/dev/ttyAMA0",256000)){
-=======
-    if(!lidarSetup("/dev/ttyAMA0",256000)){         //initialisation lidar
->>>>>>> 1aee089b7ff448bae67fb0dfed4c1a7d51ae292d
         LOG_ERROR("cannot find the lidar");
         return -1;
     }

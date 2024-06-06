@@ -6,6 +6,7 @@
 #include "arduinoSubFonction.h"
 #include "fonction.h"
 #include "tableState.hpp"
+#include "constante.h"
 
 class action;
 
@@ -64,7 +65,7 @@ public:
     int costAction(void);
     void goodEnd(std::function<void(tableState*)> ptr);
     void badEnd(std::function<void(tableState*)> ptr);
-    void action::setCostAction(int num_action, int num_i_action, tableState *itable);
+    void setCostAction(int num_action, int num_i_action, tableState *itable);
     void resetActionEnable(void);
     void setKeyMoment(unsigned long keyMom);
     bool actionNeedForce(void);

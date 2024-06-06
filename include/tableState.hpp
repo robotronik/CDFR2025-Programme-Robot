@@ -19,7 +19,7 @@ public:
     table_t jardiniereFree[4];    //zonne devant les jardinières
     colorTeam_t panneauSolaireRotate[9]; 
     
-    bool solarPanelTurn = false;
+    table_t solarPanelTurn;
     unsigned long startTime;
 
     robot_t robot;

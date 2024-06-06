@@ -114,13 +114,39 @@ int action::costAction(void){
 }
 
 void action::setCostAction(int num_action, int num_i_action, tableState *itable){
-    if (num_action == 1 && itable->planteStockFull[num_i_action].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ){//takeplante
-        validActionPtr = itable->planteStockFull[0].cout;
+    int x,y,theta,distance_action;
+    robot->getCoords(x,y,theta);
+
+    //ACTION 1 : TAKE PLANT
+    if (num_action == 1 && itable->planteStockFull[num_i_action].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ){
+        distance_action = sqrt(pow(x-plantPosition[num_i_action].x,2) + pow(y-plantPosition[num_i_action].y,2));  //distance de l'action au robot
+        validActionPtr = itable->planteStockFull[num_i_action].cout - distance_action*100; //distance : 10cm = -1 points
     }
-    /*
-    pts = pts*(1 - d )
-    */
-    validActionPtr = -1;
+    //ACTION 2 : PutInJardinière
+    else if (num_action == 2 && !itable->JardiniereFull[0].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == JardinierePosition[num_i_action].team && itable->jardiniereFree[0].etat){
+        distance_action = sqrt(pow(x-JardinierePosition[num_i_action].x,2) + pow(y-plantPosition[num_i_action].y,2));
+        validActionPtr = itable->JardiniereFull[num_i_action].cout - distance_action*100;
+    }
+    //ACTION 3 : turn SolarPanel
+    else if (num_action == 3 && !itable->solarPanelTurn.etat){
+        if (itable->startTime+5*60000 < millis() || allJardiniereFull(itable)){
+        validActionPtr = itable->solarPanelTurn.cout;}
+        else { validActionPtr = itable->solarPanelTurn.cout/10;}
+    }
+    //ACTION 4 : ReturnToHome
+    else if (num_action == 4 && itable->startTime+6*60000 < millis()){
+        validActionPtr = 201;
+    }
+    //ACTION 5 : ReturnToHomeWithPlant
+    else if (num_action == 5 && itable->startTime+6*60000 < millis()){
+        validActionPtr = 200;
+    }
+    //ACTION 6 : PushPot
+    else if (num_action == 6 && itable->robot.colorTeam == JardiniereFree[num_i_action].team && !itable->jardiniereFree[0].etat){
+        distance_action = sqrt(pow(x-JardiniereFree[num_i_action].x,2) + pow(y-JardiniereFree[num_i_action].y,2));
+        validActionPtr = itable->jardiniereFree[num_i_action].cout - distance_action*100;
+    }
+    else {validActionPtr = -1;}
 }
 
 void action::setRunAction(std::function<int(action*, Asser*, Arduino*, tableState*)> ptr){
