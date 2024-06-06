@@ -212,7 +212,9 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         if(releasePlant(iarduino)){iret = -100;}
         return iret;});
     returnToHomeAction->setKeyMoment(85000);
-    returnToHomeAction->goodEnd([](tableState*itable){});
+    returnToHomeAction->goodEnd([](tableState*itable){
+        itable->fin = true;
+    });
     returnToHomeAction->setCostAction(4,0,itable);
     //listeAction.push_back(returnToHomeAction);
 
@@ -220,7 +222,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
 //PUSH POT ACTION 6
     pushPotAction0->setStartPoint(JardinierePosition[0].x+PUSHPOTMARGEX1,-1500+PUSHPOTMARGEY,-180, MOVE_FORWARD, ROTATION_DIRECT);
     pushPotAction0->setRunAction([](action* iaction, Asser* iAsser, Arduino* iarduino, tableState*itable) {
-        return deplacementgoToPoint(itable->robot.collide, iAsser, JardinierePosition[0].x+PUSHPOTMARGEX2, -1500+PUSHPOTMARGEY, -180, MOVE_FORWARD,ROTATION_DIRECT);
+        return deplacementgoToPoint(itable->robot.collide, iAsser, JardinierePosition[0].x+PUSHPOTMARGEX2, -1500+PUSHPOTMARGEY, -180, MOVE_BACKWARD,ROTATION_DIRECT);
     });
     pushPotAction0->goodEnd([](tableState*itable){
         itable->jardiniereFree[0].etat = true;
@@ -256,7 +258,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
 //PUSH POT ACTION 6
     pushPotAction5->setStartPoint(JardinierePosition[5].x+PUSHPOTMARGEX1,1500-PUSHPOTMARGEY,-180, MOVE_FORWARD, ROTATION_DIRECT);
     pushPotAction5->setRunAction([](action* iaction, Asser* iAsser, Arduino* iarduino, tableState*itable) {
-        return deplacementgoToPoint(itable->robot.collide, iAsser, JardinierePosition[5].x+PUSHPOTMARGEX2, 1500-PUSHPOTMARGEY, -180, MOVE_FORWARD,ROTATION_DIRECT);
+        return deplacementgoToPoint(itable->robot.collide, iAsser, JardinierePosition[5].x+PUSHPOTMARGEX2, 1500-PUSHPOTMARGEY, -180, MOVE_BACKWARD,ROTATION_DIRECT);
     });
     pushPotAction5->goodEnd([](tableState*itable){
         itable->jardiniereFree[5].etat = true;

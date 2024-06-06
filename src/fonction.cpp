@@ -1,165 +1,5 @@
 #include "fonction.h"
 
-
-// Fonction pour mettre à jour l'état de la FSM en fonction de l'entrée
-int initPositon(Asser* iAsser,int x, int y,int teta){
-    LOG_SCOPE("initPos");
-    static unsigned long startTime;
-    static int step = -1;
-
-    int TetaStart = 90;
-    int TetaSecond = -180;
-    int xSecond = 300;
-    int xStart = 1000 - ROBOT_Y_OFFSET;
-    int yStart = 1500 - ROBOT_Y_OFFSET;
-    if(y<0){
-        TetaStart = -90;
-    }
-    if(y<0){
-        yStart = -yStart;
-    }
-    if(x<0){
-        TetaSecond = 0;
-        xSecond = -xSecond;
-        xStart = -xStart;
-    }
-
-    if(step == -1){
-        iAsser->setCoords(0,0,0);
-        LOG_STATE("SETP -1 ");
-        step++;
-        iAsser->setLinearMaxSpeed(200);
-        iAsser->setMaxTorque(20);
-        startTime = millis()+100;
-    }
-    else if(step == 0 && startTime < millis()){
-        iAsser->linearSetpoint(-400,0);
-        LOG_STATE("SETP 0 ");
-        step++;
-        startTime = millis()+3000;
-    }
-    else if(step == 1 && startTime < millis()){
-        iAsser->setCoords(0,yStart,TetaStart);
-        iAsser->linearSetpoint(0,y);
-        LOG_STATE("SETP 1 ");
-        step++;
-    }
-    else if(step == 2 && !iAsser->getError(LINEAR_ERROR)){
-        iAsser->angularSetpoint(TetaSecond,0);
-        LOG_STATE("SETP 2 ");
-        step++;
-    }
-    else if(step == 3 && !iAsser->getError(ANGULAR_ERROR)){
-        iAsser->linearSetpoint(xSecond,y);
-        LOG_STATE("SETP 3 ");
-        startTime = millis()+3000;
-        step++;
-    }
-    else if(step == 4 && startTime < millis()){
-        iAsser->setCoords(xStart, y,TetaSecond);
-        iAsser->linearSetpoint(x , y);
-        LOG_STATE("SETP 4 ");
-        step++;
-    }
-    else if(step == 5 && !iAsser->getError(LINEAR_ERROR)){
-        iAsser->angularSetpoint(teta,0);
-        LOG_STATE("SETP 5 ");
-        step++;
-    }
-    else if(step == 6 && !iAsser->getError(ANGULAR_ERROR)){
-        LOG_STATE("SETP 6 ");
-        step++;
-    }
-    if(step>6){
-        step = -1;
-        iAsser->setLinearMaxSpeed(10000);
-        iAsser->setMaxTorque(100);
-    }
-    return step == -1;
-}
-
-int initPositonY(tableState* itable, Asser* iAsser,int x, int y,int teta){
-    LOG_SCOPE("initPositonY");
-    int ireturn = 0;
-    static bool initStat = true;
-    static fsminitPos_t currentState = SETPOS_INIT;
-    fsminitPos_t nextState = currentState;
-    int xSave,ySave,tetaSave;
-    static unsigned long startTime;
-    //static int step = -1;
-
-    int TetaStart = 90;
-    int TetaSecond = -180;
-    int xSecond = 300;
-    int xStart = 1000 - ROBOT_Y_OFFSET;
-    int yStart = 1500 - ROBOT_Y_OFFSET;
-    int yBack = 400;
-    if(y<0){
-        TetaStart = -90;
-    }
-     if(y<0){
-        yBack = -yBack;
-    }
-    if(y<0){
-        yStart = -yStart;
-    }
-    if(x<0){
-        TetaSecond = 0;
-        xSecond = -xSecond;
-        xStart = -xStart;
-    }
-
-    
-    switch (currentState)
-    {
-    case SETPOS_INIT :
-        if(initStat) LOG_STATE("SETPOS_INIT");
-        iAsser->getCoords(xSave,ySave,tetaSave);
-        iAsser->setLinearMaxSpeed(200);
-        iAsser->setMaxTorque(20);
-        startTime = millis()+100;
-        nextState = SETPOS_FIRSTFORWARD;
-        break;
-
-    case SETPOS_WAITINIT :
-        if(initStat) LOG_STATE("SETPOS_WAITINIT");
-        if(startTime < millis()){
-            nextState = SETPOS_WAITINIT;
-        }
-        break;
-
-    case SETPOS_FIRSTFORWARD :
-        if(initStat) LOG_STATE("SETPOS_FIRSTFORWARD");
-        if(deplacementLinearPoint(itable->robot.collide,iAsser,xSave,ySave+yBack)>0){
-            nextState = SETPOS_FIRSTBACKWARD;
-            iAsser->setCoords(xSave,yStart,TetaStart);
-        }
-        break;
-
-    case SETPOS_FIRSTBACKWARD :
-        if(initStat) LOG_STATE("SETPOS_FIRSTBACKWARD");    
-        if(deplacementgoToPoint(itable->robot.collide,iAsser,xSave,y,teta)>0){
-            nextState = SETPOS_INIT;
-            iAsser->setLinearMaxSpeed(10000);
-            iAsser->setMaxTorque(100);
-            ireturn = 1;
-        }
-        break;
-        
-    default:
-        if(initStat) LOG_STATE("default");
-        nextState = SETPOS_INIT;
-        break;
-    }
-
-    initStat = false;
-    if(nextState != currentState){
-        initStat = true;
-    }
-    currentState = nextState;
-    return ireturn;
-}
-
 int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
     LOG_SCOPE("initPositon2");
     int ireturn = 0;
@@ -257,62 +97,6 @@ int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
     return ireturn;
 }
 
-int initY(tableState* itable, Asser* iAsser,int x, int y,int teta){
-    LOG_SCOPE("initY");
-    int ireturn = 0;
-    static bool initStat = true;
-    static fsminitY_t currentState = INTIY_INIT;
-    fsminitY_t nextState = currentState;
-    int xSave,ySave,tetaSave;
-    int deplacementy = 400;
-    int TetaStart = 90;
-    int yStart = 1500 - ROBOT_Y_OFFSET;
-    if(y<0){
-        TetaStart = -90;
-    }
-    if(y<0){
-        yStart = -yStart;
-    }
-    if(y<0){
-        deplacementy = -deplacementy;
-    }
-    
-    switch (currentState)
-    {
-    case INTIY_INIT :
-        if(initStat) LOG_STATE("INTIY_INIT");
-        nextState = INTIY_BACKWARD;
-        iAsser->getCoords(xSave,ySave,tetaSave);
-        iAsser->linearSetpoint(xSave , ySave - deplacementy);
-        iAsser->setLinearMaxSpeed(200);
-        iAsser->setMaxTorque(20);
-        break;
-    case INTIY_BACKWARD :
-        if(initStat) LOG_STATE("INTIY_BACKWARD");    
-        if(deplacementLinearPoint(itable->robot.collide,iAsser,xSave, ySave - deplacementy)>0){
-            iAsser->setCoords(xSave,ySave,TetaStart);
-            iAsser->setLinearMaxSpeed(10000);
-            iAsser->setMaxTorque(100);
-            ireturn = 1;
-            nextState = INTIY_INIT;
-        }
-        break;
-    default:
-        if(initStat) LOG_STATE("default");
-        nextState = INTIY_INIT;
-        break;
-    }
-
-    initStat = false;
-    if(nextState != currentState){
-        initStat = true;
-    }
-    currentState = nextState;
-    return ireturn;
-
-}
-
-
 
 int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
     LOG_SCOPE("SolarPanel");
@@ -367,6 +151,10 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
     case SOLARPANEL_FORWARD :
         if(initStat) LOG_STATE("SOLARPANEL_FORWARD");
         deplacementreturn = deplacementLinearPoint(itable->robot.collide,iAsser,axeX,table[solarPanelNumber]-offsetRobot1);
+        itable->panneauSolaireRotate[solarPanelNumber].etat = true;
+        if (itable->startTime+90000+20000 < millis()){
+            nextState = SOLARPANEL_END;
+                }
         if(deplacementreturn>0){
             nextState = SOLARPANEL_PUSHFOR; 
         }
@@ -380,12 +168,12 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
         if(initStat) LOG_STATE("SOLARPANEL_PUSHFOR");
         if(pullpush(arduino)){
             if(itable->robot.colorTeam == YELLOW){
-                itable->panneauSolaireRotate[solarPanelNumber] = YELLOW;
+                itable->panneauSolaireRotate[solarPanelNumber].color = YELLOW;
                 solarPanelNumber++;
                 if(solarPanelNumber==6){
                     nextState = SOLARPANEL_END;
                 }
-                else if(solarPanelNumber<3){
+                else if(solarPanelNumber<3 || !itable->panneauSolaireRotate[solarPanelNumber].etat){
                     nextState = SOLARPANEL_FORWARD;
                 }
                 else{
@@ -393,12 +181,12 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
                 }
             }
             else{
-                itable->panneauSolaireRotate[solarPanelNumber] = BLUE;
+                itable->panneauSolaireRotate[solarPanelNumber].color = BLUE;
                 solarPanelNumber--;
                 if(solarPanelNumber==2){
                     nextState = SOLARPANEL_END;
                 }
-                else if(solarPanelNumber>5){
+                else if(solarPanelNumber>5 || !itable->panneauSolaireRotate[solarPanelNumber].etat){
                     nextState = SOLARPANEL_FORWARD;
                 }
                 else{
@@ -434,7 +222,7 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
 
     case SOLARPANEL_END :
         if(initStat) LOG_STATE("SOLARPANEL_END");
-        nextState = SOLARPANEL_INIT;
+        //nextState = SOLARPANEL_INIT;
         ireturn = 1;
         break;
     
@@ -704,15 +492,15 @@ void resetActionneur(Asser* iAsser, Arduino* arduino){
 
 
 
-int returnToHome(Asser* iAsser){
+int returnToHome(tableState* itable,Asser* iAsser){
     static int step = 0;
     bool breturn = false;
     if(step == 0){
-        iAsser->setLookForward(0,-1300,0);
+        iAsser->setLookForward(700,itable->robot.colorTeam == YELLOW ? 1200 : -1200,0);
         step++;   
     }
     else if(step == 1 && !iAsser->getError(ANGULAR_ERROR)){
-        iAsser->linearSetpoint(0,-1300);
+        iAsser->linearSetpoint(700,itable->robot.colorTeam == YELLOW ? 1200 : -1200);
         step++;
     }
     else if(step == 2){

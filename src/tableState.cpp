@@ -16,9 +16,11 @@ tableState::tableState(/* args */){
     jardiniereFree[2].etat = true;
     jardiniereFree[3].etat = true;
     solarPanelTurn.etat = false;
-    solarPanelTurn.cout = 0;
+    solarPanelTurn.cout = 50;
+    fin = false;
     for(int i =0; i < 9; i++){
-        panneauSolaireRotate[i] = NONE;        
+        panneauSolaireRotate[i].color = NONE;
+        panneauSolaireRotate[i].etat = false; 
     }
     for(int i =0; i < 4; i++){
         

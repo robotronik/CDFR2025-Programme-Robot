@@ -285,9 +285,9 @@ int main(int argc, char *argv[]) {
                     //finish =  TestPinceFSM(mainRobot,robotI2C, arduino);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
-                if(tableStatus.startTime+7*60000 < millis()){
-                    LOG_GREEN_INFO("END BY TIMER");
-                    nextState = FIN;
+                if(tableStatus.startTime+90000+20000 < millis()){
+                    LOG_STATE("RETURNHOME");
+                    nextState = RETURNHOME;
                 }
                 if(finish){
                     nextState = FIN;
@@ -296,9 +296,10 @@ int main(int argc, char *argv[]) {
             }
             //****************************************************************
             case RETURNHOME:{
-                if(initStat) LOG_STATE("RETURNHOME");
-                bool finish =  returnToHome(robotI2C);
-                if(tableStatus.startTime+90000 < millis() || finish){
+                if(initStat) 
+                LOG_GREEN_INFO("END BY TIMER");
+                bool finish =  returnToHome(&tableStatus,robotI2C);
+                if(tableStatus.startTime+95000+20000 < millis() || finish){
                     nextState = FIN;
                 }
                 break;
