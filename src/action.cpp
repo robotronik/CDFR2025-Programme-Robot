@@ -106,19 +106,21 @@ int action::runAction(void){
 }
 
 int action::costAction(void){
-    int cost = validActionPtr(table);
+    int cost = validActionPtr;
     if(actionEnable == false){
         cost = -1;
     }
     return cost;
 }
 
-void action::setCostAction(std::function<int(tableState*)> ptr){
+void action::setCostAction(int num_action, int num_i_action, tableState *itable){
+    if (num_action == 1 && itable->planteStockFull[num_i_action].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ){//takeplante
+        validActionPtr = itable->planteStockFull[0].cout;
+    }
     /*
-    pts = my_color*pts*(10*(1 + 2*zone_take*plante_take) - 2d - d_ennemie) + other_color*pts*(5*tps - d)
-    
+    pts = pts*(1 - d )
     */
-    validActionPtr = ptr;
+    validActionPtr = -1;
 }
 
 void action::setRunAction(std::function<int(action*, Asser*, Arduino*, tableState*)> ptr){

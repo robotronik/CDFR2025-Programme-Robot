@@ -4,7 +4,7 @@
 #include <string>
 #include "deplacement.h"
 #include "arduinoSubFonction.h"
-
+#include "fonction.h"
 #include "tableState.hpp"
 
 class action;
@@ -31,7 +31,7 @@ private:
     tableState* table;
 
     std::function<int(action*, Asser*, Arduino*, tableState*)> runActionPtr;
-    std::function<int(tableState*)> validActionPtr;
+    int validActionPtr;
     std::function<void(tableState*)> goodEndPtr;
     std::function<void(tableState*)> badEndPtr;
 
@@ -64,7 +64,7 @@ public:
     int costAction(void);
     void goodEnd(std::function<void(tableState*)> ptr);
     void badEnd(std::function<void(tableState*)> ptr);
-    void setCostAction(std::function<int(tableState*)> ptr);
+    void action::setCostAction(int num_action, int num_i_action, tableState *itable);
     void resetActionEnable(void);
     void setKeyMoment(unsigned long keyMom);
     bool actionNeedForce(void);
