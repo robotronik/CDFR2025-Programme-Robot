@@ -26,7 +26,6 @@ private:
     action* turnSolarPanelAction;
     action* returnToHomeAction;
     action* currentAction;
-    action* returnToHomeActionPlante;
 
     action* pushPotAction0;
     action* pushPotAction1;

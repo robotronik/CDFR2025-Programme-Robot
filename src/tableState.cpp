@@ -9,9 +9,12 @@ tableState::tableState(/* args */){
         JardiniereFull[i].etat = false;
         planteStockFull[i].cout = 50;
         JardiniereFull[i].cout = 75;
-        jardiniereFree[i].etat =true;
-        jardiniereFree[i].cout = 100;
+        jardiniereFree[i].etat =false;
+        jardiniereFree[i].cout = 50;
     }
+    planteStockFull[3].cout -= 10;
+    jardiniereFree[2].etat = true;
+    jardiniereFree[3].etat = true;
     solarPanelTurn.etat = false;
     solarPanelTurn.cout = 0;
     for(int i =0; i < 9; i++){
