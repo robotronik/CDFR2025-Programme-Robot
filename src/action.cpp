@@ -145,7 +145,7 @@ void action::setCostAction(int num_action, int num_i_action, tableState *itable)
     else if (num_action == 6 && itable->robot.colorTeam == JardinierePosition[num_i_action].team && !itable->jardiniereFree[num_i_action].etat){
         distance_action = sqrt(pow(x-JardinierePosition[num_i_action].x,2) + pow(y-JardinierePosition[num_i_action].y,2));
         validActionPtr = itable->jardiniereFree[num_i_action].cout - distance_action/100; 
-        LOG_GREEN_INFO("action 6 : ",validActionPtr);
+        LOG_GREEN_INFO("action 6 : ",validActionPtr," / ",num_i_action);
     }
    
 }
