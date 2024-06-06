@@ -260,6 +260,7 @@ int main(int argc, char *argv[]) {
                     arduino->ledOff(1);
                     arduino->ledOff(2);
                     tableStatus.startTime = millis();
+                    tableStatus.robot.robotHavePlante = false;
                     actionSystem->initAction( robotI2C, arduino, &(tableStatus));
                     //LAUNCH PYTHON
                     // std::string color = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
@@ -284,7 +285,7 @@ int main(int argc, char *argv[]) {
                     //finish =  TestPinceFSM(mainRobot,robotI2C, arduino);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
-                if(tableStatus.startTime+90000 < millis()){
+                if(tableStatus.startTime+7*60000 < millis()){
                     LOG_GREEN_INFO("END BY TIMER");
                     nextState = FIN;
                 }
