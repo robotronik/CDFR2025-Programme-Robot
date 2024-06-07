@@ -18,8 +18,9 @@ tableState::tableState(/* args */){
     solarPanelTurn.etat = false;
     solarPanelTurn.cout = 50;
     fin = false;
-    dx = 0; dy = 0; nb = 0;
-    pos_balise.x = 0; pos_balise.y = 0;pos_balise.teta=0;
+    dx = 0; dy = 0;
+    prev_pos.x = 0; prev_pos.y = 0;prev_pos.teta=0;
+    init.x = 0; init.y = 0; init.teta = -90;nb = 0;
     for(int i =0; i < 9; i++){
         panneauSolaireRotate[i].color = NONE;
         panneauSolaireRotate[i].etat = false; 

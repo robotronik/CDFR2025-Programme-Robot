@@ -44,7 +44,7 @@ public:
     actionContainer( Asser* irobot, Arduino* iarduino, tableState* itable);
     void initAction( Asser* irobot, Arduino* iarduino, tableState* itable);
     bool forceNextAction(void);
-    int actionContainerRun(void);
+    int actionContainerRun(tableState* itable);
     void resetAllAction(void);
     ~actionContainer();
 private : 

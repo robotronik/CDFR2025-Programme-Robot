@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
     gpioSetPWMfrequency(18, 25000);
     gpioSetMode(18, PI_OUTPUT);
     gpioSetPWMrange(18, 100);
-    gpioPWM(18, 100);//lidar speed
+    gpioPWM(18, 50);//lidar speed
 #endif
 
 
@@ -278,11 +278,11 @@ int main(int argc, char *argv[]) {
                 if(initStat) LOG_STATE("RUN");
                 bool finish;
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    finish = actionSystem->actionContainerRun();
+                    finish = actionSystem->actionContainerRun(&tableStatus);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
                 else{
-                    finish = actionSystem->actionContainerRun();
+                    finish = actionSystem->actionContainerRun(&tableStatus);
                     //finish =  TestPinceFSM(mainRobot,robotI2C, arduino);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }

@@ -2,7 +2,7 @@
 position_t verif_position(Asser* robotI2C, lidarAnalize_t *data, tableState* itable){
     int count = SIZEDATALIDAR;
     int x, y, teta;
-    double norme, dx,dy,dteta;
+    double norme, dx,dy;
     int distance;
     robotI2C->getCoords(x,y,teta);
     position_t position = {x,y,0,teta,0};
@@ -12,22 +12,23 @@ position_t verif_position(Asser* robotI2C, lidarAnalize_t *data, tableState* ita
     norme = sqrt(pow(position.x - position_test.x,2) + pow(position.y - position_test.y,2));
     //LOG_INFO("diff Position : ", norme,"Position : ", position.x ,"/",position.y ,"/",position_test.x ,"/",position_test.y );
     convertAngularToAxial(data,count,&position,350);
-    dx = position_test.x - 45*cos(position.teta*DEG_TO_RAD) - position.x;
-    dy = position_test.y + 45*sin(position.teta*DEG_TO_RAD) - position.y;
-    dteta = position_test.teta - position.teta;
-    //if (fabs(dx) > 100 && norme != 0) {LOG_GREEN_INFO("Position set");robotI2C->setCoords(position.x + dx/3,position.y,teta);}
-    //if (fabs(dy) > 100 && norme != 0) {robotI2C->setCoords(position.x,position.y + dy/3,teta);}
+    dx = position_test.x - 55*cos(position.teta*DEG_TO_RAD) - position.x;
+    dy = position_test.y + 55*sin(position.teta*DEG_TO_RAD) - position.y;
+
     if (norme != 0){
-        LOG_INFO("diff Position : ", norme,"Position : ", position.x ,"/",position.y ,"/",position_test.x ,"/",position_test.y, "dx = ",dx, "/ dy = ", dy, " / dteta = ",dteta);
+        LOG_INFO("norme :", norme," Position : ", position.x ,"/",position.y ,"/",position_test.x ,"/",position_test.y, "dx = ",dx, "/ dy = ", dy, "diff :",position.x - itable->prev_pos.x, " / ",position.y - itable->prev_pos.y );
         itable->dx = int(dx);
         itable->dy = int(dy);
-        if (itable->nb <50){
-            itable->pos_balise.x += position_test.x;
-            itable->pos_balise.y += position_test.y;
-            itable->pos_balise.teta += position_test.teta +90;
+        itable->prev_pos.x = position.x;
+        itable->prev_pos.y = position.y;
+        itable->prev_pos.teta = position.teta;
+
+        if (itable->nb < 20){
+            itable->init.x += position_test.x;
+            itable->init.y += position_test.y;
             itable->nb ++;
         }
-    }
+        }
     
     return position_test;
 
@@ -35,11 +36,11 @@ position_t verif_position(Asser* robotI2C, lidarAnalize_t *data, tableState* ita
 int initPosition(Asser* robotI2C,tableState* itable){
     LOG_SCOPE("initPositon");
     int x,y,teta;
-    x = itable->pos_balise.x/itable->nb;    
-    y = itable->pos_balise.y/itable->nb;
-    teta = itable->pos_balise.teta/itable->nb;
-    robotI2C->setCoords(x,y- 45,-90);
-    LOG_GREEN_INFO("SET COORD : x =", x," / y = ",y - 45," / teta =",teta);
+    x = itable->init.x/itable->nb;    
+    y = itable->init.y/itable->nb;  
+    teta = itable->init.teta;
+    robotI2C->setCoords(x,y- 55,-90);
+    LOG_GREEN_INFO("SET COORD : x =", x," / y = ",y - 55," / teta =",teta);
     robotI2C->setLinearMaxSpeed(10000);
     robotI2C->setMaxTorque(100);
     sleep(0.1);
@@ -171,7 +172,6 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
         nextState = SOLARPANEL_FORWARD;
         iAsser->getCoords(x,y,teta);
         iAsser->setCoords(x+itable->dx, y+itable->dy,teta);
-        deplacementLinearPoint(itable->robot.collide,iAsser,axeX, (itable->robot.colorTeam == YELLOW ? 1400 : -1400));
         if(itable->robot.colorTeam == YELLOW){
             solarPanelNumber = 0;
         }

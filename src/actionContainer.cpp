@@ -271,14 +271,13 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     choosNextAction();
 }
 
-int actionContainer::actionContainerRun(void){
+int actionContainer::actionContainerRun(tableState* itable){
     int iActionReturn, iChoosNextReturn = 0, iRet = 0;
     iActionReturn = currentAction->runAction();
     if(iActionReturn == -100){
         iRet = -100;
     }
     else if(iActionReturn!=0){
-        //verif_position(robot);
         resetActionneur(robot,arduino);
         initAction(robot, arduino, table);
     }

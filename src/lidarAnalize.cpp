@@ -376,11 +376,11 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
 
     //fragmente le décord en plusieurs éléments proches
     for(int i = 0; i <count; i++){
+        data[i].dist /= 1.007;
         distance = data[i].dist;
         if(data[i].onTable){
             somme_angle += data[i].angle;
             somme_dist += distance; nb ++;
-
             next_valid = 1;
             while ((!data[i+next_valid].onTable) && ((i+next_valid) <count)) {next_valid++;}
             if (fabs(distance- data[i+next_valid].dist) > 50 || fabs(data[i].angle- data[i+next_valid].angle) > 1){   // changement d'élément de décord, séparation si écart > 5cm
@@ -411,14 +411,14 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
     // Affichage pour vérifier la valeur
     printf("\n");
     for (int l = 0; l < rows; ++l) {
-        printf("\n Rows = %i /Angle = %f /Dist = %f /n = %i /i = %i /mm = %f /x = %f/y = %f",l, array[l]->moy_angle,array[l]->moy_dist, array[l]->nb, array[l]->i, array[l]->cm, - array[l]->moy_dist*cos((90 +array[l]->moy_angle+ position->teta)*DEG_TO_RAD) + position->x,array[l]->moy_dist*sin((90 + array[l]->moy_angle+position->teta)*DEG_TO_RAD))+position->y; 
+        printf("\n Rows = %i /Angle = %f /Dist = %f /n = %i /i = %i /mm = %lf",l, array[l]->moy_angle,array[l]->moy_dist, array[l]->nb, array[l]->i, array[l]->cm); 
     }
     */
 
     // donne poto 1 et 2
     double poto_1_2, poto_2_3, poto_3_1, d_tot = 10000;
     int index_poto1, index_poto2, index_poto3; //poto 1 = gauche haut, poto 2 = gauche bas, poto 3 = droite
-    poto_1_2 = 1900.0;poto_2_3 = 3300.0; poto_3_1 = 3300.0;
+    poto_1_2 = 1900.0;poto_2_3 = 3330.0; poto_3_1 = 3330.0;
     int L = 3000;
 
     if (rows >= 3) {
