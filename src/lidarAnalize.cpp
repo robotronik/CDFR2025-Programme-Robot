@@ -416,10 +416,10 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
     */
 
     // donne poto 1 et 2
-    double poto_1_2, poto_2_3, poto_3_1, d_tot = 10000, angle_ennemie, ix,iy;
-    int index_poto1, index_poto2, index_poto3,index_ennemie = -1; //poto 1 = gauche haut, poto 2 = gauche bas, poto 3 = droite
+    double poto_1_2, poto_2_3, poto_3_1, d_tot = 10000;
+    int index_poto1, index_poto2, index_poto3; //poto 1 = gauche haut, poto 2 = gauche bas, poto 3 = droite
     poto_1_2 = 1900.0;poto_2_3 = 3300.0; poto_3_1 = 3300.0;
-    int L = 3000, narrow = 250;
+    int L = 3000;
 
     if (rows >= 3) {
         for (int i= 0; i< rows; i++){

@@ -17,7 +17,10 @@ public:
     table_t JardiniereFull[6]; //zone des jardinières
     table_t zoneFull[6];          // zone départ/arrivés
     table_t jardiniereFree[6];    //zonne devant les jardinières
-    table_t panneauSolaireRotate[9]; 
+    table_t panneauSolaireRotate[9];
+    int dx,dy;
+    position_t pos_balise;
+    int nb;
     bool fin;
     table_t solarPanelTurn;
     unsigned long startTime;

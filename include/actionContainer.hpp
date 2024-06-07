@@ -44,7 +44,7 @@ public:
     actionContainer( Asser* irobot, Arduino* iarduino, tableState* itable);
     void initAction( Asser* irobot, Arduino* iarduino, tableState* itable);
     bool forceNextAction(void);
-    int actionContainerRun(lidarAnalize_t* data);
+    int actionContainerRun(void);
     void resetAllAction(void);
     ~actionContainer();
 private : 

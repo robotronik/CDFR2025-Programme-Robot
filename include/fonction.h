@@ -6,6 +6,7 @@
 #include "arduinoSubFonction.h"
 #include "tableState.hpp"
 #include "lidarAnalize.h"
+#include "lidar.h"
 #include "constante.h"
 #include <math.h>
 
@@ -62,15 +63,8 @@ typedef enum {
 } fsminitPos_t;
 
 
-typedef enum {
-    LASTPLANT_INIT,
-    LASTPLANT_TAKE,
-    LASTPLANT_GOPOT,
-    LASTPLANT_REALSE,
-    LASTPLANT_TURN
-} fsminitLastPlant_t;
-
-void verif_position(Asser* robotI2C,lidarAnalize_t* lidarData);
+position_t verif_position(Asser* robotI2C, lidarAnalize_t *data, tableState* itable);
+int initPosition(Asser* robotI2C,tableState* itable);
 int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta);
 int turnSolarPannel(tableState* itable,Asser* iAsser,Arduino* arduino);
 int takePlant(Asser* iAsser,Arduino* arduino,tableState*itable,int yPos,int xStart, int xEnd, int numPlante);

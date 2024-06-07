@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
     gpioSetPWMfrequency(18, 25000);
     gpioSetMode(18, PI_OUTPUT);
     gpioSetPWMrange(18, 100);
-    gpioPWM(18, 50);//lidar speed
+    gpioPWM(18, 100);//lidar speed
 #endif
 
 
@@ -104,8 +104,7 @@ int main(int argc, char *argv[]) {
     main_State_t nextState = INIT;
     bool initStat = true;
     actionContainer* actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
-    int countStart = 0;
-    int countSetHome = 0;
+    int countStart = 0,countSetHome = 0;
 
     // arduino->enableStepper(1);
     // arduino->servoPosition(1,180);
@@ -141,8 +140,7 @@ int main(int argc, char *argv[]) {
                 robotI2C->getCoords(x,y,teta);
                 position_t position = {x,y,0,teta,0};
                 convertAngularToAxial(lidarData,count,&position,350);
-                //verif_position(robotI2C,lidarData);
-                
+                verif_position(robotI2C,lidarData,&tableStatus);
                 if(ctrl_z_pressed){
                     ctrl_z_pressed = false;
                     pixelArtPrint(lidarData,count,50,50,100,position);
@@ -226,12 +224,12 @@ int main(int argc, char *argv[]) {
             case SETHOME:{
                 if(initStat) LOG_STATE("SETHOME");
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    if(initPositon2(&tableStatus,robotI2C,-800,1325,90)){
+                    if(initPosition(robotI2C,&tableStatus)){
                         nextState = WAITSTART;
                     }
                 }
                 else{
-                    if(initPositon2(&tableStatus,robotI2C,-800,-1325,-90)){
+                    if(initPosition(robotI2C,&tableStatus)){
                         nextState = WAITSTART;
                     }
                     // if(initPositon(robotI2C,800,-1250,-90)){
@@ -279,18 +277,16 @@ int main(int argc, char *argv[]) {
             case RUN:{
                 if(initStat) LOG_STATE("RUN");
                 bool finish;
-                lidarAnalize_t lidarData[SIZEDATALIDAR]; 
-                getlidarData(lidarData,count);
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    finish = actionSystem->actionContainerRun(lidarData);
+                    finish = actionSystem->actionContainerRun();
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
                 else{
-                    finish = actionSystem->actionContainerRun(lidarData);
+                    finish = actionSystem->actionContainerRun();
                     //finish =  TestPinceFSM(mainRobot,robotI2C, arduino);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
-                if(tableStatus.startTime+90000+15000 < millis()){
+                if(tableStatus.startTime+90000+5000 < millis()){
                     LOG_STATE("RETURNHOME");
                     nextState = RETURNHOME;
                 }
@@ -304,7 +300,7 @@ int main(int argc, char *argv[]) {
                 if(initStat) 
                 LOG_GREEN_INFO("END BY TIMER");
                 bool finish =  returnToHome(&tableStatus,robotI2C);
-                if(tableStatus.startTime+95000+15000 < millis() || finish){
+                if(tableStatus.startTime+95000+5000 < millis() || finish){
                     nextState = FIN;
                 }
                 break;
