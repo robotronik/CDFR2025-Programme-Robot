@@ -43,3 +43,5 @@ const cartesian_position_t zoneFull [6]=
 {{-1275,-750,BLUE},{-1275,0,YELLOW},{-1275,750,BLUE},{1275,750,YELLOW},{1275,0,BLUE},{1275,-750,YELLOW}};
 const cartesian_position_t JardiniereFree [4]=
 {{387,-1500,YELLOW},{-387,-1500,BLUE},{-387,1500,YELLOW},{387,1500,BLUE}};
+const int table_solar[9] = {1225,1000,775,225,0,-225,-775,-1000,-1225};
+const int rayon[3] = {200,200,200}; //0 : rayon zones de plantes / 1 : rayon zone jardinière / 2 : rayon panneau solaire

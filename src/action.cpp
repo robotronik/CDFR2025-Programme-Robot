@@ -129,17 +129,17 @@ void action::setCostAction(int num_action, int num_i_action, tableState *itable)
     }
     //ACTION 3 : turn SolarPanel
     else if (num_action == 3 && !itable->solarPanelTurn.etat){
-        if (itable->startTime+5*60000 < millis() || allJardiniereFull(itable)){
+        if (itable->startTime+45000 < millis() || allJardiniereFull(itable)){
         validActionPtr = itable->solarPanelTurn.cout;}
         else { validActionPtr = itable->solarPanelTurn.cout/10;}
     }
     //ACTION 4 : ReturnToHome
-    else if (num_action == 4 && itable->startTime+6*60000 < millis()){
+    else if (num_action == 4 && itable->startTime+900000 < millis()){
         validActionPtr = 201;
     }
     //ACTION 5 : ReturnToHomeWithPlant
     else if (num_action == 5 && itable->startTime+6*60000 < millis()){
-        validActionPtr = 200;
+        validActionPtr = -1;
     }
     //ACTION 6 : PushPot
     else if (num_action == 6 && itable->robot.colorTeam == JardiniereFree[num_i_action].team && !itable->jardiniereFree[0].etat){

@@ -325,7 +325,7 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
     static int solarPanelNumber;
     int offsetRobot1;
     int offsetRobot2;
-    const int table[9] = {1225,1000,775,225,0,-225,-775,-1000,-1225};
+    
 
     if(itable->robot.colorTeam == YELLOW){
         offsetRobot1 = 10;
@@ -349,7 +349,7 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
         }
         break;
 
-    case SOLARPANEL_SETHOME :
+    case SOLARPANEL_SETHOME : //à remplacer par un sethome balise
         if(initStat) LOG_STATE("SOLARPANEL_SETHOME");
         if(itable->robot.colorTeam == YELLOW){
             if(initPositon2(itable, iAsser,800,1250,-90)){
@@ -366,11 +366,11 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
 
     case SOLARPANEL_FORWARD :
         if(initStat) LOG_STATE("SOLARPANEL_FORWARD");
-        deplacementreturn = deplacementLinearPoint(itable->robot.collide,iAsser,axeX,table[solarPanelNumber]-offsetRobot1);
+        deplacementreturn = deplacementLinearPoint(itable->robot.collide,iAsser,axeX,table_solar[solarPanelNumber]-offsetRobot1);
         if(deplacementreturn>0){
             nextState = SOLARPANEL_PUSHFOR; 
         }
-        else if(deplacementreturn<0){
+        else if(deplacementreturn<0){ // = bad end
             ireturn = -1;
             nextState = SOLARPANEL_INIT;
         }
@@ -380,12 +380,12 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
         if(initStat) LOG_STATE("SOLARPANEL_PUSHFOR");
         if(pullpush(arduino)){
             if(itable->robot.colorTeam == YELLOW){
-                itable->panneauSolaireRotate[solarPanelNumber] = YELLOW;
+                itable->panneauSolaireRotate[solarPanelNumber].color = YELLOW;
                 solarPanelNumber++;
                 if(solarPanelNumber==6){
                     nextState = SOLARPANEL_END;
                 }
-                else if(solarPanelNumber<3){
+                else if(solarPanelNumber<3 || itable->panneauSolaireRotate[solarPanelNumber].etat == 0){
                     nextState = SOLARPANEL_FORWARD;
                 }
                 else{
@@ -393,12 +393,12 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
                 }
             }
             else{
-                itable->panneauSolaireRotate[solarPanelNumber] = BLUE;
+                itable->panneauSolaireRotate[solarPanelNumber].color = BLUE;
                 solarPanelNumber--;
                 if(solarPanelNumber==2){
                     nextState = SOLARPANEL_END;
                 }
-                else if(solarPanelNumber>5){
+                else if(solarPanelNumber>5 || itable->panneauSolaireRotate[solarPanelNumber].etat == 0){
                     nextState = SOLARPANEL_FORWARD;
                 }
                 else{
@@ -410,7 +410,7 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
 
     case SOLARPANEL_BACKWARD :
         if(initStat) LOG_STATE("SOLARPANEL_BACKWARD");
-        deplacementreturn = deplacementLinearPoint(itable->robot.collide,iAsser,axeX,table[solarPanelNumber]-offsetRobot2);
+        deplacementreturn = deplacementLinearPoint(itable->robot.collide,iAsser,axeX,table_solar[solarPanelNumber]-offsetRobot2);
         if(deplacementreturn>0){
             nextState = SOLARPANEL_PUSHBACK;
         }
@@ -434,7 +434,7 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
 
     case SOLARPANEL_END :
         if(initStat) LOG_STATE("SOLARPANEL_END");
-        nextState = SOLARPANEL_INIT;
+        //nextState = SOLARPANEL_INIT;
         ireturn = 1;
         break;
     
@@ -930,8 +930,25 @@ int TestPinceFSM(tableState* itable, Asser* iAsser,Arduino* arduino){
     return ireturn;
 }
 
-void ennemieInAction(tableState* itable, int x_ennemie, int y_ennemie ){
-    //itable->jardiniereFree;
+void ennemieInAction(tableState* itable, position_t *position_ennemie ){
+    int length = sizeof(plantPosition) / sizeof(plantPosition[0]);
+    for (int i = 0; i < length; i++){
+        if (sqrt(pow(position_ennemie->x - plantPosition[i].x,2)+ pow(position_ennemie->y - plantPosition[i].y,2) ) < rayon[0]) {
+            itable->planteStockFull[i].etat = false;
+        }
+    }
 
+    length = sizeof(JardinierePosition) / sizeof(JardinierePosition[0]);
+    for (int i = 0; i < length; i++){
+        if (sqrt(pow(position_ennemie->x - JardinierePosition[i].x,2)+ pow(position_ennemie->y - JardinierePosition[i].y,2) ) < rayon[1]) {
+            itable->JardiniereFull[i].etat = false;
+        }
+    }
 
+    length = sizeof(table_solar) / sizeof(table_solar[0]);
+    for (int i = 0; i < length; i++){
+        if (sqrt(pow(position_ennemie->x - table_solar[i],2)+ pow(position_ennemie->y +1500,2) ) < rayon[1]) {
+            itable->panneauSolaireRotate[i].etat = true;
+        }
+    }
 }

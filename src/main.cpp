@@ -297,7 +297,7 @@ int main(int argc, char *argv[]) {
             case RETURNHOME:{
                 if(initStat) LOG_STATE("RETURNHOME");
                 bool finish =  returnToHome(robotI2C);
-                if(tableStatus.startTime+90000 < millis() || finish){
+                if(tableStatus.startTime+900000 < millis() || finish){
                     nextState = FIN;
                 }
                 break;

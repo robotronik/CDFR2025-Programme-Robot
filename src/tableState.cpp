@@ -13,7 +13,8 @@ tableState::tableState(/* args */){
     }
     solarPanelTurn.cout = 90;
     for(int i =0; i < 9; i++){
-        panneauSolaireRotate[i] = NONE;        
+        panneauSolaireRotate[i].color = NONE;
+        panneauSolaireRotate[i].etat = 0;
     }
     for(int i =0; i < 4; i++){
         jardiniereFree[i].etat = false;  
