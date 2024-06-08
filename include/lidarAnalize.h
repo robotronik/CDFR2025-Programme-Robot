@@ -31,3 +31,5 @@ void printAngular(lidarAnalize_t* data, int count);
 void pixelArtPrint(lidarAnalize_t* data, int count,int sizeX,int sizeY,int scale,position_t position);
 
 void sol_eq_2cercle(double xA,double  yA,double AM,double xB,double yB,double BM,double xC, double yC, double CM, double *xM, double *yM);
+
+void init_position_balise(lidarAnalize_t* data, int count, position_t *position);
