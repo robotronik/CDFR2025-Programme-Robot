@@ -1,4 +1,4 @@
-#include "../Include/lidarAnalize.h"
+#include "lidarAnalize.h"
 
 
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position){
@@ -486,7 +486,7 @@ void init_position_sol(lidarAnalize_t* data, int count, position_t *position){
     }
 }
 
-void init_position_balise(lidarAnalize_t* data, int count, position_t *position){
+void init_position_balintise(lidarAnalize_t* data, int count, position_t *position){
     double distance;
     double d1,d2, deg1,deg2,deg3;
     int rows = 100; // Nombre de lignes

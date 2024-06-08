@@ -1,0 +1,217 @@
+#include "action.hpp"
+
+
+action::action(std::string name, Asser* irobot, Arduino* iarduino, tableState* itable){
+    robot = irobot;
+    arduino = iarduino;
+    table = itable;
+    actionName = name;
+
+    noEndPoint = true;
+    currentState = FSMACTION_INIT;
+    initStat = true;
+    actionEnable = true;
+}
+
+action::~action(){
+   
+}
+
+int action::runAction(void){
+    LOG_SCOPE("Action");
+    int ireturn = 0;
+    fsmAction_t nextState = currentState;
+    int deplacementreturn;
+
+    switch (currentState)
+    {
+    case FSMACTION_INIT :
+        if(initStat) LOG_STATE("FSMACTION_INIT");
+        nextState = FSMACTION_MOVESTART;
+        break;
+
+    case FSMACTION_MOVESTART :
+        if(initStat) LOG_STATE("FSMACTION_MOVESTART");
+        deplacementreturn = goToStart();
+        if(deplacementreturn>0){
+            nextState = FSMACTION_ACTION;
+        }
+        else if(deplacementreturn<0){
+            nextState = FSMACTION_INIT;
+            actionEnable = false;
+            if(badEndPtr){
+                badEndPtr(table);
+            }
+            ireturn = -1;
+        }
+        break;
+
+
+    case FSMACTION_ACTION :
+        if(initStat) LOG_STATE("FSMACTION_ACTION");
+        deplacementreturn = runActionPtr(this,robot,arduino,table);
+        if(deplacementreturn>0){
+            if(noEndPoint){
+                nextState = FSMACTION_INIT;
+                ireturn = 1;
+            }
+            else{
+                nextState = FSMACTION_MOVEEND;
+            }
+            if(goodEndPtr){
+                goodEndPtr(table);
+            }
+        }
+        else if(deplacementreturn<0){
+            nextState = FSMACTION_INIT;
+            actionEnable = false;
+            if(badEndPtr){
+                badEndPtr(table);
+            }
+            ireturn = -1;
+        }
+        break;
+
+
+    case FSMACTION_MOVEEND :
+        if(initStat) LOG_STATE("FSMACTION_MOVEEND");
+        deplacementreturn = goToEnd();
+        if(deplacementreturn>0){
+            nextState = FSMACTION_INIT;
+            ireturn = 1;
+        }
+        else if(deplacementreturn<0){
+            nextState = FSMACTION_INIT;
+            actionEnable = false;
+            if(badEndPtr){
+                badEndPtr(table);
+            }
+            ireturn = -1;
+        }
+        break;
+        
+    
+    default:
+        if(initStat) LOG_STATE("default");
+        nextState = FSMACTION_INIT;
+        break;
+    }
+
+    initStat = false;
+    if(nextState != currentState){
+        initStat = true;
+    }
+    currentState = nextState;
+    return ireturn;
+}
+
+int action::costAction(void){
+    int cost = validActionPtr;
+    if(actionEnable == false){
+        cost = -1;
+    }
+    return cost;
+}
+
+void action::setCostAction(int num_action, int num_i_action, tableState *itable){
+    int x,y,theta,distance_action;
+    robot->getCoords(x,y,theta);
+
+    //ACTION 1 : TAKE PLANT
+    if (num_action == 1 && itable->planteStockFull[num_i_action].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ){
+        distance_action = sqrt(pow(x-plantPosition[num_i_action].x,2) + pow(y-plantPosition[num_i_action].y,2));  //distance de l'action au robot
+        validActionPtr = itable->planteStockFull[num_i_action].cout - distance_action*100; //distance : 10cm = -1 points
+    }
+    //ACTION 2 : PutInJardinière
+    else if (num_action == 2 && !itable->JardiniereFull[0].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == JardinierePosition[num_i_action].team && itable->jardiniereFree[0].etat){
+        distance_action = sqrt(pow(x-JardinierePosition[num_i_action].x,2) + pow(y-plantPosition[num_i_action].y,2));
+        validActionPtr = itable->JardiniereFull[num_i_action].cout - distance_action*100;
+    }
+    //ACTION 3 : turn SolarPanel
+    else if (num_action == 3 && !itable->solarPanelTurn.etat){
+        if (itable->startTime+5*60000 < millis() || allJardiniereFull(itable)){
+        validActionPtr = itable->solarPanelTurn.cout;}
+        else { validActionPtr = itable->solarPanelTurn.cout/10;}
+    }
+    //ACTION 4 : ReturnToHome
+    else if (num_action == 4 && itable->startTime+6*60000 < millis()){
+        validActionPtr = 201;
+    }
+    //ACTION 5 : ReturnToHomeWithPlant
+    else if (num_action == 5 && itable->startTime+6*60000 < millis()){
+        validActionPtr = 200;
+    }
+    //ACTION 6 : PushPot
+    else if (num_action == 6 && itable->robot.colorTeam == JardiniereFree[num_i_action].team && !itable->jardiniereFree[0].etat){
+        distance_action = sqrt(pow(x-JardiniereFree[num_i_action].x,2) + pow(y-JardiniereFree[num_i_action].y,2));
+        validActionPtr = itable->jardiniereFree[num_i_action].cout - distance_action*100;
+    }
+    else {validActionPtr = -1;}
+}
+
+void action::setRunAction(std::function<int(action*, Asser*, Arduino*, tableState*)> ptr){
+    runActionPtr = ptr;
+}
+
+int action::goToStart(void){
+    if(noTetaStart){
+        return deplacementgoToPointNoTurn(table->robot.collide, robot, startPostion.x,startPostion.y, startDirection,startRotation);
+    }
+    else{
+        return deplacementgoToPoint(table->robot.collide, robot, startPostion.x,startPostion.y, startPostion.teta, startDirection);
+    }    
+}
+
+
+int action::goToEnd(void){
+    return deplacementgoToPoint(table->robot.collide, robot, endPostion.x, endPostion.y, endPostion.teta, endDirection);
+}
+
+void action::setStartPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation){
+    startPostion.x = x;
+    startPostion.y = y;
+    startPostion.teta = teta;
+    startDirection = Direction;
+    startRotation = rotation;
+}
+
+void action::setStartPoint(int x, int y, asser_direction_side Direction, asser_rotation_side rotation){
+    startPostion.x = x;
+    startPostion.y = y;
+    startDirection = Direction;
+    startRotation = rotation;
+    noTetaStart = true;
+}
+
+void action::setEndPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation){
+    endPostion.x = x;
+    endPostion.y = y;
+    endPostion.teta = teta;
+    endDirection = Direction;
+    endRotation = rotation;
+    noEndPoint = false;
+}
+
+std::string action::getName(void){
+    return actionName;
+}
+
+void action::goodEnd(std::function<void(tableState*)> ptr){
+    goodEndPtr = ptr;
+}
+void action::badEnd(std::function<void(tableState*)> ptr){
+    badEndPtr = ptr;
+}
+
+void action::resetActionEnable(void){
+    actionEnable = true;
+}
+
+void action::setKeyMoment(unsigned long keyMom){
+    keyMomentSet = true;
+    keyMoment = keyMom;
+}
+
+bool action::actionNeedForce(void){
+    return table->startTime+keyMoment < millis() && keyMomentSet;
+}

@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 #include <iomanip>
-#include "../Include/asser.hpp"
+//#include <asser.hpp>
 #include <stack>
 
 enum class LogLevel { DEBUG, INFO, WARNING, ERROR, GREENINFO};
@@ -44,7 +44,7 @@ inline std::stack<std::string> ScopeLogger::functionName_;
 
 class Logger {
 private:
-    Asser* robot = NULL;
+    //Asser* robot = NULL;
     bool noLog = false;
 
 public:
@@ -54,9 +54,9 @@ public:
         return instance;
     }
 
-    void logSetRobot(Asser* robot_in){
-        robot = robot_in;
-    }
+    // void logSetRobot(Asser* robot_in){
+    //     robot = robot_in;
+    // }
 
     void initLog(void){
         std::cout << "\033[1;31m";
@@ -79,17 +79,17 @@ public:
         std::cout << "Start Time : " << tempsFormate << std::endl;
     }
 
-    std::string getPosition(void){
-        int x,y,teta;
-        std::ostringstream returnstring;
-        if(robot!=NULL && !noLog){
-            noLog = true;
-            robot->getCoords(x,y,teta);
-            noLog = false;
-            returnstring << "[" << std::setw(5) << x << " " << std::setw(5) << y << " " << std::setw(4) << teta <<"]";
-        }        
-        return returnstring.str();
-    }
+    // std::string getPosition(void){
+    //     int x,y,teta;
+    //     std::ostringstream returnstring;
+    //     if(robot!=NULL && !noLog){
+    //         noLog = true;
+    //         robot->getCoords(x,y,teta);
+    //         noLog = false;
+    //         returnstring << "[" << std::setw(5) << x << " " << std::setw(5) << y << " " << std::setw(4) << teta <<"]";
+    //     }        
+    //     return returnstring.str();
+    // }
 
     template<typename... Args>
     void log(LogLevel level, const std::string& message, Args... args) {
@@ -98,22 +98,22 @@ public:
 
         switch (level) {
             case LogLevel::DEBUG:
-                std::cout << "[DEBUG]" << getPosition() << std::setw(25)  <<  std::left << ScopeLogger::logIndentation() << " " << oss.str() << std::endl;
+                std::cout << "[DEBUG]" << "getPosition()" << std::setw(25)  <<  std::left << ScopeLogger::logIndentation() << " " << oss.str() << std::endl;
                 break;
             case LogLevel::INFO:
-                std::cout << "[INFO] " << getPosition() << std::setw(25)  <<  std::left << ScopeLogger::logIndentation()  << " " << oss.str() << std::endl;
+                std::cout << "[INFO] " << "getPosition()" << std::setw(25)  <<  std::left << ScopeLogger::logIndentation()  << " " << oss.str() << std::endl;
                 break;
             case LogLevel::WARNING:
-                std::cout << "[WARNING] " << getPosition() << std::setw(25)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
+                std::cout << "[WARNING] " << "getPosition()" << std::setw(25)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
                 break;
             case LogLevel::ERROR:
                 std::cout << "\033[1;31m";
-                std::cout << "[ERROR] " << getPosition() << std::setw(25)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
+                std::cout << "[ERROR] " << "getPosition()" << std::setw(25)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
                 std::cout << "\033[0m";
                 break;
             case LogLevel::GREENINFO:
                 std::cout << "\033[32m";
-                std::cout << "[INFO] " << getPosition() << std::setw(25)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
+                std::cout << "[INFO] " << "getPosition()" << std::setw(25)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
                 std::cout << "\033[0m";
                 break;
 
@@ -145,6 +145,6 @@ private:
 #define LOG_WARNING(message, ...) Logger::getInstance().log(LogLevel::WARNING, message, ##__VA_ARGS__)
 #define LOG_ERROR(message, ...) Logger::getInstance().log(LogLevel::ERROR, message, ##__VA_ARGS__)
 #define LOG_INIT() Logger::getInstance().initLog()
-#define LOG_SETROBOT(robot) Logger::getInstance().logSetRobot(robot)
+//#define LOG_SETROBOT(robot) Logger::getInstance().logSetRobot(robot)
 #define LOG_SCOPE(message) ScopeLogger __logger__(message)
 #define LOG_STATE(message, ...) Logger::getInstance().log(LogLevel::INFO, message, ##__VA_ARGS__)

@@ -1,7 +1,7 @@
 #pragma once
 
 extern "C" {
-#include "smbus.h"
+#include <i2c/smbus.h>
 #include <linux/i2c-dev.h>
 #include <unistd.h>				//Needed for I2C port
 #include <fcntl.h>				//Needed for I2C port

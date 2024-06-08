@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unistd.h>
-#include "rplidar.h"
+#include <rplidar.h>
 #include "config.h"
 
 #define _countof(_Array) (int)(sizeof(_Array) / sizeof(_Array[0]))
