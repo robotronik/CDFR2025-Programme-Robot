@@ -572,7 +572,7 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
         printf("\n Rows = %i / Angle = %f / Dist = %f / n = %i / i = %i / mm = %f ",l, array[l]->moy_angle,array[l]->moy_dist, array[l]->nb, array[l]->i, array[l]->cm); 
     }
     */
-
+   
     // donne poto 1 et 2
     double d_1_2 , d_2_3 , d_3_1;
     int index_poto1, index_poto2, index_poto3; //poto 1 = gauche haut, poto 2 = gauche bas, poto 3 = droite
@@ -581,52 +581,52 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
     poto_2_3 = 3340.0; 
     poto_3_1 = 3340.0; 
     if (rows < 3){printf("\n PAS ASSEZ DE BALISE");return;} 
-    for (int i= 0; i< rows; i++){
-        for (int j= 0; j< rows; j++){
-            for (int k=0; k<rows; k++){
-                if (i!=j && i!=k && j!= k){ 
-                    d_1_2 = distance_2_pts(array[i]->moy_dist, array[i]->moy_angle, array[j]->moy_dist, array[j]->moy_angle);
-                    d_2_3 = distance_2_pts(array[j]->moy_dist, array[j]->moy_angle, array[k]->moy_dist, array[k]->moy_angle);
-                    d_3_1 = distance_2_pts(array[k]->moy_dist, array[k]->moy_angle, array[i]->moy_dist, array[i]->moy_angle);
-                    distance = fabs(d_1_2-poto_1_2) + fabs(d_2_3-poto_2_3) + fabs(d_3_1-poto_3_1);
-                    //printf("\n d_1_2 = %f / d_2_3 =  %f / d_3_1 = %f / distance = %f", d_1_2 , d_2_3 , d_3_1, distance);
-                    if (distance< d_tot) {
-                        d_tot = distance;
-                        index_poto1 = i;
-                        index_poto2 = j;
-                        index_poto3 = k;
+    if (rows == 4) {printf("\n 3 BAlises et 1 ennemie trouvé");
+        for (int i= 0; i< rows; i++){
+            for (int j= 0; j< rows; j++){
+                for (int k=0; k<rows; k++){
+                    if (i!=j && i!=k && j!= k){ 
+                        d_1_2 = distance_2_pts(array[i]->moy_dist, array[i]->moy_angle, array[j]->moy_dist, array[j]->moy_angle);
+                        d_2_3 = distance_2_pts(array[j]->moy_dist, array[j]->moy_angle, array[k]->moy_dist, array[k]->moy_angle);
+                        d_3_1 = distance_2_pts(array[k]->moy_dist, array[k]->moy_angle, array[i]->moy_dist, array[i]->moy_angle);
+                        distance = fabs(d_1_2-poto_1_2) + fabs(d_2_3-poto_2_3) + fabs(d_3_1-poto_3_1);
+                        //printf("\n d_1_2 = %f / d_2_3 =  %f / d_3_1 = %f / distance = %f", d_1_2 , d_2_3 , d_3_1, distance);
+                        if (distance< d_tot) {
+                            d_tot = distance;
+                            index_poto1 = i; index_poto2 = j; index_poto3 = k;
+                        }
                     }
                 }
             }
         }
-    }
-    //printf("\n distance = %f", array[index_poto2]->moy_dist);
-    d_1_2 = distance_2_pts(array[index_poto1]->moy_dist, array[index_poto1]->moy_angle, array[index_poto2]->moy_dist, array[index_poto2]->moy_angle);
-    d_2_3 = distance_2_pts(array[index_poto2]->moy_dist, array[index_poto2]->moy_angle, array[index_poto3]->moy_dist, array[index_poto3]->moy_angle);
-    d_3_1 = distance_2_pts(array[index_poto3]->moy_dist, array[index_poto3]->moy_angle, array[index_poto1]->moy_dist, array[index_poto1]->moy_angle);
-    distance = fabs(d_1_2-poto_1_2) + fabs(d_2_3-poto_2_3) + fabs(d_3_1-poto_3_1);
-    //printf("\n d_1_2 = %f / d_2_3 =  %f / d_3_1 = %f / distance = %f", d_1_2 , d_2_3 , d_3_1, distance);
-    // vérification bon arrangement poteaux
-    deg1 = array[index_poto1]->moy_angle;
-    deg2 = array[index_poto2]->moy_angle;
-    deg3 = array[index_poto3]->moy_angle;
-    if ((deg1 < deg3 && deg3< deg2) or (deg3 < deg2 && deg2 < deg1)or (deg2<deg1&& deg1<deg3));
-    else {
-        int temp = index_poto1;
-        index_poto1 = index_poto2;
-        index_poto2 = temp;
-    }
+
+        //printf("\n distance = %f", array[index_poto2]->moy_dist);
+        d_1_2 = distance_2_pts(array[index_poto1]->moy_dist, array[index_poto1]->moy_angle, array[index_poto2]->moy_dist, array[index_poto2]->moy_angle);
+        d_2_3 = distance_2_pts(array[index_poto2]->moy_dist, array[index_poto2]->moy_angle, array[index_poto3]->moy_dist, array[index_poto3]->moy_angle);
+        d_3_1 = distance_2_pts(array[index_poto3]->moy_dist, array[index_poto3]->moy_angle, array[index_poto1]->moy_dist, array[index_poto1]->moy_angle);
+        distance = fabs(d_1_2-poto_1_2) + fabs(d_2_3-poto_2_3) + fabs(d_3_1-poto_3_1);
+        //printf("\n d_1_2 = %f / d_2_3 =  %f / d_3_1 = %f / distance = %f", d_1_2 , d_2_3 , d_3_1, distance);
+        // vérification bon arrangement poteaux
+        deg1 = array[index_poto1]->moy_angle;
+        deg2 = array[index_poto2]->moy_angle;
+        deg3 = array[index_poto3]->moy_angle;
+        if ((deg1 < deg3 && deg3< deg2) or (deg3 < deg2 && deg2 < deg1)or (deg2<deg1&& deg1<deg3));
+        else {
+            int temp = index_poto1;
+            index_poto1 = index_poto2;
+            index_poto2 = temp;
+        }
 
 
-    //determination centre 3 cercles
-    //printf("\nD_2_M = %f / poto 1 = %i / poto 2 = %i / poto 3 = %i / d_1_2 = %f / d_2_3 = %f / d_3_1 = %f / distance = %f", array[index_poto2]->moy_dist, index_poto1, index_poto2, index_poto3, d_1_2, d_2_3, d_3_1, distance);
-    sol_eq_2cercle(0,d_1_2,array[index_poto1]->moy_dist, 0,0, array[index_poto2]->moy_dist, sqrt(d_2_3*d_2_3 - d_1_2*d_1_2/4), d_1_2/2, array[index_poto3]->moy_dist, &position->x,&position->y);
-    position->dist = array[index_poto2]->moy_dist;
-    printf("\n distance = %f", distance);
-    position->teta = 270 - atan(position->y/position->x)*180/M_PI - array[index_poto2]->moy_angle;
-    if (position->teta < 0){ position->teta += 360;}
-    //printf("\nxM = %f / yM = %f\n",position->x,position->y );
-    
+        //determination centre 3 cercles
+        //printf("\nD_2_M = %f / poto 1 = %i / poto 2 = %i / poto 3 = %i / d_1_2 = %f / d_2_3 = %f / d_3_1 = %f / distance = %f", array[index_poto2]->moy_dist, index_poto1, index_poto2, index_poto3, d_1_2, d_2_3, d_3_1, distance);
+        sol_eq_2cercle(0,d_1_2,array[index_poto1]->moy_dist, 0,0, array[index_poto2]->moy_dist, sqrt(d_2_3*d_2_3 - d_1_2*d_1_2/4), d_1_2/2, array[index_poto3]->moy_dist, &position->x,&position->y);
+        position->dist = array[index_poto2]->moy_dist;
+        printf("\n distance = %f", distance);
+        position->teta = 270 - atan(position->y/position->x)*180/M_PI - array[index_poto2]->moy_angle;
+        if (position->teta < 0){ position->teta += 360;}
+        //printf("\nxM = %f / yM = %f\n",position->x,position->y );
+    }
     
     // Libération de la mémoire
     for (int i = 0; i < rows; ++i) {
