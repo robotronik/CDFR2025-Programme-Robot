@@ -135,11 +135,14 @@ int main(int argc, char *argv[]) {
         int count = SIZEDATALIDAR;
         if(currentState != FIN){
             if(getlidarData(lidarData,count)){
-                int x, y, teta;
-                int distance;
+                int x,x_balise=0,x_ennemie=0, y,y_balise=0,y_ennemie=0,distance,teta;
+                double teta_balise=0,teta_ennemie=0;
                 robotI2C->getCoords(x,y,teta);
-                position_t position = {x,y,teta,0};
+                position_t position = {x,y,double(teta),0}, pos_balise = {x_balise,y_balise,teta_balise,0}, pos_ennemie = {x_ennemie,y_ennemie,teta_ennemie,0};
                 convertAngularToAxial(lidarData,count,&position);
+                init_position_balise(lidarData, count, &pos_balise, &pos_ennemie);
+                LOG_INFO("diff x = ",position.x - pos_balise.x, " / diff y = ", position.y - pos_balise.y, " / diff teta= ", position.teta - pos_balise.teta);
+                ennemieInAction(&tableStatus, &pos_ennemie );
                 if(ctrl_z_pressed){
                     ctrl_z_pressed = false;
                     pixelArtPrint(lidarData,count,50,50,100,position);
@@ -200,7 +203,7 @@ int main(int argc, char *argv[]) {
                     arduino->servoPosition(1,180);
                     arduino->servoPosition(2,CLAMPSLEEP);
                     arduino->moveStepper(ELEVATORUP,1);
-                    robotI2C->setLinearMaxSpeed(10000);
+                    robotI2C->setLinearMaxSpeed(MAX_SPEED);
                 }
                 int bStateCapteur2 = 0;
                 arduino->readCapteur(2,bStateCapteur2);
@@ -223,12 +226,12 @@ int main(int argc, char *argv[]) {
             case SETHOME:{
                 if(initStat) LOG_STATE("SETHOME");
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    if(initPositon2(&tableStatus,robotI2C,-800,1325,90)){
+                    if(initPositon(&tableStatus,robotI2C,-800,1325,90)){
                         nextState = WAITSTART;
                     }
                 }
                 else{
-                    if(initPositon2(&tableStatus,robotI2C,-800,-1325,-90)){
+                    if(initPositon(&tableStatus,robotI2C,-800,-1325,-90)){
                         nextState = WAITSTART;
                     }
                     // if(initPositon(robotI2C,800,-1250,-90)){

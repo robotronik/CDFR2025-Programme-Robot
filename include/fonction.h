@@ -60,29 +60,14 @@ typedef enum {
     SETPOS_SECONDFORWARD
 } fsminitPos_t;
 
-
-typedef enum {
-    LASTPLANT_INIT,
-    LASTPLANT_TAKE,
-    LASTPLANT_GOPOT,
-    LASTPLANT_REALSE,
-    LASTPLANT_TURN
-} fsminitLastPlant_t;
-
-
-int initPositon(Asser* iAsser,int x, int y,int teta);
-int initPositonY(tableState* itable, Asser* iAsser,int x, int y,int teta);
-int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta);
-int initY(tableState* itable, Asser* iAsser,int x, int y,int teta);
+int initPositionBalise(tableState* itable, Asser* iAsser,int x_balise, int y_balise,double teta_balise);
+int initPositon(tableState* itable, Asser* iAsser,int x, int y,int teta);
 int turnSolarPannel(tableState* itable,Asser* iAsser,Arduino* arduino);
-int lastPlant(Asser* iAsser,Arduino* arduino,tableState*itable);
 int takePlant(Asser* iAsser,Arduino* arduino,tableState*itable,int yPos,int xStart, int xEnd, int numPlante);
 int takePlant2(Asser* iAsser,Arduino* arduino,tableState*itable,int xStart,int yStart, int xEnd, int yEnd);
 int returnToHome(Asser* iAsser);
 int jardinierePutPlant(tableState* itable, Asser* iAsser,Arduino* arduino,int x,int y,int teta);
 bool allJardiniereFull(tableState* itable);
 void resetActionneur(Asser* iAsser, Arduino* arduino);
-int FSMMatch(tableState* itable,Asser* iAsser,Arduino* arduino);
-int TestPinceFSM(tableState* itable, Asser* iAsser,Arduino* arduino);
 void ennemieInAction(tableState* itable, position_t *position_ennemie );
 #endif // MYFUNCTION_H

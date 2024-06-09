@@ -123,7 +123,7 @@ void action::setCostAction(int num_action, int num_i_action, tableState *itable)
         validActionPtr = itable->planteStockFull[num_i_action].cout - distance_action*100; //distance : 10cm = -1 points
     }
     //ACTION 2 : PutInJardinière
-    else if (num_action == 2 && !itable->JardiniereFull[0].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == JardinierePosition[num_i_action].team && itable->jardiniereFree[0].etat){
+    else if (num_action == 2 && !itable->JardiniereFull[num_i_action].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == JardinierePosition[num_i_action].team && itable->jardiniereFree[num_i_action].etat){
         distance_action = sqrt(pow(x-JardinierePosition[num_i_action].x,2) + pow(y-plantPosition[num_i_action].y,2));
         validActionPtr = itable->JardiniereFull[num_i_action].cout - distance_action*100;
     }
@@ -134,15 +134,11 @@ void action::setCostAction(int num_action, int num_i_action, tableState *itable)
         else { validActionPtr = itable->solarPanelTurn.cout/10;}
     }
     //ACTION 4 : ReturnToHome
-    else if (num_action == 4 && itable->startTime+900000 < millis()){
-        validActionPtr = 201;
-    }
-    //ACTION 5 : ReturnToHomeWithPlant
-    else if (num_action == 5 && itable->startTime+6*60000 < millis()){
-        validActionPtr = -1;
+    else if (num_action == 4 && itable->startTime+90000 < millis()){
+        validActionPtr = 200;
     }
     //ACTION 6 : PushPot
-    else if (num_action == 6 && itable->robot.colorTeam == JardiniereFree[num_i_action].team && !itable->jardiniereFree[0].etat){
+    else if (num_action == 6 && itable->robot.colorTeam == JardiniereFree[num_i_action].team && !itable->jardiniereFree[num_i_action].etat){
         distance_action = sqrt(pow(x-JardiniereFree[num_i_action].x,2) + pow(y-JardiniereFree[num_i_action].y,2));
         validActionPtr = itable->jardiniereFree[num_i_action].cout - distance_action*100;
     }

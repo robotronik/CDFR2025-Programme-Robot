@@ -217,17 +217,6 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     returnToHomeAction->setCostAction(4,0,itable);
     //listeAction.push_back(returnToHomeAction);
 
-//ACTION 5
-    //PLANT TO HOME
-    returnToHomeActionPlante->setStartPoint(plantPosition[0].x,plantPosition[0].y+250, -90, MOVE_FORWARD, ROTATION_DIRECT);
-    returnToHomeActionPlante->setRunAction([](action* iaction, Asser* iAsser, Arduino* iarduino, tableState*itable) {
-        int iret = 0;
-        if(lastPlant(iAsser,iarduino,itable)){iret = -100;}
-        return iret;});
-    returnToHomeAction->goodEnd([](tableState*itable){});
-    returnToHomeActionPlante->setCostAction(5,0,itable);
-    listeAction.push_back(returnToHomeActionPlante);
-
 
 //PUSH POT ACTION 6
     pushPotAction0->setStartPoint(JardinierePosition[0].x+PUSHPOTMARGEX1,-1500+PUSHPOTMARGEY,-180, MOVE_BACKWARD, ROTATION_DIRECT);

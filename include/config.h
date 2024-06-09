@@ -4,11 +4,10 @@
 
 typedef struct 
 {
-    double   x;
-    double   y;
-    int   teta;
-    int   time;
-    double dist;
+    int   x;
+    int   y;
+    double   teta;
+    int dist;
 }position_t;
 
 typedef struct 
