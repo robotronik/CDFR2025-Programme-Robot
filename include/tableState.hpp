@@ -13,6 +13,7 @@ class tableState
 {
 public:
     /* data */
+    int points;
     table_t planteStockFull[6]; //zonne des plantes
     table_t JardiniereFull[6]; //zone des jardinières
     table_t zoneFull[6];          // zone départ/arrivés

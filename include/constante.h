@@ -35,6 +35,9 @@
 #define ROBOT_X_OFFSET 155
 #define ROBOT_Y_OFFSET 60
 
+#define POINTS_PLANTES 22
+#define POINTS_SOLAR 5
+#define POINTS_HOME 10
 const cartesian_position_t plantPosition[6] =
 {{500,0},{300,-500},{-300,-500},{-500,0},{-300,500},{300,500}};
 const cartesian_position_t JardinierePosition[6] =

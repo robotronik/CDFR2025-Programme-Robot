@@ -120,6 +120,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     putInJardiniere0->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = false;
         itable->JardiniereFull[0].etat = true;
+        itable->jardiniereFree[0].etat = true;
     });
     putInJardiniere0->setCostAction(2,0,itable);
     listeAction.push_back(putInJardiniere0);
@@ -134,6 +135,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     putInJardiniere1->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = false;
         itable->JardiniereFull[1].etat = true;
+        itable->jardiniereFree[1].etat = true;
     });
     putInJardiniere1->setCostAction(2,1,itable);
     listeAction.push_back(putInJardiniere1);
@@ -148,6 +150,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     putInJardiniere2->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = false;
         itable->JardiniereFull[2].etat = true;
+        itable->jardiniereFree[2].etat = true;
     });
     putInJardiniere2->setCostAction(2,2,itable);
     listeAction.push_back(putInJardiniere2);
@@ -162,6 +165,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     putInJardiniere3->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = false;
         itable->JardiniereFull[3].etat = true;
+        itable->jardiniereFree[3].etat = true;
     });
     putInJardiniere3->setCostAction(2,3,itable);
     listeAction.push_back(putInJardiniere3);
@@ -176,6 +180,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     putInJardiniere4->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = false;
         itable->JardiniereFull[4].etat = true;
+        itable->jardiniereFree[4].etat = true;
     });
     putInJardiniere4->setCostAction(2,4,itable);
     listeAction.push_back(putInJardiniere4);
@@ -189,6 +194,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     putInJardiniere5->goodEnd([](tableState*itable){
         itable->robot.robotHavePlante = false;
         itable->JardiniereFull[5].etat = true;
+        itable->jardiniereFree[5].etat = true;
     });
     putInJardiniere5->setCostAction(2,5,itable);
     listeAction.push_back(putInJardiniere5);

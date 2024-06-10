@@ -278,6 +278,7 @@ int main(int argc, char *argv[]) {
             case RUN:{
                 if(initStat) LOG_STATE("RUN");
                 bool finish;
+                if (allJardiniereFull(&tableStatus)) {for(int i = 0; i<6;i++){ tableStatus.planteStockFull[i].etat = false;}}
                 if(tableStatus.robot.colorTeam == YELLOW){
                     finish = actionSystem->actionContainerRun();
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
@@ -318,6 +319,7 @@ int main(int argc, char *argv[]) {
                     robotI2C->enableMotor(false);
                     robotI2C->brakeMotor(true);
                     nextState = STOP;
+                    LOG_INFO("Nombre points = ",tableStatus.points);
                 } 
                 break;
             //****************************************************************

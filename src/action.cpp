@@ -127,14 +127,15 @@ void action::setCostAction(int num_action, int num_i_action, tableState *itable)
         distance_action = sqrt(pow(x-JardinierePosition[num_i_action].x,2) + pow(y-plantPosition[num_i_action].y,2));
         validActionPtr = itable->JardiniereFull[num_i_action].cout - distance_action*100;
     }
+    
     //ACTION 3 : turn SolarPanel
     else if (num_action == 3 && !itable->solarPanelTurn.etat){
-        if (itable->startTime+45000 < millis() || allJardiniereFull(itable)){
+        if (itable->startTime+65000 < millis() || allJardiniereFull(itable)){
         validActionPtr = itable->solarPanelTurn.cout;}
         else { validActionPtr = itable->solarPanelTurn.cout/10;}
     }
     //ACTION 4 : ReturnToHome
-    else if (num_action == 4 && itable->startTime+90000 < millis()){
+    else if (num_action == 4 && itable->startTime+85000 < millis()){
         validActionPtr = 200;
     }
     //ACTION 6 : PushPot
