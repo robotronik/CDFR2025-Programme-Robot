@@ -13,13 +13,15 @@ class tableState
 {
 public:
     /* data */
-    int points;
     table_t planteStockFull[6]; //zonne des plantes
     table_t JardiniereFull[6]; //zone des jardinières
     table_t zoneFull[6];          // zone départ/arrivés
-    table_t jardiniereFree[4];    //zonne devant les jardinières
-    table_t panneauSolaireRotate[9]; 
-    
+    table_t jardiniereFree[6];    //zonne devant les jardinières
+    table_t panneauSolaireRotate[9];
+    int dx,dy;
+    position_t prev_pos;
+    position_t init; int nb;
+    bool fin;
     table_t solarPanelTurn;
     unsigned long startTime;
 

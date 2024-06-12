@@ -5,6 +5,8 @@
 #include "deplacement.h"
 #include "arduinoSubFonction.h"
 #include "tableState.hpp"
+#include "lidarAnalize.h"
+#include "lidar.h"
 #include "constante.h"
 #include <math.h>
 
@@ -60,14 +62,18 @@ typedef enum {
     SETPOS_SECONDFORWARD
 } fsminitPos_t;
 
-int initPositionBalise(tableState* itable, Asser* iAsser,int x_balise, int y_balise,double teta_balise);
-int initPositon(tableState* itable, Asser* iAsser,int x, int y,int teta);
+
+position_t verif_position(Asser* robotI2C, lidarAnalize_t *data, tableState* itable);
+int initPosition(Asser* robotI2C,tableState* itable);
+int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta);
 int turnSolarPannel(tableState* itable,Asser* iAsser,Arduino* arduino);
 int takePlant(Asser* iAsser,Arduino* arduino,tableState*itable,int yPos,int xStart, int xEnd, int numPlante);
 int takePlant2(Asser* iAsser,Arduino* arduino,tableState*itable,int xStart,int yStart, int xEnd, int yEnd);
-int returnToHome(Asser* iAsser);
+int returnToHome(tableState* itable,Asser* iAsser);
 int jardinierePutPlant(tableState* itable, Asser* iAsser,Arduino* arduino,int x,int y,int teta);
 bool allJardiniereFull(tableState* itable);
 void resetActionneur(Asser* iAsser, Arduino* arduino);
-void ennemieInAction(tableState* itable, position_t *position_ennemie );
+int FSMMatch(tableState* itable,Asser* iAsser,Arduino* arduino);
+int TestPinceFSM(tableState* itable, Asser* iAsser,Arduino* arduino);
+void ennemieInAction(tableState* itable, int x_ennemie, int y_ennemie );
 #endif // MYFUNCTION_H

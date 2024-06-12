@@ -6,8 +6,9 @@ typedef struct
 {
     int   x;
     int   y;
-    double   teta;
     int dist;
+    int   teta;
+    int   time;
 }position_t;
 
 typedef struct 

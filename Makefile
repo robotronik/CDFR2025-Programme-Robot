@@ -38,4 +38,3 @@ lidarLib:
 
 clean:
 	rm -rf $(OBJDIR) bin/
-	$(MAKE) -C lidarLib clean

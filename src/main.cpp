@@ -104,8 +104,7 @@ int main(int argc, char *argv[]) {
     main_State_t nextState = INIT;
     bool initStat = true;
     actionContainer* actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
-    int countStart = 0;
-    int countSetHome = 0;
+    int countStart = 0,countSetHome = 0;
 
     // arduino->enableStepper(1);
     // arduino->servoPosition(1,180);
@@ -135,15 +134,13 @@ int main(int argc, char *argv[]) {
         int count = SIZEDATALIDAR;
         if(currentState != FIN){
             if(getlidarData(lidarData,count)){
-                int x,x_ennemie=0,x_bal = 0, y,y_ennemie=0,y_bal = 0,distance,teta;
-                double teta_ennemie=0, teta_bal = 0;
+                int x, y, teta, x_ennemie= 0, y_ennemie= 0;
+                double teta_ennemie= 0,norme, dx,dy;
+                int distance;
                 robotI2C->getCoords(x,y,teta);
-                position_t position = {x,y,double(teta),0}, pos_balise = {x_bal,y_bal,double(teta_bal),0}, pos_ennemie = {x_ennemie,y_ennemie,teta_ennemie,0};
-                convertAngularToAxial(lidarData,count,&position,0);
-                //init_position_balise(lidarData, count, &pos_balise, &pos_ennemie);
-                //LOG_INFO("diff x = ",position.x, " / diff y = ", pos_balise.x  , " / ennemie = ", pos_ennemie.x, "/ ",pos_ennemie.y);
-                //ennemieInAction(&tableStatus, &pos_ennemie );
-                convertAngularToAxial(lidarData,count,&position,300);
+                position_t position = {x,y,0,teta,0};
+                convertAngularToAxial(lidarData,count,&position,350);
+                verif_position(robotI2C,lidarData,&tableStatus);
                 if(ctrl_z_pressed){
                     ctrl_z_pressed = false;
                     pixelArtPrint(lidarData,count,50,50,100,position);
@@ -204,7 +201,7 @@ int main(int argc, char *argv[]) {
                     arduino->servoPosition(1,180);
                     arduino->servoPosition(2,CLAMPSLEEP);
                     arduino->moveStepper(ELEVATORUP,1);
-                    robotI2C->setLinearMaxSpeed(MAX_SPEED);
+                    robotI2C->setLinearMaxSpeed(10000);
                 }
                 int bStateCapteur2 = 0;
                 arduino->readCapteur(2,bStateCapteur2);
@@ -227,14 +224,17 @@ int main(int argc, char *argv[]) {
             case SETHOME:{
                 if(initStat) LOG_STATE("SETHOME");
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    if(initPositon(&tableStatus,robotI2C,-800,1325,90)){
+                    if(initPosition(robotI2C,&tableStatus)){
                         nextState = WAITSTART;
                     }
                 }
                 else{
-                    if(initPositon(&tableStatus,robotI2C,-800,-1325,-90)){
+                    if(initPosition(robotI2C,&tableStatus)){
                         nextState = WAITSTART;
                     }
+                    // if(initPositon(robotI2C,800,-1250,-90)){
+                    //     nextState = WAITSTART;
+                    // }
                 }
                 
                 break;
@@ -261,6 +261,7 @@ int main(int argc, char *argv[]) {
                     arduino->ledOff(1);
                     arduino->ledOff(2);
                     tableStatus.startTime = millis();
+                    tableStatus.robot.robotHavePlante = false;
                     actionSystem->initAction( robotI2C, arduino, &(tableStatus));
                     //LAUNCH PYTHON
                     // std::string color = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
@@ -276,19 +277,18 @@ int main(int argc, char *argv[]) {
             case RUN:{
                 if(initStat) LOG_STATE("RUN");
                 bool finish;
-                if (allJardiniereFull(&tableStatus)) {for(int i = 0; i<6;i++){ tableStatus.planteStockFull[i].etat = false;}}
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    finish = actionSystem->actionContainerRun();
+                    finish = actionSystem->actionContainerRun(&tableStatus);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
                 else{
-                    finish = actionSystem->actionContainerRun();
+                    finish = actionSystem->actionContainerRun(&tableStatus);
                     //finish =  TestPinceFSM(mainRobot,robotI2C, arduino);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
-                if(tableStatus.startTime+90000 < millis()){
-                    LOG_GREEN_INFO("END BY TIMER");
-                    nextState = FIN;
+                if(tableStatus.startTime+90000+5000 < millis()){
+                    LOG_STATE("RETURNHOME");
+                    nextState = RETURNHOME;
                 }
                 if(finish){
                     nextState = FIN;
@@ -297,9 +297,10 @@ int main(int argc, char *argv[]) {
             }
             //****************************************************************
             case RETURNHOME:{
-                if(initStat) LOG_STATE("RETURNHOME");
-                bool finish =  returnToHome(robotI2C);
-                if(tableStatus.startTime+900000 < millis() || finish){
+                if(initStat) 
+                LOG_GREEN_INFO("END BY TIMER");
+                bool finish =  returnToHome(&tableStatus,robotI2C);
+                if(tableStatus.startTime+95000+5000 < millis() || finish){
                     nextState = FIN;
                 }
                 break;
@@ -317,7 +318,6 @@ int main(int argc, char *argv[]) {
                     robotI2C->enableMotor(false);
                     robotI2C->brakeMotor(true);
                     nextState = STOP;
-                    LOG_INFO("Nombre points = ",tableStatus.points);
                 } 
                 break;
             //****************************************************************
