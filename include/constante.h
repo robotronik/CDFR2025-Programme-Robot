@@ -24,6 +24,8 @@
 
 
 #define I2C_ASSER_ADDR 42
+#define I2C_ARDUINO_ADDR 100
+#define I2C_SSD1306_ADDR 60
 
 
 #define DISTANCESTOP   300

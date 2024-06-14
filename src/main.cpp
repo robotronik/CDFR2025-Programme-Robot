@@ -15,6 +15,7 @@
 #include "lidar.h"
 #include "asser.hpp"
 #include "arduino.hpp"
+#include "affichage.hpp"
 #include "utils.h"
 #include "arduinoSubFonction.h"
 #include "logger.hpp"
@@ -99,7 +100,8 @@ int main(int argc, char *argv[]) {
     Asser *robotI2C = new Asser(I2C_ASSER_ADDR);
     //LOG_SETROBOT(robotI2C);
     lidarAnalize_t lidarData[SIZEDATALIDAR];    
-    Arduino *arduino = new Arduino(100);
+    Arduino *arduino = new Arduino(I2C_ARDUINO_ADDR);
+    Affichage *affichage = new Affichage();
     main_State_t currentState = INIT;
     main_State_t nextState = INIT;
     bool initStat = true;

@@ -11,6 +11,10 @@ extern "C" {
 #include <iostream>
 #include <cstdint>
 
+/**
+ * @brief Class to handle I2C communication with a device
+ */
+
 class I2CDevice {
    protected:
     int i2cFile;
