@@ -59,7 +59,7 @@ int action::runAction(void){
                 nextState = FSMACTION_MOVEEND;
             }
             if(goodEndPtr){
-                goodEndPtr(table);
+                goodEndPtr(table,robot);
             }
         }
         else if(deplacementreturn<0){
@@ -200,7 +200,7 @@ std::string action::getName(void){
     return actionName;
 }
 
-void action::goodEnd(std::function<void(tableState*)> ptr){
+void action::goodEnd(std::function<void(tableState*,Asser*)> ptr){
     goodEndPtr = ptr;
 }
 void action::badEnd(std::function<void(tableState*)> ptr){
