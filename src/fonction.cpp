@@ -48,7 +48,6 @@ int initPosition(Asser* robotI2C,tableState* itable){
     sleep(0.1);
     return 1;
 }
-
 int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
     LOG_SCOPE("initPositon2");
     int ireturn = 0;
@@ -59,14 +58,13 @@ int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
     static unsigned long startTime;
     //static int step = -1;
 
-    int TetaStart = 90;
-    int TetaSecond = -180;
+    int TetaStart = -90;
     int xSecond = 300;
     int xStart = 1000 - ROBOT_Y_OFFSET;
     int yStart = 1500 - ROBOT_Y_OFFSET;
     int yBack = 400;
     if(y<0){
-        TetaStart = -90;
+        TetaStart = 90;
     }
      if(y<0){
         yBack = -yBack;
@@ -75,7 +73,6 @@ int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
         yStart = -yStart;
     }
     if(x<0){
-        TetaSecond = 0;
         xSecond = -xSecond;
         xStart = -xStart;
     }
@@ -92,12 +89,6 @@ int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
         nextState = SETPOS_FIRSTFORWARD;
         break;
 
-    case SETPOS_WAITINIT :
-        if(initStat) LOG_STATE("SETPOS_WAITINIT");
-        if(startTime < millis()){
-            nextState = SETPOS_WAITINIT;
-        }
-        break;
 
     case SETPOS_FIRSTFORWARD :
         if(initStat) LOG_STATE("SETPOS_FIRSTFORWARD");
@@ -109,7 +100,7 @@ int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
 
     case SETPOS_FIRSTBACKWARD :
         if(initStat) LOG_STATE("SETPOS_FIRSTBACKWARD");    
-        if(deplacementgoToPoint(itable->robot.collide,iAsser,xSave,y,TetaSecond)>0){
+        if(deplacementgoToPoint(itable->robot.collide,iAsser,xSave,y,-180,MOVE_BACKWARD,ROTATION_DIRECT)>0){
             nextState = SETPOS_SECONDBACKWARD;
         }
         break;
@@ -117,14 +108,14 @@ int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
     case SETPOS_SECONDBACKWARD :
         if(initStat) LOG_STATE("SETPOS_SECONDBACKWARD");
         if(deplacementLinearPoint(itable->robot.collide,iAsser,xSave+xSecond,y)>0){
-            iAsser->setCoords(xStart, y,TetaSecond);
+            iAsser->setCoords(xStart, y,-180);
             nextState = SETPOS_SECONDFORWARD;
         }
         break;
 
     case SETPOS_SECONDFORWARD :
         if(initStat) LOG_STATE("SETPOS_SECONDFORWARD");
-        if(deplacementgoToPoint(itable->robot.collide,iAsser,x,y,teta)>0){
+        if(deplacementgoToPoint(itable->robot.collide,iAsser,x,y,-180,MOVE_BACKWARD,ROTATION_DIRECT)>0){
             nextState = SETPOS_INIT;
             iAsser->setLinearMaxSpeed(10000);
             iAsser->setMaxTorque(100);
@@ -145,7 +136,6 @@ int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
     currentState = nextState;
     return ireturn;
 }
-
 
 int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
     LOG_SCOPE("SolarPanel");
