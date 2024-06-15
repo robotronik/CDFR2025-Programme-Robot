@@ -1,8 +1,8 @@
 #pragma once
 
 #include "I2CDevice.hpp"
-
 #include <cstring>
+#include <iostream>
 
 class SSD1306 : public I2CDevice {
 public:
@@ -12,6 +12,9 @@ public:
     void clear();
     void display();
     void drawPixel(int x, int y, bool color);
+    bool getPixel(int x, int y);
+    bool testInitSequence();
+    int testSequence();
 
 private:
     uint8_t buffer[1024]; // Buffer for 128x64 display
