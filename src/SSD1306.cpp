@@ -15,6 +15,13 @@ SSD1306::~SSD1306() {
     }
 }
 
+bool SSD1306::init() {
+    if (!testInitSequence()) {
+        return false;
+    }
+    return true;
+}
+
 bool SSD1306::testInitSequence() {
     usleep(100000); // Delay for stability
 

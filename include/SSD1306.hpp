@@ -8,24 +8,84 @@ class SSD1306 : public I2CDevice {
 public:
     SSD1306(int slave_address);
     ~SSD1306();
+    /**
+     * Initialize the display
+     */
     bool init();
+
+    /**
+     * Clear the display buffer
+     */
     void clear();
+
+    /**
+     * Display the buffer on the screen (If you modify the buffer, you need to call this function to update the screen)
+     */
     void display();
+
+    /**
+     * Draw a pixel on the screen
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param color Color of the pixel
+     */
     void drawLine(int x0, int y0, int x1, int y1, bool color);
+
+    /**
+     * Draw a circle on the screen
+     * @param x0 X coordinate of the center
+     * @param y0 Y coordinate of the center
+     * @param radius Radius of the circle
+     * @param color Color of the circle
+     */
     void drawCircle(int x0, int y0, int radius, bool color);
+
+    /**
+     * Draw text on the screen
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param text Text to draw
+     * @param color Color of the text
+     */
     void drawText(int x, int y, const std::string& text, bool color);
     void drawCross(int x, int y, int size, bool color);
+
+    /**
+     * Clear a line on the screen (for updating box scores, etc.)
+     */
     void clearLine(int y);
+
+    /**
+     * Get the state of a pixel on the screen
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @return State of the pixel
+     */
     bool getPixel(int x, int y);
     bool testInitSequence();
-    int testSequence();
 
 private:
     uint8_t buffer[1024]; // Buffer for 128x64 display
 
+    /**
+     * Write a command to the display (I2C)
+     */
     bool writeCommand(uint8_t cmd);
+    /**
+     * Write data to the display (I2C)
+     */
     bool writeData(const uint8_t* data, size_t length);
+
+    /**
+     * Draw a pixel on the screen
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param color Color of the pixel
+     */
     void drawPixel(int x, int y, bool color);
+    /**
+     * Draw a character on the screen
+     */
     void drawChar(int x, int y, char c, bool color);
     const uint8_t* getFontData(char c);
 };
