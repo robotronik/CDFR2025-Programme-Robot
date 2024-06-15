@@ -72,8 +72,9 @@ int takePlant2(Asser* iAsser,Arduino* arduino,tableState*itable,int xStart,int y
 int returnToHome(tableState* itable,Asser* iAsser);
 int jardinierePutPlant(tableState* itable, Asser* iAsser,Arduino* arduino,int x,int y,int teta);
 bool allJardiniereFull(tableState* itable);
+bool allStockPlanteUsed(tableState* itable);
 void resetActionneur(Asser* iAsser, Arduino* arduino);
 int FSMMatch(tableState* itable,Asser* iAsser,Arduino* arduino);
 int TestPinceFSM(tableState* itable, Asser* iAsser,Arduino* arduino);
-void ennemieInAction(tableState* itable, int x_ennemie, int y_ennemie );
+void ennemieInAction(tableState* itable, position_t* position);
 #endif // MYFUNCTION_H

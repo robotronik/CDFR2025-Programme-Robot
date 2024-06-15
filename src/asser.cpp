@@ -107,6 +107,9 @@ int Asser::setCoords(int x, int y, int z){
 
 int Asser::getCoords(int &x, int &y, int &theta) {
     //LOG_INFO("robot get Coords");
+    x = 0;
+    y = 0;
+    theta = 0;
     uint8_t buffer[6];
 
     i2c_smbus_write_byte(i2cFile, 20);

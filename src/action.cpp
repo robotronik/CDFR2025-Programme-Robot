@@ -136,9 +136,16 @@ void action::setCostAction(int num_action, int num_i_action, tableState *itable)
         else { validActionPtr = itable->solarPanelTurn.cout/10;}
         LOG_GREEN_INFO("action 3 : ",validActionPtr," / ",num_i_action);
     }
-
+    //ACTION 4 : return to Home
+    else if (num_action == 3){
+        if (itable->startTime+85000 < millis()){
+            validActionPtr = 200;
+        }
+        else {validActionPtr = 20;}
+        LOG_GREEN_INFO("action 4 : ",validActionPtr," / ",num_i_action);
+    }
     //ACTION 6 : PushPot
-    else if (num_action == 6 && itable->robot.colorTeam == JardinierePosition[num_i_action].team && !itable->jardiniereFree[num_i_action].etat){
+    else if (num_action == 6 && itable->robot.colorTeam == JardinierePosition[num_i_action].team && !itable->jardiniereFree[num_i_action].etat && (!allStockPlanteUsed(itable) || itable->robot.robotHavePlante)){
         distance_action = sqrt(pow(x-JardinierePosition[num_i_action].x,2) + pow(y-JardinierePosition[num_i_action].y,2));
         validActionPtr = itable->jardiniereFree[num_i_action].cout - distance_action/100; 
         LOG_GREEN_INFO("action 6 : ",validActionPtr," / ",num_i_action);
