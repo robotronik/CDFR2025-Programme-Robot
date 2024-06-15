@@ -105,7 +105,8 @@ int main(int argc, char *argv[]) {
     //LOG_SETROBOT(robotI2C);
     lidarAnalize_t lidarData[SIZEDATALIDAR];    
     Arduino *arduino = new Arduino(I2C_ARDUINO_ADDR);
-    Affichage *affichage = new Affichage(I2C_SSD1306_ADDR);
+    SSD1306 *display = new SSD1306(I2C_SSD1306_ADDR);
+    Affichage *affichage = new Affichage(*display);
     main_State_t currentState = INIT;
     main_State_t nextState = INIT;
     bool initStat = true;
