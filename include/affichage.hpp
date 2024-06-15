@@ -3,15 +3,17 @@
 #include "SSD1306.hpp"
 #include <string>
 
-class Affichage : public SSD1306 {
+class Affichage {
 public:
-    Affichage(int slave_address);
-    void drawLine(int x0, int y0, int x1, int y1, bool color);
-    void drawCircle(int x0, int y0, int radius, bool color);
-    void drawText(int x, int y, const std::string& text, bool color);
-    void drawCross(int x, int y, int size, bool color);
+    Affichage(SSD1306& display);
+    void setTeamColor(bool color);
+    void updateScore(int score);
+    void updatePosition(int x, int y);
+    void showTeamName(const std::string& name);
 
 private:
-    void drawChar(int x, int y, char c, bool color);
-    const uint8_t* getFontData(char c);
+    SSD1306& display;
+    std::string teamColor;
+    int score;
+    std::string teamName;
 };

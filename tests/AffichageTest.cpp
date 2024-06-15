@@ -1,17 +1,19 @@
 #include "affichage.hpp"
 
 bool testDrawPixel() {
-    Affichage affichage(0x3C);
-    affichage.testInitSequence();
-    affichage.clear();
-    affichage.display();
-
-
-    affichage.drawText(0, 0, "Hello, world! 198", true);
-    affichage.drawText(0, 8, "Ludo Is Gay", true);
-
-    affichage.display();
+    SSD1306 display(0x3C);
+    Affichage affichage(display);
+    affichage.setTeamColor(true);
+    affichage.updateScore(42);
+    affichage.showTeamName("Robotronik");
+    affichage.updatePosition(1, 2);
     sleep(5);
+    // Update score & position to test in for loop
+    for(int i = 0; i < 10; i++) {
+        affichage.updateScore(i);
+        affichage.updatePosition(i, i);
+        sleep(1);
+    }
 
     return true;
 }
