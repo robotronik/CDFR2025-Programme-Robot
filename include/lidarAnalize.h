@@ -21,6 +21,8 @@ typedef struct {
 
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position,int narrow);
 
+void position_ennemie(lidarAnalize_t* data, int count, position_t *position);
+
 bool collideFordward(lidarAnalize_t* data, int count);
 
 bool collideBackward(lidarAnalize_t* data, int count); 

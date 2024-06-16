@@ -94,6 +94,8 @@ bool getlidarData(lidarAnalize_t* data, int& countdata){
         drv->ascendScanData(nodes, count);
         int pos;
         for (pos = 0; pos < (int)count; ++pos) {
+            data[pos].onTable = 0;
+            data[pos].valid = 0;
             data[pos].valid = (nodes[pos].quality >> SL_LIDAR_RESP_MEASUREMENT_QUALITY_SHIFT) != 0;
             data[pos].dist = nodes[pos].dist_mm_q2/4.0f;
             data[pos].angle = (nodes[pos].angle_z_q14 * 90.f) / 16384.f;

@@ -33,7 +33,7 @@ private:
 
     std::function<int(action*, Asser*, Arduino*, tableState*)> runActionPtr;
     int validActionPtr;
-    std::function<void(tableState*)> goodEndPtr;
+    std::function<void(tableState*,Asser *)> goodEndPtr;
     std::function<void(tableState*)> badEndPtr;
 
     position_t startPostion;
@@ -63,7 +63,7 @@ public:
     void setStartPoint(int x, int y, asser_direction_side Direction, asser_rotation_side rotation);
     void setEndPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation);
     int costAction(void);
-    void goodEnd(std::function<void(tableState*)> ptr);
+    void goodEnd(std::function<void(tableState*, Asser*)> ptr);
     void badEnd(std::function<void(tableState*)> ptr);
     void setCostAction(int num_action, int num_i_action, tableState *itable);
     void resetActionEnable(void);
