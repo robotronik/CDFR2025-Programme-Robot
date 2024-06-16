@@ -1,5 +1,6 @@
 #pragma once
 #include "config.h"
+#include "affichage.hpp"
 
 typedef struct 
 {
@@ -13,8 +14,7 @@ class tableState
 {
 public:
 
-
-    tableState(/* args */);
+    tableState();
     ~tableState();
     /* data */
     table_t planteStockFull[6]; //zonne des plantes

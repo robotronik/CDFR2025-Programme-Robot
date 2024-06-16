@@ -105,15 +105,18 @@ int main(int argc, char *argv[]) {
     //LOG_SETROBOT(robotI2C);
     lidarAnalize_t lidarData[SIZEDATALIDAR];    
     Arduino *arduino = new Arduino(I2C_ARDUINO_ADDR);
-    SSD1306 *display = new SSD1306(I2C_SSD1306_ADDR);
-    Affichage *affichage = new Affichage(*display);
     main_State_t currentState = INIT;
     main_State_t nextState = INIT;
     bool initStat = true;
     actionContainer* actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
-    int countStart = 0;
-    int x = 0, y=0,teta=0;
+    int countStart = 0,x =0,y=0,teta=0;
     int distance,countSetHome = 0;
+    SSD1306 display(0x3C);
+    display.init();
+    Affichage *affichage = new Affichage(display);
+    affichage->setTeamColor(true);
+    affichage->updateScore(0);
+    affichage->showTeamName("Robotronik");
     // arduino->enableStepper(1);
     // arduino->servoPosition(1,180);
     // arduino->servoPosition(2,0);
@@ -162,10 +165,6 @@ int main(int argc, char *argv[]) {
             }
         }
        
-
-       
-       
-
 
         switch (currentState) {
             //****************************************************************
@@ -311,6 +310,7 @@ int main(int argc, char *argv[]) {
             case RETURNHOME:{
                 if(initStat) 
                 LOG_GREEN_INFO("END BY TIMER");
+                affichage->updateScore(tableStatus.getScore());
                 bool finish =  returnToHome(&tableStatus,robotI2C);
                 if(tableStatus.startTime+95000+5000 < millis() || finish){
                     nextState = FIN;

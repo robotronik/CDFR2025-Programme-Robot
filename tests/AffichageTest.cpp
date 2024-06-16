@@ -2,6 +2,7 @@
 
 bool testDrawPixel() {
     SSD1306 display(0x3C);
+    display.init();
     Affichage affichage(display);
     affichage.setTeamColor(true);
     affichage.updateScore(42);
