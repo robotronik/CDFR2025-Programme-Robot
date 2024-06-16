@@ -24,7 +24,7 @@ actionContainer::actionContainer( Asser* irobot, Arduino* iarduino, tableState* 
     pushPotAction4 = new action("pushPotAction2",irobot,iarduino,itable);
     pushPotAction5 = new action("pushPotAction3",irobot,iarduino,itable);
 
-
+    waitFin = new action("waitFin",irobot,iarduino,itable);
     turnSolarPanelAction = new action("turnSolarPanelAction",irobot,iarduino,itable);
 
     returnToHomeAction = new action("returnToHomeAction",irobot,iarduino,itable);
@@ -42,7 +42,6 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->planteStockFull[0].etat = false;
     });
     takePlante0->setCostAction(1,0,itable); //num action puis num zone de l'action
-    
     listeAction.push_back(takePlante0);
 
 // ACTION 1
@@ -121,6 +120,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->JardiniereFull[0].etat = true;
         irobot->getCoords(x,y,teta);
         irobot->setCoords(x,- 1500 + ROBOT_Y_OFFSET ,90);
+        itable->score += PLANTE_JARDINIERE;
     });
     putInJardiniere0->setCostAction(2,0,itable);
     listeAction.push_back(putInJardiniere0);
@@ -138,6 +138,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->JardiniereFull[1].etat = true;
         irobot->getCoords(x,y,teta);
         irobot->setCoords(x,-1500 + ROBOT_Y_OFFSET ,90);
+        itable->score += PLANTE_JARDINIERE;
     });
     putInJardiniere1->setCostAction(2,1,itable);
     listeAction.push_back(putInJardiniere1);
@@ -155,6 +156,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->JardiniereFull[2].etat = true;
         irobot->getCoords(x,y,teta);
         irobot->setCoords(-1000 + ROBOT_Y_OFFSET,y ,-180);
+        itable->score += PLANTE_JARDINIERE;
     });
     putInJardiniere2->setCostAction(2,2,itable);
     listeAction.push_back(putInJardiniere2);
@@ -172,6 +174,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->JardiniereFull[3].etat = true;
         irobot->getCoords(x,y,teta);
         irobot->setCoords(-1000 + ROBOT_Y_OFFSET,y ,-180);
+        itable->score += PLANTE_JARDINIERE;
     });
     putInJardiniere3->setCostAction(2,3,itable);
     listeAction.push_back(putInJardiniere3);
@@ -189,6 +192,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->JardiniereFull[4].etat = true;
         irobot->getCoords(x,y,teta);
         irobot->setCoords(x,1500 - ROBOT_Y_OFFSET ,-90);
+        itable->score += PLANTE_JARDINIERE;
     });
     putInJardiniere4->setCostAction(2,4,itable);
     listeAction.push_back(putInJardiniere4);
@@ -205,13 +209,14 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->JardiniereFull[5].etat = true;
         irobot->getCoords(x,y,teta);
         irobot->setCoords(x,1500 - ROBOT_Y_OFFSET ,-90);
+        itable->score += PLANTE_JARDINIERE;
     });
     putInJardiniere5->setCostAction(2,5,itable);
     listeAction.push_back(putInJardiniere5);
 
 // ACTION 3
     turnSolarPanelAction->setKeyMoment(65000);
-    turnSolarPanelAction->setStartPoint(800,(itable->robot.colorTeam == YELLOW ? 1300 : -1300),-90, MOVE_FORWARD, ROTATION_DIRECT);
+    turnSolarPanelAction->setStartPoint(800,(itable->robot.colorTeam == YELLOW ? 1300 : -1300),(itable->robot.colorTeam == YELLOW ? -90 : 90), MOVE_FORWARD, ROTATION_DIRECT);
     turnSolarPanelAction->setRunAction([](action* iaction, Asser* iAsser, Arduino* iarduino, tableState*itable) {
         return turnSolarPannel(itable, iAsser, iarduino);
     });
@@ -223,18 +228,28 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
 
 
         // ACTION 4
-    returnToHomeAction->setStartPoint(700,(itable->robot.colorTeam == YELLOW ? 1200 : -1200),(itable->robot.colorTeam == YELLOW ? -90 : 90), (itable->robot.colorTeam == BLUE ? MOVE_BACKWARD : MOVE_FORWARD), ROTATION_DIRECT);
+    returnToHomeAction->setStartPoint(700,(itable->robot.colorTeam == YELLOW ? 1200 : -1200), MOVE_FORWARD, ROTATION_DIRECT);
     returnToHomeAction->setRunAction([](action* iaction, Asser* iAsser, Arduino* iarduino, tableState*itable) {
         int iret = 0;
         if(releasePlant(iarduino)){iret = -100;}
         return iret;});
     returnToHomeAction->setKeyMoment(85000);
     returnToHomeAction->goodEnd([](tableState*itable,Asser*irobot){
-        itable->fin = true;
+        itable->score += RETURN_HOME;
     });
     returnToHomeAction->setCostAction(4,0,itable);
-    //listeAction.push_back(returnToHomeAction);
+    listeAction.push_back(returnToHomeAction);
 
+    //ACTION 5
+    waitFin->setStartPoint(700,0,(itable->robot.colorTeam == YELLOW ? -90 : 90),MOVE_FORWARD,ROTATION_DIRECT);
+    waitFin->setRunAction([](action* iaction, Asser* iAsser, Arduino* iarduino, tableState*itable){
+        while (itable->startTime+88000 > millis()){
+            sleep(0.25);
+        }
+        return 1;
+    });
+    waitFin->setCostAction(5,0,itable);
+    listeAction.push_back(waitFin);
 
 //PUSH POT ACTION 6
     pushPotAction0->setStartPoint(JardinierePosition[0].x+PUSHPOTMARGEX1,-1500+PUSHPOTMARGEY,-180, MOVE_FORWARD, ROTATION_DIRECT);
@@ -327,12 +342,13 @@ int actionContainer::choosNextAction(void){
     int bestCost = -1;
     for (action* elem : listeAction) {
         int cost = elem->costAction();
+        //LOG_INFO("elem = ", currentAction->getName(), "cost = ", cost);
         if(cost>bestCost){
             bestCost = cost;
             currentAction = elem;
         }
     }
-    if(bestCost!=-1) {LOG_GREEN_INFO("CHOOSE : ",currentAction->getName());LOG_GREEN_INFO("CHOOSE : ",bestCost);}
+    if(bestCost!=-1) {LOG_GREEN_INFO("CHOOSE : ",currentAction->getName(), " / cost : ",bestCost);}
     return bestCost;
 }
 

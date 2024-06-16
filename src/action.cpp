@@ -137,12 +137,15 @@ void action::setCostAction(int num_action, int num_i_action, tableState *itable)
         LOG_GREEN_INFO("action 3 : ",validActionPtr," / ",num_i_action);
     }
     //ACTION 4 : return to Home
-    else if (num_action == 3){
-        if (itable->startTime+85000 < millis()){
-            validActionPtr = 200;
-        }
-        else {validActionPtr = 20;}
+    else if (num_action == 4 && itable->startTime+88000 < millis()){
+        validActionPtr = 200;
         LOG_GREEN_INFO("action 4 : ",validActionPtr," / ",num_i_action);
+    }
+    //ACTION 5 : wait until fin
+    else if (num_action == 5 && itable->startTime+88000 > millis()){
+        validActionPtr = 4;
+        LOG_GREEN_INFO("action 5 : ",validActionPtr);
+    
     }
     //ACTION 6 : PushPot
     else if (num_action == 6 && itable->robot.colorTeam == JardinierePosition[num_i_action].team && !itable->jardiniereFree[num_i_action].etat && (!allStockPlanteUsed(itable) || itable->robot.robotHavePlante)){

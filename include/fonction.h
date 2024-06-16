@@ -22,6 +22,7 @@ typedef enum {
 
 typedef enum {
     SOLARPANEL_INIT,
+    SOLARPANEL_FIN_INIT,
     SOLARPANEL_SETHOME,
     SOLARPANEL_FORWARD,
     SOLARPANEL_PUSHFOR,
@@ -29,17 +30,6 @@ typedef enum {
     SOLARPANEL_PUSHBACK,
     SOLARPANEL_END
 } fsmSolarPanel_t;
-
-typedef enum {
-    TESTPINCE_INIT,
-    TESTPINCE_GOPLANT,
-    TESTPINCE_TAKEPLANT,
-    TESTPINCE_GOCORNE,
-    TESTPINCE_GOJARDINIER,
-    TESTPINCE_PLACE,
-    TESTPINCE_GOBACKWARD,
-    TESTPINCE_GOHOME
-} fsmTestPince_t;
 
 typedef enum {
     PUTPLANT_INIT,
@@ -65,7 +55,7 @@ typedef enum {
 
 position_t verif_position(Asser* robotI2C, lidarAnalize_t *data, tableState* itable);
 int initPosition(Asser* robotI2C,tableState* itable);
-int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta);
+int initPosition2(tableState* itable, Asser* iAsser,int x, int y,int teta);
 int turnSolarPannel(tableState* itable,Asser* iAsser,Arduino* arduino);
 int takePlant(Asser* iAsser,Arduino* arduino,tableState*itable,int yPos,int xStart, int xEnd, int numPlante);
 int takePlant2(Asser* iAsser,Arduino* arduino,tableState*itable,int xStart,int yStart, int xEnd, int yEnd);
@@ -74,7 +64,5 @@ int jardinierePutPlant(tableState* itable, Asser* iAsser,Arduino* arduino,int x,
 bool allJardiniereFull(tableState* itable);
 bool allStockPlanteUsed(tableState* itable);
 void resetActionneur(Asser* iAsser, Arduino* arduino);
-int FSMMatch(tableState* itable,Asser* iAsser,Arduino* arduino);
-int TestPinceFSM(tableState* itable, Asser* iAsser,Arduino* arduino);
 void ennemieInAction(tableState* itable, position_t* position);
 #endif // MYFUNCTION_H

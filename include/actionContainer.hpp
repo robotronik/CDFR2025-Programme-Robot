@@ -25,6 +25,7 @@ private:
     action* putInJardiniere4;
     action* putInJardiniere5;
 
+    action * waitFin;
     action* turnSolarPanelAction;
     action* returnToHomeAction;
     action* currentAction;

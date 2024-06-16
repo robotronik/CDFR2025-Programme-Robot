@@ -22,10 +22,9 @@ public:
     position_t ennemie;
     position_t prev_pos;
     position_t init; int nb;
-    bool fin;
     table_t solarPanelTurn;
     unsigned long startTime;
-
+    int score;
     robot_t robot;
 
 

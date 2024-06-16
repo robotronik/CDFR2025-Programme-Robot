@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
     actionContainer* actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
     int countStart = 0;
     int x = 0, y=0,teta=0;
-    int distance;
+    int distance,countSetHome = 0;
     // arduino->enableStepper(1);
     // arduino->servoPosition(1,180);
     // arduino->servoPosition(2,0);
@@ -139,10 +139,10 @@ int main(int argc, char *argv[]) {
                 robotI2C->getCoords(x,y,teta);
                 position_t position = {x,y,0,teta,0};
                 position_t pos_ennemie = {x,y,0,teta,0};
-                verif_position(robotI2C,lidarData,&tableStatus);
                 convertAngularToAxial(lidarData,count,&position,300);
                 position_ennemie(lidarData, count, &pos_ennemie);
                 ennemieInAction(&tableStatus, &pos_ennemie);
+                
                 if(ctrl_z_pressed){
                     ctrl_z_pressed = false;
                     pixelArtPrint(lidarData,count,50,50,100,position);
@@ -174,14 +174,14 @@ int main(int argc, char *argv[]) {
                         robotI2C->setCoords(-710,-1170,-90);
                     }
                 }
-                int countSetHome = 0;
+    
                 int bStateCapteur3 = 0;
                 int bStateCapteur1 = 0;
                 arduino->readCapteur(3,bStateCapteur3);
                 arduino->readCapteur(1,bStateCapteur1);
                 blinkLed(arduino,2,500);
                 blinkLed(arduino,1,500);
-                /*
+                
                 if(bStateCapteur3 == 1 && bStateCapteur1 == 1){
                     countSetHome ++;
                 }
@@ -193,13 +193,7 @@ int main(int argc, char *argv[]) {
                     arduino->ledOff(2);
                     arduino->ledOff(1);
                 }
-                */
                 
-                if(tableStatus.nb == 20){
-                    nextState = INITIALIZE;
-                    arduino->ledOff(2);
-                    arduino->ledOff(1);
-                }
                 
                 break;
             }
@@ -221,14 +215,14 @@ int main(int argc, char *argv[]) {
                 arduino->readCapteur(2,bStateCapteur2);
                 if(bStateCapteur2 == 1){
                     tableStatus.robot.colorTeam = YELLOW;
-                    nextState = SETHOME;
-                    robotI2C->setCoords(-710,1170,90);
+                    nextState = SETHOME; //SETHOME pour calibration
+                    robotI2C->setCoords(-710,1170,-90);
                     LOG_INFO("teams : YELLOW");
                 }
                 else if(bStateCapteur2 == 0){
                     tableStatus.robot.colorTeam = BLUE;
-                    nextState = SETHOME;
-                    robotI2C->setCoords(-710,-1170,-90);
+                    nextState = SETHOME; //SETHOME pour calibration
+                    robotI2C->setCoords(-710,-1170,90);
                     LOG_INFO("teams : BLUE");
                 }
                 //IF bStateCapteur2 != 1 && != 2 alors problem
@@ -238,17 +232,14 @@ int main(int argc, char *argv[]) {
             case SETHOME:{
                 if(initStat) LOG_STATE("SETHOME");
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    if(initPosition(robotI2C,&tableStatus)){
+                    if(initPosition2(&tableStatus,robotI2C,-800,1300,-180)){
                         nextState = WAITSTART;
                     }
                 }
                 else{
-                    if(initPosition(robotI2C,&tableStatus)){
+                    if(initPosition2(&tableStatus,robotI2C,-800,-1300,-180)){
                         nextState = WAITSTART;
                     }
-                    // if(initPositon(robotI2C,800,-1250,-90)){
-                    //     nextState = WAITSTART;
-                    // }
                 }
                 
                 break;
