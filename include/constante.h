@@ -34,7 +34,11 @@
 #define DEG_TO_RAD 0.01745329252
 
 #define ROBOT_X_OFFSET 155
-#define ROBOT_Y_OFFSET 50
+#define ROBOT_Y_OFFSET 131
+
+#define PLANTE_JARDINIERE 20
+#define SOLAR_PANNEL 5
+#define RETURN_HOME 10
 
 const cartesian_position_t plantPosition[6] =
 {{500,0},{300,-500},{-300,-500},{-500,0},{-300,500},{300,500}};

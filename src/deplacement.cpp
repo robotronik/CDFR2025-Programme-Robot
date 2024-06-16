@@ -5,8 +5,8 @@
 int deplacementLinearPoint(int collide, Asser* robot, int x, int y){
     LOG_SCOPE("MOVE");
     static unsigned long startTime;
-    static int memx;
-    static int memy;
+    static int memx  = 0;
+    static int memy = 0;
     static bool initStat = true; 
     static deplcement_State_t step = DEPLACEMENT_INIT;
     deplcement_State_t nextstep = step;
