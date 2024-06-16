@@ -1,2 +1,17 @@
+# Ignorer les fichiers d'objets et les fichiers de dépendances
 *.o
-*.d
+*.a
+*.so
+*.out
+
+
+/build/
+/bin/
+/obj/
+
+*.log
+tmp/
+*.tmp
+
+.DS_Store
+Thumbs.db
