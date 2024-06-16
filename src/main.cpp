@@ -22,7 +22,7 @@
 #include "actionContainer.hpp"
 
 //#define DISABLE_LIDAR
-#define SIZEDATALIDAR 10000
+
 
 typedef enum {
     INIT,
@@ -104,8 +104,9 @@ int main(int argc, char *argv[]) {
     main_State_t nextState = INIT;
     bool initStat = true;
     actionContainer* actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
-    int countStart = 0,countSetHome = 0;
-
+    int countStart = 0;
+    int x = 0, y=0,teta=0;
+    int distance;
     // arduino->enableStepper(1);
     // arduino->servoPosition(1,180);
     // arduino->servoPosition(2,0);
@@ -134,13 +135,14 @@ int main(int argc, char *argv[]) {
         int count = SIZEDATALIDAR;
         if(currentState != FIN){
             if(getlidarData(lidarData,count)){
-                int x, y, teta, x_ennemie= 0, y_ennemie= 0;
-                double teta_ennemie= 0,norme, dx,dy;
-                int distance;
+
                 robotI2C->getCoords(x,y,teta);
                 position_t position = {x,y,0,teta,0};
-                convertAngularToAxial(lidarData,count,&position,350);
+                position_t pos_ennemie = {x,y,0,teta,0};
                 verif_position(robotI2C,lidarData,&tableStatus);
+                convertAngularToAxial(lidarData,count,&position,300);
+                position_ennemie(lidarData, count, &pos_ennemie);
+                ennemieInAction(&tableStatus, &pos_ennemie);
                 if(ctrl_z_pressed){
                     ctrl_z_pressed = false;
                     pixelArtPrint(lidarData,count,50,50,100,position);
@@ -163,6 +165,7 @@ int main(int argc, char *argv[]) {
             case INIT:{
                 if(initStat){ LOG_STATE("INIT");
                     int bStateCapteur2 = 0;
+                    
                     arduino->readCapteur(2,bStateCapteur2);
                     if(bStateCapteur2 == 1){
                         robotI2C->setCoords(-710,1170,90);
@@ -171,12 +174,14 @@ int main(int argc, char *argv[]) {
                         robotI2C->setCoords(-710,-1170,-90);
                     }
                 }
+                int countSetHome = 0;
                 int bStateCapteur3 = 0;
                 int bStateCapteur1 = 0;
                 arduino->readCapteur(3,bStateCapteur3);
                 arduino->readCapteur(1,bStateCapteur1);
                 blinkLed(arduino,2,500);
                 blinkLed(arduino,1,500);
+                /*
                 if(bStateCapteur3 == 1 && bStateCapteur1 == 1){
                     countSetHome ++;
                 }
@@ -188,6 +193,14 @@ int main(int argc, char *argv[]) {
                     arduino->ledOff(2);
                     arduino->ledOff(1);
                 }
+                */
+                
+                if(tableStatus.nb == 20){
+                    nextState = INITIALIZE;
+                    arduino->ledOff(2);
+                    arduino->ledOff(1);
+                }
+                
                 break;
             }
             //****************************************************************
@@ -202,6 +215,7 @@ int main(int argc, char *argv[]) {
                     arduino->servoPosition(2,CLAMPSLEEP);
                     arduino->moveStepper(ELEVATORUP,1);
                     robotI2C->setLinearMaxSpeed(10000);
+                    sleep(1);
                 }
                 int bStateCapteur2 = 0;
                 arduino->readCapteur(2,bStateCapteur2);
@@ -278,11 +292,11 @@ int main(int argc, char *argv[]) {
                 if(initStat) LOG_STATE("RUN");
                 bool finish;
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    finish = actionSystem->actionContainerRun(&tableStatus);
+                    finish = actionSystem->actionContainerRun(robotI2C,&tableStatus);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
                 else{
-                    finish = actionSystem->actionContainerRun(&tableStatus);
+                    finish = actionSystem->actionContainerRun(robotI2C,&tableStatus);
                     //finish =  TestPinceFSM(mainRobot,robotI2C, arduino);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
@@ -359,6 +373,5 @@ int main(int argc, char *argv[]) {
     sleep(2);
     arduino->disableStepper(1);
     LOG_DEBUG("PROCESS KILL");
-
     return 0;
 }
