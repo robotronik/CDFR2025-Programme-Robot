@@ -98,9 +98,11 @@ int main(int argc, char *argv[]) {
     signal(SIGTERM, ctrlc);
     //signal(SIGTSTP, ctrlz);
 
+    SSD1306 display(0x3C);
+    Affichage *affichage = new Affichage(display);
+    affichage->init();
     
-    
-    tableState tableStatus;
+    tableState tableStatus(*affichage);
     Asser *robotI2C = new Asser(I2C_ASSER_ADDR);
     //LOG_SETROBOT(robotI2C);
     lidarAnalize_t lidarData[SIZEDATALIDAR];    
@@ -111,12 +113,7 @@ int main(int argc, char *argv[]) {
     actionContainer* actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
     int countStart = 0,x =0,y=0,teta=0;
     int distance,countSetHome = 0;
-    SSD1306 display(0x3C);
-    display.init();
-    Affichage *affichage = new Affichage(display);
-    affichage->setTeamColor(true);
-    affichage->updateScore(0);
-    affichage->showTeamName("Robotronik");
+
     // arduino->enableStepper(1);
     // arduino->servoPosition(1,180);
     // arduino->servoPosition(2,0);

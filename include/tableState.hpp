@@ -14,7 +14,7 @@ class tableState
 {
 public:
 
-    tableState();
+    tableState(Affichage& affichage);
     ~tableState();
     /* data */
     table_t planteStockFull[6]; //zonne des plantes
@@ -36,6 +36,7 @@ public:
 
 private:
     int score;
+    Affichage& affichage;
 
 
 };

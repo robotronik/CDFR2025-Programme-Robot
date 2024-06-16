@@ -6,6 +6,8 @@
 class Affichage {
 public:
     Affichage(SSD1306& display);
+    void init();
+
     /**
      * Set the team color to display
      * @param color true for blue, false for red
@@ -32,6 +34,5 @@ public:
 private:
     SSD1306& display;
     std::string teamColor;
-    int score;
     std::string teamName;
 };

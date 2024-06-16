@@ -1,6 +1,17 @@
 #include "affichage.hpp"
 
-Affichage::Affichage(SSD1306& display) : display(display), teamColor("BLUE"), teamName("Robotronik"), score(0) {}
+Affichage::Affichage(SSD1306& display) : display(display), teamColor("BLUE"), teamName("Robotronik") {}
+
+void Affichage::init()
+{
+    display.init();
+    display.clear();
+    display.display();
+    setTeamColor(true);
+    updateScore(0);
+    showTeamName("Robotronik");
+    display.display();
+}
 
 void Affichage::setTeamColor(bool color) {
     if(color == true) {
@@ -14,9 +25,8 @@ void Affichage::setTeamColor(bool color) {
 }
 
 void Affichage::updateScore(int newScore) {
-    score = newScore;
     display.clearLine(16);
-    display.drawText(0, 16, "Score: " + std::to_string(score), true);
+    display.drawText(0, 16, "Score: " + std::to_string(newScore), true);
     display.display();
 }
 
