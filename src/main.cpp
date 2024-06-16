@@ -15,6 +15,7 @@
 #include "lidar.h"
 #include "asser.hpp"
 #include "arduino.hpp"
+#include "affichage.hpp"
 #include "utils.h"
 #include "arduinoSubFonction.h"
 #include "logger.hpp"
@@ -72,6 +73,8 @@ void executePythonScript(const std::string& command) {
 int main(int argc, char *argv[]) {
     LOG_INIT();
 
+
+
     
     if(!lidarSetup("/dev/ttyAMA0",256000)){
         LOG_ERROR("cannot find the lidar");
@@ -94,16 +97,21 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, ctrlc);
     signal(SIGTERM, ctrlc);
     //signal(SIGTSTP, ctrlz);
+
+    
     
     tableState tableStatus;
     Asser *robotI2C = new Asser(I2C_ASSER_ADDR);
     //LOG_SETROBOT(robotI2C);
     lidarAnalize_t lidarData[SIZEDATALIDAR];    
-    Arduino *arduino = new Arduino(100);
+    Arduino *arduino = new Arduino(I2C_ARDUINO_ADDR);
+    SSD1306 *display = new SSD1306(I2C_SSD1306_ADDR);
+    Affichage *affichage = new Affichage(*display);
     main_State_t currentState = INIT;
     main_State_t nextState = INIT;
     bool initStat = true;
     actionContainer* actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
+    int countStart = 0,countSetHome = 0;
     int countStart = 0;
     int x = 0, y=0,teta=0;
     int distance,countSetHome = 0;
