@@ -23,6 +23,8 @@
 #define CLAMPSTOP 20
 
 #define I2C_ASSER_ADDR 42
+#define I2C_ARDUINO_ADDR 100
+#define I2C_SSD1306_ADDR 16
 
 
 #define DISTANCESTOP   400
