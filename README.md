@@ -16,9 +16,11 @@ Ce programme est conçu pour permettre au robot d'accomplir différentes tâches
 
 Avant d'exécuter le programme, assurez-vous d'avoir installé les dépendances suivantes :
 
-- [Dépendance 1]
-- [Dépendance 2]
-- ...
+```bash
+sudo apt-get install libi2c-dev python3-venv
+```
+Et la bibliothèque [pigpio](https://abyz.me.uk/rpi/pigpio/index.html)
+
 
 ## Installation
 
