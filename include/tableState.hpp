@@ -12,6 +12,10 @@ typedef struct
 class tableState
 {
 public:
+
+
+    tableState(/* args */);
+    ~tableState();
     /* data */
     table_t planteStockFull[6]; //zonne des plantes
     table_t JardiniereFull[6]; //zone des jardinières
@@ -19,16 +23,20 @@ public:
     table_t jardiniereFree[6];    //zonne devant les jardinières
     table_t panneauSolaireRotate[9];
     int dx,dy;
+    int getScore();
+    void setScore(int score);
+    void incrementScore(int score);
     position_t ennemie;
     position_t prev_pos;
     position_t init; int nb;
     table_t solarPanelTurn;
     unsigned long startTime;
-    int score;
+    
     robot_t robot;
 
+private:
+    int score;
 
-    tableState(/* args */);
-    ~tableState();
+
 };
 

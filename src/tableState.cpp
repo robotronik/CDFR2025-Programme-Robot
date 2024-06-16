@@ -12,6 +12,7 @@ tableState::tableState(/* args */){
         jardiniereFree[i].etat =false;
         jardiniereFree[i].cout = 50;
     }
+
     planteStockFull[3].cout -= 50;
     jardiniereFree[2].etat = true;
     jardiniereFree[3].etat = true;
@@ -32,4 +33,19 @@ tableState::tableState(/* args */){
 }
 
 tableState::~tableState(){
+}
+
+int tableState::getScore()
+{
+    return score;
+}
+
+void tableState::setScore(int score)
+{
+    this->score = score;
+}
+
+void tableState::incrementScore(int score)
+{
+    this->score += score;
 }

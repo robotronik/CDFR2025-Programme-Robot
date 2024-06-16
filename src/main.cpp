@@ -111,7 +111,6 @@ int main(int argc, char *argv[]) {
     main_State_t nextState = INIT;
     bool initStat = true;
     actionContainer* actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
-    int countStart = 0,countSetHome = 0;
     int countStart = 0;
     int x = 0, y=0,teta=0;
     int distance,countSetHome = 0;

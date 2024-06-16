@@ -200,7 +200,7 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
     case SOLARPANEL_PUSHFOR :
         if(initStat) LOG_STATE("SOLARPANEL_PUSHFOR");
         if(pullpush(arduino)){
-            itable->score += SOLAR_PANNEL;
+            itable->incrementScore(SOLAR_PANNEL);
             if(itable->robot.colorTeam == YELLOW){
                 itable->panneauSolaireRotate[solarPanelNumber].color = YELLOW;
                 solarPanelNumber++;

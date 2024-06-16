@@ -120,7 +120,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->JardiniereFull[0].etat = true;
         irobot->getCoords(x,y,teta);
         irobot->setCoords(x,- 1500 + ROBOT_Y_OFFSET ,90);
-        itable->score += PLANTE_JARDINIERE;
+        itable->incrementScore(PLANTE_JARDINIERE);
     });
     putInJardiniere0->setCostAction(2,0,itable);
     listeAction.push_back(putInJardiniere0);
@@ -138,7 +138,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->JardiniereFull[1].etat = true;
         irobot->getCoords(x,y,teta);
         irobot->setCoords(x,-1500 + ROBOT_Y_OFFSET ,90);
-        itable->score += PLANTE_JARDINIERE;
+        itable->incrementScore(PLANTE_JARDINIERE);
     });
     putInJardiniere1->setCostAction(2,1,itable);
     listeAction.push_back(putInJardiniere1);
@@ -156,7 +156,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->JardiniereFull[2].etat = true;
         irobot->getCoords(x,y,teta);
         irobot->setCoords(-1000 + ROBOT_Y_OFFSET,y ,-180);
-        itable->score += PLANTE_JARDINIERE;
+        itable->incrementScore(PLANTE_JARDINIERE);
     });
     putInJardiniere2->setCostAction(2,2,itable);
     listeAction.push_back(putInJardiniere2);
@@ -174,7 +174,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->JardiniereFull[3].etat = true;
         irobot->getCoords(x,y,teta);
         irobot->setCoords(-1000 + ROBOT_Y_OFFSET,y ,-180);
-        itable->score += PLANTE_JARDINIERE;
+        itable->incrementScore(PLANTE_JARDINIERE);
     });
     putInJardiniere3->setCostAction(2,3,itable);
     listeAction.push_back(putInJardiniere3);
@@ -192,7 +192,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->JardiniereFull[4].etat = true;
         irobot->getCoords(x,y,teta);
         irobot->setCoords(x,1500 - ROBOT_Y_OFFSET ,-90);
-        itable->score += PLANTE_JARDINIERE;
+        itable->incrementScore(PLANTE_JARDINIERE);
     });
     putInJardiniere4->setCostAction(2,4,itable);
     listeAction.push_back(putInJardiniere4);
@@ -209,7 +209,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         itable->JardiniereFull[5].etat = true;
         irobot->getCoords(x,y,teta);
         irobot->setCoords(x,1500 - ROBOT_Y_OFFSET ,-90);
-        itable->score += PLANTE_JARDINIERE;
+        itable->incrementScore(PLANTE_JARDINIERE);
     });
     putInJardiniere5->setCostAction(2,5,itable);
     listeAction.push_back(putInJardiniere5);
@@ -235,7 +235,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
         return iret;});
     returnToHomeAction->setKeyMoment(85000);
     returnToHomeAction->goodEnd([](tableState*itable,Asser*irobot){
-        itable->score += RETURN_HOME;
+        itable->incrementScore(RETURN_HOME);
     });
     returnToHomeAction->setCostAction(4,0,itable);
     listeAction.push_back(returnToHomeAction);
