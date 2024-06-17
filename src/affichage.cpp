@@ -39,7 +39,7 @@ void Affichage::showTeamName(const std::string& name) {
 
 void Affichage::updatePosition(int x, int y) {
     display.clearLine(32);
-    display.drawText(0, 32, "Position: (" + std::to_string(x) + ", " + std::to_string(y) + ")", true);
+    display.drawText(0, 32, "Position:(" + std::to_string(x) + "," + std::to_string(y) + ")", true);
     display.display();
 }
 

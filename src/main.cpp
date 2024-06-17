@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
     main_State_t nextState = INIT;
     bool initStat = true;
     actionContainer* actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
-    int countStart = 0,x =0,y=0,teta=0;
+    int countStart = 0,x =0,y=0,teta=0, count_pos = 0;
     int distance,countSetHome = 0;
 
     // arduino->enableStepper(1);
@@ -142,14 +142,17 @@ int main(int argc, char *argv[]) {
         int count = SIZEDATALIDAR;
         if(currentState != FIN){
             if(getlidarData(lidarData,count)){
-
                 robotI2C->getCoords(x,y,teta);
                 position_t position = {x,y,0,teta,0};
                 position_t pos_ennemie = {x,y,0,teta,0};
                 convertAngularToAxial(lidarData,count,&position,300);
                 position_ennemie(lidarData, count, &pos_ennemie);
                 ennemieInAction(&tableStatus, &pos_ennemie);
-                
+                if (count_pos == 10){
+                    affichage->updatePosition(pos_ennemie.x,pos_ennemie.y);
+                    count_pos = 0;
+                }
+                count_pos ++;
                 if(ctrl_z_pressed){
                     ctrl_z_pressed = false;
                     pixelArtPrint(lidarData,count,50,50,100,position);
@@ -171,10 +174,10 @@ int main(int argc, char *argv[]) {
                     
                     arduino->readCapteur(2,bStateCapteur2);
                     if(bStateCapteur2 == 1){
-                        robotI2C->setCoords(-710,1170,90);
+                        robotI2C->setCoords(-710,1170,- 90);
                     }
                     else{
-                        robotI2C->setCoords(-710,-1170,-90);
+                        robotI2C->setCoords(-710,-1170,90);
                     }
                 }
     
@@ -211,7 +214,7 @@ int main(int argc, char *argv[]) {
                     arduino->servoPosition(1,180);
                     arduino->servoPosition(2,CLAMPSLEEP);
                     arduino->moveStepper(ELEVATORUP,1);
-                    robotI2C->setLinearMaxSpeed(10000);
+                    robotI2C->setLinearMaxSpeed(MAX_SPEED);
                     sleep(1);
                 }
                 int bStateCapteur2 = 0;
@@ -219,13 +222,13 @@ int main(int argc, char *argv[]) {
                 if(bStateCapteur2 == 1){
                     tableStatus.robot.colorTeam = YELLOW;
                     nextState = SETHOME; //SETHOME pour calibration
-                    robotI2C->setCoords(-710,1170,-90);
+                    robotI2C->setCoords(-700,1100,-90);
                     LOG_INFO("teams : YELLOW");
                 }
                 else if(bStateCapteur2 == 0){
                     tableStatus.robot.colorTeam = BLUE;
                     nextState = SETHOME; //SETHOME pour calibration
-                    robotI2C->setCoords(-710,-1170,90);
+                    robotI2C->setCoords(-700,-1100,90);
                     LOG_INFO("teams : BLUE");
                 }
                 //IF bStateCapteur2 != 1 && != 2 alors problem
@@ -235,12 +238,12 @@ int main(int argc, char *argv[]) {
             case SETHOME:{
                 if(initStat) LOG_STATE("SETHOME");
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    if(initPosition2(&tableStatus,robotI2C,-800,1300,-180)){
+                    if(initPosition2(&tableStatus,robotI2C,-700,1300,-180)){
                         nextState = WAITSTART;
                     }
                 }
                 else{
-                    if(initPosition2(&tableStatus,robotI2C,-800,-1300,-180)){
+                    if(initPosition2(&tableStatus,robotI2C,-700,-1300,-180)){
                         nextState = WAITSTART;
                     }
                 }
@@ -308,8 +311,8 @@ int main(int argc, char *argv[]) {
                 if(initStat) 
                 LOG_GREEN_INFO("END BY TIMER");
                 affichage->updateScore(tableStatus.getScore());
-                bool finish =  returnToHome(&tableStatus,robotI2C);
-                if(tableStatus.startTime+95000+5000 < millis() || finish){
+                //bool finish =  returnToHome(&tableStatus,robotI2C);
+                if(tableStatus.startTime+95000 < millis()){
                     nextState = FIN;
                 }
                 break;

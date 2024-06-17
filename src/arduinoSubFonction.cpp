@@ -9,12 +9,12 @@ int pullpush(Arduino* arduino){
         LOG_INFO("push pull");
         arduino->servoPosition(1,0);
         step++;
-        startTime = millis()+700;
+        startTime = millis()+500;
     }
     else if(step == 1 && startTime < millis()){
         arduino->servoPosition(1,180);
         step++;
-        startTime = millis()+350;
+        startTime = millis()+300;
     }
     else if(step == 2 && startTime < millis()){
         step = 0;

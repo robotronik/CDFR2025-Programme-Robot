@@ -7,7 +7,7 @@
 #define MARGESTOCKPLANTX 240
 #define MARGESTOCKPLANTY 360
 
-#define PUSHPOTMARGEY 200
+#define PUSHPOTMARGEY 210
 #define PUSHPOTMARGEX1 -250
 #define PUSHPOTMARGEX2 250
 
@@ -34,11 +34,13 @@
 #define DEG_TO_RAD 0.01745329252
 
 #define ROBOT_X_OFFSET 155
-#define ROBOT_Y_OFFSET 131
+#define ROBOT_Y_OFFSET 130
 
 #define PLANTE_JARDINIERE 20
 #define SOLAR_PANNEL 5
 #define RETURN_HOME 10
+#define MAX_SPEED 20000
+#define SPEED_PLANTE 10000
 
 const cartesian_position_t plantPosition[6] =
 {{500,0},{300,-500},{-300,-500},{-500,0},{-300,500},{300,500}};

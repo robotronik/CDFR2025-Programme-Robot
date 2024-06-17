@@ -14,7 +14,7 @@ tableState::tableState(Affichage& affichage) : affichage(affichage){
         jardiniereFree[i].cout = 50;
     }
 
-    planteStockFull[3].cout -= 50;
+    planteStockFull[3].cout -= 3;
     jardiniereFree[2].etat = true;
     jardiniereFree[3].etat = true;
     solarPanelTurn.etat = false; //test wait solar etat = true
@@ -51,4 +51,5 @@ void tableState::incrementScore(int score)
 {
     this->score += score;
     affichage.updateScore(this->score);
+    LOG_GREEN_INFO("score = ", getScore());
 }

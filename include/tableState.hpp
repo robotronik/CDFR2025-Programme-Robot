@@ -1,6 +1,7 @@
 #pragma once
 #include "config.h"
 #include "affichage.hpp"
+#include "logger.hpp"
 
 typedef struct 
 {
