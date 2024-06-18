@@ -8,7 +8,7 @@ tableState::tableState(Affichage& affichage) : affichage(affichage){
         planteStockFull[i].etat = true; //test panneau solaire = false
         zoneFull[i].etat = false;
         JardiniereFull[i].etat = false;
-        planteStockFull[i].cout = 50;
+        planteStockFull[i].cout = 50; //500 si test tous stocks
         JardiniereFull[i].cout = 75;
         jardiniereFree[i].etat =false;
         jardiniereFree[i].cout = 50;
@@ -21,6 +21,7 @@ tableState::tableState(Affichage& affichage) : affichage(affichage){
     solarPanelTurn.cout = 50;
 
     score = 1;
+    FIN = false;
     init.x = 0; init.y = 0; init.teta = -90;nb = 0;
     for(int i =0; i < 9; i++){
         panneauSolaireRotate[i].color = NONE;

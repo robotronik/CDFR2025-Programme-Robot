@@ -31,7 +31,6 @@ typedef enum {
     SETHOME,
     WAITSTART,
     RUN,
-    RETURNHOME,
     FIN,
     STOP
 } main_State_t;
@@ -238,12 +237,12 @@ int main(int argc, char *argv[]) {
             case SETHOME:{
                 if(initStat) LOG_STATE("SETHOME");
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    if(initPosition2(&tableStatus,robotI2C,-700,1300,-180)){
+                    if(initPosition2(&tableStatus,robotI2C,-700,1290,-180)){
                         nextState = WAITSTART;
                     }
                 }
                 else{
-                    if(initPosition2(&tableStatus,robotI2C,-700,-1300,-180)){
+                    if(initPosition2(&tableStatus,robotI2C,-700,-1290,-180)){
                         nextState = WAITSTART;
                     }
                 }
@@ -297,30 +296,20 @@ int main(int argc, char *argv[]) {
                     //finish =  TestPinceFSM(mainRobot,robotI2C, arduino);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
-                if(tableStatus.startTime+90000+5000 < millis()){
-                    LOG_STATE("RETURNHOME");
-                    nextState = RETURNHOME;
+                if(tableStatus.startTime+90000+5000 < millis() || tableStatus.FIN){
+                    nextState = FIN;
                 }
                 if(finish){
                     nextState = FIN;
                 }
                 break;
             }
-            //****************************************************************
-            case RETURNHOME:{
-                if(initStat) 
-                LOG_GREEN_INFO("END BY TIMER");
-                affichage->updateScore(tableStatus.getScore());
-                //bool finish =  returnToHome(&tableStatus,robotI2C);
-                if(tableStatus.startTime+95000 < millis()){
-                    nextState = FIN;
-                }
-                break;
-            }
+        
             //****************************************************************
             case FIN:
                 if(initStat){
                     LOG_STATE("FIN");
+                    affichage->updateScore(tableStatus.getScore());
                     arduino->servoPosition(4,180);
                     arduino->servoPosition(1,180);
                     arduino->servoPosition(2,CLAMPSTOP);

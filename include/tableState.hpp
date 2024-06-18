@@ -32,7 +32,7 @@ public:
     position_t init; int nb;
     table_t solarPanelTurn;
     unsigned long startTime;
-    
+    bool FIN;
     robot_t robot;
 
 private:

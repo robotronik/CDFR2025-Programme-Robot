@@ -12,6 +12,7 @@ class actionContainer
 {
 private:
     action* takePlante0;
+    action* takePlante0bis;
     action* takePlante1;
     action* takePlante2;
     action* takePlante3;
@@ -29,6 +30,8 @@ private:
     action* turnSolarPanelAction;
     action* returnToHomeAction;
     action* currentAction;
+    action* VolZoneBlue;
+    action* VolJardiniereBlue;
 
     action* pushPotAction0;
     action* pushPotAction1;
