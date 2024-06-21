@@ -113,62 +113,67 @@ int action::costAction(void){
     return cost;
 }
 
-void action::setCostAction(int num_action, int num_i_action, tableState *itable){
+void action::setCostAction(int num_action, int num_i_action, tableState *itable, int x_start, int y_start){
     int x_pos,y_pos,theta_pos,distance_action;
     robot->getCoords(x_pos,y_pos,theta_pos);
     validActionPtr = -1;
     //ACTION 1 : TAKE PLANT
-    if (num_action == 1 && itable->planteStockFull[num_i_action].etat ){ // && !itable->robot.robotHavePlante && !allJardiniereFull(itable) ){
-        distance_action = sqrt(pow(x_pos-plantPosition[num_i_action].x,2) + pow(y_pos-plantPosition[num_i_action].y,2));  //distance de l'action au robot
+    if (num_action == 1 && itable->planteStockFull[num_i_action].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) && itable->startTime+75000 > millis()){
+        distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));  //distance de l'action au robot
         validActionPtr = itable->planteStockFull[num_i_action].cout - distance_action/100; //distance : 10cm = -1 points
         LOG_GREEN_INFO("action 1 : ",validActionPtr," / ",num_i_action);
     }
     //ACTION 2 : PutInJardinière
     else if (num_action == 2 && !itable->JardiniereFull[num_i_action].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == JardinierePosition[num_i_action].team && itable->jardiniereFree[num_i_action].etat){
-        distance_action = sqrt(pow(x_pos-JardinierePosition[num_i_action].x,2) + pow(y_pos-JardinierePosition[num_i_action].y,2));
+        distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));
         validActionPtr = itable->JardiniereFull[num_i_action].cout - distance_action/100;
         LOG_GREEN_INFO("action 2 : ",validActionPtr," / ",num_i_action, " / ", distance_action);
     }
     //ACTION 3 : turn SolarPanel
     else if (num_action == 3 && !itable->solarPanelTurn.etat){
-        if (itable->startTime+35000 < millis() || allJardiniereFull(itable)){
+        if (itable->startTime+45000 < millis() || DeuxJardiniereFull(itable)){
         validActionPtr = itable->solarPanelTurn.cout;}
         else { validActionPtr = itable->solarPanelTurn.cout/2;}
         LOG_GREEN_INFO("action 3 : ",validActionPtr," / ",num_i_action);
     }
     //ACTION 4 : return to Home
-    else if (num_action == 4 && itable->startTime+88000 < millis()){
+    else if (num_action == 4 && itable->startTime+85000 < millis()){
         validActionPtr = 200;
         LOG_GREEN_INFO("action 4 : ",validActionPtr," / ",num_i_action);
     }
+    /*
     //ACTION 5 : wait until fin
     else if (num_action == 5 && itable->startTime+88000 > millis() && !itable->FIN){
         validActionPtr = 4;
         LOG_GREEN_INFO("action 5 : ",validActionPtr);
     
     }
+    */
     //ACTION 6 : PushPot
-    else if (num_action == 6 && itable->robot.colorTeam == JardinierePosition[num_i_action].team && !itable->jardiniereFree[num_i_action].etat && (!allStockPlanteUsed(itable) || itable->robot.robotHavePlante)){
-        distance_action = sqrt(pow(x_pos-JardinierePosition[num_i_action].x,2) + pow(y_pos-JardinierePosition[num_i_action].y,2));
+    else if (num_action == 6 && itable->robot.colorTeam == JardinierePosition[num_i_action].team && !itable->jardiniereFree[num_i_action].etat && (!allStockPlanteUsed(itable) || itable->robot.robotHavePlante) && itable->startTime+75000 > millis()){
+        distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));
         validActionPtr = itable->jardiniereFree[num_i_action].cout - distance_action/100; 
         LOG_GREEN_INFO("action 6 : ",validActionPtr," / ",num_i_action);
     }
+    /*
     //ACTION 7 : VolZone
     else if (num_action == 7 && !itable->FIN){
-        distance_action = sqrt(pow(800-itable->ennemie.x,2) + pow(1300 - itable->ennemie.y,2));
+        distance_action = sqrt(pow(x_start-itable->ennemie.x,2) + pow(y_start - itable->ennemie.y,2));
         if (distance_action > 500){
             validActionPtr = 10;
             LOG_GREEN_INFO("action 7 : ",validActionPtr);
         }
     }
+    */
     //ACTION 8 : VolJardiniere
-    else if (num_action == 8 && !itable->FIN){
-        distance_action = sqrt(pow(JardinierePosition[num_i_action].x-itable->ennemie.x,2) + pow(JardinierePosition[num_i_action].y - 200 - itable->ennemie.y,2));
-        if (distance_action > 200){
+    else if (num_action == 8 && itable->startTime+85000 > millis()){
+        if (!itable->FIN && itable->robot.colorTeam != JardinierePosition[num_i_action].team){
+        distance_action = sqrt(pow(x_start-itable->ennemie.x,2) + pow(y_start - 200 - itable->ennemie.y,2));
+        if (distance_action > 100){
             validActionPtr = 15;
             LOG_GREEN_INFO("action 8 : ",validActionPtr);
         }
-    }
+    }}
    
 }
 

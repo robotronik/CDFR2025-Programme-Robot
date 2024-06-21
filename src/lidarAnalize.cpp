@@ -9,7 +9,7 @@ void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position
             //if (i%2 && data[i].angle < 90) {LOG_INFO("X = ", data[i].x, "/ Y =",data[i].y, "dist = ", data[i].dist, "/ angle=",data[i].angle, "/ angle=",position->teta);}
                 
             //get table valid
-            if(data[i].x<1200-narrow && data[i].x>-1200+narrow && data[i].y<1800-narrow && data[i].y>-1800+narrow){
+            if(data[i].x<1000-narrow && data[i].x>-1000+narrow && data[i].y<1500-narrow && data[i].y>-1500+narrow){
                 //LOG_INFO("X = ", data[i].x, "/ Y =",data[i].y, "dist = ", data[i].dist, "/ angle=",data[i].angle);
                 //printf("\nx = %i / y = %i / in ? = %i",data[i].x, data[i].y, data[i].x<1100 && data[i].x>-1100 && data[i].y<1700 && data[i].y>-1700);
                 data[i].onTable = true;}
@@ -78,7 +78,7 @@ void maxDistance(lidarAnalize_t* data, int count,int& maxX, int maxY){
 bool collideFordward(lidarAnalize_t* data, int count){
     for(int i = 0; i <count; i++){
         if(data[i].valid && data[i].onTable)
-            if(data[i].angle <45 || data[i].angle>(360-45))
+            if(data[i].angle <30 || data[i].angle>(360-30))
                 if(data[i].dist < 500){
                     return true;
                 }
@@ -89,7 +89,7 @@ bool collideFordward(lidarAnalize_t* data, int count){
 bool collideBackward(lidarAnalize_t* data, int count){
     for(int i = 0; i <count; i++){
         if(data[i].valid && data[i].onTable)
-            if(data[i].angle<(180+45) && data[i].angle>(180-45))
+            if(data[i].angle<(180+30) && data[i].angle>(180-30))
                 if(data[i].dist < 500){
                     return true;
                 }

@@ -65,7 +65,7 @@ public:
     int costAction(void);
     void goodEnd(std::function<void(tableState*, Asser*)> ptr);
     void badEnd(std::function<void(tableState*)> ptr);
-    void setCostAction(int num_action, int num_i_action, tableState *itable);
+    void setCostAction(int num_action, int num_i_action, tableState *itable, int x_start, int y_start);
     void resetActionEnable(void);
     void setKeyMoment(unsigned long keyMom);
     bool actionNeedForce(void);

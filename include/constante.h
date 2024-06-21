@@ -4,8 +4,9 @@
 #define MARGESTOCKPLANT 300
 #define MARGEJADINIERE 200
 
-#define MARGESTOCKPLANTX 240
+#define MARGESTOCKPLANTX 200
 #define MARGESTOCKPLANTY 300
+#define DIVIDE 6
 
 #define PUSHPOTMARGEY 200
 #define PUSHPOTMARGEX1 -250
@@ -14,9 +15,9 @@
 #define DELAYUPDOWN 1000
 #define DELAYOPENCLOSE 500
 
-#define ELEVATORUP 5000
-#define ELEVATORPLANT 900
-#define ELEVATORJARDINIERE 6600
+#define ELEVATORUP 4000
+#define ELEVATORPLANT 600
+#define ELEVATORJARDINIERE 6000
 
 #define CLAMPCLOSE 0
 #define CLAMPOPEN 180
@@ -49,5 +50,20 @@ const cartesian_position_t JardinierePosition[6] =
 {{387,-1500,YELLOW},{-387,-1500,BLUE},{-1000,-762,BLUE},{-1000,762,YELLOW},{-387,1500,YELLOW},{387,1500,BLUE}};
 const cartesian_position_t zoneFull [6]=
 {{-1275,-750,BLUE},{-1275,0,YELLOW},{-1275,750,BLUE},{1275,750,YELLOW},{1275,0,BLUE},{1275,-750,YELLOW}};
-const int rayon[3] = {200,200,200};
+const int rayon[3] = {200,200,250};
 const int table[9] = {1225,1000,775,225,0,-225,-775,-1000,-1225};
+
+
+/*temps actions min
+push pot debut : 2:20
+take plante 1 : 8:20
+put in jardiniere : 7:30
+take plant 2 : 10:09
+put in jardiniere 2 : 7:40
+solar panel : 21:24
+take plant 3 : 6:83
+put in jardiniere 3 : 12:39
+vol plante : 12:19
+
+tot = 1m28.18
+*/

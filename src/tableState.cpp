@@ -11,9 +11,11 @@ tableState::tableState(Affichage& affichage) : affichage(affichage){
         planteStockFull[i].cout = 50; //500 si test tous stocks
         JardiniereFull[i].cout = 75;
         jardiniereFree[i].etat =false;
-        jardiniereFree[i].cout = 50;
+        jardiniereFree[i].cout = 55;
     }
 
+    planteStockFull[2].cout += 2;
+    planteStockFull[4].cout += 2;
     planteStockFull[3].cout -= 3;
     jardiniereFree[2].etat = true;
     jardiniereFree[3].etat = true;
@@ -30,7 +32,7 @@ tableState::tableState(Affichage& affichage) : affichage(affichage){
     
     dx = 0; dy = 0;
     prev_pos.x = 0; prev_pos.y = 0;prev_pos.teta=0;
-    ennemie.x = 0;ennemie.y = 0;
+    ennemie.x = 0;ennemie.y = 0; nb =0;
         
 }
 

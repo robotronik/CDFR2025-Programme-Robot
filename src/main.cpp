@@ -85,10 +85,10 @@ int main(int argc, char *argv[]) {
         LOG_ERROR("cannot initialize lidar gpio speed");
         return 1;
     }
-    gpioSetPWMfrequency(18, 25000);
+    gpioSetPWMfrequency(18, 20000);
     gpioSetMode(18, PI_OUTPUT);
     gpioSetPWMrange(18, 100);
-    gpioPWM(18, 50);//lidar speed
+    gpioPWM(18, 100);//lidar speed
 #endif
 
 
@@ -144,9 +144,25 @@ int main(int argc, char *argv[]) {
                 robotI2C->getCoords(x,y,teta);
                 position_t position = {x,y,0,teta,0};
                 position_t pos_ennemie = {x,y,0,teta,0};
-                convertAngularToAxial(lidarData,count,&position,300);
+                convertAngularToAxial(lidarData,count,&position,100);
                 position_ennemie(lidarData, count, &pos_ennemie);
-                ennemieInAction(&tableStatus, &pos_ennemie);
+                tableStatus.ennemie.x += pos_ennemie.x;
+                tableStatus.ennemie.y += pos_ennemie.y;
+                tableStatus.nb += 1;
+                if (tableStatus.nb == 12){
+                    pos_ennemie.x = tableStatus.ennemie.x/tableStatus.nb;
+                    pos_ennemie.y = tableStatus.ennemie.y/tableStatus.nb;
+                    LOG_GREEN_INFO("pos ennemie : x = ", pos_ennemie.x, " / y = ",pos_ennemie.y);
+                    tableStatus.nb = 0;
+                    tableStatus.ennemie.x = 0;
+                    tableStatus.ennemie.y = 0;
+                    
+                    ennemieInAction(&tableStatus, &pos_ennemie);
+                }
+                
+                tableStatus.prev_pos.x = x;
+                tableStatus.prev_pos.y = y;
+               
                 if (count_pos == 10){
                     affichage->updatePosition(pos_ennemie.x,pos_ennemie.y);
                     count_pos = 0;
@@ -156,11 +172,8 @@ int main(int argc, char *argv[]) {
                     ctrl_z_pressed = false;
                     pixelArtPrint(lidarData,count,50,50,100,position);
                 }                
-                //printAngular(lidarData,count);
                 robotI2C->getBrakingDistance(distance);
                 tableStatus.robot.collide = collide(lidarData,count,distance);
-                //LOG_DEBUG("collide : ", robot->collide);
-                //printf("distance : %d \t collide : %d\n",distance,robot->collide);
             }
         }
        
@@ -173,10 +186,10 @@ int main(int argc, char *argv[]) {
                     
                     arduino->readCapteur(2,bStateCapteur2);
                     if(bStateCapteur2 == 1){
-                        robotI2C->setCoords(-710,1170,- 90);
+                        robotI2C->setCoords(-700,1100,- 90);
                     }
                     else{
-                        robotI2C->setCoords(-710,-1170,90);
+                        robotI2C->setCoords(-700,-1100,90);
                     }
                 }
     
@@ -273,13 +286,10 @@ int main(int argc, char *argv[]) {
                     tableStatus.startTime = millis();
                     tableStatus.robot.robotHavePlante = false;
                     actionSystem->initAction( robotI2C, arduino, &(tableStatus));
-                    //LAUNCH PYTHON
-                    // std::string color = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
-                    // std::filesystem::path exe_path = std::filesystem::canonical(std::filesystem::path(argv[0])).parent_path();
-                    // std::filesystem::path python_script_path = exe_path / "../startPAMI.py";
-                    // std::string command = "python3 " + python_script_path.string() + " " +  color;
-                    // python_thread = new std::thread(executePythonScript,command);
-                    //
+                    LOG_GREEN_INFO("RE INITIALIZE PLANTESTOCK AND JARDINIERE");
+                    for(int i = 0; i<6;i++){tableStatus.planteStockFull[i].etat = true;} //mettre true normalement
+                    for(int i = 0; i<6;i++){tableStatus.JardiniereFull[i].etat = false;}
+                    for(int i = 0; i<9;i++){tableStatus.panneauSolaireRotate[i].etat = false;}
                 }
                 break;
             }
@@ -296,7 +306,10 @@ int main(int argc, char *argv[]) {
                     //finish =  TestPinceFSM(mainRobot,robotI2C, arduino);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
-                if(tableStatus.startTime+90000+5000 < millis() || tableStatus.FIN){
+                if(tableStatus.startTime+95000 < millis()){
+                    nextState = FIN;
+                }
+                if (tableStatus.FIN){
                     nextState = FIN;
                 }
                 if(finish){
@@ -313,8 +326,6 @@ int main(int argc, char *argv[]) {
                     arduino->servoPosition(4,180);
                     arduino->servoPosition(1,180);
                     arduino->servoPosition(2,CLAMPSTOP);
-                    //lidarStop();
-                    //gpioPWM(18, 0);
                     arduino->disableStepper(1);
                     robotI2C->enableMotor(false);
                     robotI2C->brakeMotor(true);
@@ -338,14 +349,11 @@ int main(int argc, char *argv[]) {
         }
         currentState = nextState;
 
-
-        //ctrl_c_pressed |= turnSolarPannel(robotI2C,arduino);
-
         if (ctrl_c_pressed){ 
             break;
         }
     }
-
+    arduino->moveStepper(0,1);
     gpioPWM(18, 0);
     arduino->servoPosition(4,180);
     arduino->ledOff(2);
