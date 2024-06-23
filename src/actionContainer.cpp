@@ -254,7 +254,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     putInJardiniere2->setStartPoint(-700,-732,180,MOVE_FORWARD,ROTATION_DIRECT);
     putInJardiniere2->setEndPoint(-700,-732,180,MOVE_BACKWARD,ROTATION_DIRECT);
     putInJardiniere2->setRunAction([](action* iaction, Asser* iAsser, Arduino* iarduino, tableState*itable) {
-        return jardinierePutPlant(itable,iAsser,iarduino,-880,-732,-180);
+        return jardinierePutPlant(itable,iAsser,iarduino,-890,-732,-180);
     });
     putInJardiniere2->goodEnd([](tableState*itable,Asser*irobot){
         int x,y,teta;
@@ -272,7 +272,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     putInJardiniere3->setStartPoint(-700,732,180,MOVE_FORWARD,ROTATION_DIRECT);
     putInJardiniere3->setEndPoint(-700,732,180,MOVE_BACKWARD,ROTATION_DIRECT);
     putInJardiniere3->setRunAction([](action* iaction, Asser* iAsser, Arduino* iarduino, tableState*itable) {
-        return jardinierePutPlant(itable,iAsser,iarduino,-880,732,-180);
+        return jardinierePutPlant(itable,iAsser,iarduino,-890,732,-180);
     });
     putInJardiniere3->goodEnd([](tableState*itable,Asser*irobot){
         int x,y,teta;
@@ -322,7 +322,7 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
 
 // ACTION 3
     turnSolarPanelAction->setKeyMoment(65000);
-    turnSolarPanelAction->setStartPoint(800,(itable->robot.colorTeam == YELLOW ? 1250 : -1250),(itable->robot.colorTeam == YELLOW ? -90 : 90), MOVE_FORWARD, ROTATION_DIRECT);
+    turnSolarPanelAction->setStartPoint(810,(itable->robot.colorTeam == YELLOW ? 1100 : -1100),(itable->robot.colorTeam == YELLOW ? -90 : 90), MOVE_FORWARD, ROTATION_DIRECT);
     turnSolarPanelAction->setRunAction([](action* iaction, Asser* iAsser, Arduino* iarduino, tableState*itable) {
         return turnSolarPannel(itable, iAsser, iarduino);
     });
@@ -416,9 +416,9 @@ void actionContainer::initAction( Asser* irobot, Arduino* iarduino, tableState* 
     
     
     //ACTION 8 : VOL_JARDINIERE BLUE : ma team = BLUE
-    VolJardiniereBlue->setStartPoint(JardinierePosition[4].x, JardinierePosition[4].y-MARGEJADINIERE-20, -90, MOVE_FORWARD, ROTATION_DIRECT);
+    VolJardiniereBlue->setStartPoint(JardinierePosition[4].x - 30, JardinierePosition[4].y-MARGEJADINIERE-20, -90, MOVE_FORWARD, ROTATION_DIRECT);
     VolJardiniereBlue->setRunAction([](action* iaction, Asser* iAsser, Arduino* iarduino, tableState*itable) {
-        return VolPlante(itable,iAsser,iarduino,JardinierePosition[4].x, JardinierePosition[4].y-110, -90);
+        return VolPlante(itable,iAsser,iarduino,JardinierePosition[4].x-30, JardinierePosition[4].y-110, -90);
     });
     VolJardiniereBlue->goodEnd([](tableState*itable,Asser*irobot){
         itable->FIN = true;

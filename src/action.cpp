@@ -165,16 +165,18 @@ void action::setCostAction(int num_action, int num_i_action, tableState *itable,
         }
     }
     */
+   /*
     //ACTION 8 : VolJardiniere
-    else if (num_action == 8 && itable->startTime+85000 > millis()){
+    else if (num_action == 8 && itable->startTime+80000 > millis()){
         if (!itable->FIN && itable->robot.colorTeam != JardinierePosition[num_i_action].team){
         distance_action = sqrt(pow(x_start-itable->ennemie.x,2) + pow(y_start - 200 - itable->ennemie.y,2));
         if (distance_action > 100){
             validActionPtr = 15;
             LOG_GREEN_INFO("action 8 : ",validActionPtr);
         }
+
     }}
-   
+   */
 }
 
 void action::setRunAction(std::function<int(action*, Asser*, Arduino*, tableState*)> ptr){

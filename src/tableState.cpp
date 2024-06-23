@@ -16,7 +16,7 @@ tableState::tableState(Affichage& affichage) : affichage(affichage){
 
     planteStockFull[2].cout += 2;
     planteStockFull[4].cout += 2;
-    planteStockFull[3].cout -= 3;
+    planteStockFull[3].cout -= 4;
     jardiniereFree[2].etat = true;
     jardiniereFree[3].etat = true;
     solarPanelTurn.etat = false; //test wait solar etat = true

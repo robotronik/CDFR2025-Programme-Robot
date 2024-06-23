@@ -68,7 +68,7 @@ int catchPlant2(Arduino* arduino){ //catch plant in jardininiere
     else if(step == 1){
         arduino->moveStepper(1400,1);
         step++;
-        startTime = millis()+1000;
+        startTime = millis()+500;
     }
     else if(step == 2 && startTime < millis()){
         arduino->servoPosition(2,CLAMPCLOSE);
@@ -94,35 +94,35 @@ int releasePlant(Arduino* arduino){
 
     if(step == 0 ){
         LOG_INFO("release plant");
-        arduino->moveStepper(1600,1);
+        arduino->moveStepper(2200,1);
         step++;
-        startTime = millis()+1300;
+        startTime = millis()+1400;
     }
     else if(step == 1 && startTime < millis()){
         arduino->servoPosition(2,CLAMPOPEN);
         step++;
     }
     else if(step == 2){
-        arduino->moveStepper(3000,1);
+        arduino->moveStepper(ELEVATORUP,1);
         step++;
-        startTime = millis()+1100;
+        startTime = millis()+1300;
     }
     else if(step == 3 && startTime < millis()){
         arduino->servoPosition(2,CLAMPSLEEP);
         step++;
-        startTime = millis()+100;
+        startTime = millis()+200;
     }
     else if(step == 4 && startTime < millis()){
         arduino->servoPosition(2,CLAMPOPEN);
         step++;
-        startTime = millis()+100;
+        startTime = millis()+200;
     }
     else if(step == 5 && startTime < millis()){
         arduino->servoPosition(2,CLAMPSLEEP);
         step++;
-        startTime = millis()+100;
+        
     }
-    else if(step == 6 && startTime < millis()){
+    else if(step == 6){
         step = 0;
         bret = true;
     }

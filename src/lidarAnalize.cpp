@@ -30,8 +30,10 @@ void position_ennemie(lidarAnalize_t* data, int count, position_t *position){
             while ((!data[i+next_valid].onTable) && ((i+next_valid) <count-1)) {next_valid++;}
             if (fabs(data[i].dist - data[i+next_valid].dist) > 50 || fabs(data[i].angle- data[i+next_valid].angle) > 1){ 
                 som_dist += 30*nb;
-                position->x = position->x + som_dist/nb*cos((som_angle/nb + position->teta)*DEG_TO_RAD) + 55*cos(position->teta*DEG_TO_RAD);
-                position->y = position->y - som_dist/nb*sin((som_angle/nb + position->teta)*DEG_TO_RAD) - 55*sin(position->teta*DEG_TO_RAD);
+                position->x = position->x + som_dist/nb*cos((360 - (int)(som_angle/nb + position->teta)%360 ) *DEG_TO_RAD) + 55*cos(position->teta*DEG_TO_RAD);
+                position->y = position->y + som_dist/nb*sin((360 - (int)(som_angle/nb + position->teta)%360) *DEG_TO_RAD) - 55*sin(position->teta*DEG_TO_RAD);
+                //LOG_GREEN_INFO("x = ", position->x, "y = ",position->y);
+                
                 return ;
             }
         }

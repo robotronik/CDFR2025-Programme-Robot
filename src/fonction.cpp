@@ -14,7 +14,7 @@ int initPosition2(tableState* itable, Asser* iAsser,int x, int y,int teta){
     int xSecond = 210;
     int xStart = 1000 - ROBOT_Y_OFFSET;
     int yStart = 1500 - ROBOT_Y_OFFSET;
-    int yBack = 305;
+    int yBack = 310;
     if(y<0){
         TetaStart = 90;
     }
@@ -44,6 +44,7 @@ int initPosition2(tableState* itable, Asser* iAsser,int x, int y,int teta){
 
     case SETPOS_FIRSTFORWARD :
         if(initStat) LOG_STATE("SETPOS_FIRSTFORWARD");
+        
         if(deplacementLinearPoint(12000,iAsser,xSave,ySave+yBack)>0){
             nextState = SETPOS_FIRSTBACKWARD;
             iAsser->setCoords(xSave,yStart,TetaStart);
@@ -97,26 +98,28 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
     int ireturn = 0,deplacementreturn, offsetRobot1,offsetRobot2;
     const int axeX = 800;
     static int solarPanelNumber;
-    int bord, departy, angle;
+    int bord, departy, angle, bordOff;
     if(itable->robot.colorTeam == YELLOW){
-        offsetRobot1 = 10;
-        offsetRobot2 = 35;
-        bord = 1510-131;
+        offsetRobot1 = 5;
+        offsetRobot2 = 30;
+        bord = 1530-131;
+        bordOff = 1500 - 131;
         angle = -90;
         departy = 1200;
     }
     else{
-        offsetRobot1 = -70;
-        offsetRobot2 = -90; //-105 avant
+        offsetRobot1 = -75;
+        offsetRobot2 = -95; //-105 avant
         bord = -(1530-131);
         departy = -1200;
         angle = 90;
+        bordOff = -(1500-131);
     }
     
     switch (currentState)
     {
     case VITESSEE_INIT :
-        iAsser->setLinearMaxSpeed(150);
+        iAsser->setLinearMaxSpeed(250);
         iAsser->setMaxTorque(30);
         iAsser->setAngularMaxSpeed(150);
         nextState = SOLARPANEL_INIT;
@@ -134,7 +137,7 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
         if (deplacementLinearPoint(itable->robot.collide,iAsser,axeX,bord) > 0){
             int x,y,teta;
             iAsser->getCoords(x,y,teta);
-            if (fabs(teta - angle) < 3 && fabs(y-bord) < 10){iAsser->setCoords(x,-1500 + ROBOT_Y_OFFSET ,angle);}
+            if (fabs(teta - angle) < 3 && fabs(y-bord) < 10){iAsser->setCoords(x,bordOff ,angle);}
             nextState = SOLARPANEL_FIN_INIT;
             iAsser->setLinearMaxSpeed(SPEED_PLANTE);
             iAsser->setMaxTorque(100);
@@ -519,7 +522,7 @@ int VolPlante(tableState* itable, Asser* iAsser,Arduino* arduino,int x,int y,int
     //****************************************************************
     case VOLPLANT_BACKWARD :
         if (initStat) LOG_STATE("VOLPLANT_BACKWARD");
-        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,x,y-150,teta,MOVE_BACKWARD,ROTATION_DIRECT);
+        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,x,y-200,teta,MOVE_BACKWARD,ROTATION_DIRECT);
         if(deplacementreturn>0){
             arduino->moveStepper(1600,1);
             nextState = VOLPLANT_ZONEFIN;

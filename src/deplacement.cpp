@@ -1,6 +1,72 @@
 #include "deplacement.h"
 
+int deplacementPathFinding(int collide, Asser* robot, int x, int y){
+    LOG_SCOPE("PATH FINDING");
+    int ireturn = 0;
+    static bool initStat = true;
+    static go_to_State_t currentState = GOTO_INIT;
+    go_to_State_t nextState = currentState;
+    int deplacementreturn;
 
+
+    switch (currentState)
+    {
+    case GOTO_INIT :
+        if(initStat) LOG_STATE("GOTO_INIT");
+        nextState = GOTO_LOOKAT;
+        break;
+    case GOTO_LOOKAT :
+        if(initStat){ 
+            LOG_STATE("GOTO_LOOKAT");
+            if(direction == MOVE_FORWARD){
+                robot->setLookForward(x,y,ROTATION_DIRECT);
+            } 
+            else{
+                robot->setLookBackward(x,y,ROTATION_DIRECT);
+            }
+        }
+        if(robot->getError(ANGULAR_ERROR)==0){
+            nextState = GOTO_MOVE;
+        }
+        break;
+    case GOTO_MOVE :
+        if(initStat) LOG_STATE("GOTO_MOVE");
+        deplacementreturn = deplacementLinearPoint(collide,robot,x,y);
+        if(deplacementreturn>0){
+            nextState = GOTO_TURN;
+        }
+        else if(deplacementreturn<0){
+            nextState = GOTO_INIT;
+            ireturn = deplacementreturn;
+        }
+        break;
+    case GOTO_TURN :
+        if(initStat){ LOG_STATE("GOTO_TURN");
+            robot->angularSetpoint(teta,rotation);
+        }
+        if(!robot->getError(ANGULAR_ERROR)){
+            nextState = GOTO_INIT;
+            ireturn = 1;
+        }
+        break;
+    
+    default:
+        if(initStat) LOG_ERROR("default");
+        nextState = GOTO_INIT;
+        break;
+    }
+
+    initStat = false;
+    if(nextState != currentState){
+        initStat = true;
+    }
+    currentState = nextState;
+    return ireturn;
+
+}
+
+
+}
 
 int deplacementLinearPoint(int collide, Asser* robot, int x, int y){
     LOG_SCOPE("MOVE");
@@ -21,22 +87,9 @@ int deplacementLinearPoint(int collide, Asser* robot, int x, int y){
         memx = x;
         memy = y;
 
-        // TOFIX in future
-        // Go directly in wait if collide
-        // Actual problem : at the begengin, the collide system not watch the good side
-
         nextstep = DEPLACEMENT_WAITFIRSTMOVE;
         robot->linearSetpoint(memx,memy);
 
-        // if(collide.tableStatus.tableStatus.collide < DISTANCESTOP){
-        //     printf("distance colide : %d\n",collide.tableStatus.tableStatus.collide);
-        //     nextstep = DEPLACEMENT_WAIT;
-        //     startTime = millis() + 5000; //TIME waiting
-        // }
-        // else{
-        //     nextstep = DEPLACEMENT_MOVE;
-        //     robot->linearSetpoint(memx,memy);
-        // }
         break;
     case DEPLACEMENT_WAITFIRSTMOVE:
         if(initStat) LOG_STATE("DEPLACEMENT_WAITFIRSTMOVE");

@@ -144,24 +144,28 @@ int main(int argc, char *argv[]) {
                 robotI2C->getCoords(x,y,teta);
                 position_t position = {x,y,0,teta,0};
                 position_t pos_ennemie = {x,y,0,teta,0};
-                convertAngularToAxial(lidarData,count,&position,100);
+                convertAngularToAxial(lidarData,count,&position,50);
                 position_ennemie(lidarData, count, &pos_ennemie);
                 tableStatus.ennemie.x += pos_ennemie.x;
                 tableStatus.ennemie.y += pos_ennemie.y;
                 tableStatus.nb += 1;
-                if (tableStatus.nb == 12){
+                if (tableStatus.nb == 5){
                     pos_ennemie.x = tableStatus.ennemie.x/tableStatus.nb;
                     pos_ennemie.y = tableStatus.ennemie.y/tableStatus.nb;
-                    LOG_GREEN_INFO("pos ennemie : x = ", pos_ennemie.x, " / y = ",pos_ennemie.y);
+                    distance = sqrt(pow(tableStatus.prev_pos.x - pos_ennemie.x,2)+ pow(tableStatus.prev_pos.y - pos_ennemie.y,2));
+                    LOG_GREEN_INFO("pos ennemie : x = ", pos_ennemie.x, " / y = ",pos_ennemie.y, "diff = ", distance);
+                    tableStatus.prev_pos.x = pos_ennemie.x;
+                    tableStatus.prev_pos.y = pos_ennemie.y;
                     tableStatus.nb = 0;
                     tableStatus.ennemie.x = 0;
                     tableStatus.ennemie.y = 0;
-                    
-                    ennemieInAction(&tableStatus, &pos_ennemie);
+                    if( distance < 250) {
+                        ennemieInAction(&tableStatus, &pos_ennemie);
+                        LOG_GREEN_INFO("pos ennemie : x = ", pos_ennemie.x, " / y = ",pos_ennemie.y, "diff = ", distance);
+                    }
                 }
                 
-                tableStatus.prev_pos.x = x;
-                tableStatus.prev_pos.y = y;
+                
                
                 if (count_pos == 10){
                     affichage->updatePosition(pos_ennemie.x,pos_ennemie.y);
@@ -250,12 +254,12 @@ int main(int argc, char *argv[]) {
             case SETHOME:{
                 if(initStat) LOG_STATE("SETHOME");
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    if(initPosition2(&tableStatus,robotI2C,-700,1290,-180)){
+                    if(initPosition2(&tableStatus,robotI2C,-700,1280,-180)){
                         nextState = WAITSTART;
                     }
                 }
                 else{
-                    if(initPosition2(&tableStatus,robotI2C,-700,-1290,-180)){
+                    if(initPosition2(&tableStatus,robotI2C,-700,-1280,-180)){
                         nextState = WAITSTART;
                     }
                 }
@@ -306,7 +310,7 @@ int main(int argc, char *argv[]) {
                     //finish =  TestPinceFSM(mainRobot,robotI2C, arduino);
                     //finish =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
-                if(tableStatus.startTime+95000 < millis()){
+                if(tableStatus.startTime+90000 < millis()){
                     nextState = FIN;
                 }
                 if (tableStatus.FIN){
