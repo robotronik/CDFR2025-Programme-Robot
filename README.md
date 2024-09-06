@@ -17,7 +17,7 @@ Ce programme est conçu pour permettre au robot d'accomplir différentes tâches
 Avant d'exécuter le programme, assurez-vous d'avoir installé les dépendances suivantes :
 
 ```bash
-sudo apt-get install libi2c-dev python3-venv
+sudo apt-get install make gcc g++ libi2c-dev python3-venv
 ```
 Et la bibliothèque [pigpio](https://abyz.me.uk/rpi/pigpio/index.html)
 
@@ -27,7 +27,10 @@ Et la bibliothèque [pigpio](https://abyz.me.uk/rpi/pigpio/index.html)
 1. Clonez le dépôt sur votre machine locale avec votre clée SSH
    ```bash
    git clone git@github.com:robotronik/CDFR2025-Programme-Robot.git --recursive
-
+   ```
 ## Compilation
 
-Avoir make, gcc/g++, libi2c-dev d'installé sur sa machine linux
+Simplement lancer la commande pour compiler le programme
+   ```bash
+   make
+   ```
