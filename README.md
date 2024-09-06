@@ -1,6 +1,6 @@
-# cdfr2024-Programme-Robot
+# cdfr2025-Programme-Robot
 
-Bienvenue dans le projet cdfr2024-Programme-Robot ! Ce projet vise à développer un programme pour contrôler un robot dans le cadre du CDFR 2024.
+Bienvenue dans le projet cdfr2025-Programme-Robot ! Ce projet vise à développer un programme pour contrôler un robot dans le cadre du CDFR 2025.
 
 ## Description
 
