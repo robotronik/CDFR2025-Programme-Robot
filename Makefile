@@ -20,7 +20,7 @@ DEPENDS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.d,$(SRC)) $(patsubst $(TESTDIR
 
 .PHONY: all clean tests
 
-all: lidarLib $(TARGET)
+all: lidarLib $(TARGET) $(TEST_TARGET)
 	@echo "Compilation terminée. Exécutez './$(TARGET)' pour exécuter le programme."
 
 $(TARGET): $(OBJ) | bin
@@ -55,4 +55,5 @@ tests: $(TEST_TARGET)
 	./$(TEST_TARGET)
 
 clean:
+	@echo "Cleaning..."
 	rm -rf $(OBJDIR) $(TESTOBJDIR) bin/
