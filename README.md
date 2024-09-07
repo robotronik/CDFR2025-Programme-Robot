@@ -25,12 +25,27 @@ Et la bibliothèque [pigpio](https://abyz.me.uk/rpi/pigpio/index.html)
 ## Installation
 
 1. Clonez le dépôt sur votre machine locale avec votre clée SSH
+
    ```bash
    git clone git@github.com:robotronik/CDFR2025-Programme-Robot.git --recursive
    ```
+
 ## Compilation
 
 Simplement lancer la commande pour compiler le programme
+
    ```bash
    make
+   ```
+
+Pour lancer les tests faire
+
+   ```bash
+   make tests
+   ```
+
+Et finalement, pour nettoyer faire
+
+   ```bash
+   make clean
    ```
