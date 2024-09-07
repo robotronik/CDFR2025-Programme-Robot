@@ -6,5 +6,5 @@
 
 #pigpio Submodule
 [Submodule "pigpio"]
-    path = pigpio
-    url = git@github.com:joan2937/pigpio.git
+	path = pigpio
+	url = git@github.com:joan2937/pigpio.git
