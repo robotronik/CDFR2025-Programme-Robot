@@ -1,6 +1,7 @@
 #include <iostream>
 
 bool testDrawPixel();
+bool testLogger();
 
 int runAllTests();
 
@@ -14,7 +15,14 @@ int runAllTests() {
     int numPassed = 0;
     int numTests = 0;
 
-    //Runs a test
+    //Runs the logger tests
+    std::cout << "Running logger tests" << std::endl;
+    numTests++;
+    if(testLogger())
+        numPassed++;
+
+    //Runs the display tests
+    std::cout << "Running display tests" << std::endl;
     numTests++;
     if(testDrawPixel())
         numPassed++;
