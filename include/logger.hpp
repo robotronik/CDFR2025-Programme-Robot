@@ -67,7 +67,7 @@ public:
         std::cout << " |  _  /| |  | |  _ <| |  | | | |  |  _  /| |  | | . ` | | | |  <  " << std::endl;
         std::cout << " | | \\ \\| |__| | |_) | |__| | | |  | | \\ \\| |__| | |\\  |_| |_| . \\ " << std::endl;
         std::cout << " |_|  \\_\\\\____/|____/ \\____/  |_|  |_|  \\\\_\\____/|_| \\_|_____|_|\\_\\" << std::endl;
-        std::cout << "\033[0m";                                                           
+        std::cout << "\n\033[0m";                                                           
                                                                     
         std::cout << "ROBOTRONIK" << std::endl;
         std::cout << "PROGRAM ROBOT CDFR" << std::endl;
