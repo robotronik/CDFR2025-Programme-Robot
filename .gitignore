@@ -9,6 +9,9 @@
 /bin/
 /obj/
 /test_obj/
+/arm_bin/
+/arm_obj/
+
 
 *.log
 tmp/
