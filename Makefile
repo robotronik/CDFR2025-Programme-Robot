@@ -69,7 +69,7 @@ build_pigpio:
 
 
 # Cross-compiler and flags for Raspberry Pi (ARM architecture)
-CROSS_COMPILE_PREFIX = arm-linux-gnueabihf
+CROSS_COMPILE_PREFIX = aarch64-linux-gnu
 ARM_CXX = $(CROSS_COMPILE_PREFIX)-g++
 
 # Raspberry Pi Deployment Info
@@ -106,18 +106,18 @@ deploy: clean-all arm_bin build_arm_lidarLib build_arm_pigpio $(ARM_TARGET)
 	scp -r ./arm_bin $(PI_USER)@$(PI_HOST):$(PI_DIR)
 
 run: deploy
-	ssh $(PI_USER)@$(PI_HOST) '$(PI_DIR)/$(TARGET)'
+	ssh $(PI_USER)@$(PI_HOST) '$(PI_DIR)/$(ARM_TARGET)'
 
 # Define the lidarLib target
 build_arm_lidarLib:
-	@echo "--------------------------------- Building lidarLib for ARM... ---------------------------------"
+	@echo "--------------------------------- Building lidarLib for ARM64... ---------------------------------"
 	@cd rplidar_sdk && \
 	chmod +x ./cross_compile.sh && \
-	CROSS_COMPILE_PREFIX=arm-linux-gnueabihf ./cross_compile.sh
+	CROSS_COMPILE_PREFIX=$(CROSS_COMPILE_PREFIX) ./cross_compile.sh
 
 # Define the pigpio target
 build_arm_pigpio:
-	@echo "--------------------------------- Building pigpio for ARM... ---------------------------------"
+	@echo "--------------------------------- Building pigpio for ARM64... ---------------------------------"
 	sudo $(MAKE) CROSS_PREFIX=$(CROSS_COMPILE_PREFIX)- -C pigpio install
 	cp ./pigpio/sdk/lib/libpigpio.so.1 ./arm_bin/
 

@@ -23,10 +23,10 @@ sudo apt-get install make gcc g++ libi2c-dev python3-venv
 Les dépendances requises pour compiler sur arm (RasbPi)
 
 ```bash
-sudo apt-get install gcc-arm-linux-gnueabihf
+sudo apt-get install g++-aarch64-linux-gnu
 sudo apt remove libi2c-dev
-wget http://ports.ubuntu.com/pool/universe/i/i2c-tools/libi2c-dev_4.3-4_armhf.deb
-sudo dpkg --force architecture --force-depends --install ./libi2c-dev_4.3-4_armhf.deb
+wget http://ports.ubuntu.com/pool/universe/i/i2c-tools/libi2c-dev_4.3-4_arm64.deb
+sudo dpkg --force architecture --force-depends --install ./libi2c-dev_4.3-4_arm64.deb
 ```
 
 ## Installation
@@ -61,6 +61,8 @@ make clean
 
 Assurez vous d'avoir les dépendances requieses pour compiler sur arm.
 Simplement lancer la commande pour compiler le programme pour ARM et l'installer sur le RasbPi.
+Pour se connecter en ssh au RasbPi sans avoir à utiliser de mot de passe, utiliser
+ssh-copy-id pi@192.168.1.47
 
 ```bash
 make deploy
