@@ -5,6 +5,7 @@
 #include <iomanip>
 //#include <asser.hpp>
 #include <stack>
+#include "utils.h"
 
 enum class LogLevel { DEBUG, INFO, WARNING, ERROR, GREENINFO};
 
@@ -66,17 +67,13 @@ public:
         std::cout << " |  _  /| |  | |  _ <| |  | | | |  |  _  /| |  | | . ` | | | |  <  " << std::endl;
         std::cout << " | | \\ \\| |__| | |_) | |__| | | |  | | \\ \\| |__| | |\\  |_| |_| . \\ " << std::endl;
         std::cout << " |_|  \\_\\\\____/|____/ \\____/  |_|  |_|  \\\\_\\____/|_| \\_|_____|_|\\_\\" << std::endl;
-        std::cout << "\033[0m";                                                           
+        std::cout << "\n\033[0m";                                                           
                                                                     
         std::cout << "ROBOTRONIK" << std::endl;
         std::cout << "PROGRAM ROBOT CDFR" << std::endl;
-        time_t temps;
-        struct tm date;
-        char tempsFormate[80];
-        time(&temps);
-        date = *localtime(&temps);
-        strftime(tempsFormate, sizeof(tempsFormate), "%Y-%m-%d %H:%M:%S", &date);
+        char* tempsFormate = currentTimeFormatted();
         std::cout << "Start Time : " << tempsFormate << std::endl;
+        free(tempsFormate);
     }
 
     // std::string getPosition(void){
@@ -98,22 +95,24 @@ public:
 
         switch (level) {
             case LogLevel::DEBUG:
-                std::cout << "[DEBUG]" << "getPosition()" << std::setw(25)  <<  std::left << ScopeLogger::logIndentation() << " " << oss.str() << std::endl;
+                std::cout << currentTimeFormatted() << " [DEBUG]" << std::setw(10)  <<  std::left << ScopeLogger::logIndentation() << " " << oss.str() << std::endl;
                 break;
             case LogLevel::INFO:
-                std::cout << "[INFO] " << "getPosition()" << std::setw(25)  <<  std::left << ScopeLogger::logIndentation()  << " " << oss.str() << std::endl;
+                std::cout << currentTimeFormatted() << " [INFO]" << std::setw(11)  <<  std::left << ScopeLogger::logIndentation()  << " " << oss.str() << std::endl;
                 break;
             case LogLevel::WARNING:
-                std::cout << "[WARNING] " << "getPosition()" << std::setw(25)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
+                std::cout << currentTimeFormatted() << " [WARNING]" << std::setw(8)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
                 break;
             case LogLevel::ERROR:
+                std::cout << currentTimeFormatted();
                 std::cout << "\033[1;31m";
-                std::cout << "[ERROR] " << "getPosition()" << std::setw(25)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
+                std::cout << " [ERROR]" << std::setw(10)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
                 std::cout << "\033[0m";
                 break;
             case LogLevel::GREENINFO:
+                std::cout << currentTimeFormatted();
                 std::cout << "\033[32m";
-                std::cout << "[INFO] " << "getPosition()" << std::setw(25)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
+                std::cout << " [INFO]" << std::setw(11)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
                 std::cout << "\033[0m";
                 break;
 
@@ -133,7 +132,6 @@ private:
 
     void appendMessage(std::ostringstream& oss) {}  // Base case for recursion
 };
-
 
 
 

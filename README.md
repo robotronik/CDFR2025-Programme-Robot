@@ -1,6 +1,6 @@
-# cdfr2024-Programme-Robot
+# cdfr2025-Programme-Robot
 
-Bienvenue dans le projet cdfr2024-Programme-Robot ! Ce projet vise à développer un programme pour contrôler un robot dans le cadre du CDFR 2024.
+Bienvenue dans le projet cdfr2025-Programme-Robot ! Ce projet vise à développer un programme pour contrôler un robot dans le cadre du CDFR 2025.
 
 ## Description
 
@@ -17,14 +17,59 @@ Ce programme est conçu pour permettre au robot d'accomplir différentes tâches
 Avant d'exécuter le programme, assurez-vous d'avoir installé les dépendances suivantes :
 
 ```bash
-sudo apt-get install libi2c-dev python3-venv
+sudo apt-get install make gcc g++ libi2c-dev python3-venv
 ```
-Et la bibliothèque [pigpio](https://abyz.me.uk/rpi/pigpio/index.html)
 
+Les dépendances requises pour compiler sur arm (RasbPi)
+
+```bash
+sudo apt-get install g++-aarch64-linux-gnu
+sudo apt remove libi2c-dev
+wget http://ports.ubuntu.com/pool/universe/i/i2c-tools/libi2c-dev_4.3-4_arm64.deb
+sudo dpkg --force architecture --force-depends --install ./libi2c-dev_4.3-4_arm64.deb
+```
 
 ## Installation
 
-1. Clonez le dépôt sur votre machine locale.
-   ```bash
-   git clone https://github.com/votre-utilisateur/cdfr2024-Programme-Robot.git
+1. Clonez le dépôt sur votre machine locale avec votre clée SSH
 
+```bash
+git clone git@github.com:robotronik/CDFR2025-Programme-Robot.git --recursive
+```
+
+## Compilation
+
+Simplement lancer la commande pour compiler le programme
+
+```bash
+make
+```
+
+Pour lancer les tests faire
+
+```bash
+make tests
+```
+
+Et finalement, pour nettoyer faire
+
+```bash
+make clean
+```
+
+## Compilation pour RasbPi
+
+Assurez vous d'avoir les dépendances requieses pour compiler sur arm.
+Simplement lancer la commande pour compiler le programme pour ARM et l'installer sur le RasbPi.
+Pour se connecter en ssh au RasbPi sans avoir à utiliser de mot de passe, utiliser
+ssh-copy-id pi@192.168.1.47
+
+```bash
+make deploy
+```
+
+Pour nettoyer faire
+
+```bash
+make clean-all
+```

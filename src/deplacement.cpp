@@ -8,6 +8,9 @@ int deplacementPathFinding(int collide, Asser* robot, int x, int y){
     go_to_State_t nextState = currentState;
     int deplacementreturn;
 
+    // Ludovic Bouchard - Variables non défénies, nécéssaire pour compiler...
+    asser_direction_side direction;
+    int teta, rotation;
 
     switch (currentState)
     {
@@ -65,8 +68,6 @@ int deplacementPathFinding(int collide, Asser* robot, int x, int y){
 
 }
 
-
-}
 
 int deplacementLinearPoint(int collide, Asser* robot, int x, int y){
     LOG_SCOPE("MOVE");

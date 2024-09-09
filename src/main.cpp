@@ -357,6 +357,7 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
+    //END SEQUENCE
     arduino->moveStepper(0,1);
     gpioPWM(18, 0);
     arduino->servoPosition(4,180);

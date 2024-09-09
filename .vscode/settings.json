@@ -80,5 +80,12 @@
         "xstring": "cpp",
         "xtr1common": "cpp",
         "xutility": "cpp"
-    }
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/ludovic/Desktop/CDFR2025-Programme-Robot/bin",
+            "binaryPath": "/home/ludovic/Desktop/CDFR2025-Programme-Robot/bin/programCDFR",
+            "binaryArgs": []
+        }
+    ]
 }
