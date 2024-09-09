@@ -22,14 +22,14 @@ DEPENDS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.d,$(SRC)) $(patsubst $(TESTDIR
 
 .PHONY: all clean tests clean-all deploy run
 
-all: bin build_pigpio build_lidarLib $(TARGET) $(TEST_TARGET)
-	@echo "Compilation terminée. Exécutez '(cd bin && ./programCDFR)' pour exécuter le programme."
+all: $(BINDIR) build_pigpio build_lidarLib $(TARGET) $(TEST_TARGET)
+	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && ./programCDFR)' pour exécuter le programme."
 
-$(TARGET): $(OBJ) | bin
+$(TARGET): $(OBJ) | $(BINDIR)
 	@echo "--------------------------------- Compilation du programme principal... ---------------------------------"
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
-$(TEST_TARGET): $(OBJ_NO_MAIN) $(TEST_OBJ) | bin
+$(TEST_TARGET): $(OBJ_NO_MAIN) $(TEST_OBJ) | $(BINDIR)
 	@echo "--------------------------------- Compilation des tests... ---------------------------------"
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
@@ -62,7 +62,8 @@ build_lidarLib:
 # Define the pigpio target
 build_pigpio:
 	@echo "--------------------------------- Compilation de pigpio... ---------------------------------"
-	sudo $(MAKE) -C pigpio pigpio.o command.o
+	$(MAKE) -C pigpio pigpio.o command.o
+# sudo
 
 
 
@@ -102,7 +103,7 @@ $(ARM_TARGET): $(ARM_OBJ) | $(ARMBINDIR)
 
 
 # Deploy target
-deploy: clean-all build_arm_lidarLib build_arm_pigpio $(ARM_TARGET)
+deploy: build_arm_lidarLib build_arm_pigpio $(ARM_TARGET)
 	@echo "--------------------------------- Deploiement vers le Raspberry Pi... ---------------------------------" 
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	scp -r ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
@@ -120,7 +121,8 @@ build_arm_lidarLib:
 # Define the pigpio target
 build_arm_pigpio:
 	@echo "--------------------------------- Compilation de pigpio pour ARM64... ---------------------------------"
-	sudo $(MAKE) CROSS_PREFIX=$(CROSS_COMPILE_PREFIX)- -C pigpio pigpio.o command.o
+	$(MAKE) CROSS_PREFIX=$(CROSS_COMPILE_PREFIX)- -C pigpio pigpio.o command.o
+#sudo
 
 
 
@@ -128,7 +130,7 @@ build_arm_pigpio:
 
 clean:
 	@echo "--------------------------------- Nettoyage... ---------------------------------"
-	rm -rf $(OBJDIR) $(TESTOBJDIR) $(ARM_OBJDIR) $(ARM_OBJDIR) $(BINDIR) arm_bin/
+	rm -rf $(OBJDIR) $(TESTOBJDIR) $(ARM_OBJDIR) $(ARM_OBJDIR) $(BINDIR) $(ARMBINDIR)
 
 # Clean lidarLib specifically
 clean-lidarLib:
