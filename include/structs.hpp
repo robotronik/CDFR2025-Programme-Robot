@@ -1,15 +1,20 @@
 #pragma once
 #include "utils.h"
 #include "constante.h"
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 typedef struct 
 {
-    int   x;
-    int   y;
-    int dist;
-    int   teta;
-    int   time;
-}position_t;
+    int  x;
+    int  y;
+    int  dist;
+    int  teta;
+    int  time;
+}position_t; 
+
+//Define serialization for position_t
+void to_json(json& j, const position_t& p);
 
 typedef struct 
 {
@@ -20,6 +25,9 @@ typedef struct
     int   y;
     bool   onTable;
 }lidarAnalize_t;
+
+// Define serialization for lidarAnalize_t
+void to_json(json& j, const lidarAnalize_t& p);
 
 typedef struct
 {
@@ -32,3 +40,6 @@ typedef struct
     bool robotHavePlante;// le robot a des plantes
     
 }robot_t;
+
+// Define serialization for robot_t
+void to_json(json& j, const robot_t& p);

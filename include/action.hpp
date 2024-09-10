@@ -10,8 +10,8 @@
 
 class action;
 
-typedef int (*FuncRunPtr)(action*, Asser*, Arduino*, tableState*);
-typedef int (*FuncValidPtr)(tableState*);
+typedef int (*FuncRunPtr)(action*, Asser*, Arduino*, TableState*);
+typedef int (*FuncValidPtr)(TableState*);
 
 
 class action
@@ -29,12 +29,12 @@ private:
 private:
     Asser* robot;
     Arduino* arduino;
-    tableState* table;
+    TableState* table;
 
-    std::function<int(action*, Asser*, Arduino*, tableState*)> runActionPtr;
+    std::function<int(action*, Asser*, Arduino*, TableState*)> runActionPtr;
     int validActionPtr;
-    std::function<void(tableState*,Asser *)> goodEndPtr;
-    std::function<void(tableState*)> badEndPtr;
+    std::function<void(TableState*,Asser *)> goodEndPtr;
+    std::function<void(TableState*)> badEndPtr;
 
     position_t startPostion;
     asser_direction_side startDirection;
@@ -56,16 +56,16 @@ private:
     bool noTetaStart = false;
 
 public:
-    action(std::string name, Asser* irobot, Arduino* iarduino, tableState* itable);
+    action(std::string name, Asser* irobot, Arduino* iarduino, TableState* itable);
     int runAction(void);
-    void setRunAction(std::function<int(action*, Asser*, Arduino*, tableState*)> ptr);
+    void setRunAction(std::function<int(action*, Asser*, Arduino*, TableState*)> ptr);
     void setStartPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation);
     void setStartPoint(int x, int y, asser_direction_side Direction, asser_rotation_side rotation);
     void setEndPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation);
     int costAction(void);
-    void goodEnd(std::function<void(tableState*, Asser*)> ptr);
-    void badEnd(std::function<void(tableState*)> ptr);
-    void setCostAction(int num_action, int num_i_action, tableState *itable, int x_start, int y_start);
+    void goodEnd(std::function<void(TableState*, Asser*)> ptr);
+    void badEnd(std::function<void(TableState*)> ptr);
+    void setCostAction(int num_action, int num_i_action, TableState *itable, int x_start, int y_start);
     void resetActionEnable(void);
     void setKeyMoment(unsigned long keyMom);
     bool actionNeedForce(void);

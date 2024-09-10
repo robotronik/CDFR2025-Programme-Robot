@@ -1,7 +1,9 @@
 #pragma once
-#include "config.h"
+#include "structs.hpp"
 #include "affichage.hpp"
 #include "logger.hpp"
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 typedef struct 
 {
@@ -11,12 +13,16 @@ typedef struct
     colorTeam_t color; //NONE, BLUE or YELLOW
 }table_t;
 
-class tableState
+// Define serialization for table_t
+void to_json(json& j, const table_t& t);
+
+class TableState
 {
 public:
 
-    tableState(Affichage& affichage);
-    ~tableState();
+    TableState(Affichage& affichage);
+    ~TableState();
+    void init();
     /* data */
     table_t planteStockFull[6]; //zonne des plantes
     table_t JardiniereFull[6]; //zone des jardinières
@@ -29,7 +35,7 @@ public:
     void incrementScore(int score);
     position_t ennemie;
     position_t prev_pos;
-    position_t init; int nb;
+    position_t init_pos; int nb;
     table_t solarPanelTurn;
     unsigned long startTime;
     bool FIN;
@@ -39,6 +45,7 @@ private:
     int score;
     Affichage& affichage;
 
-
 };
 
+// Serialize tableState
+void to_json(json& j, const TableState& ts);

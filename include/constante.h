@@ -1,5 +1,5 @@
 #pragma once
-#include "config.h"
+#include "structs.hpp"
 #define SIZEDATALIDAR 15000
 #define MARGESTOCKPLANT 300
 #define MARGEJADINIERE 250

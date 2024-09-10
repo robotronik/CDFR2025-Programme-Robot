@@ -1,7 +1,7 @@
 #include "action.hpp"
 
 
-action::action(std::string name, Asser* irobot, Arduino* iarduino, tableState* itable){
+action::action(std::string name, Asser* irobot, Arduino* iarduino, TableState* itable){
     robot = irobot;
     arduino = iarduino;
     table = itable;
@@ -113,7 +113,7 @@ int action::costAction(void){
     return cost;
 }
 
-void action::setCostAction(int num_action, int num_i_action, tableState *itable, int x_start, int y_start){
+void action::setCostAction(int num_action, int num_i_action, TableState *itable, int x_start, int y_start){
     int x_pos,y_pos,theta_pos,distance_action;
     robot->getCoords(x_pos,y_pos,theta_pos);
     validActionPtr = -1;
@@ -179,7 +179,7 @@ void action::setCostAction(int num_action, int num_i_action, tableState *itable,
    */
 }
 
-void action::setRunAction(std::function<int(action*, Asser*, Arduino*, tableState*)> ptr){
+void action::setRunAction(std::function<int(action*, Asser*, Arduino*, TableState*)> ptr){
     runActionPtr = ptr;
 }
 
@@ -226,10 +226,10 @@ std::string action::getName(void){
     return actionName;
 }
 
-void action::goodEnd(std::function<void(tableState*,Asser*)> ptr){
+void action::goodEnd(std::function<void(TableState*,Asser*)> ptr){
     goodEndPtr = ptr;
 }
-void action::badEnd(std::function<void(tableState*)> ptr){
+void action::badEnd(std::function<void(TableState*)> ptr){
     badEndPtr = ptr;
 }
 

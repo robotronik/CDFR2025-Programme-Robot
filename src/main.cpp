@@ -10,7 +10,7 @@
 #include <thread>
 #include <fstream>
 
-#include "fonction.h"
+#include "main.hpp"
 #include "lidarAnalize.h"
 #include "lidar.h"
 #include "asser.hpp"
@@ -19,21 +19,12 @@
 #include "utils.h"
 #include "arduinoSubFonction.h"
 #include "logger.hpp"
+#include "restAPI.hpp"
 
 #include "actionContainer.hpp"
 
-//#define DISABLE_LIDAR
+#define DISABLE_LIDAR
 
-
-typedef enum {
-    INIT,
-    INITIALIZE,
-    SETHOME,
-    WAITSTART,
-    RUN,
-    FIN,
-    STOP
-} main_State_t;
 
 bool ctrl_c_pressed;
 void ctrlc(int)
@@ -69,15 +60,14 @@ void executePythonScript(const std::string& command) {
     std::system(command.c_str());
 }
 
+
 int main(int argc, char *argv[]) {
     LOG_INIT();
 
-
-
-    
     if(!lidarSetup("/dev/ttyAMA0",256000)){
         LOG_ERROR("cannot find the lidar");
-        return -1;
+        //return -1;
+        //-----------------------------------------THIS SHOULD BE UNCOMMENTED-----------------------------------
     }
 
 #ifndef DISABLE_LIDAR
@@ -97,21 +87,26 @@ int main(int argc, char *argv[]) {
     signal(SIGTERM, ctrlc);
     //signal(SIGTSTP, ctrlz);
 
-    SSD1306 display(0x3C);
-    Affichage *affichage = new Affichage(display);
-    affichage->init();
+    StartAPIServer();
     
-    tableState tableStatus(*affichage);
+ Affichage *affichage;
+ TableState tableStatus(*affichage);
+    tableStatus.init();
+
+    SSD1306 display(0x3C);
+    affichage = new Affichage(display);
+    affichage->init();
+
+    
     Asser *robotI2C = new Asser(I2C_ASSER_ADDR);
     //LOG_SETROBOT(robotI2C);
     lidarAnalize_t lidarData[SIZEDATALIDAR];    
     Arduino *arduino = new Arduino(I2C_ARDUINO_ADDR);
-    main_State_t currentState = INIT;
+    currentState = INIT;
     main_State_t nextState = INIT;
     bool initStat = true;
     actionContainer* actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
-    int countStart = 0,x =0,y=0,teta=0, count_pos = 0;
-    int distance,countSetHome = 0;
+
 
     // arduino->enableStepper(1);
     // arduino->servoPosition(1,180);
@@ -358,6 +353,7 @@ int main(int argc, char *argv[]) {
         }
     }
     //END SEQUENCE
+    StopAPIServer();
     arduino->moveStepper(0,1);
     gpioPWM(18, 0);
     arduino->servoPosition(4,180);
