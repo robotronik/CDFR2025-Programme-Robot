@@ -66,7 +66,8 @@ int main(int argc, char *argv[]) {
 #ifndef DISABLE_LIDAR
     if(!lidarSetup("/dev/ttyAMA0",256000)){
         LOG_ERROR("cannot find the lidar");
-        return -1;
+        //return -1;
+        //-----------------------------------------THIS SHOULD BE UNCOMMENTED-----------------------------------
     }
 
     if (gpioInitialise() < 0) {
