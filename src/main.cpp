@@ -89,14 +89,12 @@ int main(int argc, char *argv[]) {
 
     StartAPIServer();
     
- Affichage *affichage;
- TableState tableStatus(*affichage);
-    tableStatus.init();
-
+    Affichage *affichage;
     SSD1306 display(0x3C);
     affichage = new Affichage(display);
     affichage->init();
 
+    tableStatus.init(affichage);
     
     Asser *robotI2C = new Asser(I2C_ASSER_ADDR);
     //LOG_SETROBOT(robotI2C);

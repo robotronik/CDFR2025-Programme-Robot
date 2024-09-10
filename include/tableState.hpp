@@ -20,9 +20,9 @@ class TableState
 {
 public:
 
-    TableState(Affichage& affichage);
+    TableState();
     ~TableState();
-    void init();
+    void init(Affichage* affichage);
     /* data */
     table_t planteStockFull[6]; //zonne des plantes
     table_t JardiniereFull[6]; //zone des jardinières
@@ -43,7 +43,7 @@ public:
 
 private:
     int score;
-    Affichage& affichage;
+    Affichage* affichage;
 
 };
 

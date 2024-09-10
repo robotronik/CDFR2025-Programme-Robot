@@ -12,8 +12,7 @@ typedef enum {
 } main_State_t;
 
 static main_State_t currentState;
-//static Affichage *affichage;
-//static TableState tableStatus(*affichage);
+static TableState tableStatus;
 
 static int countStart = 0, x=0, y=0, teta=0, count_pos = 0;
 static int distance, countSetHome = 0;

@@ -2,9 +2,10 @@
 
 //table_t : etat, cout, tps, color
 
-TableState::TableState(Affichage& affichage) : affichage(affichage){}
-void TableState::init()
+TableState::TableState(){}
+void TableState::init(Affichage* i_affichage)
 {
+    affichage = i_affichage;
 
     for(int i = 0; i<6;i++){
         planteStockFull[i].etat = true; //test panneau solaire = false
@@ -49,13 +50,13 @@ int TableState::getScore()
 void TableState::setScore(int score)
 {
     this->score = score;
-    affichage.updateScore(this->score);
+    affichage->updateScore(this->score);
 }
 
 void TableState::incrementScore(int score)
 {
     this->score += score;
-    affichage.updateScore(this->score);
+    affichage->updateScore(this->score);
     LOG_GREEN_INFO("score = ", getScore());
 }
 
