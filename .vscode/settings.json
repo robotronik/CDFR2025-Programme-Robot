@@ -88,5 +88,6 @@
             "binaryPath": "/home/ludovic/Desktop/CDFR2025-Programme-Robot/bin/programCDFR",
             "binaryArgs": []
         }
-    ]
+    ],
+    "C_Cpp.errorSquiggles": "disabled"
 }

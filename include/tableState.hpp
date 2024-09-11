@@ -23,28 +23,32 @@ public:
     TableState();
     ~TableState();
     void init(Affichage* affichage);
-    /* data */
-    table_t planteStockFull[6]; //zonne des plantes
-    table_t JardiniereFull[6]; //zone des jardinières
-    table_t zoneFull[6];          // zone départ/arrivés
-    table_t jardiniereFree[6];    //zonne devant les jardinières
-    table_t panneauSolaireRotate[9];
-    int dx,dy;
+
     int getScore();
     void setScore(int score);
     void incrementScore(int score);
+    
+    /* data generale*/
+    int dx,dy;                //Faut que quelquun me dise ce que c'est ça
     position_t ennemie;
     position_t prev_pos;
-    position_t init_pos; int nb;
-    table_t solarPanelTurn;
+    position_t init_pos; 
+    int nb;                   //Et ça
     unsigned long startTime;
     bool FIN;
     robot_t robot;
+    table_t zoneFull[6];          // zone départ/arrivés
+
+    /* data farming mars*/
+    table_t planteStockFull[6]; //zonne des plantes
+    table_t JardiniereFull[6]; //zone des jardinières
+    table_t jardiniereFree[6];    //zonne devant les jardinières
+    table_t panneauSolaireRotate[9];
+    table_t solarPanelTurn;
 
 private:
     int score;
     Affichage* affichage;
-
 };
 
 // Serialize tableState

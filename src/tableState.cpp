@@ -75,7 +75,6 @@ void to_json(json& j, const TableState& ts) {
         {"panneauSolaireRotate", ts.panneauSolaireRotate},
         {"dx", ts.dx},
         {"dy", ts.dy},
-        //{"score", ts.getScore()},
         {"ennemie", ts.ennemie},
         {"prev_pos", ts.prev_pos},
         {"init_pos", ts.init_pos},

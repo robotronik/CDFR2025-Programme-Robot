@@ -22,7 +22,7 @@ DEPENDS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.d,$(SRC)) $(patsubst $(TESTDIR
 
 .PHONY: all clean tests clean-all deploy run
 
-all: $(BINDIR) build_pigpio build_lidarLib $(TARGET) $(TEST_TARGET)
+all: $(BINDIR) build_pigpio build_lidarLib $(TARGET) $(TEST_TARGET) copy_html
 	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && ./programCDFR)' pour exécuter le programme."
 
 $(TARGET): $(OBJ) | $(BINDIR)
@@ -99,14 +99,15 @@ $(ARMBINDIR):
 
 # Cross-compile and link for Raspberry Pi
 $(ARM_TARGET): $(ARM_OBJ) | $(ARMBINDIR)
+	@echo "--------------------------------- Compilation du programme principal... ---------------------------------"
 	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 
 # Deploy target
-deploy: build_arm_lidarLib build_arm_pigpio $(ARM_TARGET)
+deploy: build_arm_lidarLib build_arm_pigpio $(ARM_TARGET) copy_html_arm
 	@echo "--------------------------------- Deploiement vers le Raspberry Pi... ---------------------------------" 
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
-	scp -r ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
+	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
 
 run: deploy
 	ssh $(PI_USER)@$(PI_HOST) '$(PI_DIR)/$(ARM_TARGET)'
@@ -126,6 +127,13 @@ build_arm_pigpio:
 
 
 
+
+# Rule to copy the HTML directory to bin
+copy_html: | $(BINDIR)
+	cp -r html $(BINDIR)
+# Rule to copy the HTML directory to the arm bin
+copy_html_arm: | $(ARMBINDIR)
+	cp -r html $(ARMBINDIR)
 
 
 clean:

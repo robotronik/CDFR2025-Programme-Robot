@@ -13,7 +13,6 @@
 #include "main.hpp"
 #include "lidarAnalize.h"
 #include "lidar.h"
-#include "asser.hpp"
 #include "arduino.hpp"
 #include "affichage.hpp"
 #include "utils.h"
@@ -64,13 +63,12 @@ void executePythonScript(const std::string& command) {
 int main(int argc, char *argv[]) {
     LOG_INIT();
 
+#ifndef DISABLE_LIDAR
     if(!lidarSetup("/dev/ttyAMA0",256000)){
         LOG_ERROR("cannot find the lidar");
-        //return -1;
-        //-----------------------------------------THIS SHOULD BE UNCOMMENTED-----------------------------------
+        return -1;
     }
 
-#ifndef DISABLE_LIDAR
     if (gpioInitialise() < 0) {
         LOG_ERROR("cannot initialize lidar gpio speed");
         return 1;
@@ -96,13 +94,15 @@ int main(int argc, char *argv[]) {
 
     tableStatus.init(affichage);
     
-    Asser *robotI2C = new Asser(I2C_ASSER_ADDR);
+    robotI2C = new Asser(I2C_ASSER_ADDR);
     //LOG_SETROBOT(robotI2C);
-    lidarAnalize_t lidarData[SIZEDATALIDAR];    
-    Arduino *arduino = new Arduino(I2C_ARDUINO_ADDR);
+
+    Arduino* arduino = new Arduino(I2C_ARDUINO_ADDR);
+
     currentState = INIT;
     main_State_t nextState = INIT;
-    bool initStat = true;
+    bool initState = true;
+
     actionContainer* actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
 
 
@@ -130,7 +130,8 @@ int main(int argc, char *argv[]) {
         LOG_SCOPE("Main");
         sleep(0.01);
         
-       
+        
+        // LIDAR could be threadded, see jthreads c++20
         int count = SIZEDATALIDAR;
         if(currentState != FIN){
             if(getlidarData(lidarData,count)){
@@ -178,7 +179,8 @@ int main(int argc, char *argv[]) {
         switch (currentState) {
             //****************************************************************
             case INIT:{
-                if(initStat){ LOG_STATE("INIT");
+                if(initState){ 
+                    LOG_STATE("INIT");
                     int bStateCapteur2 = 0;
                     
                     arduino->readCapteur(2,bStateCapteur2);
@@ -214,8 +216,8 @@ int main(int argc, char *argv[]) {
             }
             //****************************************************************
             case INITIALIZE:{
-                if(initStat) LOG_STATE("INITIALIZE");
-                if(initStat){
+                if(initState){
+                    LOG_STATE("INITIALIZE");
                     arduino->servoPosition(4,100);
                     robotI2C->enableMotor(true);
                     robotI2C->brakeMotor(false);
@@ -245,7 +247,8 @@ int main(int argc, char *argv[]) {
             }
             //****************************************************************
             case SETHOME:{
-                if(initStat) LOG_STATE("SETHOME");
+                if (initState) 
+                    LOG_STATE("SETHOME");
                 if(tableStatus.robot.colorTeam == YELLOW){
                     if(initPosition2(&tableStatus,robotI2C,-700,1280,-180)){
                         nextState = WAITSTART;
@@ -260,7 +263,8 @@ int main(int argc, char *argv[]) {
                 break;
             }            
             case WAITSTART:{
-                if(initStat) LOG_STATE("WAITSTART");
+                if(initState)
+                    LOG_STATE("WAITSTART");
                 int bStateCapteur1 = 0;
                 arduino->readCapteur(1,bStateCapteur1);
                 if(tableStatus.robot.colorTeam == YELLOW){
@@ -292,7 +296,8 @@ int main(int argc, char *argv[]) {
             }
             //****************************************************************
             case RUN:{
-                if(initStat) LOG_STATE("RUN");
+                if(initState) 
+                    LOG_STATE("RUN");
                 bool finish;
                 if(tableStatus.robot.colorTeam == YELLOW){
                     finish = actionSystem->actionContainerRun(robotI2C,&tableStatus);
@@ -317,7 +322,7 @@ int main(int argc, char *argv[]) {
         
             //****************************************************************
             case FIN:
-                if(initStat){
+                if(initState){
                     LOG_STATE("FIN");
                     affichage->updateScore(tableStatus.getScore());
                     arduino->servoPosition(4,180);
@@ -331,7 +336,8 @@ int main(int argc, char *argv[]) {
                 break;
             //****************************************************************
             case STOP:
-                if(initStat) LOG_STATE("STOP");
+                if(initState) 
+                    LOG_STATE("STOP");
                 break;
             //****************************************************************
             default:
@@ -340,9 +346,9 @@ int main(int argc, char *argv[]) {
                 break;
         }
 
-        initStat = false;
+        initState = false;
         if(currentState != nextState){
-            initStat = true;
+            initState = true;
         }
         currentState = nextState;
 

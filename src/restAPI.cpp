@@ -1,4 +1,8 @@
 #include "restAPI.hpp"
+#include <fstream>
+#include <sstream>
+#include <string>
+
 #include "logger.hpp"
 #include "main.hpp" //for static variables
 #include "tableState.hpp"
@@ -10,13 +14,21 @@ static crow::SimpleApp app;
 
 using json = nlohmann::json;
 
+std::string readHtmlFile(const std::string& path);
+
 void StartAPIServer(){
     LOG_INFO("Starting API Server on port ", API_PORT);
 
     // Define a simple route for the root endpoint
     CROW_ROUTE(app, "/")
     ([](){
-        return "Welcome to the ROBOTRONIK Restful API!";
+        return readHtmlFile("html/index.html");
+    });
+
+    // Define a simple route for the display
+    CROW_ROUTE(app, "/display")
+    ([](){
+        return readHtmlFile("html/display.html");
     });
 
     // Define a route for a simple GET request that returns a JSON response
@@ -53,6 +65,7 @@ void StartAPIServer(){
     ([](){
         json response;
         response["table"] = tableStatus;
+        response["score"] = tableStatus.getScore();
         return crow::response(response.dump(4));
     });
 
@@ -76,6 +89,23 @@ void StartAPIServer(){
         return crow::response(response.dump(4));
     });
 
+
+    // Route for serving SVG files
+    CROW_ROUTE(app, "/assets/<string>")
+    .methods(crow::HTTPMethod::GET)([](const std::string& filename) {
+        std::ifstream file("html/" + filename, std::ios::binary);
+        if (!file) {
+            return crow::response(404, "File not found");
+        }
+
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        crow::response res{buffer.str()};
+        res.set_header("Content-Type", "image/svg+xml");
+        return res;
+    });
+
+
     // Set the port and run the app
     app.loglevel(crow::LogLevel::Warning);
     app.port(API_PORT).multithreaded().run();
@@ -84,4 +114,13 @@ void StartAPIServer(){
 void StopAPIServer(){
     LOG_INFO("Stopped API Server");
     app.stop();
+}
+
+
+// Function to read an HTML file and return its content as a string
+std::string readHtmlFile(const std::string& path) {
+    std::ifstream file(path);
+    std::stringstream buffer;
+    buffer << file.rdbuf();  // Read the file into the buffer
+    return buffer.str();
 }
