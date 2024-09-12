@@ -392,6 +392,56 @@ position_float_t position_estime(double alpha12, double alpha23, double alpha31,
     return robot[index_best];
 }
 
+position_float_t position_estime2(double alpha12, double alpha23, double alpha31){
+    position_float_t bal_1 = {-950, -1594};
+    position_float_t bal_2 = {950, -1594};
+    position_float_t bal_3 = {0, 1594};
+    double D1_2 = sqrt(pow(bal_1.x - bal_2.x,2)+pow(bal_1.y - bal_2.y,2));
+    double R1 = D1_2/(2*sin(alpha12));
+    position_float_t C1, M = {(bal_1.x + bal_2.x) / 2, (bal_1.y + bal_2.y) / 2}; // Calcul du milieu du segment AB
+    double d = sqrt((bal_2.x - bal_1.x) * (bal_2.x - bal_1.x) + (bal_2.y - bal_1.y) * (bal_2.y - bal_1.y)); // Calcul de la distance entre A et B
+    double h = sqrt(R1 * R1 - (d / 2) * (d / 2)); // Calcul de la distance du milieu au centre
+    if (alpha12<M_PI/2) {
+        C1.x = M.x - h * (bal_2.y - bal_1.y) / d;
+        C1.y = M.y + h * (bal_2.x - bal_1.x) / d;} // Calcul des centres possibles
+    else {
+        C1.x = M.x + h * (bal_2.y - bal_1.y) / d;
+        C1.y =  M.y - h * (bal_2.x - bal_1.x) / d;} // Calcul des centres possibles
+
+    printf("\n pos C_x1 = %f, C_y1 = %f", C1.x, C1.y);
+    double  alpha_x,theta = 0,min = 10000,diff; 
+    position_float_t robot_finale;
+    double a2,a3,somme,angle_step = 2 * M_PI / 100;  // Incrément angulaire
+
+    for (int i = 0; i < 1000; ++i) {
+        if (fabs(theta*180/M_PI) > 360) {theta = random() % 360;}
+        position_float_t estim_robot = {C1.x + R1 * cos(theta), C1.y + R1 * sin(theta)};
+        a2 = angle(estim_robot,bal_3,bal_2);
+        a3 = angle(estim_robot,bal_1,bal_3);
+        somme = alpha12*180/M_PI+ a2*180/M_PI+a3*180/M_PI;
+        if (fabs(somme-360)> 0.5) {
+            a2 = 2*M_PI - a2;
+            somme = alpha12*180/M_PI+ a2*180/M_PI+a3*180/M_PI;
+        }
+        if (fabs(somme-360)> 0.5) {
+            a3 = 2*M_PI - a3;
+            a2 = 2*M_PI - a2;
+            somme = alpha12*180/M_PI+ a2*180/M_PI+a3*180/M_PI;
+        }
+
+        diff = a2*180/M_PI - alpha23*180/M_PI;
+        if (fabs(diff) < min) {min = 0;
+            min = fabs(diff);
+            robot_finale = estim_robot;
+        }
+        if (fabs(diff) < 0.001) {break;}
+        theta += diff/200;
+
+    }
+    return robot_finale;
+}
+
+
 void init_position_balise(lidarAnalize_t* data, int count, position_t *position){
     double deg1,deg2,deg3,distance,somme_angle=0,somme_dist = 0,nb =0;
     int next_valid,ligne =0,rows = 200;//nb de lignes
@@ -485,10 +535,14 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
         angle2 = array[index_poto2]->moy_angle - array[index_poto3]->moy_angle;
         angle3 = array[index_poto3]->moy_angle - array[index_poto1]->moy_angle;
         if (angle1 <0) angle1 += 360;if (angle2 < 0) angle2 += 360; if (angle3 < 0) angle3 += 360;
+
         
-        //printf("\n angle = %f / %f / %f", angle1, angle2, angle3);
-        position_float_t pos_robot = position_estime(angle1,angle2,angle3,array[index_poto2]->moy_angle,array[index_poto1]->moy_dist,array[index_poto2]->moy_dist,array[index_poto3]->moy_dist);
-        printf("\n X = %f / y = %f / angle = %f", pos_robot.x,pos_robot.y, pos_robot.angle);
+        printf("\n angle = %f / %f / %f / somme = %f", angle1, angle3, angle2, angle1 + angle2 + angle3 - 360);
+        //position_float_t pos_robot = position_estime(angle1,angle2,angle3,array[index_poto2]->moy_angle,array[index_poto1]->moy_dist,array[index_poto2]->moy_dist,array[index_poto3]->moy_dist);
+        position_float_t pos_robot = position_estime2(angle1*M_PI/180,angle3*M_PI/180,angle2*M_PI/180);
+        
+        printf("\n X = %f / y = %f / angle = %f\n\n", pos_robot.x,pos_robot.y, pos_robot.angle);
+
     
     }
     // Libération de la mémoire
