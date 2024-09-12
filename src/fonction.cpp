@@ -1,54 +1,6 @@
 #include "fonction.h"
-position_t verif_position(Asser* robotI2C, lidarAnalize_t *data, tableState* itable){
-    int count = SIZEDATALIDAR;
-    int x=0, y=0, teta=0;
-    double norme, dx,dy;
-    int diff_x, diff_y;
-    robotI2C->getCoords(x,y,teta);
-    position_t position = {x,y,0,teta,0};
-    position_t position_test = {x,y,0,teta,0};
-    convertAngularToAxial(data,count,&position,0);
-    init_position_balise(data, count, &position_test);
-    norme = sqrt(pow(position.x - position_test.x,2) + pow(position.y - position_test.y,2));
-    dx = position_test.x - 55*cos(position.teta*DEG_TO_RAD) - position.x;
-    dy = position_test.y + 55*sin(position.teta*DEG_TO_RAD) - position.y;
 
-    if (norme != 0){
-        diff_x = position.x - itable->prev_pos.x;
-        diff_y = position.y - itable->prev_pos.y;
-        if (diff_x == 0 && diff_y == 0){
-            LOG_INFO("norme :", norme," Position : ", position.x ,"/",position.y ,"/",position_test.x - 55*cos(position.teta*DEG_TO_RAD) ,"/",position_test.y + 55*sin(position.teta*DEG_TO_RAD), "dx = ",dx, "/ dy = ", dy , "teta = ", position.teta, "teta_balise = ",position_test.teta);
-            itable->dx = int(dx);
-            itable->dy = int(dy);
-        }
-        itable->prev_pos.x = position.x;
-        itable->prev_pos.y = position.y;
-        itable->prev_pos.teta = position.teta;
-
-        if (itable->nb <= 20){
-            itable->init.x += position_test.x;
-            itable->init.y += position_test.y;
-            itable->nb ++;
-        }
-        }
-    
-    return position_test;
-
-}
-int initPosition(Asser* robotI2C,tableState* itable){
-    LOG_SCOPE("initPositon");
-    int x,y,teta;
-    x = itable->init.x/itable->nb;    
-    y = itable->init.y/itable->nb;  
-    teta = itable->init.teta;
-    robotI2C->setCoords(x,y- 55,-90);
-    LOG_GREEN_INFO("SET COORD : x =", x," / y = ",y - 55," / teta =",teta);
-    robotI2C->setLinearMaxSpeed(10000);
-    robotI2C->setMaxTorque(100);
-    sleep(0.1);
-    return 1;
-}
-int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
+int initPosition2(tableState* itable, Asser* iAsser,int x, int y,int teta){
     LOG_SCOPE("initPositon2");
     int ireturn = 0;
     static bool initStat = true;
@@ -59,10 +11,10 @@ int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
     //static int step = -1;
 
     int TetaStart = -90;
-    int xSecond = 300;
+    int xSecond = 210;
     int xStart = 1000 - ROBOT_Y_OFFSET;
     int yStart = 1500 - ROBOT_Y_OFFSET;
-    int yBack = 400;
+    int yBack = 310;
     if(y<0){
         TetaStart = 90;
     }
@@ -83,8 +35,8 @@ int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
     case SETPOS_INIT :
         if(initStat) LOG_STATE("SETPOS_INIT");
         iAsser->getCoords(xSave,ySave,tetaSave);
-        iAsser->setLinearMaxSpeed(200);
-        iAsser->setMaxTorque(20);
+        iAsser->setLinearMaxSpeed(150);
+        iAsser->setMaxTorque(30);
         startTime = millis()+100;
         nextState = SETPOS_FIRSTFORWARD;
         break;
@@ -92,7 +44,8 @@ int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
 
     case SETPOS_FIRSTFORWARD :
         if(initStat) LOG_STATE("SETPOS_FIRSTFORWARD");
-        if(deplacementLinearPoint(itable->robot.collide,iAsser,xSave,ySave+yBack)>0){
+        
+        if(deplacementLinearPoint(12000,iAsser,xSave,ySave+yBack)>0){
             nextState = SETPOS_FIRSTBACKWARD;
             iAsser->setCoords(xSave,yStart,TetaStart);
         }
@@ -100,24 +53,24 @@ int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
 
     case SETPOS_FIRSTBACKWARD :
         if(initStat) LOG_STATE("SETPOS_FIRSTBACKWARD");    
-        if(deplacementgoToPoint(itable->robot.collide,iAsser,xSave,y,-180,MOVE_BACKWARD,ROTATION_DIRECT)>0){
+        if(deplacementgoToPoint(12000,iAsser,xSave,y,-180, MOVE_BACKWARD)>0){
             nextState = SETPOS_SECONDBACKWARD;
         }
         break;
 
     case SETPOS_SECONDBACKWARD :
         if(initStat) LOG_STATE("SETPOS_SECONDBACKWARD");
-        if(deplacementLinearPoint(itable->robot.collide,iAsser,xSave+xSecond,y)>0){
+        if(deplacementLinearPoint(12000,iAsser,xSave+xSecond,y)>0){
             iAsser->setCoords(xStart, y,-180);
             nextState = SETPOS_SECONDFORWARD;
         }
         break;
 
     case SETPOS_SECONDFORWARD :
-        if(initStat) LOG_STATE("SETPOS_SECONDFORWARD");
-        if(deplacementgoToPoint(itable->robot.collide,iAsser,x,y,-180,MOVE_BACKWARD,ROTATION_DIRECT)>0){
+        if(initStat) LOG_STATE("SETPOS_SECONDFORWAsetMaxTorqueRD");
+        if(deplacementgoToPoint(12000,iAsser,x,y,-180,MOVE_BACKWARD,ROTATION_DIRECT)>0){
             nextState = SETPOS_INIT;
-            iAsser->setLinearMaxSpeed(10000);
+            iAsser->setLinearMaxSpeed(MAX_SPEED);
             iAsser->setMaxTorque(100);
             ireturn = 1;
         }
@@ -139,47 +92,72 @@ int initPositon2(tableState* itable, Asser* iAsser,int x, int y,int teta){
 
 int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
     LOG_SCOPE("SolarPanel");
-    static fsmSolarPanel_t currentState = SOLARPANEL_INIT;
+    static fsmSolarPanel_t currentState = VITESSEE_INIT;
     fsmSolarPanel_t nextState = currentState;
     static bool initStat = true;
     int ireturn = 0,deplacementreturn, offsetRobot1,offsetRobot2;
     const int axeX = 800;
     static int solarPanelNumber;
-    int x, y, teta;
-    
+    int bord, departy, angle, bordOff;
     if(itable->robot.colorTeam == YELLOW){
-        offsetRobot1 = 10;
-        offsetRobot2 = 35;
+        offsetRobot1 = 5;
+        offsetRobot2 = 30;
+        bord = 1530-131;
+        bordOff = 1500 - 131;
+        angle = -90;
+        departy = 1200;
     }
     else{
-        offsetRobot1 = -70;
-        offsetRobot2 = -105;
+        offsetRobot1 = -75;
+        offsetRobot2 = -95; //-105 avant
+        bord = -(1530-131);
+        departy = -1200;
+        angle = 90;
+        bordOff = -(1500-131);
     }
     
     switch (currentState)
     {
+    case VITESSEE_INIT :
+        iAsser->setLinearMaxSpeed(250);
+        iAsser->setMaxTorque(30);
+        iAsser->setAngularMaxSpeed(150);
+        nextState = SOLARPANEL_INIT;
+        break;
+
     case SOLARPANEL_INIT :
-        if(initStat) LOG_STATE("SOLARPANEL_INIT");
-        nextState = SOLARPANEL_FORWARD;
-        iAsser->getCoords(x,y,teta);
-        LOG_GREEN_INFO("SET_COORD : dx = ",itable->dx, " / dy = ",itable->dy);
-        iAsser->setCoords(x+itable->dx/2, y+itable->dy/2,teta);
         
+        if(initStat) LOG_STATE("SOLARPANEL_INIT");
         if(itable->robot.colorTeam == YELLOW){
             solarPanelNumber = 0;
         }
         else{
             solarPanelNumber = 8;
         }
+        if (deplacementLinearPoint(itable->robot.collide,iAsser,axeX,bord) > 0){
+            int x,y,teta;
+            iAsser->getCoords(x,y,teta);
+            if (fabs(teta - angle) < 3 && fabs(y-bord) < 10){iAsser->setCoords(x,bordOff ,angle);}
+            nextState = SOLARPANEL_FIN_INIT;
+            iAsser->setLinearMaxSpeed(SPEED_PLANTE);
+            iAsser->setMaxTorque(100);
+            
+        }
+            break;
 
+    case SOLARPANEL_FIN_INIT :
+        
+        if(initStat) LOG_STATE("SOLARPANEL_FIN_INIT");
+        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,axeX,departy, -90,MOVE_BACKWARD,ROTATION_HORRAIRE);
+        if (deplacementreturn > 0){
+            nextState = SOLARPANEL_FORWARD;
+        }
         break;
-
 
     case SOLARPANEL_FORWARD :
         if(initStat) LOG_STATE("SOLARPANEL_FORWARD");
         deplacementreturn = deplacementLinearPoint(itable->robot.collide,iAsser,axeX,table[solarPanelNumber]-offsetRobot1);
-
-        if (itable->startTime+90000+5000 < millis()){
+        if (itable->startTime+85000 < millis()){
             nextState = SOLARPANEL_END;
                 }
         if(deplacementreturn>0){
@@ -190,12 +168,7 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
     case SOLARPANEL_PUSHFOR :
         if(initStat) LOG_STATE("SOLARPANEL_PUSHFOR");
         if(pullpush(arduino)){
-            int x,y,teta;
-            LOG_GREEN_INFO("POSITION SET : dx = ",itable->dx, " / dy = ",itable->dy);
-            LOG_GREEN_INFO("ETAT solar panel ",!itable->panneauSolaireRotate[solarPanelNumber].etat);
-            LOG_GREEN_INFO("ETAT solar condition ",solarPanelNumber<3 || !itable->panneauSolaireRotate[solarPanelNumber].etat);
-            iAsser->getCoords(x,y,teta);
-            iAsser->setCoords(x + itable->dx/2,y + itable->dy/2,teta);
+            itable->incrementScore(SOLAR_PANNEL);
             if(itable->robot.colorTeam == YELLOW){
                 itable->panneauSolaireRotate[solarPanelNumber].color = YELLOW;
                 solarPanelNumber++;
@@ -250,6 +223,8 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
 
     case SOLARPANEL_END :
         if(initStat) LOG_STATE("SOLARPANEL_END");
+        iAsser->setAngularMaxSpeed(500);
+        arduino->moveStepper(2000,1);
         ireturn = 1;
         break;
     
@@ -267,107 +242,7 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
 
 }
 
-int takePlant(Asser* iAsser,Arduino* arduino,tableState*itable,int yPos,int xStart, int xEnd, int numPlante){
-    LOG_SCOPE("take plant");
-    int ireturn = 0;
-    static bool initStat = true;
-    static fsmtakePlant_t currentState = TAKEPLANT_INIT;
-    fsmtakePlant_t nextState = currentState;
-    int deplacementreturn;
-    static int positionToGo = 0;
-    int x,y,teta;
-    static bool servoChange;
-    static bool servoChange2;
-
-
-    switch (currentState)
-    {
-    case TAKEPLANT_INIT :
-        if(initStat) LOG_STATE("TAKEPLANT_INIT");
-        nextState = TAKEPLANT_FORWARD;
-        positionToGo = plantPosition[numPlante].x+100;
-        arduino->servoPosition(4,100);
-        iAsser->setLinearMaxSpeed(200);
-        servoChange = false;
-        servoChange2 = false;
-        break;
-    case TAKEPLANT_FORWARD :
-        if(initStat) LOG_STATE("TAKEPLANT_FORWARD");
-        deplacementreturn = deplacementLinearPoint(itable->robot.collide,iAsser,positionToGo,yPos);
-        iAsser->getCoords(x,y,teta);
-        if(x>positionToGo-200 && servoChange == false){
-            servoChange = true;
-            arduino->servoPosition(4,170);
-        }
-        if(x>positionToGo-50 && servoChange2 == false){
-            servoChange2 = true;
-            arduino->servoPosition(4,100);
-        }
-        if(deplacementreturn>=1){
-            nextState = TAKEPLANT_BACKWARD;
-        }
-        else if(deplacementreturn<=-1){
-            nextState = TAKEPLANT_INIT;
-            ireturn = -1;
-            iAsser->setLinearMaxSpeed(10000);
-        }
-        break;
-    case TAKEPLANT_REFORWARD : 
-        if(initStat){ LOG_STATE("TAKEPLANT_REFORWARD");
-            positionToGo += 400;
-        }
-        deplacementreturn = deplacementLinearPoint(itable->robot.collide,iAsser,positionToGo,yPos);
-        if(deplacementreturn>=1){
-            nextState = TAKEPLANT_BACKWARD;
-        }
-        else if(deplacementreturn<=-1){
-            nextState = TAKEPLANT_INIT;
-            ireturn = -1;
-            iAsser->setLinearMaxSpeed(10000);
-        }
-        break;
-    case TAKEPLANT_BACKWARD :
-        if(initStat){ LOG_STATE("TAKEPLANT_BACKWARD");
-            positionToGo -= 115;
-        }
-        deplacementreturn = deplacementLinearPoint(itable->robot.collide,iAsser,positionToGo,yPos);
-        if(deplacementreturn>=1){
-            nextState = TAKEPLANT_TAKE;
-        }
-        else if(deplacementreturn<=-1){
-            nextState = TAKEPLANT_REFORWARD;
-        }
-        break;
-    case TAKEPLANT_TAKE :
-        if(initStat) LOG_STATE("TAKEPLANT_TAKE");
-        deplacementreturn = catchPlant(arduino);
-        if(deplacementreturn){
-            nextState = TAKEPLANT_END;
-        }
-        break;
-    case TAKEPLANT_END :
-        if(initStat) LOG_STATE("TAKEPLANT_END");
-        nextState = TAKEPLANT_INIT;
-        iAsser->setLinearMaxSpeed(10000);
-        ireturn = 1;
-        break;
-    
-    default:
-        if(initStat) LOG_STATE("default");
-        nextState = TAKEPLANT_INIT;
-        break;
-    }
-
-    initStat = false;
-    if(nextState != currentState){
-        initStat = true;
-    }
-    currentState = nextState;
-    return ireturn;
-
-}
-
-int takePlant2( Asser* iAsser,Arduino* arduino,tableState*itable,int xStart,int yStart, int xEnd, int yEnd){
+int takePlant2( Asser* iAsser,Arduino* arduino,tableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone){
     LOG_SCOPE("take plant");
     int ireturn = 0;
     static bool initStat = true;
@@ -384,6 +259,14 @@ int takePlant2( Asser* iAsser,Arduino* arduino,tableState*itable,int xStart,int 
         nextState = TAKEPLANT_FORWARD;
         arduino->servoPosition(4,100);
         iAsser->setLinearMaxSpeed(200);
+        arduino->moveStepper(ELEVATORUP,1);
+        if (!itable->planteStockFull[num_zone].etat){
+            iAsser->setLinearMaxSpeed(MAX_SPEED);
+            iAsser->setAngularMaxSpeed(500);
+            ireturn = -1;
+            nextState = TAKEPLANT_INIT;}
+        
+        
         break;
     case TAKEPLANT_FORWARD :
         if(initStat) LOG_STATE("TAKEPLANT_FORWARD");
@@ -394,7 +277,7 @@ int takePlant2( Asser* iAsser,Arduino* arduino,tableState*itable,int xStart,int 
         else if(deplacementreturn<=-1){
             nextState = TAKEPLANT_INIT;
             ireturn = -1;
-            iAsser->setLinearMaxSpeed(10000);
+            iAsser->setLinearMaxSpeed(MAX_SPEED);
         }
         break;
     case TAKEPLANT_BACKWARD :
@@ -404,8 +287,9 @@ int takePlant2( Asser* iAsser,Arduino* arduino,tableState*itable,int xStart,int 
         if(deplacementreturn>=1){
             nextState = TAKEPLANT_TAKE;
         }
-        else if(deplacementreturn<=-1){
+        else if(deplacementreturn < 0){
             nextState = TAKEPLANT_INIT;
+            ireturn = -1;
         }
         break;
     case TAKEPLANT_TAKE :
@@ -418,7 +302,8 @@ int takePlant2( Asser* iAsser,Arduino* arduino,tableState*itable,int xStart,int 
     case TAKEPLANT_END :
         if(initStat) LOG_STATE("TAKEPLANT_END");
         nextState = TAKEPLANT_INIT;
-        iAsser->setLinearMaxSpeed(10000);
+        iAsser->setLinearMaxSpeed(SPEED_PLANTE);
+        iAsser->setAngularMaxSpeed(100);
         ireturn = 1;
         break;
     
@@ -451,12 +336,15 @@ int jardinierePutPlant(tableState* itable, Asser* iAsser,Arduino* arduino,int x,
     //****************************************************************
     case PUTPLANT_INIT :
         if(initStat) LOG_STATE("PUTPLANT_INIT");
+        iAsser->setLinearMaxSpeed(200);
         nextState = PUTPLANT_GOBORDER;
         break;
     //****************************************************************
     case PUTPLANT_GOBORDER :
         if(initStat) LOG_STATE("PUTPLANT_GOBORDER");
+        
         deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,x,y,teta,MOVE_FORWARD,ROTATION_DIRECT);
+        
         if(deplacementreturn > 0){
             iAsser->stop();
             iAsser->brakeMotor(true);
@@ -475,6 +363,8 @@ int jardinierePutPlant(tableState* itable, Asser* iAsser,Arduino* arduino,int x,
             iAsser->brakeMotor(false);
             iAsser->enableMotor(true);
             nextState = PUTPLANT_INIT;
+            iAsser->setLinearMaxSpeed(MAX_SPEED);
+            iAsser->setAngularMaxSpeed(500);
             ireturn = 1;
         }
         break;
@@ -503,6 +393,15 @@ bool allJardiniereFull(tableState* itable){
         return itable->JardiniereFull[1].etat && itable->JardiniereFull[2].etat && itable->JardiniereFull[5].etat;
     }
 }
+bool DeuxJardiniereFull(tableState* itable){
+    if(itable->robot.colorTeam == YELLOW){
+        return  itable->JardiniereFull[3].etat && itable->JardiniereFull[4].etat;
+    }
+    else{
+        return itable->JardiniereFull[1].etat && itable->JardiniereFull[2].etat;
+    }
+}
+
 bool allStockPlanteUsed(tableState* itable){
     for (int i = 0; i < 6; i++){
         if (itable->planteStockFull[i].etat == true) {return false;}
@@ -513,8 +412,8 @@ bool allStockPlanteUsed(tableState* itable){
 void resetActionneur(Asser* iAsser, Arduino* arduino){
     arduino->servoPosition(1,180);
     arduino->servoPosition(2,CLAMPSLEEP);
-    arduino->moveStepper(ELEVATORUP,1);
-    iAsser->setLinearMaxSpeed(10000);
+    arduino->moveStepper(ELEVATORJARDINIERE,1);
+    
 }
 
 
@@ -548,134 +447,121 @@ int returnToHome(tableState* itable,Asser* iAsser){
     return breturn; 
 }
 
-int FSMMatch(tableState* itable, Asser* iAsser,Arduino* arduino){
-    int  bFinMatch = turnSolarPannel(itable,iAsser, arduino);
-    if(bFinMatch == 1){
-        printf("FIN turnSolarPannel\n");
-    }
-    // fsmMatch_t nextStateMatch = currentStateMatch;
-    // switch (currentStateMatch)
-    // {
-    // case SOLARPANNEL:{
-    //     bool bret = turnSolarPannel(iAsser, arduino,collideB);
-    //     if(bret){
-    //         nextStateMatch = RETURNHOME;
-    //     }
-    //     break;
-    // }
-    // case RETURNHOME:{
-    //     int bFinMatch = returnToHome(iAsser,collideF);
-    //     break;
-    // }       
-    
-    // default:
-    //     break;
-    // }
 
-    return bFinMatch;
+void ennemieInAction(tableState* itable, position_t* position){
+    double distance;
+    for (int i = 0; i < 6; i++){
+        distance = sqrt(pow(plantPosition[i].x - position->x,2) + pow(plantPosition[i].y - position->y,2));
+        if (distance < rayon[0]) {
+            itable->planteStockFull[i].etat = false;
+            LOG_GREEN_INFO("ENNEMIE IN ACTION PLANT :", i, " / x = ", position->x , " / y = ", position->y);
+        }
+    }
+    for (int i=3; i<6; i++){
+        distance = sqrt(pow(table[i] - position->y,2) + pow(900 - position->x,2));
+        if (distance < rayon[1]) {
+            LOG_GREEN_INFO("ENNEMIE IN ACTION SOLAR PANEL:", i, " / x = ", position->x , " / y = ", position->y);
+            itable->panneauSolaireRotate[i].etat = true;
+            }
+    }
+    for (int i = 0; i < 6; i++){
+        distance = sqrt(pow(JardinierePosition[i].x - position->x,2) + pow(JardinierePosition[i].y - position->y,2));
+        if (distance < rayon[2] && itable->robot.colorTeam != itable->JardiniereFull[i].color){
+            itable->JardiniereFull[i].etat == true;
+            LOG_GREEN_INFO("ENNEMIE IN ACTION JARDINIERE :", i, " / x = ", position->x , " / y = ", position->y);
+        }
+    }
 }
 
-int TestPinceFSM(tableState* itable, Asser* iAsser,Arduino* arduino){
-    LOG_SCOPE("TestPince");
+int VolPlante(tableState* itable, Asser* iAsser,Arduino* arduino,int x,int y,int teta){
+    LOG_SCOPE("putPlant");
     int ireturn = 0;
     static bool initStat = true;
-    static fsmTestPince_t currentState = TESTPINCE_INIT;
-    fsmTestPince_t nextState = currentState;
+    static fsmVolPlant_t currentState = VOLPLANT_INIT;
+    fsmVolPlant_t nextState = currentState;
     int deplacementreturn;
 
 
     switch (currentState)
     {
     //****************************************************************
-    case TESTPINCE_INIT :
-        if(initStat) LOG_STATE("TESTPINCE_INIT");
-        nextState = TESTPINCE_GOPLANT;
+    case VOLPLANT_INIT :
+        if(initStat) LOG_STATE("VOLPLANT_INIT");
+        iAsser->setLinearMaxSpeed(200);
+        arduino->moveStepper(2000,1);
+        nextState = VOLPLANT_GOBORDER;
         break;
     //****************************************************************
-    case TESTPINCE_GOPLANT :
-        if(initStat) LOG_STATE("TESTPINCE_GOPLANT");
-        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,-700,-505,0,MOVE_FORWARD,ROTATION_DIRECT);
-        if(deplacementreturn>0){
-            nextState = TESTPINCE_TAKEPLANT;
-        }
-        else if(deplacementreturn<0){
-            return deplacementreturn;
-            nextState = TESTPINCE_INIT;
-        }
-        break;
-    //****************************************************************        
-    case TESTPINCE_TAKEPLANT :
-        if(initStat) LOG_STATE("TESTPINCE_TAKEPLANT");
-        //deplacementreturn = takePlant(mainRobot,iAsser,arduino,-505,-700,0,2);
-        if(deplacementreturn>0){
-            nextState = TESTPINCE_GOCORNE;
-        }
-        else if(deplacementreturn<0){
-            return deplacementreturn;
-            nextState = TESTPINCE_INIT;
-        }
-        break;
-    //****************************************************************        
-    case TESTPINCE_GOCORNE :
-        if(initStat) LOG_STATE("TESTPINCE_GOCORNE");
-        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,-700,-762,180,MOVE_FORWARD,ROTATION_DIRECT);
-        if(deplacementreturn>0){
-            nextState = TESTPINCE_GOJARDINIER;
-        }
-        else if(deplacementreturn<0){
-            return deplacementreturn;
-            nextState = TESTPINCE_INIT;
-        }
-        break;
-    //****************************************************************
-    case TESTPINCE_GOJARDINIER :
-        if(initStat) LOG_STATE("TESTPINCE_GOJARDINIER");
-        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,-870,-762,-180,MOVE_FORWARD,ROTATION_DIRECT);
-        if(deplacementreturn>0){
-            nextState = TESTPINCE_PLACE;
-        }
-        else if(deplacementreturn<0){
-            return deplacementreturn;
-            nextState = TESTPINCE_INIT;
-        }
-        break;
-    //****************************************************************
-    case TESTPINCE_PLACE :
-        if(initStat) LOG_STATE("TESTPINCE_PLACE");
-        if(releasePlant(arduino)){
+    case VOLPLANT_GOBORDER :
+        if(initStat) LOG_STATE("VOLPLANT_GOBORDER");
+        
+        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,x,y,teta,MOVE_FORWARD,ROTATION_DIRECT);
+        
+        if(deplacementreturn > 0){
             iAsser->stop();
-            nextState = TESTPINCE_GOBACKWARD;
+            iAsser->brakeMotor(true);
+            nextState = VOLPLANT_PLACE;
+        }
+        else if(deplacementreturn < 0){
+            nextState = VOLPLANT_INIT;
+            ireturn = -1;
+        }        
+        break;
+    //****************************************************************
+    case VOLPLANT_PLACE :
+        if(initStat) LOG_STATE("VOLPLANT_PLACE");
+        if(catchPlant2(arduino)){
+            iAsser->stop();
+            iAsser->brakeMotor(false);
+            iAsser->enableMotor(true);
+            nextState = VOLPLANT_BACKWARD;
+            iAsser->setLinearMaxSpeed(MAX_SPEED);
+            
         }
         break;
     //****************************************************************
-    case TESTPINCE_GOBACKWARD :
-        if(initStat) LOG_STATE("TESTPINCE_GOBACKWARD");
-        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,-700,-762,-180,MOVE_BACKWARD,ROTATION_DIRECT);
+    case VOLPLANT_BACKWARD :
+        if (initStat) LOG_STATE("VOLPLANT_BACKWARD");
+        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,x,y-200,teta,MOVE_BACKWARD,ROTATION_DIRECT);
         if(deplacementreturn>0){
-            nextState = TESTPINCE_GOHOME;
+            arduino->moveStepper(1600,1);
+            nextState = VOLPLANT_ZONEFIN;
+            
         }
-        else if(deplacementreturn<0){
-            return deplacementreturn;
-            nextState = TESTPINCE_INIT;
+        else if(deplacementreturn < 0){
+            nextState = VOLPLANT_INIT;
+            ireturn = -1;
+        }
+        break;
+
+    //****************************************************************
+    case VOLPLANT_ZONEFIN :
+        if (initStat) LOG_STATE("VOLPLANT_ZONEFIN");
+        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,-200,1250,0,MOVE_FORWARD,ROTATION_DIRECT);
+        if(deplacementreturn>0){
+            nextState = VOLPLANT_FIN;
+        }
+        else if(deplacementreturn < 0){
+            nextState = VOLPLANT_INIT;
+            ireturn = -1;
         }
         break;
     //****************************************************************
-    case TESTPINCE_GOHOME :
-        if(initStat) LOG_STATE("TESTPINCE_GOHOME");
-        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,-800,-1250,-90,MOVE_FORWARD,ROTATION_DIRECT);
-        if(deplacementreturn>0){
-            nextState = TESTPINCE_INIT;
+    case VOLPLANT_FIN : 
+    if (initStat) LOG_STATE("VOLPLANT_FIN");
+        if(FastReleasePlant(arduino)){
+            iAsser->stop();
+            iAsser->brakeMotor(false);
+            iAsser->enableMotor(true);
+            nextState = VOLPLANT_INIT;
+            itable->FIN = true;
             ireturn = 1;
-        }
-        else if(deplacementreturn<0){
-            return deplacementreturn;
-            nextState = TESTPINCE_INIT;
         }
         break;
     //****************************************************************    
     default:
         if(initStat) LOG_ERROR("default");
-        nextState = TESTPINCE_INIT;
+        nextState = VOLPLANT_INIT;
         break;
     }
 
@@ -687,17 +573,3 @@ int TestPinceFSM(tableState* itable, Asser* iAsser,Arduino* arduino){
     return ireturn;
 }
 
-void ennemieInAction(tableState* itable, position_t* position){
-    double distance;
-    for (int i = 0; i < 6; i++){
-        distance = sqrt(pow(plantPosition[i].x - position->x,2) + pow(plantPosition[i].y - position->y,2));
-        if (distance < rayon[0]) {itable->planteStockFull[i].etat = false;}
-    }
-    for (int i=3; i<6; i++){
-        distance = sqrt(pow(table[i] - position->y,2) + pow(900 - position->x,2));
-        if (distance < rayon[2]) {
-            //LOG_GREEN_INFO("distance : ", distance, "panneau = ", i);
-            itable->panneauSolaireRotate[i].etat = true;
-            }
-    }
-}

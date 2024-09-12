@@ -67,7 +67,7 @@ int Arduino::ledOff(int LedNb) {
 }
 
 int Arduino::moveStepper(int absPosition, int stepperNb) {
-    LOG_INFO("move Stepper");
+    LOG_INFO("move Stepper : ",absPosition);
     int length = 2;  // Nb of bytes to send
     uint8_t message[2];
     int values[] = {absPosition};

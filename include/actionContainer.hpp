@@ -11,12 +11,21 @@
 class actionContainer
 {
 private:
-    action* takePlante0;
-    action* takePlante1;
-    action* takePlante2;
-    action* takePlante3;
-    action* takePlante4;
-    action* takePlante5;
+    action* takePlante0droite;
+    action* takePlante0droitebis;
+    action* takePlante1droite;
+    action* takePlante2droite;
+    action* takePlante3droite;
+    action* takePlante4droite;
+    action* takePlante5droite;
+
+    action* takePlante0gauche;
+    action* takePlante0gaucheBis;
+    action* takePlante1gauche;
+    action* takePlante2gauche;
+    action* takePlante3gauche;
+    action* takePlante4gauche;
+    action* takePlante5gauche;
 
     action* putInJardiniere0;
     action* putInJardiniere1;
@@ -25,9 +34,13 @@ private:
     action* putInJardiniere4;
     action* putInJardiniere5;
 
+    action * waitFin;
     action* turnSolarPanelAction;
     action* returnToHomeAction;
     action* currentAction;
+    action* VolZone;
+    action* VolJardiniereBlue;
+    action* VolJardiniereYellow;
 
     action* pushPotAction0;
     action* pushPotAction1;
