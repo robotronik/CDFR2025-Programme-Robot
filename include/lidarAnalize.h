@@ -14,10 +14,7 @@ typedef struct {
     float moy_dist ; //somme distance
     float moy_angle; //somme angle
     float cm; //taille object
-
-
 } element_decord;
-
 
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position,int narrow);
 
@@ -39,9 +36,11 @@ double distance_2_pts(double d1,double deg1, double d2, double deg2);
 
 void supprimerElement(element_decord**& array, int& rows, int index);
 
-void sol_eq_2cercle(double xA,double  yA,double AM,double xB,double yB,double BM,double xC, double yC, double CM, double *xM, double *yM);
+double angle(position_float_t A, position_float_t B, position_float_t C);
+int in_table(position_float_t M);
+position_float_t sol_eq_2cercle(position_float_t A, double RA, position_float_t B, double RB);
 
-void position_facile(lidarAnalize_t* data,int count, double *X, double* Y, double X_prec, double Y_prec);
+position_float_t position_estime(double angle12, double angle23, double angle31,double angle_poto2, int d12, int d23,int d31);
 
 void init_position_balise(lidarAnalize_t* data, int count, position_t *position);
 

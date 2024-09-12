@@ -1,6 +1,7 @@
 #include "lidarAnalize.h"
 #include <math.h>
 
+
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position,int narrow){
     for(int i = 0; i< count; i++){
         if(data[i].valid){
@@ -9,7 +10,7 @@ void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position
             //if (i%2 && data[i].angle < 90) {LOG_INFO("X = ", data[i].x, "/ Y =",data[i].y, "dist = ", data[i].dist, "/ angle=",data[i].angle, "/ angle=",position->teta);}
                 
             //get table valid
-            if(data[i].x<1000-narrow && data[i].x>-1000+narrow && data[i].y<1500-narrow && data[i].y>-1500+narrow){
+            if(data[i].x<1000-narrow && data[i].x>-1000+narrow && data[i].y<1600-narrow && data[i].y>-1600+narrow){
                 //LOG_INFO("X = ", data[i].x, "/ Y =",data[i].y, "dist = ", data[i].dist, "/ angle=",data[i].angle);
                 //printf("\nx = %i / y = %i / in ? = %i",data[i].x, data[i].y, data[i].x<1100 && data[i].x>-1100 && data[i].y<1700 && data[i].y>-1700);
                 data[i].onTable = true;}
@@ -29,12 +30,13 @@ void position_ennemie(lidarAnalize_t* data, int count, position_t *position){
             next_valid = 1;
             while ((!data[i+next_valid].onTable) && ((i+next_valid) <count-1)) {next_valid++;}
             if (fabs(data[i].dist - data[i+next_valid].dist) > 50 || fabs(data[i].angle- data[i+next_valid].angle) > 1){ 
+                if (nb < 2) return;
                 som_dist += 30*nb;
                 position->x = position->x + som_dist/nb*cos((360 - (int)(som_angle/nb + position->teta)%360 ) *DEG_TO_RAD) + 55*cos(position->teta*DEG_TO_RAD);
                 position->y = position->y + som_dist/nb*sin((360 - (int)(som_angle/nb + position->teta)%360) *DEG_TO_RAD) - 55*sin(position->teta*DEG_TO_RAD);
-                //LOG_GREEN_INFO("x = ", position->x, "y = ",position->y);
+                //LOG_GREEN_INFO("nb ", nb);
                 
-                return ;
+                return;
             }
         }
     }
@@ -297,7 +299,6 @@ void supprimerElement(element_decord**& array, int& rows, int index) {
 }
 
 
-
 double distance_2_pts(double d1,double deg1, double d2, double deg2){
     double alpha;
     double d3;
@@ -306,25 +307,89 @@ double distance_2_pts(double d1,double deg1, double d2, double deg2){
     return d3;
 }
 
-void sol_eq_2cercle(double xA,double  yA,double AM,double xB,double yB,double BM,double xC, double yC, double CM, int *xM, int *yM){
-    double C,D,E,F,cst;
 
-    //cercle A-C
-    E = (yA-yC)/(xC-xA);
-    F = (xC*xC + yC*yC + AM*AM - CM*CM - xA*xA - yA*yA)/(2*(xC-xA));
-    //cercle A-B
-    if (xB-xA == 0){
-        cst = (xB*xB + yB*yB + AM*AM - BM*BM - xA*xA - yA*yA)/(2*(yB-yA));
-        *yM = int(cst);
-        *xM = int(cst*E + F);}
-    else{
-        C = (yA-yB)/(xB-xA);
-        D = (xB*xB + yB*yB + AM*AM - BM*BM - xA*xA - yA*yA)/(2*(xB-xA)); 
-        cst = (F-D)/(C-E);
-        *yM = int(cst);
-        *xM = int(cst*C + D);
+double angle(position_float_t A, position_float_t B, position_float_t C) {
+    double a2 = (B.x - C.x) * (B.x - C.x) + (B.y - C.y) * (B.y - C.y);
+    double b2 = (A.x - C.x) * (A.x - C.x) + (A.y - C.y) * (A.y - C.y);
+    double c2 = (B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y);
+    return acos((b2 + c2 - a2) / (2 * sqrt(b2) * sqrt(c2)));
+}
+int in_table(position_float_t M){
+    if (M.x > 1000 || M.x < -1000 || M.y < -1500 || M.y > 1500) return 0;
+    else return 1;
+}
+position_float_t sol_eq_2cercle(position_float_t A, double RA, position_float_t B, double RB){
+
+    // Calcul des distances entre les centres
+    double dx = B.x - A.x;
+    double dy = B.y - A.y;
+    double d = sqrt(dx * dx + dy * dy);
+
+    // Calcul des coordonnées du point d'intersection P2
+    double a = (RA * RA - RB * RB + d * d) / (2 * d);
+    double h = sqrt(RA * RA - a * a);
+    double x2 = A.x + a * (B.x - A.x) / d;
+    double y2 = A.y + a * (B.y - A.y) / d;
+
+    // Points d'intersection
+    position_float_t P1 = {x2 + h * (B.y - A.y) / d, y2 - h * (B.x - A.x) / d};
+    position_float_t P2 = {x2 - h * (B.y - A.y) / d, y2 + h * (B.x - A.x) / d};
+
+    if (in_table(P2)) return P2;
+    if (in_table(P1)) return P1;
+    //else {printf("\nles deux sont sur la table");}
+}
+
+position_float_t position_estime(double alpha12, double alpha23, double alpha31, double angle_poto2, int d01, int d02,int d03) {       
+    position_float_t bal_1 = {-950, -1594};
+    position_float_t bal_2 = {950, -1594};
+    position_float_t bal_3 = {0, 1594};
+    double D1_2 = sqrt(pow(bal_1.x - bal_2.x,2)+pow(bal_1.y - bal_2.y,2));
+    double D2_3 = sqrt(pow(bal_3.x - bal_2.x,2)+pow(bal_3.y - bal_2.y,2));
+    double D1_3 = sqrt(pow(bal_1.x - bal_3.x,2)+pow(bal_1.y - bal_3.y,2));
+    double R1,X1,Y1,R2,X2,Y2,R3;
+
+    R1 = D1_2/(2*sin(alpha12*M_PI/180));
+    R2 = D2_3/(2*sin(alpha23*M_PI/180));
+    R3 = D1_3/(2*sin(alpha31*M_PI/180));
+
+    position_float_t M = {(bal_1.x + bal_2.x) / 2, (bal_1.y + bal_2.y) / 2}; // Calcul du milieu du segment AB
+    double d = sqrt((bal_2.x - bal_1.x) * (bal_2.x - bal_1.x) + (bal_2.y - bal_1.y) * (bal_2.y - bal_1.y)); // Calcul de la distance entre A et B
+    double h = sqrt(R1 * R1 - (d / 2) * (d / 2)); // Calcul de la distance du milieu au centre
+    position_float_t C = {M.x - h * (bal_2.y - bal_1.y) / d, M.y + h * (bal_2.x - bal_1.x) / d}; // Calcul des centres possibles
+    position_float_t C11 = {M.x + h * (bal_2.y - bal_1.y) / d, M.y - h * (bal_2.x - bal_1.x) / d}; // Calcul des centres possibles
+
+    position_float_t M2 = {(bal_3.x + bal_2.x) / 2, (bal_3.y + bal_2.y) / 2}; // Calcul du milieu du segment AB
+    double d2 = sqrt((bal_2.x - bal_3.x) * (bal_2.x - bal_3.x) + (bal_2.y - bal_3.y) * (bal_2.y - bal_3.y)); // Calcul de la distance entre A et B
+    double h2 = sqrt(R2 * R2 - (d2 / 2) * (d2 / 2)); // Calcul de la distance du milieu au centre
+    position_float_t C2 = {M2.x - h2 * (bal_2.y - bal_3.y) / d2, M2.y + h2* (bal_2.x - bal_3.x) / d2}; // Calcul des centres possibles
+    position_float_t C22 = {M2.x + h2 * (bal_2.y - bal_3.y) / d2, M2.y - h2* (bal_2.x - bal_3.x) / d2}; // Calcul des centres possibles
+
+    position_float_t robot[4];
+    robot[0] = sol_eq_2cercle(C,R1,C2,R2);
+    robot[1] = sol_eq_2cercle(C11,R1,C2,R2);
+    robot[2] = sol_eq_2cercle(C,R1,C22,R2);
+    robot[3] = sol_eq_2cercle(C11,R1,C22,R2);
+
+    double min = 10000,distance;
+    int index_best=0;
+    for (int i = 0; i < 4; i++){
+        distance = fabs(d01-sqrt(pow(robot[i].x-bal_1.x,2)+pow(robot[i].y - bal_1.y,2))) + fabs(d02-sqrt(pow(robot[i].x-bal_2.x,2)+pow(robot[i].y - bal_2.y,2))) + fabs(d03-sqrt(pow(robot[i].x-bal_3.x,2)+pow(robot[i].y - bal_3.y,2)));
+        //printf("\n distance = %f / x = %f / y = %f", distance, robot[i].x, robot[i].y);
+        if (distance < min){
+            min = distance;
+            index_best = i;
+        }
     }
-    //printf("\nxM = %f / yM = %f / dist = %f\n",xM,yM, sqrt(xM*xM + yM*yM));
+    distance = fabs(alpha12 - angle(robot[index_best],bal_1,bal_2));
+    //printf("\n robot : X = %f / Y = %f distance = %f", robot[index_best].x,robot[index_best].y ,distance);  
+    position_float_t proj_robot = {bal_2.x,robot[index_best].y};
+    double angle_robot = angle(robot[index_best],bal_2,proj_robot)*180/M_PI-angle_poto2;
+    if (angle_robot < 0) angle_robot+=360;
+    robot[index_best].angle = angle_robot;
+    //printf("angle robot = %f",angle_robot); 
+    
+    return robot[index_best];
 }
 
 void init_position_balise(lidarAnalize_t* data, int count, position_t *position){
@@ -359,7 +424,7 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
     
     
     // suppression si nb < 3 ou cm < 3cm ou cm > 20cm
-    for (int i= 0; i< rows; i++){
+    for (int i= 1; i< rows; i++){
         while (array[rows -1 - i]->nb < 3 || array[rows -1 - i]->cm <30 || array[rows -1 - i]->cm >200){
             if (array[rows -1 - i]->moy_angle > 350 || array[rows -1 - i]->moy_angle < 10) {break;}
             supprimerElement(array, rows, rows -1 -i); 
@@ -368,9 +433,8 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
     }
     if (array[0]->nb < 3 || array[0]->cm <30 || array[0]->cm >200){supprimerElement(array, rows, 0); }
     
-    
-    // Affichage pour vérifier la valeur
     /*
+    // Affichage pour vérifier la valeur
     printf("\n");
     for (int l = 0; l < rows; ++l) {
         printf("\n Rows = %i /Angle = %f /Dist = %f /n = %i /i = %i /mm = %lf",l, array[l]->moy_angle,array[l]->moy_dist, array[l]->nb, array[l]->i, array[l]->cm); 
@@ -378,7 +442,7 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
     */
 
     // donne poto 1 et 2
-    double poto_1_2, poto_2_3, poto_3_1, d_tot = 10000;
+    double poto_1_2, poto_2_3, poto_3_1, d_tot = 10000, d1,d2,d3, x1,y1, x2,y2,x3,y3;
     int index_poto1, index_poto2, index_poto3; //poto 1 = gauche haut, poto 2 = gauche bas, poto 3 = droite
     poto_1_2 = 1900.0;poto_2_3 = 3326.5; poto_3_1 = 3326.5;
     int L = 3000;
@@ -396,6 +460,9 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
                         if (distance< d_tot) {
                             d_tot = distance;
                             index_poto1 = i; index_poto2 = j; index_poto3 = k;
+                            d1 = array[i]->moy_dist;
+                            d2 = array[j]->moy_dist;
+                            d3 = array[k]->moy_dist;
                         }
                     }
                 }
@@ -410,15 +477,19 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
         deg1 = array[index_poto1]->moy_angle;deg2 = array[index_poto2]->moy_angle;deg3 = array[index_poto3]->moy_angle;
         if ((deg1 < deg3 && deg3< deg2) or (deg3 < deg2 && deg2 < deg1)or (deg2<deg1&& deg1<deg3));
         else {int temp = index_poto1;index_poto1 = index_poto2;index_poto2 = temp;}
-       
+        //printf("\n D1 = %f / D2 = %f / D3 = %f / d_1_2 = %f / d_2_3 = %f / d_3_1 = %f / distance = %f",d1,d2,d3, d_1_2, d_2_3, d_3_1,distance);
+        
         if (distance > 100) {return;}
-        //printf("\nD_2_M = %f / poto 1 = %i / poto 2 = %i / poto 3 = %i / d_1_2 = %f / d_2_3 = %f / d_3_1 = %f / distance = %f", array[index_poto2]->moy_dist, index_poto1, index_poto2, index_poto3, d_1_2, d_2_3, d_3_1,distance);
-        sol_eq_2cercle(0,d_1_2,array[index_poto1]->moy_dist, 0,0, array[index_poto2]->moy_dist, sqrt(d_2_3*d_2_3 - d_1_2*d_1_2/4), d_1_2/2, array[index_poto3]->moy_dist, &position->y,&position->x);
-        position->dist = array[index_poto2]->moy_dist;
-        position->teta = 270 - atan(position->y/position->x)*180/M_PI - array[index_poto2]->moy_angle;
-        if (position->teta < 0){ position->teta += 360;}
-        position->y =- L/2 - 95 + position->y;
-        position->x = -position->x + poto_1_2/2;
+        double angle1,angle2, angle3;
+        angle1 = array[index_poto1]->moy_angle - array[index_poto2]->moy_angle;
+        angle2 = array[index_poto2]->moy_angle - array[index_poto3]->moy_angle;
+        angle3 = array[index_poto3]->moy_angle - array[index_poto1]->moy_angle;
+        if (angle1 <0) angle1 += 360;if (angle2 < 0) angle2 += 360; if (angle3 < 0) angle3 += 360;
+        
+        //printf("\n angle = %f / %f / %f", angle1, angle2, angle3);
+        position_float_t pos_robot = position_estime(angle1,angle2,angle3,array[index_poto2]->moy_angle,array[index_poto1]->moy_dist,array[index_poto2]->moy_dist,array[index_poto3]->moy_dist);
+        printf("\n X = %f / y = %f / angle = %f", pos_robot.x,pos_robot.y, pos_robot.angle);
+    
     }
     // Libération de la mémoire
     for (int i = 0; i < rows; ++i) {

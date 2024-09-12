@@ -454,13 +454,13 @@ void ennemieInAction(tableState* itable, position_t* position){
         distance = sqrt(pow(plantPosition[i].x - position->x,2) + pow(plantPosition[i].y - position->y,2));
         if (distance < rayon[0]) {
             itable->planteStockFull[i].etat = false;
-            LOG_GREEN_INFO("ENNEMIE IN ACTION PLANT :", i, " / distance = ", distance);
+            LOG_GREEN_INFO("ENNEMIE IN ACTION PLANT :", i, " / x = ", position->x , " / y = ", position->y);
         }
     }
     for (int i=3; i<6; i++){
         distance = sqrt(pow(table[i] - position->y,2) + pow(900 - position->x,2));
         if (distance < rayon[1]) {
-            LOG_GREEN_INFO("ENNEMIE IN ACTION SOLAR PANEL:", i, " / distance = ", distance);
+            LOG_GREEN_INFO("ENNEMIE IN ACTION SOLAR PANEL:", i, " / x = ", position->x , " / y = ", position->y);
             itable->panneauSolaireRotate[i].etat = true;
             }
     }
@@ -468,7 +468,7 @@ void ennemieInAction(tableState* itable, position_t* position){
         distance = sqrt(pow(JardinierePosition[i].x - position->x,2) + pow(JardinierePosition[i].y - position->y,2));
         if (distance < rayon[2] && itable->robot.colorTeam != itable->JardiniereFull[i].color){
             itable->JardiniereFull[i].etat == true;
-            LOG_GREEN_INFO("ENNEMIE IN ACTION JARDINIERE :", i, " / distance = ", distance);
+            LOG_GREEN_INFO("ENNEMIE IN ACTION JARDINIERE :", i, " / x = ", position->x , " / y = ", position->y);
         }
     }
 }
