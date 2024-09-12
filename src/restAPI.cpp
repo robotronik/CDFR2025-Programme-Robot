@@ -25,10 +25,16 @@ void StartAPIServer(){
         return readHtmlFile("html/index.html");
     });
 
-    // Define a simple route for the display
+    // Define a simple route for the display page
     CROW_ROUTE(app, "/display")
     ([](){
         return readHtmlFile("html/display.html");
+    });
+
+    // Define a simple route for the lidar page
+    CROW_ROUTE(app, "/lidar")
+    ([](){
+        return readHtmlFile("html/lidar.html");
     });
 
     // Define a route for a simple GET request that returns a JSON response
@@ -69,6 +75,14 @@ void StartAPIServer(){
         return crow::response(response.dump(4));
     });
 
+    // Define a route for a simple GET request that returns the lidar data
+    CROW_ROUTE(app, "/get_lidar")
+    ([](){
+        json response;
+        response["data"] = lidarData;
+        return crow::response(response.dump());
+    });
+
     // Define a route for a POST request that accepts JSON data and responds with a message
     CROW_ROUTE(app, "/post_status").methods(crow::HTTPMethod::POST)([](const crow::request& req){
         // Parse the incoming JSON
@@ -102,6 +116,20 @@ void StartAPIServer(){
         buffer << file.rdbuf();
         crow::response res{buffer.str()};
         res.set_header("Content-Type", "image/svg+xml");
+        return res;
+    });
+
+    // Route for serving the favicon ico files
+    CROW_ROUTE(app, "/favicon.ico") ([](){
+        std::ifstream file("html/favicon.ico", std::ios::binary);
+        if (!file) {
+            return crow::response(404, "File not found");
+        }
+
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        crow::response res{buffer.str()};
+        res.set_header("Content-Type", "image/x-icon");
         return res;
     });
 

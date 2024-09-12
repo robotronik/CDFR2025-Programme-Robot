@@ -33,6 +33,9 @@ typedef struct
     bool   onTable;
 }lidarAnalize_t;
 
+// Define serialization for lidarAnalize_t
+void to_json(json& j, const lidarAnalize_t& p);
+
 typedef struct
 {
     colorTeam_t colorTeam;// équipe du robot
