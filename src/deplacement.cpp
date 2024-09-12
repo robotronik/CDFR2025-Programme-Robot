@@ -1,6 +1,5 @@
 #include "deplacement.h"
 
-<<<<<<< HEAD
 int deplacementPathFinding(int collide, Asser* robot, int x, int y){
     LOG_SCOPE("PATH FINDING");
     int ireturn = 0;
@@ -9,7 +8,7 @@ int deplacementPathFinding(int collide, Asser* robot, int x, int y){
     go_to_State_t nextState = currentState;
     int deplacementreturn;
 
-    // Ludovic Bouchard - Variables non défénies, nécéssaire pour compiler...
+    // Ludovic Bouchard - Variables non dï¿½fï¿½nies, nï¿½cï¿½ssaire pour compiler...
     asser_direction_side direction;
     int teta, rotation;
 
@@ -69,8 +68,6 @@ int deplacementPathFinding(int collide, Asser* robot, int x, int y){
 
 }
 
-=======
->>>>>>> 5cab2c8 (save)
 
 int deplacementLinearPoint(int collide, Asser* robot, int x, int y){
     LOG_SCOPE("MOVE");
