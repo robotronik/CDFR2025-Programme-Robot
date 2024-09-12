@@ -11,6 +11,13 @@ typedef struct
     int   time;
 }position_t;
 
+
+typedef struct {
+    float x;
+    float y;
+    float angle;
+} position_float_t;
+
 typedef struct 
 {
     bool   valid;
@@ -20,6 +27,13 @@ typedef struct
     int   y;
     bool   onTable;
 }lidarAnalize_t;
+
+typedef struct {
+    position_t pos;
+    int cout;
+    type_deplacement_t type;
+    int parent,id;
+}instruction_t;
 
 typedef struct
 {

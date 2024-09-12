@@ -131,7 +131,7 @@ void action::setCostAction(int num_action, int num_i_action, tableState *itable,
     }
     //ACTION 3 : turn SolarPanel
     else if (num_action == 3 && !itable->solarPanelTurn.etat){
-        if (itable->startTime+45000 < millis() || DeuxJardiniereFull(itable)){
+        if (itable->startTime+55000 < millis() || DeuxJardiniereFull(itable)){
         validActionPtr = itable->solarPanelTurn.cout;}
         else { validActionPtr = itable->solarPanelTurn.cout/2;}
         LOG_GREEN_INFO("action 3 : ",validActionPtr," / ",num_i_action);

@@ -61,11 +61,11 @@ void SSD1306::display() {
         if (!writeCommand(0xB0 + i) || // Set page address
             !writeCommand(0x00) || // Set low column address
             !writeCommand(0x10)) { // Set high column address
-            std::cerr << "Failed to write command to set page address for page " << (int)i << std::endl;
+            //std::cerr << "Failed to write command to set page address for page " << (int)i << std::endl;
             return;
         }
         if (!writeData(buffer + (i * 128), 128)) {
-            std::cerr << "Failed to write data to page " << (int)i << std::endl;
+            //std::cerr << "Failed to write data to page " << (int)i << std::endl;
         }
     }
 }
@@ -91,7 +91,7 @@ bool SSD1306::getPixel(int x, int y) {
 bool SSD1306::writeCommand(uint8_t cmd) {
     uint8_t buffer[2] = {0x00, cmd};
     if (write(i2cFile, buffer, 2) != 2) {
-        std::cerr << "Failed to write command 0x" << std::hex << (int)cmd << " to the i2c bus" << std::endl;
+        //std::cerr << "Failed to write command 0x" << std::hex << (int)cmd << " to the i2c bus" << std::endl;
         return false;
     }
     usleep(300); // Short delay after each command for stability
@@ -103,7 +103,7 @@ bool SSD1306::writeData(const uint8_t* data, size_t length) {
     buffer[0] = 0x40;
     memcpy(buffer + 1, data, length);
     if (write(i2cFile, buffer, length + 1) != length + 1) {
-        std::cerr << "Failed to write data to the i2c bus" << std::endl;
+        //std::cerr << "Failed to write data to the i2c bus" << std::endl;
         return false;
     }
     return true;
