@@ -41,7 +41,7 @@ int in_table(position_float_t M);
 position_float_t sol_eq_2cercle(position_float_t A, double RA, position_float_t B, double RB);
 
 position_float_t position_estime(double angle12, double angle23, double angle31,double angle_poto2, int d12, int d23,int d31);
-
+position_float_t position_estime2(double alpha12, double alpha23, double alpha31);
 void init_position_balise(lidarAnalize_t* data, int count, position_t *position);
 
 
