@@ -16,6 +16,13 @@ typedef struct
 //Define serialization for position_t
 void to_json(json& j, const position_t& p);
 
+
+typedef struct {
+    float x;
+    float y;
+    float angle;
+} position_float_t;
+
 typedef struct 
 {
     bool   valid;
@@ -25,9 +32,6 @@ typedef struct
     int   y;
     bool   onTable;
 }lidarAnalize_t;
-
-// Define serialization for lidarAnalize_t
-void to_json(json& j, const lidarAnalize_t& p);
 
 typedef struct
 {

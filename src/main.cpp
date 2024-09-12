@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
     gpioSetPWMfrequency(18, 20000);
     gpioSetMode(18, PI_OUTPUT);
     gpioSetPWMrange(18, 100);
-    gpioPWM(18, 100);//lidar speed
+    gpioPWM(18, 25);//lidar speed
 #endif
 
 
@@ -138,8 +138,12 @@ int main(int argc, char *argv[]) {
                 robotI2C->getCoords(x,y,teta);
                 position_t position = {x,y,0,teta,0};
                 position_t pos_ennemie = {x,y,0,teta,0};
+                convertAngularToAxial(lidarData,count,&position,-100);
+                init_position_balise(lidarData,count, &position);
+                //LOG_GREEN_INFO("X = ", position.x,"Y = ", position.y, "teta = ", position.teta);
                 convertAngularToAxial(lidarData,count,&position,50);
                 position_ennemie(lidarData, count, &pos_ennemie);
+                
                 tableStatus.ennemie.x += pos_ennemie.x;
                 tableStatus.ennemie.y += pos_ennemie.y;
                 tableStatus.nb += 1;
@@ -147,16 +151,10 @@ int main(int argc, char *argv[]) {
                     pos_ennemie.x = tableStatus.ennemie.x/tableStatus.nb;
                     pos_ennemie.y = tableStatus.ennemie.y/tableStatus.nb;
                     distance = sqrt(pow(tableStatus.prev_pos.x - pos_ennemie.x,2)+ pow(tableStatus.prev_pos.y - pos_ennemie.y,2));
-                    LOG_GREEN_INFO("pos ennemie : x = ", pos_ennemie.x, " / y = ",pos_ennemie.y, "diff = ", distance);
                     tableStatus.prev_pos.x = pos_ennemie.x;
                     tableStatus.prev_pos.y = pos_ennemie.y;
-                    tableStatus.nb = 0;
-                    tableStatus.ennemie.x = 0;
-                    tableStatus.ennemie.y = 0;
-                    if( distance < 250) {
-                        ennemieInAction(&tableStatus, &pos_ennemie);
-                        LOG_GREEN_INFO("pos ennemie : x = ", pos_ennemie.x, " / y = ",pos_ennemie.y, "diff = ", distance);
-                    }
+                    tableStatus.nb = 0; tableStatus.ennemie.x = 0; tableStatus.ennemie.y = 0;
+                    if( distance < 250) {ennemieInAction(&tableStatus, &pos_ennemie);}
                 }
                 
                 
@@ -188,7 +186,7 @@ int main(int argc, char *argv[]) {
                         robotI2C->setCoords(-700,1100,- 90);
                     }
                     else{
-                        robotI2C->setCoords(-700,-1100,90);
+                        robotI2C->setCoords(-700,-1100,90); //90 de base
                     }
                 }
     
