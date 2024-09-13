@@ -37,6 +37,12 @@ void StartAPIServer(){
         return readHtmlFile("html/lidar.html");
     });
 
+    // Define a simple route for the navbar
+    CROW_ROUTE(app, "/navbar.html")
+    ([](){
+        return readHtmlFile("html/navbar.html");
+    });
+
     // Define a route for a simple GET request that returns a JSON response
     CROW_ROUTE(app, "/get_data")
     ([](){
@@ -104,10 +110,12 @@ void StartAPIServer(){
     });
 
 
-    // Route for serving SVG files
+    // Route for serving SVG and PNG files
     CROW_ROUTE(app, "/assets/<string>")
     .methods(crow::HTTPMethod::GET)([](const std::string& filename) {
+        std::string extension = filename.substr(filename.find_last_of(".") + 1);
         std::ifstream file("html/" + filename, std::ios::binary);
+        
         if (!file) {
             return crow::response(404, "File not found");
         }
@@ -115,9 +123,19 @@ void StartAPIServer(){
         std::stringstream buffer;
         buffer << file.rdbuf();
         crow::response res{buffer.str()};
-        res.set_header("Content-Type", "image/svg+xml");
+
+        // Set the appropriate Content-Type header based on file extension
+        if (extension == "svg") {
+            res.set_header("Content-Type", "image/svg+xml");
+        } else if (extension == "png") {
+            res.set_header("Content-Type", "image/png");
+        } else {
+            return crow::response(415, "Unsupported media type");
+        }
+
         return res;
     });
+
 
     // Route for serving the favicon ico files
     CROW_ROUTE(app, "/favicon.ico") ([](){
