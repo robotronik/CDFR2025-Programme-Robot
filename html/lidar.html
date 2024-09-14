@@ -31,6 +31,20 @@
         let centerX = canvas.width / 2;
         let centerY = canvas.height / 2;
 
+        let drawing = false;
+
+        // Define the interval in milliseconds (e.g., 1000ms = 1 second)
+        const INTERVAL = 200;
+
+        // Function to start the periodic calls
+        function startPeriodicLidarFetch() {
+            // Initial call
+            getLidar();
+            
+            // Set up the interval
+            setInterval(getLidar, INTERVAL);
+        }
+
         async function getLidar() {
             try {
                 let response = await fetch('/get_lidar'); // Replace with your actual API endpoint
@@ -38,7 +52,8 @@
                     throw new Error('Network response was not ok ' + response.statusText);
                 }
                 let lidarData = await response.json();
-                drawLidar(ctx, lidarData); // Pass the fetched data to drawLidar
+                if (!drawing)
+                    drawLidar(ctx, lidarData); // Pass the fetched data to drawLidar
             } catch (error) {
                 console.error('Failed to fetch LIDAR data:', error);
             }
@@ -57,17 +72,17 @@
 
             x += 1; // Move the rectangle horizontally
             if (x > canvas.width) x = 0; // Reset position when it goes off-screen
-
-            //requestAnimationFrame(draw); // Continue animation
         }
 
         //takes the lidar data
         function drawLidar(ctx, data){
+            drawing = true;
             draw();
-            ctx.strokeStyle = "red";
             data["data"].forEach(point => {
+                ctx.strokeStyle = point.valid ? "green" : "red";
                 drawPoint(ctx, point.x, point.y);
             });
+            drawing = false;
         }
         
         //draws a point from lidar data
@@ -78,8 +93,9 @@
             ctx.roundRect(p_x, p_y, 2, 2, 1);
             ctx.stroke();
         }
-        // Start the animation
-        getLidar();
+        
+        // Start the fetch
+        startPeriodicLidarFetch();
     </script>
 
     <!-- Bootstrap JS and dependencies -->

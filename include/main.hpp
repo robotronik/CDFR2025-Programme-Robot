@@ -12,10 +12,12 @@ typedef enum {
     STOP
 } main_State_t;
 
-static main_State_t currentState;
-static TableState tableStatus;
-static Asser *robotI2C;
-static lidarAnalize_t lidarData[SIZEDATALIDAR];
 
-static int countStart = 0, x=0, y=0, teta=0, count_pos = 0;
-static int distance, countSetHome = 0;
+//Extern means the variable is defined in main
+extern main_State_t currentState;
+extern TableState tableStatus;
+extern Asser *robotI2C;
+extern lidarAnalize_t lidarData[SIZEDATALIDAR];
+
+extern int countStart, x, y, teta, count_pos;
+extern int distance, countSetHome;

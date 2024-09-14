@@ -7,14 +7,14 @@
 #include "main.hpp" //for static variables
 #include "tableState.hpp"
 
-// Crow app
-static crow::SimpleApp app;
 
 #define API_PORT 8080
 
 using json = nlohmann::json;
 
 std::string readHtmlFile(const std::string& path);
+
+crow::SimpleApp app;
 
 void StartAPIServer(){
     LOG_INFO("Starting API Server on port ", API_PORT);
@@ -81,7 +81,7 @@ void StartAPIServer(){
         return crow::response(response.dump(4));
     });
 
-    // Define a route for a simple GET request that returns the lidar data
+    // Define a route for an simple GET request that returns the lidar data
     CROW_ROUTE(app, "/get_lidar")
     ([](){
         json response;
@@ -152,14 +152,14 @@ void StartAPIServer(){
     });
 
 
-    // Set the port and run the app
+    // Set the port and run the app with 2 threads
     app.loglevel(crow::LogLevel::Warning);
-    app.port(API_PORT).multithreaded().run();
+    app.signal_clear().port(API_PORT).concurrency(2).run();
 }
 
 void StopAPIServer(){
-    LOG_INFO("Stopped API Server");
     app.stop();
+    LOG_INFO("Stopped API Server");
 }
 
 

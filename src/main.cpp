@@ -20,18 +20,36 @@
 #include "logger.hpp"
 #include "restAPI.hpp"
 
+#include <random>
+
 #include "actionContainer.hpp"
 
 #define DISABLE_LIDAR
 
 
-bool ctrl_c_pressed;
+
+
+
+main_State_t currentState;
+TableState tableStatus;
+Asser *robotI2C;
+lidarAnalize_t lidarData[SIZEDATALIDAR];
+
+int countStart = 0, x=0, y=0, teta=0, count_pos = 0;
+int distance, countSetHome = 0;
+
+
+
+
+bool ctrl_c_pressed = false;
 void ctrlc(int)
 {
+    LOG_DEBUG("Stop Signal Recieved");
     ctrl_c_pressed = true;
 }
 bool ctrl_z_pressed = false;
 void ctrlz(int signal) {
+    LOG_DEBUG("Termination Signal Recieved");
     ctrl_z_pressed = true;
 }
 
@@ -58,7 +76,26 @@ bool isWifiConnected() {
 void executePythonScript(const std::string& command) {
     std::system(command.c_str());
 }
+// Function to initialize random number generator
+void initRandom() {
+    std::srand(std::time(nullptr));
+}
 
+// Function to get a random number
+int getRandomLenght() {
+    return std::rand() % 5000 + 60;
+}
+
+// Function to assign random x and y values to all points
+void assignRandomCoordinates() {
+    for (int i = 0; i < SIZEDATALIDAR; ++i) {
+        lidarData[i].angle = 2.0 * M_PI * i / (double)SIZEDATALIDAR;
+        lidarData[i].dist = getRandomLenght();
+        lidarData[i].x = lidarData[i].dist * cos(lidarData[i].angle);
+        lidarData[i].y = lidarData[i].dist * sin(lidarData[i].angle);
+        lidarData[i].valid = lidarData[i].dist < 1500;
+    }
+}
 
 int main(int argc, char *argv[]) {
     LOG_INIT();
@@ -80,14 +117,35 @@ int main(int argc, char *argv[]) {
     gpioPWM(18, 25);//lidar speed
 #endif
 
-
-
-    signal(SIGINT, ctrlc);
     signal(SIGTERM, ctrlc);
+    signal(SIGINT, ctrlc);
     //signal(SIGTSTP, ctrlz);
 
-    StartAPIServer();
-    
+    // Start the api server in a separate thread
+    std::thread api_server_thread([&]() {
+        StartAPIServer();
+    });
+        
+
+    LOG_DEBUG("Starting Init Sequence");
+
+
+    // Initialize random number generator
+    initRandom();
+
+    while(!ctrl_c_pressed){
+        sleep(0.1);
+        // Assign random coordinates to all points
+        assignRandomCoordinates();
+    }
+    LOG_DEBUG("Stopping");
+
+    //END SEQUENCE
+    StopAPIServer();
+    api_server_thread.join();
+    return 0;
+
+
     Affichage *affichage;
     SSD1306 display(0x3C);
     affichage = new Affichage(display);
@@ -355,8 +413,7 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
-    //END SEQUENCE
-    StopAPIServer();
+
     arduino->moveStepper(0,1);
     gpioPWM(18, 0);
     arduino->servoPosition(4,180);
