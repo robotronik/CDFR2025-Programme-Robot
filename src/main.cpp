@@ -11,8 +11,6 @@
 #include <fstream>
 
 #include "main.hpp"
-#include "lidarAnalize.h"
-#include "lidar.h"
 #include "arduino.hpp"
 #include "affichage.hpp"
 #include "utils.h"
@@ -20,14 +18,9 @@
 #include "logger.hpp"
 #include "restAPI.hpp"
 
-#include <random>
-
 #include "actionContainer.hpp"
 
 #define DISABLE_LIDAR
-
-
-
 
 
 main_State_t currentState;
@@ -38,9 +31,27 @@ lidarAnalize_t lidarData[SIZEDATALIDAR];
 int countStart = 0, x=0, y=0, teta=0, count_pos = 0;
 int distance, countSetHome = 0;
 
+Affichage *affichage;
+SSD1306 display(0x3C);
+Arduino* arduino;
+
+main_State_t nextState;
+bool initState;
+actionContainer* actionSystem;
+
+std::thread api_server_thread;
 
 
 
+// Prototypes
+void StartSequence();
+void GetLidar();
+void EndSequence();
+
+bool isWifiConnected();
+void executePythonScript(const std::string& command);
+
+// Signal Management
 bool ctrl_c_pressed = false;
 void ctrlc(int)
 {
@@ -54,185 +65,17 @@ void ctrlz(int signal) {
 }
 
 
-bool isWifiConnected() {
-    std::ifstream file("/proc/net/wireless");
-    std::string line;
-
-    if (file.is_open()) {
-        while (std::getline(file, line)) {
-            if (line.find("wlan0") != std::string::npos) {
-                // Si la ligne contient "wlan0", cela indique que l'interface Wi-Fi est présente
-                return true;
-            }
-        }
-        file.close();
-    } else {
-        std::cerr << "Erreur : Impossible d'ouvrir le fichier /proc/net/wireless." << std::endl;
-    }
-
-    return false;
-}
-
-void executePythonScript(const std::string& command) {
-    std::system(command.c_str());
-}
-// Function to initialize random number generator
-void initRandom() {
-    std::srand(std::time(nullptr));
-}
-
-// Function to get a random number
-int getRandomLenght() {
-    return std::rand() % 5000 + 60;
-}
-
-// Function to assign random x and y values to all points
-void assignRandomCoordinates() {
-    for (int i = 0; i < SIZEDATALIDAR; ++i) {
-        lidarData[i].angle = 2.0 * M_PI * i / (double)SIZEDATALIDAR;
-        lidarData[i].dist = getRandomLenght();
-        lidarData[i].x = lidarData[i].dist * cos(lidarData[i].angle);
-        lidarData[i].y = lidarData[i].dist * sin(lidarData[i].angle);
-        lidarData[i].valid = lidarData[i].dist < 1500;
-    }
-}
-
 int main(int argc, char *argv[]) {
-    LOG_INIT();
+    StartSequence();
 
-#ifndef DISABLE_LIDAR
-    if(!lidarSetup("/dev/ttyAMA0",256000)){
-        LOG_ERROR("cannot find the lidar");
-        //return -1;
-        //-----------------------------------------THIS SHOULD BE UNCOMMENTED-----------------------------------
-    }
-
-    if (gpioInitialise() < 0) {
-        LOG_ERROR("cannot initialize lidar gpio speed");
-        return 1;
-    }
-    gpioSetPWMfrequency(18, 20000);
-    gpioSetMode(18, PI_OUTPUT);
-    gpioSetPWMrange(18, 100);
-    gpioPWM(18, 25);//lidar speed
-#endif
-
-    signal(SIGTERM, ctrlc);
-    signal(SIGINT, ctrlc);
-    //signal(SIGTSTP, ctrlz);
-
-    // Start the api server in a separate thread
-    std::thread api_server_thread([&]() {
-        StartAPIServer();
-    });
-        
-
-    LOG_DEBUG("Starting Init Sequence");
-
-
-    // Initialize random number generator
-    initRandom();
-
-    while(!ctrl_c_pressed){
-        sleep(0.1);
-        // Assign random coordinates to all points
-        assignRandomCoordinates();
-    }
-    LOG_DEBUG("Stopping");
-
-    //END SEQUENCE
-    StopAPIServer();
-    api_server_thread.join();
-    return 0;
-
-
-    Affichage *affichage;
-    SSD1306 display(0x3C);
-    affichage = new Affichage(display);
-    affichage->init();
-
-    tableStatus.init(affichage);
-    
-    robotI2C = new Asser(I2C_ASSER_ADDR);
-    //LOG_SETROBOT(robotI2C);
-
-    Arduino* arduino = new Arduino(I2C_ARDUINO_ADDR);
-
-    currentState = INIT;
-    main_State_t nextState = INIT;
-    bool initState = true;
-
-    actionContainer* actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
-
-
-    // arduino->enableStepper(1);
-    // arduino->servoPosition(1,180);
-    // arduino->servoPosition(2,0);
-    // arduino->moveStepper(2200,1);
-    // while(!ctrl_c_pressed);
-    // ctrl_c_pressed = false;
-    // while(!catchPlant(arduino));
-    // while(!ctrl_c_pressed);
-    // ctrl_c_pressed = false;
-    // while(!releasePlant(arduino));
-    // while(!ctrl_c_pressed);
-
-    // std::string colorTest = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
-    // std::filesystem::path exe_pathTest = std::filesystem::canonical(std::filesystem::path(argv[0])).parent_path();
-    // std::filesystem::path python_script_pathTest = exe_pathTest / "../startPAMI.py";
-    // std::string commandTest = "python3 " + python_script_pathTest.string() + " " +  colorTest;
-    // std::thread python_threadTest(executePythonScript,commandTest);
-
-
-    while (1) {
+    while (!ctrl_c_pressed) {
 
         LOG_SCOPE("Main");
         sleep(0.01);
         
-        
-        // LIDAR could be threadded, see jthreads c++20
-        int count = SIZEDATALIDAR;
         if(currentState != FIN){
-            if(getlidarData(lidarData,count)){
-                robotI2C->getCoords(x,y,teta);
-                position_t position = {x,y,0,teta,0};
-                position_t pos_ennemie = {x,y,0,teta,0};
-                convertAngularToAxial(lidarData,count,&position,-100);
-                init_position_balise(lidarData,count, &position);
-                //LOG_GREEN_INFO("X = ", position.x,"Y = ", position.y, "teta = ", position.teta);
-                convertAngularToAxial(lidarData,count,&position,50);
-                position_ennemie(lidarData, count, &pos_ennemie);
-                
-                tableStatus.ennemie.x += pos_ennemie.x;
-                tableStatus.ennemie.y += pos_ennemie.y;
-                tableStatus.nb += 1;
-                if (tableStatus.nb == 5){
-                    pos_ennemie.x = tableStatus.ennemie.x/tableStatus.nb;
-                    pos_ennemie.y = tableStatus.ennemie.y/tableStatus.nb;
-                    distance = sqrt(pow(tableStatus.prev_pos.x - pos_ennemie.x,2)+ pow(tableStatus.prev_pos.y - pos_ennemie.y,2));
-                    tableStatus.prev_pos.x = pos_ennemie.x;
-                    tableStatus.prev_pos.y = pos_ennemie.y;
-                    tableStatus.nb = 0; tableStatus.ennemie.x = 0; tableStatus.ennemie.y = 0;
-                    if( distance < 250) {ennemieInAction(&tableStatus, &pos_ennemie);}
-                }
-                
-                
-               
-                if (count_pos == 10){
-                    affichage->updatePosition(pos_ennemie.x,pos_ennemie.y);
-                    count_pos = 0;
-                }
-                count_pos ++;
-                if(ctrl_z_pressed){
-                    ctrl_z_pressed = false;
-                    pixelArtPrint(lidarData,count,50,50,100,position);
-                }                
-                robotI2C->getBrakingDistance(distance);
-                tableStatus.robot.collide = collide(lidarData,count,distance);
-            }
+            GetLidar();
         }
-       
-
         switch (currentState) {
             //****************************************************************
             case INIT:{
@@ -408,11 +251,126 @@ int main(int argc, char *argv[]) {
             initState = true;
         }
         currentState = nextState;
-
-        if (ctrl_c_pressed){ 
-            break;
-        }
     }
+
+    EndSequence();
+    return 0;
+}
+
+void StartSequence(){
+    LOG_INIT();
+
+#ifndef DISABLE_LIDAR
+    if(!lidarSetup("/dev/ttyAMA0",256000)){
+        LOG_ERROR("cannot find the lidar");
+        return -1;
+    }
+
+    if (gpioInitialise() < 0) {
+        LOG_ERROR("cannot initialize lidar gpio speed");
+        return 1;
+    }
+    gpioSetPWMfrequency(18, 20000);
+    gpioSetMode(18, PI_OUTPUT);
+    gpioSetPWMrange(18, 100);
+    gpioPWM(18, 25);//lidar speed
+#endif
+
+    signal(SIGTERM, ctrlc);
+    signal(SIGINT, ctrlc);
+    //signal(SIGTSTP, ctrlz);
+
+    // Start the api server in a separate thread
+    api_server_thread = std::thread([&]() {
+        StartAPIServer();
+    });
+
+
+    affichage = new Affichage(display);
+    affichage->init();
+
+    tableStatus.init(affichage);
+    
+    robotI2C = new Asser(I2C_ASSER_ADDR);
+    //LOG_SETROBOT(robotI2C);
+
+    arduino = new Arduino(I2C_ARDUINO_ADDR);
+
+    currentState = INIT;
+    nextState = INIT;
+    initState = true;
+
+    actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
+
+
+    // arduino->enableStepper(1);
+    // arduino->servoPosition(1,180);
+    // arduino->servoPosition(2,0);
+    // arduino->moveStepper(2200,1);
+    // while(!ctrl_c_pressed);
+    // ctrl_c_pressed = false;
+    // while(!catchPlant(arduino));
+    // while(!ctrl_c_pressed);
+    // ctrl_c_pressed = false;
+    // while(!releasePlant(arduino));
+    // while(!ctrl_c_pressed);
+
+    // std::string colorTest = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
+    // std::filesystem::path exe_pathTest = std::filesystem::canonical(std::filesystem::path(argv[0])).parent_path();
+    // std::filesystem::path python_script_pathTest = exe_pathTest / "../startPAMI.py";
+    // std::string commandTest = "python3 " + python_script_pathTest.string() + " " +  colorTest;
+    // std::thread python_threadTest(executePythonScript,commandTest);
+
+}
+
+void GetLidar(){
+    // LIDAR could be threadded
+    int count = SIZEDATALIDAR;
+    if(getlidarData(lidarData,count)){
+        robotI2C->getCoords(x,y,teta);
+        position_t position = {x,y,0,teta,0};
+        position_t pos_ennemie = {x,y,0,teta,0};
+        convertAngularToAxial(lidarData,count,&position,-100);
+        init_position_balise(lidarData,count, &position);
+        //LOG_GREEN_INFO("X = ", position.x,"Y = ", position.y, "teta = ", position.teta);
+        convertAngularToAxial(lidarData,count,&position,50);
+        position_ennemie(lidarData, count, &pos_ennemie);
+        
+        tableStatus.ennemie.x += pos_ennemie.x;
+        tableStatus.ennemie.y += pos_ennemie.y;
+        tableStatus.nb += 1;
+        if (tableStatus.nb == 5){
+            pos_ennemie.x = tableStatus.ennemie.x/tableStatus.nb;
+            pos_ennemie.y = tableStatus.ennemie.y/tableStatus.nb;
+            distance = sqrt(pow(tableStatus.prev_pos.x - pos_ennemie.x,2)+ pow(tableStatus.prev_pos.y - pos_ennemie.y,2));
+            tableStatus.prev_pos.x = pos_ennemie.x;
+            tableStatus.prev_pos.y = pos_ennemie.y;
+            tableStatus.nb = 0; tableStatus.ennemie.x = 0; tableStatus.ennemie.y = 0;
+            if( distance < 250) {ennemieInAction(&tableStatus, &pos_ennemie);}
+        }
+        
+        
+        
+        if (count_pos == 10){
+            affichage->updatePosition(pos_ennemie.x,pos_ennemie.y);
+            count_pos = 0;
+        }
+        count_pos ++;
+        if(ctrl_z_pressed){
+            ctrl_z_pressed = false;
+            pixelArtPrint(lidarData,count,50,50,100,position);
+        }                
+        robotI2C->getBrakingDistance(distance);
+        tableStatus.robot.collide = collide(lidarData,count,distance);
+    }
+}
+
+void EndSequence(){
+
+    LOG_DEBUG("Stopping");
+
+    StopAPIServer();
+    api_server_thread.join();
 
     arduino->moveStepper(0,1);
     gpioPWM(18, 0);
@@ -429,5 +387,32 @@ int main(int argc, char *argv[]) {
     sleep(2);
     arduino->disableStepper(1);
     LOG_DEBUG("PROCESS KILL");
-    return 0;
+}
+
+
+
+
+
+
+bool isWifiConnected() {
+    std::ifstream file("/proc/net/wireless");
+    std::string line;
+
+    if (file.is_open()) {
+        while (std::getline(file, line)) {
+            if (line.find("wlan0") != std::string::npos) {
+                // Si la ligne contient "wlan0", cela indique que l'interface Wi-Fi est présente
+                return true;
+            }
+        }
+        file.close();
+    } else {
+        std::cerr << "Erreur : Impossible d'ouvrir le fichier /proc/net/wireless." << std::endl;
+    }
+
+    return false;
+}
+
+void executePythonScript(const std::string& command) {
+    std::system(command.c_str());
 }
