@@ -20,7 +20,7 @@
 
 #include "actionContainer.hpp"
 
-#define DISABLE_LIDAR
+//#define DISABLE_LIDAR
 
 
 main_State_t currentState;
@@ -263,12 +263,12 @@ void StartSequence(){
 #ifndef DISABLE_LIDAR
     if(!lidarSetup("/dev/ttyAMA0",256000)){
         LOG_ERROR("cannot find the lidar");
-        return -1;
+        return;
     }
 
     if (gpioInitialise() < 0) {
         LOG_ERROR("cannot initialize lidar gpio speed");
-        return 1;
+        return;
     }
     gpioSetPWMfrequency(18, 20000);
     gpioSetMode(18, PI_OUTPUT);

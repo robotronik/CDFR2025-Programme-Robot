@@ -15,10 +15,10 @@ void to_json(json& j, const position_t& p) {
 void to_json(json& j, const lidarAnalize_t& p) {
     j = json{
         {"valid", p.valid},
-        //{"angle", p.angle},
-        //{"dist", p.dist},
-        {"x", p.x},
-        {"y", p.y},
+        {"A", p.angle},
+        {"R", p.dist},
+        //{"x", p.x},
+        //{"y", p.y},
         //{"onTable", p.onTable}
     };
 }

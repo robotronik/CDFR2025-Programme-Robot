@@ -34,7 +34,7 @@
         let drawing = false;
 
         // Define the interval in milliseconds (e.g., 1000ms = 1 second)
-        const INTERVAL = 200;
+        const INTERVAL = 500;
 
         // Function to start the periodic calls
         function startPeriodicLidarFetch() {
@@ -80,7 +80,10 @@
             draw();
             data["data"].forEach(point => {
                 ctx.strokeStyle = point.valid ? "green" : "red";
-                drawPoint(ctx, point.x, point.y);
+                let A = (point.A - 90)/180*3.1415926535;
+                let x = point.R*Math.cos(A);
+                let y = point.R*Math.sin(A);
+                drawPoint(ctx, x, y);
             });
             drawing = false;
         }

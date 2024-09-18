@@ -75,3 +75,8 @@ Pour nettoyer faire
 ```bash
 make clean-all
 ```
+## Accessibilité au site (restAPI)
+
+Soyez sur le même internet local que le robot.
+Le programme doit être lancer depis n'importe quel pc.
+Allez sur cette adresse ds un navigateur : http://raspberrypi.local:8080
