@@ -1,20 +1,32 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -g -O0 -static -Iinclude -Irplidar_sdk/sdk/include -Irplidar_sdk/sdk/src -Ipigpio
+CXXFLAGS = -std=c++17 -Wall -g -O0 -static $(INCLUDE_DIR)
 LDFLAGS = -Lrplidar_sdk/output/Linux/Release
 LDLIBS = pigpio/pigpio.o pigpio/command.o -pthread -li2c -lrt -lpthread -lsl_lidar_sdk 
+
+INCLUDE_DIR = -Iinclude
+INCLUDE_DIR += -Irplidar_sdk/sdk/include
+INCLUDE_DIR += -Irplidar_sdk/sdk/src
+INCLUDE_DIR += -Ipigpio
+INCLUDE_DIR += -I../librairie-commune/include
+
 
 BINDIR = bin
 TARGET = $(BINDIR)/programCDFR
 TEST_TARGET = $(BINDIR)/tests
 SRCDIR = src
+SRC_LIB_COMMUNE = /../librairie-commune/src
 TESTDIR = tests
 OBJDIR = obj
 TESTOBJDIR = test_obj
 
 SRC = $(wildcard $(SRCDIR)/*.cpp)
+SRC += $(wildcard $(SRC_LIB_COMMUNE)/*.cpp)
+
+OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC))
+OBJ += $(patsubst $(SRC_LIB_COMMUNE)/%.cpp,$(OBJDIR)/%.o,$(wildcard $(SRC_LIB_COMMUNE)/*.cpp)) 
+
 SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp,$(SRC))
 TEST_SRC = $(wildcard $(TESTDIR)/*.cpp)
-OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC))
 OBJ_NO_MAIN = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC_NO_MAIN))
 TEST_OBJ = $(patsubst $(TESTDIR)/%.cpp,$(TESTOBJDIR)/%.o,$(TEST_SRC))
 DEPENDS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.d,$(SRC)) $(patsubst $(TESTDIR)/%.cpp,$(TESTOBJDIR)/%.d,$(TEST_SRC))
@@ -38,6 +50,9 @@ $(TEST_TARGET): $(OBJ_NO_MAIN) $(TEST_OBJ) | $(BINDIR)
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
+
+$(OBJDIR)/%.o: $(SRC_LIB_COMMUNE)/%.cpp | $(OBJDIR)
+	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 $(TESTOBJDIR)/%.o: $(TESTDIR)/%.cpp | $(TESTOBJDIR)
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 

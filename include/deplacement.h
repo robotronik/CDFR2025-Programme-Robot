@@ -4,6 +4,7 @@
 #include "config.h"
 #include "arduino.hpp"
 #include "constante.h"
+#include "asservissement_interface.h"
 
 
 typedef enum {

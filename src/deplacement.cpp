@@ -11,6 +11,7 @@ int deplacementPathFinding(int collide, Asser* robot, int x, int y){
     // Ludovic Bouchard - Variables non d�f�nies, n�c�ssaire pour compiler...
     asser_direction_side direction;
     int teta, rotation;
+    DataPacker sd;
 
     switch (currentState)
     {
