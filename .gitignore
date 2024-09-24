@@ -20,5 +20,5 @@ tmp/
 .DS_Store
 Thumbs.db
 /.vs
-/.vscode
+/.vscode/
 /CppProperties.json
