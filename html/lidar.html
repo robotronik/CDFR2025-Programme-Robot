@@ -37,12 +37,19 @@
         const INTERVAL = 500;
 
         // Function to start the periodic calls
-        function startPeriodicLidarFetch() {
-            // Initial call
-            getLidar();
-            
-            // Set up the interval
-            setInterval(getLidar, INTERVAL);
+        // function startPeriodicLidarFetch() {
+        //     // Initial call
+        //     getLidar();
+        //     
+        //     // Set up the interval
+        //     setInterval(getLidar, INTERVAL);
+        // }
+
+        // Function to start the continuous Lidar fetching loop
+        async function startContinuousLidarFetch() {
+            while (true) {  // Infinite loop
+                await getLidar();  // Wait for the Lidar data to be fetched and drawn
+            }
         }
 
         async function getLidar() {
@@ -58,6 +65,8 @@
                 console.error('Failed to fetch LIDAR data:', error);
             }
         }
+
+
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
@@ -79,11 +88,13 @@
             drawing = true;
             draw();
             data["data"].forEach(point => {
-                ctx.strokeStyle = point.valid ? "green" : "red";
-                let A = (point.A - 90)/180*3.1415926535;
-                let x = point.R*Math.cos(A);
-                let y = point.R*Math.sin(A);
-                drawPoint(ctx, x, y);
+                if (point.valid){
+                    ctx.strokeStyle = "green";
+                    let A = (point.A - 90)/180*Math.PI;
+                    let x = point.R*Math.cos(A);
+                    let y = point.R*Math.sin(A);
+                    drawPoint(ctx, x, y);
+                }
             });
             drawing = false;
         }
@@ -98,7 +109,10 @@
         }
         
         // Start the fetch
-        startPeriodicLidarFetch();
+        // startPeriodicLidarFetch();
+
+        // Start the continuous fetching loop
+        startContinuousLidarFetch();
     </script>
 
     <!-- Bootstrap JS and dependencies -->

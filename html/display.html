@@ -20,7 +20,7 @@
     <h1 class="mt-4 text-white text-center">2D Talbe and Robot Display</h1>
 
     <!-- Canvas element where we will draw shapes and images -->
-    <canvas id="displayCanvas" width="3000" height="2000" class="m-5 justify-content-center align-items-center"></canvas>
+    <canvas id="displayCanvas" width="3300" height="2300" class="mt-5 justify-content-center align-items-center"></canvas>
 
     <script>
         const canvas = document.getElementById('displayCanvas');
@@ -31,12 +31,14 @@
         svgImage.src = 'assets/vinyl.svg';
 
         // Example: Moving rectangle (a simple animation)
-        let x = 50;
-        let y = 150;
+        let x = 0;
+        let centerX = canvas.width / 2;
+        let centerY = canvas.height / 2;
+
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
-            ctx.drawImage(svgImage, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(svgImage, centerX - 3000/2, centerY - 2000/2, 3000, 2000);
             
             // Redraw shapes and images
             // ctx.fillStyle = 'blue';
@@ -47,11 +49,10 @@
 
             ctx.fillStyle = 'red';
             ctx.beginPath();
-            ctx.arc(1500, 1000, 10, 0, Math.PI * 2); // x, y, radius, startAngle, endAngle
+            ctx.arc(centerX, centerY, 10, 0, Math.PI * 2); // x, y, radius, startAngle, endAngle
             ctx.fill();
 
-            x += 1; // Move the rectangle horizontally
-            if (x > canvas.width) x = 0; // Reset position when it goes off-screen
+            x += 1;
 
             requestAnimationFrame(draw); // Continue animation
         }
@@ -65,17 +66,20 @@
 
             // Calculate corner points relative to the center of the square
             const points = [
+                { x: halfSize, y: halfSize },
+                { x: -halfSize, y: halfSize },
                 { x: -halfSize, y: -halfSize },
                 { x: halfSize, y: -halfSize },
                 { x: halfSize, y: halfSize },
-                { x: -halfSize, y: halfSize }
+                { x: halfSize * 0.8, y: 0 },
+                { x: halfSize, y: -halfSize }
             ];
 
             // Rotate points around the center
             const rotatedPoints = points.map(point => {
                 return {
-                    x: x + point.x * Math.cos(angleRad) - point.y * Math.sin(angleRad),
-                    y: y + point.x * Math.sin(angleRad) + point.y * Math.cos(angleRad)
+                    x: x + centerX + point.x * Math.cos(angleRad) - point.y * Math.sin(angleRad),
+                    y: - y + centerY + point.x * Math.sin(angleRad) + point.y * Math.cos(angleRad)
                 };
             });
 
@@ -83,13 +87,25 @@
             ctx.lineWidth = 10;
             // Draw the rotated square
             ctx.beginPath();
-            ctx.moveTo(rotatedPoints[0].x, rotatedPoints[0].y);
-            for (let i = 1; i < rotatedPoints.length; i++) {
+            for (let i = 0; i < rotatedPoints.length; i++) {
                 ctx.lineTo(rotatedPoints[i].x, rotatedPoints[i].y);
             }
             ctx.closePath();
             ctx.stroke();
         }
+
+        // Set the canvas to scale with the width of the window
+        function resizeCanvas() {
+            let ratio = canvas.height / canvas.width;
+            canvas.style.width = window.innerWidth + 'px';  // Scale the width to fit the screen width
+            canvas.style.height = (window.innerWidth * ratio) + 'px';
+        }
+
+        // Call the function to resize initially
+        resizeCanvas();
+
+        // Optionally, listen for window resize events to adjust the canvas size dynamically
+        window.addEventListener('resize', resizeCanvas);
 
         // Start the animation
         draw();

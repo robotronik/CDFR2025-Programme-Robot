@@ -20,7 +20,8 @@
 
 #include "actionContainer.hpp"
 
-//#define DISABLE_LIDAR
+#define DISABLE_LIDAR
+#define TEST_API_ONLY
 
 
 main_State_t currentState;
@@ -44,7 +45,7 @@ std::thread api_server_thread;
 
 
 // Prototypes
-void StartSequence();
+int StartSequence();
 void GetLidar();
 void EndSequence();
 
@@ -66,7 +67,8 @@ void ctrlz(int signal) {
 
 
 int main(int argc, char *argv[]) {
-    StartSequence();
+    if (StartSequence() != 0)
+        return -1;
 
     while (!ctrl_c_pressed) {
 
@@ -142,7 +144,9 @@ int main(int argc, char *argv[]) {
                     robotI2C->setCoords(-700,-1100,90);
                     LOG_INFO("teams : BLUE");
                 }
-                //IF bStateCapteur2 != 1 && != 2 alors problem
+                else{
+                    LOG_ERROR("bStateCapteur2 IS NOT THE RIGHT VALUE (0 or 1)");
+                }
                 break;
             }
             //****************************************************************
@@ -257,18 +261,18 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void StartSequence(){
+int StartSequence(){
     LOG_INIT();
 
 #ifndef DISABLE_LIDAR
     if(!lidarSetup("/dev/ttyAMA0",256000)){
         LOG_ERROR("cannot find the lidar");
-        return;
+        return -1;
     }
 
     if (gpioInitialise() < 0) {
         LOG_ERROR("cannot initialize lidar gpio speed");
-        return;
+        return -1;
     }
     gpioSetPWMfrequency(18, 20000);
     gpioSetMode(18, PI_OUTPUT);
@@ -285,6 +289,14 @@ void StartSequence(){
         StartAPIServer();
     });
 
+#ifdef TEST_API_ONLY
+    while(!ctrl_c_pressed){
+        sleep(1);
+    }
+    StopAPIServer();
+    api_server_thread.join();
+    return -1;
+#endif
 
     affichage = new Affichage(display);
     affichage->init();
@@ -320,7 +332,7 @@ void StartSequence(){
     // std::filesystem::path python_script_pathTest = exe_pathTest / "../startPAMI.py";
     // std::string commandTest = "python3 " + python_script_pathTest.string() + " " +  colorTest;
     // std::thread python_threadTest(executePythonScript,commandTest);
-
+    return 0;
 }
 
 void GetLidar(){

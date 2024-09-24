@@ -37,21 +37,18 @@ void StartAPIServer(){
         return readHtmlFile("html/lidar.html");
     });
 
+    // Define a simple route for the lidar page
+    CROW_ROUTE(app, "/logs")
+    ([](){
+        return readHtmlFile("html/logs.html");
+    });
+
     // Define a simple route for the navbar
     CROW_ROUTE(app, "/navbar.html")
     ([](){
         return readHtmlFile("html/navbar.html");
     });
 
-    // Define a route for a simple GET request that returns a JSON response
-    CROW_ROUTE(app, "/get_data")
-    ([](){
-        json response; //Create a nlohmann::json response
-        response["message"] = "This is a GET request";
-        response["value"] = 42;
-
-        return crow::response(response.dump(4)); // 4 spaces for indentation
-    });
     // Define a route for a simple GET request that returns the status
     CROW_ROUTE(app, "/get_status")
     ([](){
@@ -76,6 +73,19 @@ void StartAPIServer(){
     CROW_ROUTE(app, "/get_table")
     ([](){
         json response;
+        response["table"] = tableStatus;
+        response["score"] = tableStatus.getScore();
+        return crow::response(response.dump(4));
+    });
+
+    // Define a route for a simple GET request that returns all of the information
+    CROW_ROUTE(app, "/get_global")
+    ([](){
+        json response;
+        response["status"] = currentState;
+        response["x"] = x;
+        response["y"] = y;
+        response["teta"] = teta;
         response["table"] = tableStatus;
         response["score"] = tableStatus.getScore();
         return crow::response(response.dump(4));
@@ -108,7 +118,6 @@ void StartAPIServer(){
         // Return the response as JSON
         return crow::response(response.dump(4));
     });
-
 
     // Route for serving SVG and PNG files
     CROW_ROUTE(app, "/assets/<string>")
