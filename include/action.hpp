@@ -10,7 +10,7 @@
 
 class action;
 
-typedef int (*FuncRunPtr)(action*, Asser*, Arduino*, tableState*);
+typedef int (*FuncRunPtr)(action*, commandesAsservissement*, Arduino*, tableState*);
 typedef int (*FuncValidPtr)(tableState*);
 
 
@@ -27,23 +27,23 @@ private:
     }fsmAction_t;
 
 private:
-    Asser* robot;
+    commandesAsservissement* robot;
     Arduino* arduino;
     tableState* table;
 
-    std::function<int(action*, Asser*, Arduino*, tableState*)> runActionPtr;
+    std::function<int(action*, commandesAsservissement*, Arduino*, tableState*)> runActionPtr;
     int validActionPtr;
-    std::function<void(tableState*,Asser *)> goodEndPtr;
+    std::function<void(tableState*,commandesAsservissement *)> goodEndPtr;
     std::function<void(tableState*)> badEndPtr;
 
     position_t startPostion;
-    asser_direction_side startDirection;
-    asser_rotation_side startRotation;
+    commandesAsservissement::direction startDirection;
+    commandesAsservissement::rotation startRotation;
 
     bool noEndPoint = true;
     position_t endPostion;
-    asser_direction_side endDirection;
-    asser_rotation_side endRotation;
+    commandesAsservissement::direction endDirection;
+    commandesAsservissement::rotation endRotation;
 
     fsmAction_t currentState = FSMACTION_INIT;
     bool initStat = true;
@@ -56,14 +56,14 @@ private:
     bool noTetaStart = false;
 
 public:
-    action(std::string name, Asser* irobot, Arduino* iarduino, tableState* itable);
+    action(std::string name, commandesAsservissement* irobot, Arduino* iarduino, tableState* itable);
     int runAction(void);
-    void setRunAction(std::function<int(action*, Asser*, Arduino*, tableState*)> ptr);
-    void setStartPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation);
-    void setStartPoint(int x, int y, asser_direction_side Direction, asser_rotation_side rotation);
-    void setEndPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation);
+    void setRunAction(std::function<int(action*, commandesAsservissement*, Arduino*, tableState*)> ptr);
+    void setStartPoint(int x, int y, int teta, commandesAsservissement::direction Direction, commandesAsservissement::rotation rotation);
+    void setStartPoint(int x, int y, commandesAsservissement::direction Direction, commandesAsservissement::rotation rotation);
+    void setEndPoint(int x, int y, int teta, commandesAsservissement::direction Direction, commandesAsservissement::rotation rotation);
     int costAction(void);
-    void goodEnd(std::function<void(tableState*, Asser*)> ptr);
+    void goodEnd(std::function<void(tableState*, commandesAsservissement*)> ptr);
     void badEnd(std::function<void(tableState*)> ptr);
     void setCostAction(int num_action, int num_i_action, tableState *itable, int x_start, int y_start);
     void resetActionEnable(void);

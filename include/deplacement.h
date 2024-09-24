@@ -1,10 +1,9 @@
 #pragma once
 
-#include "asser.hpp"
+#include "commandesAsservissement.hpp"
 #include "config.h"
 #include "arduino.hpp"
 #include "constante.h"
-#include "asservissement_interface.h"
 
 
 typedef enum {
@@ -30,6 +29,6 @@ typedef enum {
     GOTO_TURN_PF,
 } go_to_State_PF_t;
 
-int deplacementLinearPoint(int collide,Asser* robot, int x, int y);
-int deplacementgoToPoint(int collide, Asser* robot, int x, int y, int teta, asser_direction_side direction = MOVE_FORWARD,asser_rotation_side rotationLookAt = ROTATION_DIRECT,asser_rotation_side rotation = ROTATION_DIRECT);
-int deplacementgoToPointNoTurn(int collide, Asser* robot, int x, int y, asser_direction_side direction = MOVE_FORWARD,asser_rotation_side rotationLookAt = ROTATION_DIRECT);
+int deplacementLinearPoint(int collide,commandesAsservissement* robot, int x, int y);
+int deplacementgoToPoint(int collide, commandesAsservissement* robot, int x, int y, int teta, commandesAsservissement::direction direction = commandesAsservissement::MOVE_FORWARD,commandesAsservissement::rotation rotationLookAt = commandesAsservissement::ROTATION_DIRECT, commandesAsservissement::rotation rotation = commandesAsservissement::ROTATION_DIRECT);
+int deplacementgoToPointNoTurn(int collide, commandesAsservissement* robot, int x, int y, commandesAsservissement::direction direction = commandesAsservissement::MOVE_FORWARD,commandesAsservissement::rotation rotationLookAt = commandesAsservissement::ROTATION_DIRECT);

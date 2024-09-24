@@ -13,23 +13,26 @@ INCLUDE_DIR += -I../librairie-commune/include
 BINDIR = bin
 TARGET = $(BINDIR)/programCDFR
 TEST_TARGET = $(BINDIR)/tests
+
 SRCDIR = src
-SRC_LIB_COMMUNE = /../librairie-commune/src
-TESTDIR = tests
+SRCDIR_LIBCOM = ../librairie-commune/src
+SRCDIR_TEST = tests
+
 OBJDIR = obj
-TESTOBJDIR = test_obj
+OBJDIR_LIBCOM = lib_com_obj
+OBJDIR_TEST = test_obj
 
 SRC = $(wildcard $(SRCDIR)/*.cpp)
-SRC += $(wildcard $(SRC_LIB_COMMUNE)/*.cpp)
+SRC_LIB_COM = $(wildcard $(SRCDIR_LIBCOM)/*.cpp)
 
 OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC))
-OBJ += $(patsubst $(SRC_LIB_COMMUNE)/%.cpp,$(OBJDIR)/%.o,$(wildcard $(SRC_LIB_COMMUNE)/*.cpp)) 
+OBJ_LIB_COM = $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM)) 
 
 SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp,$(SRC))
-TEST_SRC = $(wildcard $(TESTDIR)/*.cpp)
+SRC_TEST = $(wildcard $(SRCDIR_TEST)/*.cpp)
 OBJ_NO_MAIN = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC_NO_MAIN))
-TEST_OBJ = $(patsubst $(TESTDIR)/%.cpp,$(TESTOBJDIR)/%.o,$(TEST_SRC))
-DEPENDS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.d,$(SRC)) $(patsubst $(TESTDIR)/%.cpp,$(TESTOBJDIR)/%.d,$(TEST_SRC))
+TEST_OBJ = $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_TEST)/%.o,$(SRC_TEST))
+DEPENDS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.d,$(SRC)) $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.d,$(SRC_LIB_COM)) $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_TEST)/%.d,$(SRC_TEST)) 
 
 
 .PHONY: all clean tests clean-all deploy run
@@ -37,11 +40,14 @@ DEPENDS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.d,$(SRC)) $(patsubst $(TESTDIR
 all: $(BINDIR) build_pigpio build_lidarLib $(TARGET) $(TEST_TARGET)
 	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && ./programCDFR)' pour exécuter le programme."
 
-$(TARGET): $(OBJ) | $(BINDIR)
+check:
+	@echo $(addsuffix /I2CDevice.cpp, $(SRC_DIRS))
+
+$(TARGET): $(OBJ) $(OBJ_LIB_COM) | $(BINDIR)
 	@echo "--------------------------------- Compilation du programme principal... ---------------------------------"
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
-$(TEST_TARGET): $(OBJ_NO_MAIN) $(TEST_OBJ) | $(BINDIR)
+$(TEST_TARGET): $(OBJ_NO_MAIN) $(TEST_OBJ)  $(OBJ_LIB_COM) | $(BINDIR)
 	@echo "--------------------------------- Compilation des tests... ---------------------------------"
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
@@ -50,16 +56,19 @@ $(TEST_TARGET): $(OBJ_NO_MAIN) $(TEST_OBJ) | $(BINDIR)
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
+$(OBJDIR_LIBCOM)/%.o: $(SRCDIR_LIBCOM)/%.cpp | $(OBJDIR_LIBCOM)
+	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
-$(OBJDIR)/%.o: $(SRC_LIB_COMMUNE)/%.cpp | $(OBJDIR)
+$(OBJDIR_TEST)/%.o: $(SRCDIR_TEST)/%.cpp | $(OBJDIR_TEST)
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
-$(TESTOBJDIR)/%.o: $(TESTDIR)/%.cpp | $(TESTOBJDIR)
-	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+
+$(OBJDIR_LIBCOM):
+	mkdir -p $@
 
 $(OBJDIR):
 	mkdir -p $@
 
-$(TESTOBJDIR):
+$(OBJDIR_TEST):
 	mkdir -p $@
 
 $(BINDIR):
@@ -145,7 +154,7 @@ build_arm_pigpio:
 
 clean:
 	@echo "--------------------------------- Nettoyage... ---------------------------------"
-	rm -rf $(OBJDIR) $(TESTOBJDIR) $(ARM_OBJDIR) $(ARM_OBJDIR) $(BINDIR) $(ARMBINDIR)
+	rm -rf $(OBJDIR) $(OBJDIR_TEST) $(ARM_OBJDIR) $(ARM_OBJDIR) $(BINDIR) $(ARMBINDIR)
 
 # Clean lidarLib specifically
 clean-lidarLib:

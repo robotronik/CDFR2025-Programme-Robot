@@ -11,6 +11,7 @@
 /test_obj/
 /arm_bin/
 /arm_obj/
+/lib_com_obj/
 
 
 *.log

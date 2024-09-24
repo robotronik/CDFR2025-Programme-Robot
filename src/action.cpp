@@ -1,7 +1,7 @@
 #include "action.hpp"
 
 
-action::action(std::string name, Asser* irobot, Arduino* iarduino, tableState* itable){
+action::action(std::string name, commandesAsservissement* irobot, Arduino* iarduino, tableState* itable){
     robot = irobot;
     arduino = iarduino;
     table = itable;
@@ -114,8 +114,9 @@ int action::costAction(void){
 }
 
 void action::setCostAction(int num_action, int num_i_action, tableState *itable, int x_start, int y_start){
-    int x_pos,y_pos,theta_pos,distance_action;
-    robot->getCoords(x_pos,y_pos,theta_pos);
+    int16_t x_pos,y_pos,theta_pos;
+    int distance_action;
+    robot->get_coordinates(x_pos,y_pos,theta_pos);
     validActionPtr = -1;
     //ACTION 1 : TAKE PLANT
     if (num_action == 1 && itable->planteStockFull[num_i_action].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) && itable->startTime+75000 > millis()){
@@ -179,7 +180,7 @@ void action::setCostAction(int num_action, int num_i_action, tableState *itable,
    */
 }
 
-void action::setRunAction(std::function<int(action*, Asser*, Arduino*, tableState*)> ptr){
+void action::setRunAction(std::function<int(action*, commandesAsservissement*, Arduino*, tableState*)> ptr){
     runActionPtr = ptr;
 }
 
@@ -197,7 +198,7 @@ int action::goToEnd(void){
     return deplacementgoToPoint(table->robot.collide, robot, endPostion.x, endPostion.y, endPostion.teta, endDirection);
 }
 
-void action::setStartPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation){
+void action::setStartPoint(int x, int y, int teta, commandesAsservissement::direction Direction, commandesAsservissement::rotation rotation){
     startPostion.x = x;
     startPostion.y = y;
     startPostion.teta = teta;
@@ -205,7 +206,7 @@ void action::setStartPoint(int x, int y, int teta, asser_direction_side Directio
     startRotation = rotation;
 }
 
-void action::setStartPoint(int x, int y, asser_direction_side Direction, asser_rotation_side rotation){
+void action::setStartPoint(int x, int y, commandesAsservissement::direction Direction, commandesAsservissement::rotation rotation){
     startPostion.x = x;
     startPostion.y = y;
     startDirection = Direction;
@@ -213,7 +214,7 @@ void action::setStartPoint(int x, int y, asser_direction_side Direction, asser_r
     noTetaStart = true;
 }
 
-void action::setEndPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation){
+void action::setEndPoint(int x, int y, int teta, commandesAsservissement::direction Direction, commandesAsservissement::rotation rotation){
     endPostion.x = x;
     endPostion.y = y;
     endPostion.teta = teta;
@@ -226,7 +227,7 @@ std::string action::getName(void){
     return actionName;
 }
 
-void action::goodEnd(std::function<void(tableState*,Asser*)> ptr){
+void action::goodEnd(std::function<void(tableState*,commandesAsservissement*)> ptr){
     goodEndPtr = ptr;
 }
 void action::badEnd(std::function<void(tableState*)> ptr){

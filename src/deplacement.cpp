@@ -1,6 +1,6 @@
 #include "deplacement.h"
 
-int deplacementPathFinding(int collide, Asser* robot, int x, int y){
+int deplacementPathFinding(int collide, commandesAsservissement* robot, int x, int y){
     LOG_SCOPE("PATH FINDING");
     int ireturn = 0;
     static bool initStat = true;
@@ -9,8 +9,9 @@ int deplacementPathFinding(int collide, Asser* robot, int x, int y){
     int deplacementreturn;
 
     // Ludovic Bouchard - Variables non d�f�nies, n�c�ssaire pour compiler...
-    asser_direction_side direction;
-    int teta, rotation;
+    commandesAsservissement::direction direction;
+    commandesAsservissement::rotation rotation;
+    int teta;
     DataPacker sd;
 
     switch (currentState)
@@ -22,14 +23,14 @@ int deplacementPathFinding(int collide, Asser* robot, int x, int y){
     case GOTO_LOOKAT :
         if(initStat){ 
             LOG_STATE("GOTO_LOOKAT");
-            if(direction == MOVE_FORWARD){
-                robot->setLookForward(x,y,ROTATION_DIRECT);
+            if(direction == commandesAsservissement::MOVE_FORWARD){
+                robot->set_consigne_lookAt_forward(x,y,commandesAsservissement::ROTATION_DIRECT);
             } 
             else{
-                robot->setLookBackward(x,y,ROTATION_DIRECT);
+                robot->set_consigne_lookAt_backward(x,y,commandesAsservissement::ROTATION_DIRECT);
             }
         }
-        if(robot->getError(ANGULAR_ERROR)==0){
+        if(robot->get_angular_error()==0){
             nextState = GOTO_MOVE;
         }
         break;
@@ -46,9 +47,9 @@ int deplacementPathFinding(int collide, Asser* robot, int x, int y){
         break;
     case GOTO_TURN :
         if(initStat){ LOG_STATE("GOTO_TURN");
-            robot->angularSetpoint(teta,rotation);
+            robot->set_consigne_angulaire(teta,rotation);
         }
-        if(!robot->getError(ANGULAR_ERROR)){
+        if(!robot->get_angular_error()){
             nextState = GOTO_INIT;
             ireturn = 1;
         }
@@ -70,7 +71,7 @@ int deplacementPathFinding(int collide, Asser* robot, int x, int y){
 }
 
 
-int deplacementLinearPoint(int collide, Asser* robot, int x, int y){
+int deplacementLinearPoint(int collide, commandesAsservissement* robot, int x, int y){
     LOG_SCOPE("MOVE");
     static unsigned long startTime;
     static int memx  = 0;
@@ -79,7 +80,7 @@ int deplacementLinearPoint(int collide, Asser* robot, int x, int y){
     static deplcement_State_t step = DEPLACEMENT_INIT;
     deplcement_State_t nextstep = step;
     int iret = 0;
-    int distance;
+    int16_t distance;
 
 
     switch (step)
@@ -90,12 +91,12 @@ int deplacementLinearPoint(int collide, Asser* robot, int x, int y){
         memy = y;
 
         nextstep = DEPLACEMENT_WAITFIRSTMOVE;
-        robot->linearSetpoint(memx,memy);
+        robot->set_consigne_lineaire(memx,memy);
 
         break;
     case DEPLACEMENT_WAITFIRSTMOVE:
         if(initStat) LOG_STATE("DEPLACEMENT_WAITFIRSTMOVE");
-        robot->getBrakingDistance(distance);
+        robot->get_angular_error(distance);
         if(distance != 0){
             if(collide < DISTANCESTOP){
                 LOG_INFO("distance colide : ",collide);
@@ -104,14 +105,14 @@ int deplacementLinearPoint(int collide, Asser* robot, int x, int y){
             }
             else{
                 nextstep = DEPLACEMENT_MOVE;
-                robot->linearSetpoint(memx,memy);
+                robot->set_consigne_lineaire(memx,memy);
             }
         }
         break;
 
     case DEPLACEMENT_MOVE:
         if(initStat) LOG_STATE("DEPLACEMENT_MOVE");
-        if(!robot->getError(LINEAR_ERROR)){
+        if(!robot->get_linear_error()){
             nextstep = DEPLACEMENT_INIT;
             iret = 1; //GOOD END
         }
@@ -119,13 +120,13 @@ int deplacementLinearPoint(int collide, Asser* robot, int x, int y){
             LOG_INFO("distance colide : ",collide);
             nextstep = DEPLACEMENT_STOP;
             robot->stop();
-            robot->brakeMotor(true);
+            robot->brake(true);
         }
         break;
 
     case DEPLACEMENT_STOP:
         if(initStat) LOG_STATE("DEPLACEMENT_STOP");
-        robot->getBrakingDistance(distance);
+        robot->get_braking_distance(distance);
         if(distance==0){
             startTime = millis() + 3000;
             nextstep = DEPLACEMENT_WAIT;
@@ -137,16 +138,16 @@ int deplacementLinearPoint(int collide, Asser* robot, int x, int y){
         if(startTime < millis()){
             nextstep = DEPLACEMENT_INIT;
             iret = -1; //BAD END
-            robot->brakeMotor(false);
-            robot->enableMotor(true);
-            robot->linearSetpoint(memx,memy);
+            robot->brake(false);
+            robot->enable_motor();
+            robot->set_consigne_lineaire(memx,memy);
         }
         if(collide > DISTANCERESTART){
             LOG_INFO("distance colide : ",collide);
             nextstep = DEPLACEMENT_MOVE;
-            robot->brakeMotor(false);
-            robot->enableMotor(true);
-            robot->linearSetpoint(memx,memy);
+            robot->brake(false);
+            robot->enable_motor();
+            robot->set_consigne_lineaire(memx,memy);
         }
         break;
     
@@ -166,7 +167,7 @@ int deplacementLinearPoint(int collide, Asser* robot, int x, int y){
 
 
 
-int deplacementgoToPoint(int collide, Asser* robot, int x, int y, int teta, asser_direction_side direction,asser_rotation_side rotationLookAt,asser_rotation_side rotation){
+int deplacementgoToPoint(int collide, commandesAsservissement* robot, int x, int y, int teta, commandesAsservissement::direction direction,commandesAsservissement::rotation rotationLookAt,commandesAsservissement::rotation rotation){
     LOG_SCOPE("go to");
     int ireturn = 0;
     static bool initStat = true;
@@ -184,14 +185,14 @@ int deplacementgoToPoint(int collide, Asser* robot, int x, int y, int teta, asse
     case GOTO_LOOKAT :
         if(initStat){ 
             LOG_STATE("GOTO_LOOKAT");
-            if(direction == MOVE_FORWARD){
-                robot->setLookForward(x,y,ROTATION_DIRECT);
+            if(direction == commandesAsservissement::MOVE_FORWARD){
+                robot->set_consigne_lookAt_forward(x,y,commandesAsservissement::ROTATION_DIRECT);
             } 
             else{
-                robot->setLookBackward(x,y,ROTATION_DIRECT);
+                robot->set_consigne_lookAt_backward(x,y,commandesAsservissement::ROTATION_DIRECT);
             }
         }
-        if(robot->getError(ANGULAR_ERROR)==0){
+        if(robot->get_angular_error()==0){
             nextState = GOTO_MOVE;
         }
         break;
@@ -208,9 +209,9 @@ int deplacementgoToPoint(int collide, Asser* robot, int x, int y, int teta, asse
         break;
     case GOTO_TURN :
         if(initStat){ LOG_STATE("GOTO_TURN");
-            robot->angularSetpoint(teta,rotation);
+            robot->set_consigne_angulaire(teta,rotation);
         }
-        if(!robot->getError(ANGULAR_ERROR)){
+        if(!robot->get_angular_error()){
             nextState = GOTO_INIT;
             ireturn = 1;
         }
@@ -231,7 +232,7 @@ int deplacementgoToPoint(int collide, Asser* robot, int x, int y, int teta, asse
 
 }
 
-int deplacementgoToPointNoTurn(int collide, Asser* robot, int x, int y, asser_direction_side direction,asser_rotation_side rotationLookAt){
+int deplacementgoToPointNoTurn(int collide, commandesAsservissement* robot, int x, int y, commandesAsservissement::direction direction,commandesAsservissement::rotation rotationLookAt){
     LOG_SCOPE("go to");
     int ireturn = 0;
     static bool initStat = true;
@@ -249,14 +250,14 @@ int deplacementgoToPointNoTurn(int collide, Asser* robot, int x, int y, asser_di
     case GOTO_LOOKAT :
         if(initStat){ 
             LOG_STATE("GOTO_LOOKAT");
-            if(direction == MOVE_FORWARD){
-                robot->setLookForward(x,y,ROTATION_DIRECT);
+            if(direction == commandesAsservissement::MOVE_FORWARD){
+                robot->set_consigne_lookAt_forward(x,y,commandesAsservissement::ROTATION_DIRECT);
             } 
             else{
-                robot->setLookBackward(x,y,ROTATION_DIRECT);
+                robot->set_consigne_lookAt_backward(x,y,commandesAsservissement::ROTATION_DIRECT);
             }
         }
-        if(robot->getError(ANGULAR_ERROR)==0){
+        if(robot->get_angular_error()==0){
             nextState = GOTO_MOVE;
         }
         break;
