@@ -19,9 +19,9 @@ SRCDIR_LIBCOM = ../librairie-commune/src
 SRCDIR_TEST = tests
 
 OBJDIR = obj
-OBJDIR_MAIN = obj/main_obj
-OBJDIR_LIBCOM = obj/lib_com_obj
-OBJDIR_TEST = obj/test_obj
+OBJDIR_MAIN = $(OBJDIR)/main_obj
+OBJDIR_LIBCOM = $(OBJDIR)/lib_com_obj
+OBJDIR_TEST = $(OBJDIR)/test_obj
 
 
 SRC = $(wildcard $(SRCDIR)/*.cpp)
@@ -119,27 +119,43 @@ PI_DIR = /home/$(PI_USER)/CDFR2025
 
 # Define the ARM target and object directory for cross-compilation
 ARMBINDIR = arm_bin
-ARM_OBJDIR = arm_obj
+OBJDIR_ARM = $(OBJDIR)/arm_obj
+OBJDIR_ARM_LIBCOM = $(OBJDIR)/arm_obj_lib_com
 ARM_TARGET = $(ARMBINDIR)/programCDFR
 
-ARM_OBJ = $(patsubst $(SRCDIR)/%.cpp,$(ARM_OBJDIR)/%.o,$(SRC))
+ARM_OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_ARM)/%.o,$(SRC))
+ARM_OBJ += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_ARM_LIBCOM)/%.o,$(SRC_LIB_COM)) 
 
 
 # Compile all object files for ARM
-$(ARM_OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(ARM_OBJDIR)
-	$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+$(OBJDIR_ARM)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR_ARM)
+	@echo " ARM_CXX  $@"
+	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+
+$(OBJDIR_ARM_LIBCOM)/%.o: $(SRCDIR_LIBCOM)/%.cpp | $(OBJDIR_ARM_LIBCOM)
+	@echo " ARM_CXX  $@"
+	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
 # Create the ARM object directory
-$(ARM_OBJDIR):
-	mkdir -p $@
+$(OBJDIR_ARM_LIBCOM):
+	@echo " DIR  $@"
+	@mkdir -p $@
+
+
+# Create the ARM object directory
+$(OBJDIR_ARM):
+	@echo " ARM_DIR  $@"
+	@mkdir -p $@
 
 # Create the ARM binary directory
 $(ARMBINDIR):
-	mkdir -p $@
+	@echo " ARM_DIR  $@"
+	@mkdir -p $@
 
 # Cross-compile and link for Raspberry Pi
 $(ARM_TARGET): $(ARM_OBJ) | $(ARMBINDIR)
-	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	@echo " ARM_APP  $@"
+	@$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 
 # Deploy target
@@ -170,7 +186,7 @@ build_arm_pigpio:
 
 clean:
 	@echo "--------------------------------- Nettoyage... ---------------------------------"
-	rm -rf $(OBJDIR) $(ARM_OBJDIR) $(ARM_OBJDIR) $(BINDIR) $(ARMBINDIR)
+	rm -rf $(OBJDIR) $(BINDIR) $(ARMBINDIR)
 
 # Clean lidarLib specifically
 clean-lidarLib:
