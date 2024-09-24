@@ -20,8 +20,8 @@
 
 #include "actionContainer.hpp"
 
-#define DISABLE_LIDAR
-#define TEST_API_ONLY
+//#define DISABLE_LIDAR
+//#define TEST_API_ONLY
 
 
 main_State_t currentState;
