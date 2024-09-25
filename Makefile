@@ -15,7 +15,7 @@ TARGET = $(BINDIR)/programCDFR
 TEST_TARGET = $(BINDIR)/tests
 
 SRCDIR = src
-SRCDIR_LIBCOM = ../librairie-commune/src
+SRCDIR_LIBCOM = ../librairie-commune/srca
 SRCDIR_TEST = tests
 
 OBJDIR = obj
@@ -44,11 +44,16 @@ DEPENDS += $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_TEST)/%.d,$(SRC_TEST))
 
 .PHONY: all clean tests clean-all deploy run
 
-all: $(BINDIR) build_pigpio build_lidarLib $(TARGET) $(TEST_TARGET)
+all: check $(BINDIR) build_pigpio build_lidarLib $(TARGET) $(TEST_TARGET)
 	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && ./programCDFR)' pour exécuter le programme."
 
 check:
-	@echo $(addsuffix /I2CDevice.cpp, $(SRC_DIRS))
+	@if [ ! -d "$(SRCDIR_LIBCOM)" ]; then \
+		echo "Error: The path SRCDIR_LIBCOM ($(SRCDIR_LIBCOM)) is incorrect or does not exist"; \
+		echo "Don't work only in CDFR25. Clone CDFR :"; \
+		echo "https://github.com/robotronik/CDFR"; \
+		exit 1; \
+	fi
 
 $(TARGET): $(OBJ) | $(BINDIR)
 	@echo "--------------------------------- Compilation du programme principal... ---------------------------------"
@@ -159,7 +164,7 @@ $(ARM_TARGET): $(ARM_OBJ) | $(ARMBINDIR)
 
 
 # Deploy target
-deploy: build_arm_lidarLib build_arm_pigpio $(ARM_TARGET)
+deploy: check build_arm_lidarLib build_arm_pigpio $(ARM_TARGET)
 	@echo "--------------------------------- Deploiement vers le Raspberry Pi... ---------------------------------" 
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	scp -r ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
