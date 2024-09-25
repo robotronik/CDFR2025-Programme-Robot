@@ -10,8 +10,8 @@
 
 class action;
 
-typedef int (*FuncRunPtr)(action*, commandesAsservissement*, Arduino*, tableState*);
-typedef int (*FuncValidPtr)(tableState*);
+typedef int (*FuncRunPtr)(action*, commandesAsservissement*, Arduino*, TableState*);
+typedef int (*FuncValidPtr)(TableState*);
 
 
 class action
@@ -29,12 +29,12 @@ private:
 private:
     commandesAsservissement* robot;
     Arduino* arduino;
-    tableState* table;
+    TableState* table;
 
-    std::function<int(action*, commandesAsservissement*, Arduino*, tableState*)> runActionPtr;
+    std::function<int(action*, commandesAsservissement*, Arduino*, TableState*)> runActionPtr;
     int validActionPtr;
-    std::function<void(tableState*,commandesAsservissement *)> goodEndPtr;
-    std::function<void(tableState*)> badEndPtr;
+    std::function<void(TableState*,commandesAsservissement *)> goodEndPtr;
+    std::function<void(TableState*)> badEndPtr;
 
     position_t startPostion;
     commandesAsservissement::direction startDirection;
@@ -56,16 +56,16 @@ private:
     bool noTetaStart = false;
 
 public:
-    action(std::string name, commandesAsservissement* irobot, Arduino* iarduino, tableState* itable);
+    action(std::string name, commandesAsservissement* irobot, Arduino* iarduino, TableState* itable);
     int runAction(void);
-    void setRunAction(std::function<int(action*, commandesAsservissement*, Arduino*, tableState*)> ptr);
+    void setRunAction(std::function<int(action*, commandesAsservissement*, Arduino*, TableState*)> ptr);
     void setStartPoint(int x, int y, int teta, commandesAsservissement::direction Direction, commandesAsservissement::rotation rotation);
     void setStartPoint(int x, int y, commandesAsservissement::direction Direction, commandesAsservissement::rotation rotation);
     void setEndPoint(int x, int y, int teta, commandesAsservissement::direction Direction, commandesAsservissement::rotation rotation);
     int costAction(void);
-    void goodEnd(std::function<void(tableState*, commandesAsservissement*)> ptr);
-    void badEnd(std::function<void(tableState*)> ptr);
-    void setCostAction(int num_action, int num_i_action, tableState *itable, int x_start, int y_start);
+    void goodEnd(std::function<void(TableState*, commandesAsservissement*)> ptr);
+    void badEnd(std::function<void(TableState*)> ptr);
+    void setCostAction(int num_action, int num_i_action, TableState *itable, int x_start, int y_start);
     void resetActionEnable(void);
     void setKeyMoment(unsigned long keyMom);
     bool actionNeedForce(void);

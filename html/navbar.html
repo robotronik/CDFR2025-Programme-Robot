@@ -1,0 +1,48 @@
+<!-- navbar.html -->
+<head></head>
+    <style>
+        .navbar-nav .nav-item {
+            position: relative;
+            padding: 0 15px;
+            border-left: 1px solid #c40000;
+        }
+
+        /* Remove separator after the last item */
+        .navbar-nav .nav-item:last-child::after {
+            content: "";
+        }
+    </style>
+</head>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <img src="assets/logowhite_small.png" alt="Logo" width="102" height="24" class="d-inline-block align-text-top">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/control">Control</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/display">Live Table</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/lidar">Lidar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/pami">PAMIs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logs">Logs</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

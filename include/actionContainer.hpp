@@ -49,15 +49,15 @@ private:
 
     commandesAsservissement* robot;
     Arduino* arduino;
-    tableState* table;
+    TableState* table;
 
     std::vector<action*> listeAction;
 
 public:
-    actionContainer( commandesAsservissement* irobot, Arduino* iarduino, tableState* itable);
-    void initAction( commandesAsservissement* irobot, Arduino* iarduino, tableState* itable);
+    actionContainer( commandesAsservissement* irobot, Arduino* iarduino, TableState* itable);
+    void initAction( commandesAsservissement* irobot, Arduino* iarduino, TableState* itable);
     bool forceNextAction(void);
-    int actionContainerRun(commandesAsservissement* robotI2C,tableState* itable);
+    int actionContainerRun(commandesAsservissement* robotI2C,TableState* itable);
     void resetAllAction(void);
     ~actionContainer();
 private : 

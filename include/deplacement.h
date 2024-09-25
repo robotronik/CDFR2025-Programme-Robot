@@ -1,7 +1,7 @@
 #pragma once
 
 #include "commandesAsservissement.hpp"
-#include "config.h"
+#include "structs.hpp"
 #include "arduino.hpp"
 #include "constante.h"
 

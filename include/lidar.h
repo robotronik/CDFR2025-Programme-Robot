@@ -2,7 +2,7 @@
 
 #include <unistd.h>
 #include <rplidar.h>
-#include "config.h"
+#include "structs.hpp"
 
 #define _countof(_Array) (int)(sizeof(_Array) / sizeof(_Array[0]))
 

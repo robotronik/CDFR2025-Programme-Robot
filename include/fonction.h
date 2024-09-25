@@ -1,7 +1,7 @@
 #ifndef MYFUNCTION_H
 #define MYFUNCTION_H
 
-#include "config.h"
+#include "structs.hpp"
 #include "deplacement.h"
 #include "arduinoSubFonction.h"
 #include "tableState.hpp"
@@ -63,15 +63,15 @@ typedef enum {
 } fsminitPos_t;
 
 
-int initPosition2(tableState* itable, commandesAsservissement* iAsser,int x, int y,int teta);
-int turnSolarPannel(tableState* itable,commandesAsservissement* iAsser,Arduino* arduino);
-int takePlant2(commandesAsservissement* iAsser,Arduino* arduino,tableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone);
-int returnToHome(tableState* itable,commandesAsservissement* iAsser);
-int jardinierePutPlant(tableState* itable, commandesAsservissement* iAsser,Arduino* arduino,int x,int y,int teta);
-bool allJardiniereFull(tableState* itable);
-bool DeuxJardiniereFull(tableState* itable);
-bool allStockPlanteUsed(tableState* itable);
+int initPosition2(TableState* itable, commandesAsservissement* iAsser,int x, int y,int teta);
+int turnSolarPannel(TableState* itable,commandesAsservissement* iAsser,Arduino* arduino);
+int takePlant2(commandesAsservissement* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone);
+int returnToHome(TableState* itable,commandesAsservissement* iAsser);
+int jardinierePutPlant(TableState* itable, commandesAsservissement* iAsser,Arduino* arduino,int x,int y,int teta);
+bool allJardiniereFull(TableState* itable);
+bool DeuxJardiniereFull(TableState* itable);
+bool allStockPlanteUsed(TableState* itable);
 void resetActionneur(commandesAsservissement* iAsser, Arduino* arduino);
-void ennemieInAction(tableState* itable, position_t* position);
-int VolPlante(tableState* itable, commandesAsservissement* iAsser,Arduino* arduino,int x,int y,int teta);
+void ennemieInAction(TableState* itable, position_t* position);
+int VolPlante(TableState* itable, commandesAsservissement* iAsser,Arduino* arduino,int x,int y,int teta);
 #endif // MYFUNCTION_H
