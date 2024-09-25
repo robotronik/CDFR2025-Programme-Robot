@@ -31,10 +31,19 @@ sudo dpkg --force architecture --force-depends --install ./libi2c-dev_4.3-4_arm6
 
 ## Installation
 
-1. Clonez le dépôt sur votre machine locale avec votre clée SSH
+1. Ne clonez pas ce dépôt seul !! Clonez le dépôt CDFR : 
+```bash
+git clone git@github.com:robotronik/CDFR.git --recursive
+```
+2. puis rendez vous ici dans CDFR2025
 
 ```bash
-git clone git@github.com:robotronik/CDFR2025-Programme-Robot.git --recursive
+cd informatique/CDFR2025-Programme-Robot/ 
+```
+3. Pour finir, vous pouvez passer sur la branche main et pull avant de travailler pour vous mettre à jour.
+```bash
+git checkout main
+git pull 
 ```
 
 ## Compilation
