@@ -24,7 +24,7 @@ commandesAsservissement::~commandesAsservissement()
 }
 
 void commandesAsservissement::I2cSendData (uint8_t command, uint8_t* data, int length){
-    if(length == 0){
+    if(length != 0){
         i2c_smbus_write_i2c_block_data(i2cFile, command, length, data);
     }
     else{
