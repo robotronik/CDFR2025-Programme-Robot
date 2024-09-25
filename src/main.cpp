@@ -14,7 +14,6 @@
 #include "fonction.h"
 #include "lidarAnalize.h"
 #include "lidar.h"
-#include "commandesAsservissement.hpp"
 #include "arduino.hpp"
 #include "affichage.hpp"
 #include "utils.h"
@@ -30,7 +29,7 @@
 
 main_State_t currentState;
 TableState tableStatus;
-Asser *robotI2C;
+commandesAsservissement *robotI2C;
 lidarAnalize_t lidarData[SIZEDATALIDAR];
 
 int countStart = 0, count_pos = 0;

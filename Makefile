@@ -15,7 +15,7 @@ TARGET = $(BINDIR)/programCDFR
 TEST_TARGET = $(BINDIR)/tests
 
 SRCDIR = src
-SRCDIR_LIBCOM = ../librairie-commune/srca
+SRCDIR_LIBCOM = ../librairie-commune/src
 SRCDIR_TEST = tests
 
 OBJDIR = obj
