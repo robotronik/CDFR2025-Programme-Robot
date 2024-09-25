@@ -96,7 +96,7 @@ int deplacementLinearPoint(int collide, commandesAsservissement* robot, int x, i
         break;
     case DEPLACEMENT_WAITFIRSTMOVE:
         if(initStat) LOG_STATE("DEPLACEMENT_WAITFIRSTMOVE");
-        robot->get_angular_error(distance);
+        robot->get_braking_distance(distance);
         if(distance != 0){
             if(collide < DISTANCESTOP){
                 LOG_INFO("distance colide : ",collide);
