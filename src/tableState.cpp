@@ -2,7 +2,10 @@
 
 //table_t : etat, cout, tps, color
 
-tableState::tableState(Affichage& affichage) : affichage(affichage){
+TableState::TableState(){}
+void TableState::init(Affichage* i_affichage)
+{
+    affichage = i_affichage;
 
     for(int i = 0; i<6;i++){
         planteStockFull[i].etat = true; //test panneau solaire = false
@@ -24,7 +27,7 @@ tableState::tableState(Affichage& affichage) : affichage(affichage){
 
     score = 1;
     FIN = false;
-    init.x = 0; init.y = 0; init.teta = -90;nb = 0;
+    init_pos.x = 0; init_pos.y = 0; init_pos.teta = -90;nb = 0;
     for(int i =0; i < 9; i++){
         panneauSolaireRotate[i].color = NONE;
         panneauSolaireRotate[i].etat = false; 
@@ -36,23 +39,49 @@ tableState::tableState(Affichage& affichage) : affichage(affichage){
         
 }
 
-tableState::~tableState(){
+TableState::~TableState(){
 }
 
-int tableState::getScore()
+int TableState::getScore()
 {
     return score;
 }
 
-void tableState::setScore(int score)
+void TableState::setScore(int score)
 {
     this->score = score;
-    affichage.updateScore(this->score);
+    affichage->updateScore(this->score);
 }
 
-void tableState::incrementScore(int score)
+void TableState::incrementScore(int score)
 {
     this->score += score;
-    affichage.updateScore(this->score);
+    affichage->updateScore(this->score);
     LOG_GREEN_INFO("score = ", getScore());
+}
+
+// Define serialization for table_t
+void to_json(json& j, const table_t& t) {
+    j = json{{"etat", t.etat}, {"cout", t.cout}, {"tps", t.tps}, {"color", t.color}};
+}
+
+// Serialize tableState
+void to_json(json& j, const TableState& ts) {
+    j = json{
+        {"planteStockFull", ts.planteStockFull},
+        {"JardiniereFull", ts.JardiniereFull},
+        {"zoneFull", ts.zoneFull},
+        {"jardiniereFree", ts.jardiniereFree},
+        {"panneauSolaireRotate", ts.panneauSolaireRotate},
+        {"dx", ts.dx},
+        {"dy", ts.dy},
+        {"ennemie", ts.ennemie},
+        {"prev_pos", ts.prev_pos},
+        {"init_pos", ts.init_pos},
+        {"nb", ts.nb},
+        {"solarPanelTurn", ts.solarPanelTurn},
+        {"startTime", ts.startTime},
+        {"FIN", ts.FIN},
+        {"robot", ts.robot}
+    };
 }

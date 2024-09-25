@@ -55,10 +55,6 @@ public:
         return instance;
     }
 
-    // void logSetRobot(Asser* robot_in){
-    //     robot = robot_in;
-    // }
-
     void initLog(void){
         std::cout << "\033[1;31m";
         std::cout << "  _____   ____  ____   ____ _______ _____   ____  _   _ _____ _  __" << std::endl;
@@ -143,6 +139,5 @@ private:
 #define LOG_WARNING(message, ...) Logger::getInstance().log(LogLevel::WARNING, message, ##__VA_ARGS__)
 #define LOG_ERROR(message, ...) Logger::getInstance().log(LogLevel::ERROR, message, ##__VA_ARGS__)
 #define LOG_INIT() Logger::getInstance().initLog()
-//#define LOG_SETROBOT(robot) Logger::getInstance().logSetRobot(robot)
 #define LOG_SCOPE(message) ScopeLogger __logger__(message)
 #define LOG_STATE(message, ...) Logger::getInstance().log(LogLevel::INFO, message, ##__VA_ARGS__)

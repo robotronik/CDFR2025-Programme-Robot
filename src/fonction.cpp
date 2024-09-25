@@ -1,6 +1,6 @@
 #include "fonction.h"
 
-int initPosition2(tableState* itable, Asser* iAsser,int x, int y,int teta){
+int initPosition2(TableState* itable, Asser* iAsser,int x, int y,int teta){
     LOG_SCOPE("initPositon2");
     int ireturn = 0;
     static bool initStat = true;
@@ -90,7 +90,7 @@ int initPosition2(tableState* itable, Asser* iAsser,int x, int y,int teta){
     return ireturn;
 }
 
-int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
+int turnSolarPannel(TableState* itable, Asser* iAsser,Arduino* arduino){
     LOG_SCOPE("SolarPanel");
     static fsmSolarPanel_t currentState = VITESSEE_INIT;
     fsmSolarPanel_t nextState = currentState;
@@ -242,7 +242,7 @@ int turnSolarPannel(tableState* itable, Asser* iAsser,Arduino* arduino){
 
 }
 
-int takePlant2( Asser* iAsser,Arduino* arduino,tableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone){
+int takePlant2( Asser* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone){
     LOG_SCOPE("take plant");
     int ireturn = 0;
     static bool initStat = true;
@@ -322,7 +322,7 @@ int takePlant2( Asser* iAsser,Arduino* arduino,tableState*itable,int xStart,int 
 
 }
 
-int jardinierePutPlant(tableState* itable, Asser* iAsser,Arduino* arduino,int x,int y,int teta){
+int jardinierePutPlant(TableState* itable, Asser* iAsser,Arduino* arduino,int x,int y,int teta){
     LOG_SCOPE("putPlant");
     int ireturn = 0;
     static bool initStat = true;
@@ -385,7 +385,7 @@ int jardinierePutPlant(tableState* itable, Asser* iAsser,Arduino* arduino,int x,
 
 
 
-bool allJardiniereFull(tableState* itable){
+bool allJardiniereFull(TableState* itable){
     if(itable->robot.colorTeam == YELLOW){
         return  itable->JardiniereFull[3].etat && itable->JardiniereFull[4].etat && itable->JardiniereFull[0].etat;
     }
@@ -393,7 +393,7 @@ bool allJardiniereFull(tableState* itable){
         return itable->JardiniereFull[1].etat && itable->JardiniereFull[2].etat && itable->JardiniereFull[5].etat;
     }
 }
-bool DeuxJardiniereFull(tableState* itable){
+bool DeuxJardiniereFull(TableState* itable){
     if(itable->robot.colorTeam == YELLOW){
         return  itable->JardiniereFull[3].etat && itable->JardiniereFull[4].etat;
     }
@@ -402,7 +402,7 @@ bool DeuxJardiniereFull(tableState* itable){
     }
 }
 
-bool allStockPlanteUsed(tableState* itable){
+bool allStockPlanteUsed(TableState* itable){
     for (int i = 0; i < 6; i++){
         if (itable->planteStockFull[i].etat == true) {return false;}
     }
@@ -424,7 +424,7 @@ void resetActionneur(Asser* iAsser, Arduino* arduino){
 
 
 
-int returnToHome(tableState* itable,Asser* iAsser){
+int returnToHome(TableState* itable,Asser* iAsser){
     static int step = 0;
     bool breturn = false;
     if(step == 0){
@@ -448,7 +448,7 @@ int returnToHome(tableState* itable,Asser* iAsser){
 }
 
 
-void ennemieInAction(tableState* itable, position_t* position){
+void ennemieInAction(TableState* itable, position_t* position){
     double distance;
     for (int i = 0; i < 6; i++){
         distance = sqrt(pow(plantPosition[i].x - position->x,2) + pow(plantPosition[i].y - position->y,2));
@@ -473,7 +473,7 @@ void ennemieInAction(tableState* itable, position_t* position){
     }
 }
 
-int VolPlante(tableState* itable, Asser* iAsser,Arduino* arduino,int x,int y,int teta){
+int VolPlante(TableState* itable, Asser* iAsser,Arduino* arduino,int x,int y,int teta){
     LOG_SCOPE("putPlant");
     int ireturn = 0;
     static bool initStat = true;
