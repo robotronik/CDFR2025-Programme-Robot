@@ -10,7 +10,7 @@
 
 class action;
 
-typedef int (*FuncRunPtr)(action*, Asser*, Arduino*, TableState*);
+typedef int (*FuncRunPtr)(action*, CmdAsserv*, Arduino*, TableState*);
 typedef int (*FuncValidPtr)(TableState*);
 
 
@@ -27,23 +27,23 @@ private:
     }fsmAction_t;
 
 private:
-    Asser* robot;
+    CmdAsserv* robot;
     Arduino* arduino;
     TableState* table;
 
-    std::function<int(action*, Asser*, Arduino*, TableState*)> runActionPtr;
+    std::function<int(action*, CmdAsserv*, Arduino*, TableState*)> runActionPtr;
     int validActionPtr;
-    std::function<void(TableState*,Asser *)> goodEndPtr;
+    std::function<void(TableState*,CmdAsserv *)> goodEndPtr;
     std::function<void(TableState*)> badEndPtr;
 
     position_t startPostion;
-    asser_direction_side startDirection;
-    asser_rotation_side startRotation;
+    CmdAsserv::direction startDirection;
+    CmdAsserv::rotation startRotation;
 
     bool noEndPoint = true;
     position_t endPostion;
-    asser_direction_side endDirection;
-    asser_rotation_side endRotation;
+    CmdAsserv::direction endDirection;
+    CmdAsserv::rotation endRotation;
 
     fsmAction_t currentState = FSMACTION_INIT;
     bool initStat = true;
@@ -56,14 +56,14 @@ private:
     bool noTetaStart = false;
 
 public:
-    action(std::string name, Asser* irobot, Arduino* iarduino, TableState* itable);
+    action(std::string name, CmdAsserv* irobot, Arduino* iarduino, TableState* itable);
     int runAction(void);
-    void setRunAction(std::function<int(action*, Asser*, Arduino*, TableState*)> ptr);
-    void setStartPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation);
-    void setStartPoint(int x, int y, asser_direction_side Direction, asser_rotation_side rotation);
-    void setEndPoint(int x, int y, int teta, asser_direction_side Direction, asser_rotation_side rotation);
+    void setRunAction(std::function<int(action*, CmdAsserv*, Arduino*, TableState*)> ptr);
+    void setStartPoint(int x, int y, int teta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation);
+    void setStartPoint(int x, int y, CmdAsserv::direction Direction, CmdAsserv::rotation rotation);
+    void setEndPoint(int x, int y, int teta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation);
     int costAction(void);
-    void goodEnd(std::function<void(TableState*, Asser*)> ptr);
+    void goodEnd(std::function<void(TableState*, CmdAsserv*)> ptr);
     void badEnd(std::function<void(TableState*)> ptr);
     void setCostAction(int num_action, int num_i_action, TableState *itable, int x_start, int y_start);
     void resetActionEnable(void);

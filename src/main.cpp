@@ -11,6 +11,9 @@
 #include <fstream>
 
 #include "main.hpp"
+#include "fonction.h"
+#include "lidarAnalize.h"
+#include "lidar.h"
 #include "arduino.hpp"
 #include "affichage.hpp"
 #include "utils.h"
@@ -26,11 +29,12 @@
 
 main_State_t currentState;
 TableState tableStatus;
-Asser *robotI2C;
+CmdAsserv *robotI2C;
 lidarAnalize_t lidarData[SIZEDATALIDAR];
 
-int countStart = 0, x=0, y=0, teta=0, count_pos = 0;
-int distance, countSetHome = 0;
+int countStart = 0, count_pos = 0;
+int16_t x =0,y=0,teta=0,distance;
+int countSetHome = 0;
 
 Affichage *affichage;
 SSD1306 display(0x3C);
@@ -87,10 +91,10 @@ int main(int argc, char *argv[]) {
                     
                     arduino->readCapteur(2,bStateCapteur2);
                     if(bStateCapteur2 == 1){
-                        robotI2C->setCoords(-700,1100,- 90);
+                        robotI2C->set_coordinates(-700,1100,- 90);
                     }
                     else{
-                        robotI2C->setCoords(-700,-1100,90); //90 de base
+                        robotI2C->set_coordinates(-700,-1100,90); //90 de base
                     }
                 }
     
@@ -121,13 +125,14 @@ int main(int argc, char *argv[]) {
                 if(initState){
                     LOG_STATE("INITIALIZE");
                     arduino->servoPosition(4,100);
-                    robotI2C->enableMotor(true);
-                    robotI2C->brakeMotor(false);
+                    robotI2C->enable_motor();
+                    robotI2C->brake(false);
                     arduino->enableStepper(1);
                     arduino->servoPosition(1,180);
                     arduino->servoPosition(2,CLAMPSLEEP);
                     arduino->moveStepper(ELEVATORUP,1);
-                    robotI2C->setLinearMaxSpeed(MAX_SPEED);
+                    robotI2C->set_max_speed_forward(MAX_SPEED);
+                    robotI2C->set_max_speed_backward(MAX_SPEED);
                     sleep(1);
                 }
                 int bStateCapteur2 = 0;
@@ -135,13 +140,13 @@ int main(int argc, char *argv[]) {
                 if(bStateCapteur2 == 1){
                     tableStatus.robot.colorTeam = YELLOW;
                     nextState = SETHOME; //SETHOME pour calibration
-                    robotI2C->setCoords(-700,1100,-90);
+                    robotI2C->set_coordinates(-700,1100,-90);
                     LOG_INFO("teams : YELLOW");
                 }
                 else if(bStateCapteur2 == 0){
                     tableStatus.robot.colorTeam = BLUE;
                     nextState = SETHOME; //SETHOME pour calibration
-                    robotI2C->setCoords(-700,-1100,90);
+                    robotI2C->set_coordinates(-700,-1100,90);
                     LOG_INFO("teams : BLUE");
                 }
                 else{
@@ -233,8 +238,8 @@ int main(int argc, char *argv[]) {
                     arduino->servoPosition(1,180);
                     arduino->servoPosition(2,CLAMPSTOP);
                     arduino->disableStepper(1);
-                    robotI2C->enableMotor(false);
-                    robotI2C->brakeMotor(true);
+                    robotI2C->disable_motor();
+                    robotI2C->brake(true);
                     nextState = STOP;
                 } 
                 break;
@@ -303,7 +308,7 @@ int StartSequence(){
 
     tableStatus.init(affichage);
     
-    robotI2C = new Asser(I2C_ASSER_ADDR);
+    CmdAsserv *robotI2C = new CmdAsserv(I2C_ASSER_ADDR);
     //LOG_SETROBOT(robotI2C);
 
     arduino = new Arduino(I2C_ARDUINO_ADDR);
@@ -339,7 +344,7 @@ void GetLidar(){
     // LIDAR could be threadded
     int count = SIZEDATALIDAR;
     if(getlidarData(lidarData,count)){
-        robotI2C->getCoords(x,y,teta);
+        robotI2C->get_coordinates(x,y,teta);
         position_t position = {x,y,0,teta,0};
         position_t pos_ennemie = {x,y,0,teta,0};
         convertAngularToAxial(lidarData,count,&position,-100);
@@ -372,7 +377,7 @@ void GetLidar(){
             ctrl_z_pressed = false;
             pixelArtPrint(lidarData,count,50,50,100,position);
         }                
-        robotI2C->getBrakingDistance(distance);
+        robotI2C->get_braking_distance(distance);
         tableStatus.robot.collide = collide(lidarData,count,distance);
     }
 }
@@ -392,8 +397,8 @@ void EndSequence(){
     arduino->servoPosition(1,180);
     arduino->servoPosition(2,CLAMPSTOP);
     arduino->moveStepper(0,1);
-    robotI2C->enableMotor(false);
-    robotI2C->brakeMotor(false);
+    robotI2C->disable_motor();
+    robotI2C->brake(false);
     robotI2C->stop();
     lidarStop();
     sleep(2);

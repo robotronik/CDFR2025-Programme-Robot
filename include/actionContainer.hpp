@@ -47,17 +47,17 @@ private:
     action* pushPotAction4;
     action* pushPotAction5;
 
-    Asser* robot;
+    CmdAsserv* robot;
     Arduino* arduino;
     TableState* table;
 
     std::vector<action*> listeAction;
 
 public:
-    actionContainer( Asser* irobot, Arduino* iarduino, TableState* itable);
-    void initAction( Asser* irobot, Arduino* iarduino, TableState* itable);
+    actionContainer( CmdAsserv* irobot, Arduino* iarduino, TableState* itable);
+    void initAction( CmdAsserv* irobot, Arduino* iarduino, TableState* itable);
     bool forceNextAction(void);
-    int actionContainerRun(Asser* robotI2C,TableState* itable);
+    int actionContainerRun(CmdAsserv* robotI2C,TableState* itable);
     void resetAllAction(void);
     ~actionContainer();
 private : 
