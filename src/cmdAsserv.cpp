@@ -1,7 +1,7 @@
-#include "commandesAsservissement.hpp"
+#include "cmdAsserv.hpp"
 
 
-commandesAsservissement::commandesAsservissement(int slave_address){
+CmdAsserv::CmdAsserv(int slave_address){
     int adapter_nr = 1; /* probably dynamically determined */
     char filename[20];
 
@@ -19,11 +19,11 @@ commandesAsservissement::commandesAsservissement(int slave_address){
     }
 }
 
-commandesAsservissement::~commandesAsservissement()
+CmdAsserv::~CmdAsserv()
 {
 }
 
-void commandesAsservissement::I2cSendData (uint8_t command, uint8_t* data, int length){
+void CmdAsserv::I2cSendData (uint8_t command, uint8_t* data, int length){
     if(length != 0){
         i2c_smbus_write_i2c_block_data(i2cFile, command, length, data);
     }
@@ -33,8 +33,8 @@ void commandesAsservissement::I2cSendData (uint8_t command, uint8_t* data, int l
 }
 
 
-void commandesAsservissement::I2cReceiveData (uint8_t command, uint8_t* data, int length){
+void CmdAsserv::I2cReceiveData (uint8_t command, uint8_t* data, int length){
     i2c_smbus_write_byte(i2cFile, command);
-    int bytesRead = read(i2cFile, data, length);
+    read(i2cFile, data, length);
 }
 

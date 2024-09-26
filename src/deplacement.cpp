@@ -1,6 +1,6 @@
 #include "deplacement.h"
 
-int deplacementPathFinding(int collide, commandesAsservissement* robot, int x, int y){
+int deplacementPathFinding(int collide, CmdAsserv* robot, int x, int y){
     LOG_SCOPE("PATH FINDING");
     int ireturn = 0;
     static bool initStat = true;
@@ -9,8 +9,8 @@ int deplacementPathFinding(int collide, commandesAsservissement* robot, int x, i
     int deplacementreturn;
 
     // Ludovic Bouchard - Variables non d�f�nies, n�c�ssaire pour compiler...
-    commandesAsservissement::direction direction;
-    commandesAsservissement::rotation rotation;
+    CmdAsserv::direction direction;
+    CmdAsserv::rotation rotation;
     int teta;
     DataPacker sd;
 
@@ -23,11 +23,11 @@ int deplacementPathFinding(int collide, commandesAsservissement* robot, int x, i
     case GOTO_LOOKAT :
         if(initStat){ 
             LOG_STATE("GOTO_LOOKAT");
-            if(direction == commandesAsservissement::MOVE_FORWARD){
-                robot->set_consigne_lookAt_forward(x,y,commandesAsservissement::ROTATION_DIRECT);
+            if(direction == CmdAsserv::MOVE_FORWARD){
+                robot->set_consigne_lookAt_forward(x,y,CmdAsserv::ROTATION_DIRECT);
             } 
             else{
-                robot->set_consigne_lookAt_backward(x,y,commandesAsservissement::ROTATION_DIRECT);
+                robot->set_consigne_lookAt_backward(x,y,CmdAsserv::ROTATION_DIRECT);
             }
         }
         if(robot->get_angular_error()==0){
@@ -71,7 +71,7 @@ int deplacementPathFinding(int collide, commandesAsservissement* robot, int x, i
 }
 
 
-int deplacementLinearPoint(int collide, commandesAsservissement* robot, int x, int y){
+int deplacementLinearPoint(int collide, CmdAsserv* robot, int x, int y){
     LOG_SCOPE("MOVE");
     static unsigned long startTime;
     static int memx  = 0;
@@ -167,7 +167,7 @@ int deplacementLinearPoint(int collide, commandesAsservissement* robot, int x, i
 
 
 
-int deplacementgoToPoint(int collide, commandesAsservissement* robot, int x, int y, int teta, commandesAsservissement::direction direction,commandesAsservissement::rotation rotationLookAt,commandesAsservissement::rotation rotation){
+int deplacementgoToPoint(int collide, CmdAsserv* robot, int x, int y, int teta, CmdAsserv::direction direction,CmdAsserv::rotation rotationLookAt,CmdAsserv::rotation rotation){
     LOG_SCOPE("go to");
     int ireturn = 0;
     static bool initStat = true;
@@ -185,11 +185,11 @@ int deplacementgoToPoint(int collide, commandesAsservissement* robot, int x, int
     case GOTO_LOOKAT :
         if(initStat){ 
             LOG_STATE("GOTO_LOOKAT");
-            if(direction == commandesAsservissement::MOVE_FORWARD){
-                robot->set_consigne_lookAt_forward(x,y,commandesAsservissement::ROTATION_DIRECT);
+            if(direction == CmdAsserv::MOVE_FORWARD){
+                robot->set_consigne_lookAt_forward(x,y,CmdAsserv::ROTATION_DIRECT);
             } 
             else{
-                robot->set_consigne_lookAt_backward(x,y,commandesAsservissement::ROTATION_DIRECT);
+                robot->set_consigne_lookAt_backward(x,y,CmdAsserv::ROTATION_DIRECT);
             }
         }
         if(robot->get_angular_error()==0){
@@ -232,7 +232,7 @@ int deplacementgoToPoint(int collide, commandesAsservissement* robot, int x, int
 
 }
 
-int deplacementgoToPointNoTurn(int collide, commandesAsservissement* robot, int x, int y, commandesAsservissement::direction direction,commandesAsservissement::rotation rotationLookAt){
+int deplacementgoToPointNoTurn(int collide, CmdAsserv* robot, int x, int y, CmdAsserv::direction direction,CmdAsserv::rotation rotationLookAt){
     LOG_SCOPE("go to");
     int ireturn = 0;
     static bool initStat = true;
@@ -250,11 +250,11 @@ int deplacementgoToPointNoTurn(int collide, commandesAsservissement* robot, int 
     case GOTO_LOOKAT :
         if(initStat){ 
             LOG_STATE("GOTO_LOOKAT");
-            if(direction == commandesAsservissement::MOVE_FORWARD){
-                robot->set_consigne_lookAt_forward(x,y,commandesAsservissement::ROTATION_DIRECT);
+            if(direction == CmdAsserv::MOVE_FORWARD){
+                robot->set_consigne_lookAt_forward(x,y,CmdAsserv::ROTATION_DIRECT);
             } 
             else{
-                robot->set_consigne_lookAt_backward(x,y,commandesAsservissement::ROTATION_DIRECT);
+                robot->set_consigne_lookAt_backward(x,y,CmdAsserv::ROTATION_DIRECT);
             }
         }
         if(robot->get_angular_error()==0){

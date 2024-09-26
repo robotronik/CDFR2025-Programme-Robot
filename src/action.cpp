@@ -1,7 +1,7 @@
 #include "action.hpp"
 
 
-action::action(std::string name, commandesAsservissement* irobot, Arduino* iarduino, TableState* itable){
+action::action(std::string name, CmdAsserv* irobot, Arduino* iarduino, TableState* itable){
     robot = irobot;
     arduino = iarduino;
     table = itable;
@@ -180,7 +180,7 @@ void action::setCostAction(int num_action, int num_i_action, TableState *itable,
    */
 }
 
-void action::setRunAction(std::function<int(action*, commandesAsservissement*, Arduino*, TableState*)> ptr){
+void action::setRunAction(std::function<int(action*, CmdAsserv*, Arduino*, TableState*)> ptr){
     runActionPtr = ptr;
 }
 
@@ -198,7 +198,7 @@ int action::goToEnd(void){
     return deplacementgoToPoint(table->robot.collide, robot, endPostion.x, endPostion.y, endPostion.teta, endDirection);
 }
 
-void action::setStartPoint(int x, int y, int teta, commandesAsservissement::direction Direction, commandesAsservissement::rotation rotation){
+void action::setStartPoint(int x, int y, int teta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
     startPostion.x = x;
     startPostion.y = y;
     startPostion.teta = teta;
@@ -206,7 +206,7 @@ void action::setStartPoint(int x, int y, int teta, commandesAsservissement::dire
     startRotation = rotation;
 }
 
-void action::setStartPoint(int x, int y, commandesAsservissement::direction Direction, commandesAsservissement::rotation rotation){
+void action::setStartPoint(int x, int y, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
     startPostion.x = x;
     startPostion.y = y;
     startDirection = Direction;
@@ -214,7 +214,7 @@ void action::setStartPoint(int x, int y, commandesAsservissement::direction Dire
     noTetaStart = true;
 }
 
-void action::setEndPoint(int x, int y, int teta, commandesAsservissement::direction Direction, commandesAsservissement::rotation rotation){
+void action::setEndPoint(int x, int y, int teta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
     endPostion.x = x;
     endPostion.y = y;
     endPostion.teta = teta;
@@ -227,7 +227,7 @@ std::string action::getName(void){
     return actionName;
 }
 
-void action::goodEnd(std::function<void(TableState*,commandesAsservissement*)> ptr){
+void action::goodEnd(std::function<void(TableState*,CmdAsserv*)> ptr){
     goodEndPtr = ptr;
 }
 void action::badEnd(std::function<void(TableState*)> ptr){

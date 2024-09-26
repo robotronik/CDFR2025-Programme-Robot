@@ -1,6 +1,6 @@
 #include "fonction.h"
 
-int initPosition2(TableState* itable, commandesAsservissement* iAsser,int x, int y,int teta){
+int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int teta){
     LOG_SCOPE("initPositon2");
     int ireturn = 0;
     static bool initStat = true;
@@ -53,7 +53,7 @@ int initPosition2(TableState* itable, commandesAsservissement* iAsser,int x, int
 
     case SETPOS_FIRSTBACKWARD :
         if(initStat) LOG_STATE("SETPOS_FIRSTBACKWARD");    
-        if(deplacementgoToPoint(12000,iAsser,xSave,y,-180, commandesAsservissement::MOVE_BACKWARD)>0){
+        if(deplacementgoToPoint(12000,iAsser,xSave,y,-180, CmdAsserv::MOVE_BACKWARD)>0){
             nextState = SETPOS_SECONDBACKWARD;
         }
         break;
@@ -68,7 +68,7 @@ int initPosition2(TableState* itable, commandesAsservissement* iAsser,int x, int
 
     case SETPOS_SECONDFORWARD :
         if(initStat) LOG_STATE("SETPOS_SECONDFORWAsetMaxTorqueRD");
-        if(deplacementgoToPoint(12000,iAsser,x,y,-180,commandesAsservissement::MOVE_BACKWARD,commandesAsservissement::ROTATION_DIRECT)>0){
+        if(deplacementgoToPoint(12000,iAsser,x,y,-180,CmdAsserv::MOVE_BACKWARD,CmdAsserv::ROTATION_DIRECT)>0){
             nextState = SETPOS_INIT;
             iAsser->set_max_speed_backward(MAX_SPEED);
             iAsser->set_max_speed_forward(MAX_SPEED);
@@ -90,7 +90,7 @@ int initPosition2(TableState* itable, commandesAsservissement* iAsser,int x, int
     return ireturn;
 }
 
-int turnSolarPannel(TableState* itable, commandesAsservissement* iAsser,Arduino* arduino){
+int turnSolarPannel(TableState* itable, CmdAsserv* iAsser,Arduino* arduino){
     LOG_SCOPE("SolarPanel");
     static fsmSolarPanel_t currentState = VITESSEE_INIT;
     fsmSolarPanel_t nextState = currentState;
@@ -149,7 +149,7 @@ int turnSolarPannel(TableState* itable, commandesAsservissement* iAsser,Arduino*
     case SOLARPANEL_FIN_INIT :
         
         if(initStat) LOG_STATE("SOLARPANEL_FIN_INIT");
-        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,axeX,departy, -90,commandesAsservissement::MOVE_BACKWARD,commandesAsservissement::ROTATION_HORRAIRE);
+        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,axeX,departy, -90,CmdAsserv::MOVE_BACKWARD,CmdAsserv::ROTATION_HORRAIRE);
         if (deplacementreturn > 0){
             nextState = SOLARPANEL_FORWARD;
         }
@@ -244,7 +244,7 @@ int turnSolarPannel(TableState* itable, commandesAsservissement* iAsser,Arduino*
 
 }
 
-int takePlant2( commandesAsservissement* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone){
+int takePlant2( CmdAsserv* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone){
     LOG_SCOPE("take plant");
     int ireturn = 0;
     static bool initStat = true;
@@ -289,7 +289,7 @@ int takePlant2( commandesAsservissement* iAsser,Arduino* arduino,TableState*itab
     case TAKEPLANT_BACKWARD :
         if(initStat){ LOG_STATE("TAKEPLANT_BACKWARD");
         }
-        deplacementreturn = deplacementgoToPointNoTurn(itable->robot.collide,iAsser,xtogo,ytogo,commandesAsservissement::MOVE_BACKWARD);
+        deplacementreturn = deplacementgoToPointNoTurn(itable->robot.collide,iAsser,xtogo,ytogo,CmdAsserv::MOVE_BACKWARD);
         if(deplacementreturn>=1){
             nextState = TAKEPLANT_TAKE;
         }
@@ -330,7 +330,7 @@ int takePlant2( commandesAsservissement* iAsser,Arduino* arduino,TableState*itab
 
 }
 
-int jardinierePutPlant(TableState* itable, commandesAsservissement* iAsser,Arduino* arduino,int x,int y,int teta){
+int jardinierePutPlant(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta){
     LOG_SCOPE("putPlant");
     int ireturn = 0;
     static bool initStat = true;
@@ -352,7 +352,7 @@ int jardinierePutPlant(TableState* itable, commandesAsservissement* iAsser,Ardui
     case PUTPLANT_GOBORDER :
         if(initStat) LOG_STATE("PUTPLANT_GOBORDER");
         
-        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,x,y,teta,commandesAsservissement::MOVE_FORWARD,commandesAsservissement::ROTATION_DIRECT);
+        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,x,y,teta,CmdAsserv::MOVE_FORWARD,CmdAsserv::ROTATION_DIRECT);
         
         if(deplacementreturn > 0){
             iAsser->stop();
@@ -420,7 +420,7 @@ bool allStockPlanteUsed(TableState* itable){
     return true;
 }
 
-void resetActionneur(commandesAsservissement* iAsser, Arduino* arduino){
+void resetActionneur(CmdAsserv* iAsser, Arduino* arduino){
     arduino->servoPosition(1,180);
     arduino->servoPosition(2,CLAMPSLEEP);
     arduino->moveStepper(ELEVATORJARDINIERE,1);
@@ -435,7 +435,7 @@ void resetActionneur(commandesAsservissement* iAsser, Arduino* arduino){
 
 
 
-int returnToHome(TableState* itable,commandesAsservissement* iAsser){
+int returnToHome(TableState* itable,CmdAsserv* iAsser){
     static int step = 0;
     bool breturn = false;
     if(step == 0){
@@ -484,7 +484,7 @@ void ennemieInAction(TableState* itable, position_t* position){
     }
 }
 
-int VolPlante(TableState* itable, commandesAsservissement* iAsser,Arduino* arduino,int x,int y,int teta){
+int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta){
     LOG_SCOPE("putPlant");
     int ireturn = 0;
     static bool initStat = true;
@@ -507,7 +507,7 @@ int VolPlante(TableState* itable, commandesAsservissement* iAsser,Arduino* ardui
     case VOLPLANT_GOBORDER :
         if(initStat) LOG_STATE("VOLPLANT_GOBORDER");
         
-        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,x,y,teta,commandesAsservissement::MOVE_FORWARD,commandesAsservissement::ROTATION_DIRECT);
+        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,x,y,teta,CmdAsserv::MOVE_FORWARD,CmdAsserv::ROTATION_DIRECT);
         
         if(deplacementreturn > 0){
             iAsser->stop();
@@ -535,7 +535,7 @@ int VolPlante(TableState* itable, commandesAsservissement* iAsser,Arduino* ardui
     //****************************************************************
     case VOLPLANT_BACKWARD :
         if (initStat) LOG_STATE("VOLPLANT_BACKWARD");
-        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,x,y-200,teta,commandesAsservissement::MOVE_BACKWARD,commandesAsservissement::ROTATION_DIRECT);
+        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,x,y-200,teta,CmdAsserv::MOVE_BACKWARD,CmdAsserv::ROTATION_DIRECT);
         if(deplacementreturn>0){
             arduino->moveStepper(1600,1);
             nextState = VOLPLANT_ZONEFIN;
@@ -550,7 +550,7 @@ int VolPlante(TableState* itable, commandesAsservissement* iAsser,Arduino* ardui
     //****************************************************************
     case VOLPLANT_ZONEFIN :
         if (initStat) LOG_STATE("VOLPLANT_ZONEFIN");
-        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,-200,1250,0,commandesAsservissement::MOVE_FORWARD,commandesAsservissement::ROTATION_DIRECT);
+        deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,-200,1250,0,CmdAsserv::MOVE_FORWARD,CmdAsserv::ROTATION_DIRECT);
         if(deplacementreturn>0){
             nextState = VOLPLANT_FIN;
         }

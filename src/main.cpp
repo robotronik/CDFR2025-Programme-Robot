@@ -29,7 +29,7 @@
 
 main_State_t currentState;
 TableState tableStatus;
-commandesAsservissement *robotI2C;
+CmdAsserv *robotI2C;
 lidarAnalize_t lidarData[SIZEDATALIDAR];
 
 int countStart = 0, count_pos = 0;
@@ -308,7 +308,7 @@ int StartSequence(){
 
     tableStatus.init(affichage);
     
-    commandesAsservissement *robotI2C = new commandesAsservissement(I2C_ASSER_ADDR);
+    CmdAsserv *robotI2C = new CmdAsserv(I2C_ASSER_ADDR);
     //LOG_SETROBOT(robotI2C);
 
     arduino = new Arduino(I2C_ARDUINO_ADDR);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "commandesAsservissement.hpp"
+#include "cmdAsserv.hpp"
 #include "structs.hpp"
 #include "arduino.hpp"
 #include "constante.h"
@@ -29,6 +29,6 @@ typedef enum {
     GOTO_TURN_PF,
 } go_to_State_PF_t;
 
-int deplacementLinearPoint(int collide,commandesAsservissement* robot, int x, int y);
-int deplacementgoToPoint(int collide, commandesAsservissement* robot, int x, int y, int teta, commandesAsservissement::direction direction = commandesAsservissement::MOVE_FORWARD,commandesAsservissement::rotation rotationLookAt = commandesAsservissement::ROTATION_DIRECT, commandesAsservissement::rotation rotation = commandesAsservissement::ROTATION_DIRECT);
-int deplacementgoToPointNoTurn(int collide, commandesAsservissement* robot, int x, int y, commandesAsservissement::direction direction = commandesAsservissement::MOVE_FORWARD,commandesAsservissement::rotation rotationLookAt = commandesAsservissement::ROTATION_DIRECT);
+int deplacementLinearPoint(int collide,CmdAsserv* robot, int x, int y);
+int deplacementgoToPoint(int collide, CmdAsserv* robot, int x, int y, int teta, CmdAsserv::direction direction = CmdAsserv::MOVE_FORWARD,CmdAsserv::rotation rotationLookAt = CmdAsserv::ROTATION_DIRECT, CmdAsserv::rotation rotation = CmdAsserv::ROTATION_DIRECT);
+int deplacementgoToPointNoTurn(int collide, CmdAsserv* robot, int x, int y, CmdAsserv::direction direction = CmdAsserv::MOVE_FORWARD,CmdAsserv::rotation rotationLookAt = CmdAsserv::ROTATION_DIRECT);
