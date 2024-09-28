@@ -11,20 +11,34 @@
             border: 2px solid white;
             background-color: #f1f1f1;
         }
+        .status-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: red;
+            transition: background-color 0.5s ease;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
     <!-- Placeholder for the navbar -->
     <div id="navbar-placeholder"></div>
 
-    <h1 class="mt-4 text-white text-center">2D Talbe and Robot Display</h1>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-center align-items-center">
+            <h1 class="text-white mb-0">2D Table and Robot Display</h1>
+            <span class="status-dot ms-3" id="statusDot"></span>
+        </div>
+    </div>
 
     <!-- Canvas element where we will draw shapes and images -->
-    <canvas id="displayCanvas" width="3300" height="2300" class="mt-5 justify-content-center align-items-center"></canvas>
+    <canvas id="displayCanvas" width="3300" height="2300" class="mt-3 justify-content-center align-items-center"></canvas>
 
     <script>
         const canvas = document.getElementById('displayCanvas');
         const ctx = canvas.getContext('2d');
+        const statusDot = document.getElementById('statusDot');
 
         // Load the vinyl svg
         const svgImage = new Image();
@@ -35,7 +49,30 @@
         let centerX = canvas.width / 2;
         let centerY = canvas.height / 2;
 
-        function draw() {
+
+        // Function to start the continuous fetching loop
+        async function startContinuousFetch() {
+            while (true) {  // Infinite loop
+                await getData();  // Wait for the data to be fetched and drawn
+            }
+        }
+
+        async function getData() {
+            try {
+                let response = await fetch('/get_global');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                let data = await response.json();
+                draw(data); // Pass the fetched data   
+                statusDot.style.backgroundColor = 'green';
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+                statusDot.style.backgroundColor = 'red';
+            }
+        }
+
+        function draw(data) {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
             ctx.drawImage(svgImage, centerX - 3000/2, centerY - 2000/2, 3000, 2000);
@@ -45,7 +82,7 @@
             // ctx.fillRect(x, y, 50, 50); // Redraw rectangle (player character)
 
             //Draw robot
-            drawSquare(ctx, 200, 200, 250, x);
+            drawSquare(ctx, data["y"], data["x"], 250, data["teta"]);
 
             ctx.fillStyle = 'red';
             ctx.beginPath();
@@ -53,10 +90,9 @@
             ctx.fill();
 
             x += 1;
-
-            requestAnimationFrame(draw); // Continue animation
         }
 
+        //Screen coords, relative to center
         function drawSquare(ctx, x, y, size, angleDeg) {
             // Convert angle from degrees to radians
             const angleRad = angleDeg * Math.PI / 180;
@@ -107,8 +143,8 @@
         // Optionally, listen for window resize events to adjust the canvas size dynamically
         window.addEventListener('resize', resizeCanvas);
 
-        // Start the animation
-        draw();
+        // Start the continuous fetching loop
+        startContinuousFetch();
     </script>
 
     <!-- Bootstrap JS and dependencies -->

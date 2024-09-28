@@ -12,7 +12,7 @@
 
 using json = nlohmann::json;
 
-std::string readHtmlFile(const std::string& path);
+crow::response readHtmlFile(const std::string& path);
 
 crow::SimpleApp app;
 
@@ -132,7 +132,7 @@ void StartAPIServer(){
         std::stringstream buffer;
         buffer << file.rdbuf();
         crow::response res{buffer.str()};
-
+        res.set_header("Cache-Control", "public, max-age=3600");
         // Set the appropriate Content-Type header based on file extension
         if (extension == "svg") {
             res.set_header("Content-Type", "image/svg+xml");
@@ -156,6 +156,7 @@ void StartAPIServer(){
         std::stringstream buffer;
         buffer << file.rdbuf();
         crow::response res{buffer.str()};
+        res.set_header("Cache-Control", "public, max-age=3600");
         res.set_header("Content-Type", "image/x-icon");
         return res;
     });
@@ -173,9 +174,11 @@ void StopAPIServer(){
 
 
 // Function to read an HTML file and return its content as a string
-std::string readHtmlFile(const std::string& path) {
+crow::response readHtmlFile(const std::string& path) {
     std::ifstream file(path);
     std::stringstream buffer;
     buffer << file.rdbuf();  // Read the file into the buffer
-    return buffer.str();
+    crow::response res{buffer.str()};
+    res.set_header("Cache-Control", "public, max-age=3600");
+    return res;
 }

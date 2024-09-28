@@ -11,13 +11,26 @@
             border: 2px solid white;
             background-color: #f1f1f1;
         }
+        .status-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: red;
+            transition: background-color 0.5s ease;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
     <!-- Placeholder for the navbar -->
     <div id="navbar-placeholder"></div>
 
-    <h1 class="mt-4 text-white text-center">Lidar Display</h1>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-center align-items-center">
+            <h1 class="text-white mb-0">Lidar Display</h1>
+            <span class="status-dot ms-3" id="statusDot"></span>
+        </div>
+    </div>
 
     <!-- Canvas element where we will draw shapes and images -->
     <canvas id="displayCanvas" width="1000" height="1000" class="m-5 justify-content-center align-items-center"></canvas>
@@ -25,25 +38,12 @@
     <script>
         const canvas = document.getElementById('displayCanvas');
         const ctx = canvas.getContext('2d');
+        const statusDot = document.getElementById('statusDot');
         
         let x = 50;
         let y = 150;
         let centerX = canvas.width / 2;
         let centerY = canvas.height / 2;
-
-        let drawing = false;
-
-        // Define the interval in milliseconds (e.g., 1000ms = 1 second)
-        const INTERVAL = 500;
-
-        // Function to start the periodic calls
-        // function startPeriodicLidarFetch() {
-        //     // Initial call
-        //     getLidar();
-        //     
-        //     // Set up the interval
-        //     setInterval(getLidar, INTERVAL);
-        // }
 
         // Function to start the continuous Lidar fetching loop
         async function startContinuousLidarFetch() {
@@ -59,10 +59,11 @@
                     throw new Error('Network response was not ok ' + response.statusText);
                 }
                 let lidarData = await response.json();
-                if (!drawing)
-                    drawLidar(ctx, lidarData); // Pass the fetched data to drawLidar
+                drawLidar(ctx, lidarData); // Pass the fetched data to drawLidar     
+                statusDot.style.backgroundColor = 'green';               
             } catch (error) {
                 console.error('Failed to fetch LIDAR data:', error);
+                statusDot.style.backgroundColor = 'red';
             }
         }
 
@@ -85,7 +86,6 @@
 
         //takes the lidar data
         function drawLidar(ctx, data){
-            drawing = true;
             draw();
             data["data"].forEach(point => {
                 if (point.valid){
@@ -96,7 +96,6 @@
                     drawPoint(ctx, x, y);
                 }
             });
-            drawing = false;
         }
         
         //draws a point from lidar data
@@ -108,9 +107,6 @@
             ctx.stroke();
         }
         
-        // Start the fetch
-        // startPeriodicLidarFetch();
-
         // Start the continuous fetching loop
         startContinuousLidarFetch();
     </script>
