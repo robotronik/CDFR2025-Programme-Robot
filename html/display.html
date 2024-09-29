@@ -35,17 +35,26 @@
     <!-- Canvas element where we will draw shapes and images -->
     <canvas id="displayCanvas" width="3300" height="2300" class="mt-3 justify-content-center align-items-center"></canvas>
 
+
+    <h3 class="m-2" id="stateLabel">Robot State : </h3>
+    <h3 class="m-2" id="scoreLabel">Score : </h3>
+    <h3 class="m-2" id="colorLabel">Color : </h3>
+    <h3 class="m-2" id="timeLabel">Time : </h3>
+
     <script>
         const canvas = document.getElementById('displayCanvas');
         const ctx = canvas.getContext('2d');
         const statusDot = document.getElementById('statusDot');
 
+        const stateLabel = document.getElementById('stateLabel');
+        const scoreLabel = document.getElementById('scoreLabel');
+        const colorLabel = document.getElementById('colorLabel');
+        const timeLabel = document.getElementById('timeLabel');
+
         // Load the vinyl svg
         const svgImage = new Image();
         svgImage.src = 'assets/vinyl.svg';
 
-        // Example: Moving rectangle (a simple animation)
-        let x = 0;
         let centerX = canvas.width / 2;
         let centerY = canvas.height / 2;
 
@@ -65,6 +74,37 @@
                 }
                 let data = await response.json();
                 draw(data); // Pass the fetched data   
+
+                let robotStatus = data["status"];
+                if (robotStatus == 0)
+                    stateLabel.innerHTML = "Robot State : Init";
+                else if (robotStatus == 1)
+                    stateLabel.innerHTML = "Robot State : Initialize";
+                else if (robotStatus == 2)
+                    stateLabel.innerHTML = "Robot State : Set Home";
+                else if (robotStatus == 3)
+                    stateLabel.innerHTML = "Robot State : Waiting for Start";
+                else if (robotStatus == 4)
+                    stateLabel.innerHTML = "Robot State : Running";
+                else if (robotStatus == 5)
+                    stateLabel.innerHTML = "Robot State : Fin";
+                else if (robotStatus == 6)
+                    stateLabel.innerHTML = "Robot State : Stopping";
+                else
+                    stateLabel.innerHTML = "Robot State : Undefined";
+                
+                scoreLabel.innerHTML = "Score : " + data["score"];
+
+                let robotColor = data["table"]["robot"]["colorTeam"];
+                if (robotColor == 1)
+                    colorLabel.innerHTML = "Color : Blue";
+                else if (robotColor == 2)
+                    colorLabel.innerHTML = "Color : Yellow";
+                else
+                    colorLabel.innerHTML = "Color : Undefined";
+
+                timeLabel.innerHTML = "Time : " + data["table"]["startTime"];
+
                 statusDot.style.backgroundColor = 'green';
             } catch (error) {
                 console.error('Failed to fetch data:', error);
@@ -88,8 +128,6 @@
             ctx.beginPath();
             ctx.arc(centerX, centerY, 10, 0, Math.PI * 2); // x, y, radius, startAngle, endAngle
             ctx.fill();
-
-            x += 1;
         }
 
         //Screen coords, relative to center
