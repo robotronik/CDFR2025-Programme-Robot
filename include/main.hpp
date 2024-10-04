@@ -1,6 +1,6 @@
 #pragma once
 #include "fonction.h"
-#include "asser.hpp"
+#include "cmdAsserv.hpp"
 
 typedef enum {
     INIT,
@@ -16,8 +16,9 @@ typedef enum {
 //Extern means the variable is defined in main
 extern main_State_t currentState;
 extern TableState tableStatus;
-extern Asser *robotI2C;
+extern CmdAsserv *robotI2C;
 extern lidarAnalize_t lidarData[SIZEDATALIDAR];
 
-extern int countStart, x, y, teta, count_pos;
-extern int distance, countSetHome;
+extern int countStart, count_pos;
+extern int16_t x,y,teta,distance;
+extern int countSetHome;

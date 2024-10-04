@@ -63,15 +63,15 @@ typedef enum {
 } fsminitPos_t;
 
 
-int initPosition2(TableState* itable, Asser* iAsser,int x, int y,int teta);
-int turnSolarPannel(TableState* itable,Asser* iAsser,Arduino* arduino);
-int takePlant2(Asser* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone);
-int returnToHome(TableState* itable,Asser* iAsser);
-int jardinierePutPlant(TableState* itable, Asser* iAsser,Arduino* arduino,int x,int y,int teta);
+int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int teta);
+int turnSolarPannel(TableState* itable,CmdAsserv* iAsser,Arduino* arduino);
+int takePlant2(CmdAsserv* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone);
+int returnToHome(TableState* itable,CmdAsserv* iAsser);
+int jardinierePutPlant(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta);
 bool allJardiniereFull(TableState* itable);
 bool DeuxJardiniereFull(TableState* itable);
 bool allStockPlanteUsed(TableState* itable);
-void resetActionneur(Asser* iAsser, Arduino* arduino);
+void resetActionneur(CmdAsserv* iAsser, Arduino* arduino);
 void ennemieInAction(TableState* itable, position_t* position);
-int VolPlante(TableState* itable, Asser* iAsser,Arduino* arduino,int x,int y,int teta);
+int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta);
 #endif // MYFUNCTION_H

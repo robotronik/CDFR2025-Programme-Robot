@@ -1,54 +1,99 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -g -O0 -static -Iinclude -Irplidar_sdk/sdk/include -Irplidar_sdk/sdk/src -Ipigpio
+CXXFLAGS = -std=c++17 -Wall -g -O0 -static $(INCLUDE_DIR)
 LDFLAGS = -Lrplidar_sdk/output/Linux/Release
 LDLIBS = pigpio/pigpio.o pigpio/command.o -pthread -li2c -lrt -lpthread -lsl_lidar_sdk 
+
+INCLUDE_DIR = -Iinclude
+INCLUDE_DIR += -Irplidar_sdk/sdk/include
+INCLUDE_DIR += -Irplidar_sdk/sdk/src
+INCLUDE_DIR += -Ipigpio
+INCLUDE_DIR += -I../librairie-commune/include
+
 
 BINDIR = bin
 TARGET = $(BINDIR)/programCDFR
 TEST_TARGET = $(BINDIR)/tests
+
 SRCDIR = src
-TESTDIR = tests
+SRCDIR_LIBCOM = ../librairie-commune/src
+SRCDIR_TEST = tests
+
 OBJDIR = obj
-TESTOBJDIR = test_obj
+OBJDIR_MAIN = $(OBJDIR)/main_obj
+OBJDIR_LIBCOM = $(OBJDIR)/lib_com_obj
+OBJDIR_TEST = $(OBJDIR)/test_obj
+
 
 SRC = $(wildcard $(SRCDIR)/*.cpp)
-SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp,$(SRC))
-TEST_SRC = $(wildcard $(TESTDIR)/*.cpp)
-OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC))
-OBJ_NO_MAIN = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC_NO_MAIN))
-TEST_OBJ = $(patsubst $(TESTDIR)/%.cpp,$(TESTOBJDIR)/%.o,$(TEST_SRC))
-DEPENDS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.d,$(SRC)) $(patsubst $(TESTDIR)/%.cpp,$(TESTOBJDIR)/%.d,$(TEST_SRC))
+SRC_LIB_COM = $(wildcard $(SRCDIR_LIBCOM)/*.cpp)
+
+OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.o,$(SRC))
+OBJ += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM)) 
+
+SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp $(SRCDIR)/restAPI.cpp, $(SRC))
+SRC_TEST = $(wildcard $(SRCDIR_TEST)/*.cpp)
+OBJ_NO_MAIN = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.o,$(SRC_NO_MAIN))
+OBJ_NO_MAIN += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM)) 
+TEST_OBJ = $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_TEST)/%.o,$(SRC_TEST))
+
+
+DEPENDS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.d,$(SRC)) 
+DEPENDS += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.d,$(SRC_LIB_COM)) 
+DEPENDS += $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_TEST)/%.d,$(SRC_TEST)) 
 
 
 .PHONY: all clean tests clean-all deploy run
 
-all: $(BINDIR) build_pigpio build_lidarLib $(TARGET) $(TEST_TARGET) copy_html
+all: check $(BINDIR) build_pigpio build_lidarLib $(TARGET) $(TEST_TARGET) copy_html
 	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && ./programCDFR)' pour exécuter le programme."
+
+check:
+	@if [ ! -d "$(SRCDIR_LIBCOM)" ]; then \
+		echo "Error: The path SRCDIR_LIBCOM ($(SRCDIR_LIBCOM)) is incorrect or does not exist"; \
+		echo "Don't work only in CDFR25. Clone CDFR :"; \
+		echo "https://github.com/robotronik/CDFR"; \
+		exit 1; \
+	fi
 
 $(TARGET): $(OBJ) | $(BINDIR)
 	@echo "--------------------------------- Compilation du programme principal... ---------------------------------"
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	@echo " APP  $@"
+	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 $(TEST_TARGET): $(OBJ_NO_MAIN) $(TEST_OBJ) | $(BINDIR)
 	@echo "--------------------------------- Compilation des tests... ---------------------------------"
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	@echo " APP  $@"
+	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 -include $(DEPENDS)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
-	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+$(OBJDIR_MAIN)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR_MAIN)
+	@echo " CXX  $@"
+	@$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
-$(TESTOBJDIR)/%.o: $(TESTDIR)/%.cpp | $(TESTOBJDIR)
-	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+$(OBJDIR_LIBCOM)/%.o: $(SRCDIR_LIBCOM)/%.cpp | $(OBJDIR_LIBCOM)
+	@echo " CXX  $@"
+	@$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
-$(OBJDIR):
-	mkdir -p $@
+$(OBJDIR_TEST)/%.o: $(SRCDIR_TEST)/%.cpp | $(OBJDIR_TEST)
+	@echo " CXX  $@"
+	@$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
-$(TESTOBJDIR):
-	mkdir -p $@
+$(OBJDIR_LIBCOM):
+	@echo " DIR  $@"
+	@mkdir -p $@
+
+$(OBJDIR_MAIN):
+	@echo " DIR  $@"
+	@mkdir -p $@
+
+$(OBJDIR_TEST):
+	@echo " DIR  $@"
+	@mkdir -p $@
 
 $(BINDIR):
-	mkdir -p $@
+	@echo " DIR  $@"
+	@mkdir -p $@
 
 tests: $(TEST_TARGET)
 	@echo "--------------------------------- Exécution des tests... ---------------------------------"
@@ -79,23 +124,38 @@ PI_DIR = /home/$(PI_USER)/CDFR2025
 
 # Define the ARM target and object directory for cross-compilation
 ARMBINDIR = arm_bin
-ARM_OBJDIR = arm_obj
+OBJDIR_ARM = $(OBJDIR)/arm_obj
+OBJDIR_ARM_LIBCOM = $(OBJDIR)/arm_obj_lib_com
 ARM_TARGET = $(ARMBINDIR)/programCDFR
 
-ARM_OBJ = $(patsubst $(SRCDIR)/%.cpp,$(ARM_OBJDIR)/%.o,$(SRC))
+ARM_OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_ARM)/%.o,$(SRC))
+ARM_OBJ += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_ARM_LIBCOM)/%.o,$(SRC_LIB_COM)) 
 
 
 # Compile all object files for ARM
-$(ARM_OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(ARM_OBJDIR)
-	$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+$(OBJDIR_ARM)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR_ARM)
+	@echo " ARM_CXX  $@"
+	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+
+$(OBJDIR_ARM_LIBCOM)/%.o: $(SRCDIR_LIBCOM)/%.cpp | $(OBJDIR_ARM_LIBCOM)
+	@echo " ARM_CXX  $@"
+	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
 # Create the ARM object directory
-$(ARM_OBJDIR):
-	mkdir -p $@
+$(OBJDIR_ARM_LIBCOM):
+	@echo " DIR  $@"
+	@mkdir -p $@
+
+
+# Create the ARM object directory
+$(OBJDIR_ARM):
+	@echo " ARM_DIR  $@"
+	@mkdir -p $@
 
 # Create the ARM binary directory
 $(ARMBINDIR):
-	mkdir -p $@
+	@echo " ARM_DIR  $@"
+	@mkdir -p $@
 
 # Cross-compile and link for Raspberry Pi
 $(ARM_TARGET): $(ARM_OBJ) | $(ARMBINDIR)
@@ -104,7 +164,7 @@ $(ARM_TARGET): $(ARM_OBJ) | $(ARMBINDIR)
 
 
 # Deploy target
-deploy: build_arm_lidarLib build_arm_pigpio $(ARM_TARGET) copy_html_arm
+deploy: check build_arm_lidarLib build_arm_pigpio $(ARM_TARGET) copy_html_arm
 	@echo "--------------------------------- Deploiement vers le Raspberry Pi... ---------------------------------" 
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
@@ -138,7 +198,7 @@ copy_html_arm: | $(ARMBINDIR)
 
 clean:
 	@echo "--------------------------------- Nettoyage... ---------------------------------"
-	rm -rf $(OBJDIR) $(TESTOBJDIR) $(ARM_OBJDIR) $(ARM_OBJDIR) $(BINDIR) $(ARMBINDIR)
+	rm -rf $(OBJDIR) $(BINDIR) $(ARMBINDIR)
 
 # Clean lidarLib specifically
 clean-lidarLib:
