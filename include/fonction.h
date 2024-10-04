@@ -11,6 +11,8 @@
 #include <math.h>
 
 
+//TODO : Remove
+/*
 typedef enum {
     TAKEPLANT_INIT,
     TAKEPLANT_FORWARD,
@@ -47,6 +49,8 @@ typedef enum {
     VOLPLANT_FIN,
 } fsmVolPlant_t;
 
+*/
+
 typedef enum {
     INTIY_INIT,
     INTIY_BACKWARD,
@@ -64,14 +68,20 @@ typedef enum {
 
 
 int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int teta);
+int returnToHome(TableState* itable,CmdAsserv* iAsser);
+void resetActionneur(CmdAsserv* iAsser, Arduino* arduino);
+void ennemieInAction(TableState* itable, position_t* position);
+
+//TODO : Remove
+/*
 int turnSolarPannel(TableState* itable,CmdAsserv* iAsser,Arduino* arduino);
 int takePlant2(CmdAsserv* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone);
-int returnToHome(TableState* itable,CmdAsserv* iAsser);
 int jardinierePutPlant(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta);
 bool allJardiniereFull(TableState* itable);
 bool DeuxJardiniereFull(TableState* itable);
 bool allStockPlanteUsed(TableState* itable);
-void resetActionneur(CmdAsserv* iAsser, Arduino* arduino);
-void ennemieInAction(TableState* itable, position_t* position);
 int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta);
+*/
+
+
 #endif // MYFUNCTION_H

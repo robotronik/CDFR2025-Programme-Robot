@@ -90,6 +90,9 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int teta){
     return ireturn;
 }
 
+/*
+TODO : Remove
+
 int turnSolarPannel(TableState* itable, CmdAsserv* iAsser,Arduino* arduino){
     LOG_SCOPE("SolarPanel");
     static fsmSolarPanel_t currentState = VITESSEE_INIT;
@@ -420,19 +423,14 @@ bool allStockPlanteUsed(TableState* itable){
     return true;
 }
 
+*/
+
 void resetActionneur(CmdAsserv* iAsser, Arduino* arduino){
     arduino->servoPosition(1,180);
     arduino->servoPosition(2,CLAMPSLEEP);
     arduino->moveStepper(ELEVATORJARDINIERE,1);
     
 }
-
-
-
-
-
-
-
 
 
 int returnToHome(TableState* itable,CmdAsserv* iAsser){
@@ -484,6 +482,8 @@ void ennemieInAction(TableState* itable, position_t* position){
     }
 }
 
+//TODO : Remove
+/*
 int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta){
     LOG_SCOPE("putPlant");
     int ireturn = 0;
@@ -585,4 +585,4 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
     currentState = nextState;
     return ireturn;
 }
-
+*/

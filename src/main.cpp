@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
                 if(initState)
                     LOG_STATE("WAITSTART");
                 int bStateCapteur1 = 0;
-                arduino->readCapteur(1,bStateCapteur1);
+                arduino->readCapteur(1,bStateCapteur1); //Might be an error here, not passing a pointer
                 if(tableStatus.robot.colorTeam == YELLOW){
                     blinkLed(arduino,1,500);
                 }
@@ -183,7 +183,8 @@ int main(int argc, char *argv[]) {
                     blinkLed(arduino,2,500);
                 }
                 
-               if(bStateCapteur1 == 0){
+                //Counts the number of time the magnet sensor
+                if(bStateCapteur1 == 0){
                     countStart ++;
                 }
                 else{
@@ -194,12 +195,7 @@ int main(int argc, char *argv[]) {
                     arduino->ledOff(1);
                     arduino->ledOff(2);
                     tableStatus.startTime = millis();
-                    tableStatus.robot.robotHavePlante = false;
-                    actionSystem->initAction( robotI2C, arduino, &(tableStatus));
-                    LOG_GREEN_INFO("RE INITIALIZE PLANTESTOCK AND JARDINIERE");
-                    for(int i = 0; i<6;i++){tableStatus.planteStockFull[i].etat = true;} //mettre true normalement
-                    for(int i = 0; i<6;i++){tableStatus.JardiniereFull[i].etat = false;}
-                    for(int i = 0; i<9;i++){tableStatus.panneauSolaireRotate[i].etat = false;}
+                    //actionSystem->initAction(robotI2C, arduino, &(tableStatus));
                 }
                 break;
             }

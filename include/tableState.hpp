@@ -39,12 +39,9 @@ public:
     robot_t robot;
     table_t zoneFull[6];          // zone départ/arrivés
 
-    /* data farming mars*/
-    table_t planteStockFull[6]; //zonne des plantes
-    table_t JardiniereFull[6]; //zone des jardinières
-    table_t jardiniereFree[6];    //zonne devant les jardinières
-    table_t panneauSolaireRotate[9];
-    table_t solarPanelTurn;
+    /* data show must go on*/
+    table_t stock[10];
+    table_t banderole;
 
 private:
     int score;
