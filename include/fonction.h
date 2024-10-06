@@ -82,6 +82,9 @@ bool DeuxJardiniereFull(TableState* itable);
 bool allStockPlanteUsed(TableState* itable);
 int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta);
 */
+//TODO : New functions
+int takeStock(CmdAsserv* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone);
+int construct(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta);
 
 
 #endif // MYFUNCTION_H

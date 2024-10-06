@@ -32,7 +32,7 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
     takeStock0->setStartPoint(0,0,CmdAsserv::MOVE_FORWARD,CmdAsserv::ROTATION_DIRECT); //replace 0,0 by coords of Stock[0]
     takeStock0->setRunAction([&](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
         //return takePlant2(iAsser,iarduino,itable,plantPosition[0].x - MARGESTOCKPLANTX,plantPosition[0].y - MARGESTOCKPLANTY,plantPosition[0].x + MARGESTOCKPLANTX/DIVIDE,plantPosition[0].y + MARGESTOCKPLANTY/DIVIDE,0);
-        return;
+        return takeStock(iAsser,iarduino,itable,0,0,0,0,0);
     });
     takeStock0->goodEnd([](TableState*itable,CmdAsserv*irobot){
         //itable->robot.robotHavePlante = true;
@@ -42,16 +42,12 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
     listeAction.push_back(takeStock0);
 
 
-
-
-
      
-// ACTION 2 YELLOW 
+// ACTION 2 PUT IN CONSTRUCTION ZONE 
     putInConstruction0->setStartPoint(0, 0, 90, CmdAsserv::MOVE_FORWARD, CmdAsserv::ROTATION_DIRECT);
     putInConstruction0->setEndPoint(0, 0, 90, CmdAsserv::MOVE_BACKWARD, CmdAsserv::ROTATION_DIRECT);
     putInConstruction0->setRunAction([](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
-        //return jardinierePutPlant(itable, iAsser, iarduino, 0, 0, 90);
-        return;
+        return construct(itable, iAsser, iarduino, 0, 0, 90);
     });
     putInConstruction0->goodEnd([](TableState*itable,CmdAsserv*irobot){
         //int16_t x,y,teta;
