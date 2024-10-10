@@ -23,8 +23,8 @@
 
 #include "actionContainer.hpp"
 
-//#define DISABLE_LIDAR
-//#define TEST_API_ONLY
+#define DISABLE_LIDAR
+#define TEST_API_ONLY
 
 
 main_State_t currentState;
@@ -128,9 +128,12 @@ int main(int argc, char *argv[]) {
                     robotI2C->enable_motor();
                     robotI2C->brake(false);
                     arduino->enableStepper(1);
+                    /*
+                    TODO : Put it back if needed
                     arduino->servoPosition(1,180);
                     arduino->servoPosition(2,CLAMPSLEEP);
                     arduino->moveStepper(ELEVATORUP,1);
+                    */
                     robotI2C->set_max_speed_forward(MAX_SPEED);
                     robotI2C->set_max_speed_backward(MAX_SPEED);
                     sleep(1);
@@ -232,7 +235,11 @@ int main(int argc, char *argv[]) {
                     affichage->updateScore(tableStatus.getScore());
                     arduino->servoPosition(4,180);
                     arduino->servoPosition(1,180);
+
+                    /*
+                    TODO : Put it back if needed
                     arduino->servoPosition(2,CLAMPSTOP);
+                    */
                     arduino->disableStepper(1);
                     robotI2C->disable_motor();
                     robotI2C->brake(true);
@@ -391,7 +398,11 @@ void EndSequence(){
     arduino->ledOff(2);
     arduino->ledOff(1);
     arduino->servoPosition(1,180);
+
+    /*
+    TODO : Put it back if needed
     arduino->servoPosition(2,CLAMPSTOP);
+    */
     arduino->moveStepper(0,1);
     robotI2C->disable_motor();
     robotI2C->brake(false);

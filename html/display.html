@@ -52,8 +52,10 @@
         const timeLabel = document.getElementById('timeLabel');
 
         // Load the vinyl svg
-        const svgImage = new Image();
-        svgImage.src = 'assets/vinyl.svg';
+        const svgBackground = new Image();
+        svgBackground.src = 'assets/background.svg';
+        const svgGrid = new Image();
+        svgGrid.src = 'assets/vinyl.svg';
 
         let centerX = canvas.width / 2;
         let centerY = canvas.height / 2;
@@ -115,14 +117,16 @@
         function draw(data) {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
-            ctx.drawImage(svgImage, centerX - 3000/2, centerY - 2000/2, 3000, 2000);
+            ctx.drawImage(svgBackground, centerX - 3000/2, centerY - 2000/2, 3000, 2000);
+            // Dont draw the grid
+            //ctx.drawImage(svgGrid, centerX - 3000/2, centerY - 2000/2, 3000, 2000);
             
             // Redraw shapes and images
             // ctx.fillStyle = 'blue';
             // ctx.fillRect(x, y, 50, 50); // Redraw rectangle (player character)
 
             //Draw robot
-            drawSquare(ctx, data["y"], data["x"], 250, data["teta"]);
+            drawSquare(ctx, data["y"], data["x"], 250, - data["teta"] - 90);
 
             ctx.fillStyle = 'red';
             ctx.beginPath();
@@ -157,6 +161,7 @@
                 };
             });
 
+            ctx.strokeStyle = 'white';
             // Set line width
             ctx.lineWidth = 10;
             // Draw the rotated square
