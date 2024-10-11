@@ -23,8 +23,8 @@
 
 #include "actionContainer.hpp"
 
-#define DISABLE_LIDAR
-#define TEST_API_ONLY
+//#define DISABLE_LIDAR
+//#define TEST_API_ONLY
 
 
 main_State_t currentState;
@@ -298,6 +298,14 @@ int StartSequence(){
     });
 
 #ifdef TEST_API_ONLY
+    teta = 45.0;
+    x = 100;
+    y = 100;
+
+    tableStatus.init(affichage);
+    tableStatus.ennemie.x = 300;
+    tableStatus.ennemie.y = 300;
+
     while(!ctrl_c_pressed){
         sleep(1);
     }

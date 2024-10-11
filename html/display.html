@@ -60,6 +60,9 @@
         let centerX = canvas.width / 2;
         let centerY = canvas.height / 2;
 
+        let topLeftX = centerX - 3000/2;
+        let topLeftY = centerY - 2000/2;
+
 
         // Function to start the continuous fetching loop
         async function startContinuousFetch() {
@@ -117,17 +120,37 @@
         function draw(data) {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
-            ctx.drawImage(svgBackground, centerX - 3000/2, centerY - 2000/2, 3000, 2000);
+            ctx.fillStyle = 'silver';
+            ctx.fillRect(topLeftX - 22, topLeftY - 22, 3000+22*2, 2000+22*2); //Top left, size
+            ctx.drawImage(svgBackground, topLeftX, topLeftY, 3000, 2000);
             // Dont draw the grid
-            //ctx.drawImage(svgGrid, centerX - 3000/2, centerY - 2000/2, 3000, 2000);
+            //ctx.drawImage(svgGrid, topLeftX, topLeftY, 3000, 2000);
+
+            // Draw robot
+            drawSquare(ctx, data["y"], data["x"], 250, data["teta"] - 90);
+
+            // Draw enemy
+            ctx.strokeStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(data["table"]["ennemie"]["y"] + centerX, -data["table"]["ennemie"]["x"] + centerY, 150, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.stroke();
+
+            // Draw yellow balises
+            ctx.fillStyle = 'gold';
+            ctx.beginPath(); ctx.arc(centerX - 1594, centerY - 950, 20, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX - 1594, centerY + 950, 20, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX + 1594, centerY - 0, 20, 0, Math.PI * 2); ctx.fill();
+
+            // Draw blue balises
+            ctx.fillStyle = 'blue';
+            ctx.beginPath(); ctx.arc(centerX + 1594, centerY - 950, 20, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX + 1594, centerY + 950, 20, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX - 1594, centerY - 0, 20, 0, Math.PI * 2); ctx.fill();
+
+
             
-            // Redraw shapes and images
-            // ctx.fillStyle = 'blue';
-            // ctx.fillRect(x, y, 50, 50); // Redraw rectangle (player character)
-
-            //Draw robot
-            drawSquare(ctx, data["y"], data["x"], 250, - data["teta"] - 90);
-
+            // Draw point in the center
             ctx.fillStyle = 'red';
             ctx.beginPath();
             ctx.arc(centerX, centerY, 10, 0, Math.PI * 2); // x, y, radius, startAngle, endAngle
@@ -161,9 +184,9 @@
                 };
             });
 
+            ctx.lineWidth = 4;
             ctx.strokeStyle = 'white';
             // Set line width
-            ctx.lineWidth = 10;
             // Draw the rotated square
             ctx.beginPath();
             for (let i = 0; i < rotatedPoints.length; i++) {
