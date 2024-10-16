@@ -385,36 +385,37 @@ void GetLidar()
         convertAngularToAxial(lidarData, lidar_count, &position, -100);
         init_position_balise(lidarData, lidar_count, &position);
         convertAngularToAxial(lidarData, lidar_count, &position, 50);
-        position_opponent(lidarData, lidar_count, &pos_opponent);
-
-        pos_opponent_avg_sum.x += pos_opponent.x;
-        pos_opponent_avg_sum.y += pos_opponent.y;
-        pos_opponent_avg_count++;
-        if (pos_opponent_avg_count == 5)
-        {
-            // Calculate the average position
-            pos_opponent.x = pos_opponent_avg_sum.x / pos_opponent_avg_count;
-            pos_opponent.y = pos_opponent_avg_sum.y / pos_opponent_avg_count;
-
-            double dist;
-            // Calculate the distance the opponent moved
-            dist = position_distance(tableStatus.pos_opponent, pos_opponent);
-
-            // Save the position to tableStatus
-            tableStatus.pos_opponent.x = pos_opponent.x;
-            tableStatus.pos_opponent.y = pos_opponent.y;
-
-            // Reset the average counters
-            pos_opponent_avg_count = 0;
-            pos_opponent_avg_sum.x = 0;
-            pos_opponent_avg_sum.y = 0;
-
-            // Execute if opponent has not moved too much
-            if (dist < 250)
+        if (position_opponent(lidarData, lidar_count, &pos_opponent)){
+            pos_opponent_avg_sum.x += pos_opponent.x;
+            pos_opponent_avg_sum.y += pos_opponent.y;
+            pos_opponent_avg_count++;
+            if (pos_opponent_avg_count == 5)
             {
-                opponentInAction(&tableStatus, &pos_opponent);
+                // Calculate the average position
+                pos_opponent.x = pos_opponent_avg_sum.x / pos_opponent_avg_count;
+                pos_opponent.y = pos_opponent_avg_sum.y / pos_opponent_avg_count;
+
+                double dist;
+                // Calculate the distance the opponent moved
+                dist = position_distance(tableStatus.pos_opponent, pos_opponent);
+
+                // Save the position to tableStatus
+                tableStatus.pos_opponent.x = pos_opponent.x;
+                tableStatus.pos_opponent.y = pos_opponent.y;
+
+                // Reset the average counters
+                pos_opponent_avg_count = 0;
+                pos_opponent_avg_sum.x = 0;
+                pos_opponent_avg_sum.y = 0;
+
+                // Execute if opponent has not moved too much
+                if (dist < 250)
+                {
+                    opponentInAction(&tableStatus, &pos_opponent);
+                }
             }
         }
+
 
         if (count_pos == 10)
         {
@@ -447,27 +448,27 @@ void GetLidarV2()
         convertAngularToAxial(lidarData, lidar_count, &position, -100);
         init_position_balise(lidarData, lidar_count, &position);
         convertAngularToAxial(lidarData, lidar_count, &position, 50);
-        position_opponent(lidarData, lidar_count, &pos_opponent);
+        if (position_opponent(lidarData, lidar_count, &pos_opponent):{
+            // If it's the first reading, initialize the filtered position
+            if (first_reading)
+            {
+                pos_opponent_filtered.x = pos_opponent.x;
+                pos_opponent_filtered.y = pos_opponent.y;
+                first_reading = false;
+            }
+            else
+            {
+                // Apply the low-pass filter
+                pos_opponent_filtered.x = alpha * pos_opponent.x + (1 - alpha) * pos_opponent_filtered.x;
+                pos_opponent_filtered.y = alpha * pos_opponent.y + (1 - alpha) * pos_opponent_filtered.y;
+            }
 
-        // If it's the first reading, initialize the filtered position
-        if (first_reading)
-        {
-            pos_opponent_filtered.x = pos_opponent.x;
-            pos_opponent_filtered.y = pos_opponent.y;
-            first_reading = false;
+            // Save the filtered position to tableStatus
+            tableStatus.pos_opponent.x = pos_opponent_filtered.x;
+            tableStatus.pos_opponent.y = pos_opponent_filtered.y;
+
+            opponentInAction(&tableStatus, &pos_opponent_filtered);
         }
-        else
-        {
-            // Apply the low-pass filter
-            pos_opponent_filtered.x = alpha * pos_opponent.x + (1 - alpha) * pos_opponent_filtered.x;
-            pos_opponent_filtered.y = alpha * pos_opponent.y + (1 - alpha) * pos_opponent_filtered.y;
-        }
-
-        // Save the filtered position to tableStatus
-        tableStatus.pos_opponent.x = pos_opponent_filtered.x;
-        tableStatus.pos_opponent.y = pos_opponent_filtered.y;
-
-        opponentInAction(&tableStatus, &pos_opponent_filtered);
 
         if (count_pos == 10)
         {
