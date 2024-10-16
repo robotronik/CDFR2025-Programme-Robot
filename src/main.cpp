@@ -466,11 +466,11 @@ void GetLidarV2()
         tableStatus.pos_opponent.x = pos_opponent_filtered.x;
         tableStatus.pos_opponent.y = pos_opponent_filtered.y;
 
-        opponentInAction(&tableStatus, &pos_opponent);
+        opponentInAction(&tableStatus, &pos_opponent_filtered);
 
         if (count_pos == 10)
         {
-            affichage->updatePosition(pos_opponent.x, pos_opponent.y);
+            affichage->updatePosition(tableStatus.pos_opponent.x, tableStatus.pos_opponent.y);
             count_pos = 0;
         }
         count_pos++;
