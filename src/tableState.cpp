@@ -61,7 +61,7 @@ void to_json(json& j, const TableState& ts) {
         {"stock", ts.stock},
         {"banderole", ts.banderole},
         {"zoneFull", ts.zoneFull},
-        {"opponent", ts.pos_opponent},
+        {"pos_opponent", ts.pos_opponent},
         {"startTime", ts.startTime},
         {"FIN", ts.FIN},
         {"robot", ts.robot}

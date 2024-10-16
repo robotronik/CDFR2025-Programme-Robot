@@ -428,6 +428,58 @@ void GetLidar()
         tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
     }
 }
+void GetLidarV2()
+{
+    // Implements a low passfilter
+    // Simple exponential moving average (EMA)
+    
+    // Smoothing factor (0 < alpha < 1)
+    const float alpha = 0.2f; // Adjust this value for more or less smoothing on the opponent robot posititon
+
+    static position_t pos_opponent_filtered = {0, 0, 0, 0, 0};
+    static bool first_reading = true;
+
+    if (getlidarData(lidarData, lidar_count))
+    {
+        position_t position = tableStatus.robot.pos;
+        position_t pos_opponent = position;
+        convertAngularToAxial(lidarData, lidar_count, &position, -100);
+        init_position_balise(lidarData, lidar_count, &position);
+        convertAngularToAxial(lidarData, lidar_count, &position, 50);
+        position_opponent(lidarData, lidar_count, &pos_opponent);
+
+        // If it's the first reading, initialize the filtered position
+        if (first_reading)
+        {
+            pos_opponent_filtered.x = pos_opponent.x;
+            pos_opponent_filtered.y = pos_opponent.y;
+            first_reading = false;
+        }
+        else
+        {
+            // Apply the low-pass filter
+            pos_opponent_filtered.x = alpha * pos_opponent.x + (1 - alpha) * pos_opponent_filtered.x;
+            pos_opponent_filtered.y = alpha * pos_opponent.y + (1 - alpha) * pos_opponent_filtered.y;
+        }
+
+        // Save the filtered position to tableStatus
+        tableStatus.pos_opponent.x = pos_opponent_filtered.x;
+        tableStatus.pos_opponent.y = pos_opponent_filtered.y;
+
+        opponentInAction(&tableStatus, &pos_opponent);
+
+        if (count_pos == 10)
+        {
+            affichage->updatePosition(pos_opponent.x, pos_opponent.y);
+            count_pos = 0;
+        }
+        count_pos++;
+
+        int16_t braking_distance;
+        robotI2C->get_braking_distance(braking_distance);
+        tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
+    }
+}
 
 void EndSequence()
 {
