@@ -121,8 +121,7 @@ void StartAPIServer(){
         }
 
         // Apply the post method
-        currentState = req_state;
-        initState = true;
+        nextState = req_state;
 
         // Create a response JSON
         json response;

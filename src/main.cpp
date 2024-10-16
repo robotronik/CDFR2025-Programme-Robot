@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
         return -1;
 
     // Private counters
-    int countStart = 0, count_pos = 0, countSetHome = 0;
+    int countStart = 0, countSetHome = 0;
     while (!ctrl_c_pressed)
     {
         LOG_SCOPE("Main");
@@ -282,8 +282,8 @@ int main(int argc, char *argv[])
         if (currentState != nextState)
         {
             initState = true;
+            currentState = nextState;
         }
-        currentState = nextState;
     }
 
     EndSequence();
@@ -368,7 +368,7 @@ void GetLidar()
 {
     // Averages the position of the opponent over a few scans
     static position_t pos_opponent_avg_sum = {0, 0, 0, 0, 0};
-    static int pos_opponent_avg_count = 0;
+    static int pos_opponent_avg_count = 0, count_pos = 0;
 
     if (getlidarData(lidarData, lidar_count))
     {

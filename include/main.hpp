@@ -15,7 +15,7 @@ typedef enum {
 
 //Extern means the variable is defined in main but accessible from other classes
 extern main_State_t currentState;
-extern bool initState
+extern main_State_t nextState;
 extern TableState tableStatus;
 extern CmdAsserv *robotI2C;
 extern lidarAnalize_t lidarData[SIZEDATALIDAR];
