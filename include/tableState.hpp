@@ -29,7 +29,6 @@ public:
     void incrementScore(int score);
     
     /* data generale*/
-    int dx,dy;                //Faut que quelquun me dise ce que c'est ça
     position_t pos_opponent;
     unsigned long startTime;
     bool FIN;

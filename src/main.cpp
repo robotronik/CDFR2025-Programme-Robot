@@ -33,8 +33,8 @@ CmdAsserv *robotI2C;
 lidarAnalize_t lidarData[SIZEDATALIDAR];
 int lidar_count = 0;
 
-int countStart = 0, count_pos = 0;
-int countSetHome = 0;
+// Private counters
+int countStart = 0, count_pos = 0, countSetHome = 0;
 
 Affichage *affichage;
 SSD1306 display(0x3C);
@@ -109,8 +109,7 @@ int main(int argc, char *argv[]) {
                     }
                 }
     
-                int bStateCapteur3 = 0;
-                int bStateCapteur1 = 0;
+                int bStateCapteur3, bStateCapteur1;
                 arduino->readCapteur(3,bStateCapteur3);
                 arduino->readCapteur(1,bStateCapteur1);
                 blinkLed(arduino,2,500);
@@ -188,8 +187,8 @@ int main(int argc, char *argv[]) {
             case WAITSTART:{
                 if(initState)
                     LOG_STATE("WAITSTART");
-                int bStateCapteur1 = 0;
-                arduino->readCapteur(1,bStateCapteur1); //Might be an error here, not passing a pointer
+                int bStateCapteur1;
+                arduino->readCapteur(1,bStateCapteur1);
                 if(tableStatus.robot.colorTeam == YELLOW){
                     blinkLed(arduino,1,500);
                 }
@@ -214,30 +213,16 @@ int main(int argc, char *argv[]) {
                 break;
             }
             //****************************************************************
-            case RUN:{
+            case RUN:
                 if(initState) 
                     LOG_STATE("RUN");
-                bool finished;
-                if(tableStatus.robot.colorTeam == YELLOW){
-                    finished = actionSystem->actionContainerRun(robotI2C,&tableStatus);
-                    //finished =  FSMMatch(mainRobot,robotI2C, arduino);
-                }
-                else{
-                    finished = actionSystem->actionContainerRun(robotI2C,&tableStatus);
-                    //finished =  TestPinceFSM(mainRobot,robotI2C, arduino);
-                    //finished =  FSMMatch(mainRobot,robotI2C, arduino);
-                }
-                if(tableStatus.startTime+90000 < millis()){
-                    nextState = FIN;
-                }
-                if (tableStatus.FIN){
-                    nextState = FIN;
-                }
-                if(finished){
+                bool finished = actionSystem->actionContainerRun(robotI2C,&tableStatus);
+
+                if(tableStatus.startTime+90000 < millis() || tableStatus.FIN || finished){
                     nextState = FIN;
                 }
                 break;
-            }
+            
         
             //****************************************************************
             case FIN:

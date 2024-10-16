@@ -8,14 +8,10 @@ void TableState::init(Affichage* i_affichage)
     affichage = i_affichage;
     score = 1;
     FIN = false;
-    
-    dx = 0; dy = 0;
     pos_opponent.x = 0; pos_opponent.y = 0;
 
     robot.pos = {0, 0, 0, 0, 0};
     robot.colorTeam = 0;
-
-
 
 
     /* data show must go on*/
@@ -65,8 +61,6 @@ void to_json(json& j, const TableState& ts) {
         {"stock", ts.stock},
         {"banderole", ts.banderole},
         {"zoneFull", ts.zoneFull},
-        {"dx", ts.dx},
-        {"dy", ts.dy},
         {"opponent", ts.pos_opponent},
         {"startTime", ts.startTime},
         {"FIN", ts.FIN},
