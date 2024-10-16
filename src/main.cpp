@@ -356,9 +356,7 @@ int StartSequence(){
 }
 
 void GetLidar(){
-    // LIDAR could be threadded
     if(getlidarData(lidarData,lidar_count)){
-        int16_t distance;
         position_t position = tableStatus.robot.pos;
         position_t pos_opponent = position;
         convertAngularToAxial(lidarData, lidar_count, &position, -100);
@@ -375,6 +373,7 @@ void GetLidar(){
             pos_opponent.x = pos_opponent_avg_sum.x / pos_opponent_avg_count;
             pos_opponent.y = pos_opponent_avg_sum.y / pos_opponent_avg_count;
             
+            int16_t distance;
             // Calculate the distance the opponent moved
             distance = sqrt(pow(tableStatus.pos_opponent.x - pos_opponent.x, 2) + pow(tableStatus.pos_opponent.y - pos_opponent.y, 2));
 
@@ -387,7 +386,7 @@ void GetLidar(){
             pos_opponent_avg_sum.x = 0;
             pos_opponent_avg_sum.y = 0;
 
-            // Execute if opponent is close
+            // Execute if opponent has not moved too much
             if (distance < 250)
             {
                 opponentInAction(&tableStatus, &pos_opponent);
@@ -400,8 +399,10 @@ void GetLidar(){
             count_pos = 0;
         }
         count_pos++;
-        robotI2C->get_braking_distance(distance);
-        tableStatus.robot.collide = collide(lidarData, lidar_count, distance);
+
+        int16_t braking_distance;
+        robotI2C->get_braking_distance(braking_distance);
+        tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
     }
 }
 

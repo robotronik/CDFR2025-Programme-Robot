@@ -13,7 +13,7 @@ typedef enum {
 } main_State_t;
 
 
-//Extern means the variable is defined in main
+//Extern means the variable is defined in main but accessible from other classes
 extern main_State_t currentState;
 extern TableState tableStatus;
 extern CmdAsserv *robotI2C;

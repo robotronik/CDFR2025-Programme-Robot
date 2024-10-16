@@ -31,13 +31,12 @@ public:
     /* data generale*/
     int dx,dy;                //Faut que quelquun me dise ce que c'est ça
     position_t pos_opponent;
-    position_t init_pos; 
     unsigned long startTime;
     bool FIN;
     robot_t robot;
     table_t zoneFull[6];          // zone départ/arrivés
 
-    /* data show must go on*/
+    /* data Show Must Go On*/
     table_t stock[10];
     table_t banderole;
 

@@ -8,7 +8,6 @@ void TableState::init(Affichage* i_affichage)
     affichage = i_affichage;
     score = 1;
     FIN = false;
-    init_pos.x = 0; init_pos.y = 0; init_pos.teta = -90;
     
     dx = 0; dy = 0;
     pos_opponent.x = 0; pos_opponent.y = 0;
@@ -69,7 +68,6 @@ void to_json(json& j, const TableState& ts) {
         {"dx", ts.dx},
         {"dy", ts.dy},
         {"opponent", ts.pos_opponent},
-        {"init_pos", ts.init_pos},
         {"startTime", ts.startTime},
         {"FIN", ts.FIN},
         {"robot", ts.robot}
