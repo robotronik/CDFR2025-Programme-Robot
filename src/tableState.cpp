@@ -6,20 +6,33 @@ TableState::TableState(){}
 void TableState::init(Affichage* i_affichage)
 {
     affichage = i_affichage;
+    score = 1;
+    FIN = false;
+    init_pos.x = 0; init_pos.y = 0; init_pos.teta = -90; nb = 0;
+    
+    dx = 0; dy = 0;
+    prev_pos.x = 0; prev_pos.y = 0;prev_pos.teta=0;
+    ennemie.x = 0; ennemie.y = 0; nb = 0;
 
+    robot.pos = {0, 0, 0, 0, 0};
+    robot.colorTeam = 0;
+
+
+
+
+    /* data show must go on*/
+    for(int i = 0; i<6;i++){
+        zoneFull[i].etat = false;
+    }
     for(int i = 0; i<10;i++){
         stock[i].etat = true;
         stock[i].cout = 100; //TODO
         stock[i].color = NONE;
-        zoneFull[i].etat = false;
     }
-    score = 1;
-    FIN = false;
-    init_pos.x = 0; init_pos.y = 0; init_pos.teta = -90;nb = 0;
-    
-    dx = 0; dy = 0;
-    prev_pos.x = 0; prev_pos.y = 0;prev_pos.teta=0;
-    ennemie.x = 0;ennemie.y = 0; nb =0;
+    banderole.etat = false;
+
+    robot.columns_count = 0;
+    robot.plank_count = 0;
 }
 
 TableState::~TableState(){

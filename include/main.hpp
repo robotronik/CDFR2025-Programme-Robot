@@ -20,5 +20,5 @@ extern CmdAsserv *robotI2C;
 extern lidarAnalize_t lidarData[SIZEDATALIDAR];
 
 extern int countStart, count_pos;
-extern int16_t x,y,teta,distance;
 extern int countSetHome;
+extern int lidar_count;

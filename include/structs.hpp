@@ -51,7 +51,8 @@ typedef struct
     int collide;
     //obstacle_t obstacle;
 
-    bool robotHavePlante;// le robot a des plantes
+    int columns_count;
+    int plank_count;
     
 }robot_t;
 

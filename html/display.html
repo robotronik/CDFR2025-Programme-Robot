@@ -127,7 +127,10 @@
             //ctx.drawImage(svgGrid, topLeftX, topLeftY, 3000, 2000);
 
             // Draw robot
-            drawSquare(ctx, data["y"], data["x"], 250, data["teta"] - 90);
+            drawSquare(ctx, data["table"]["robot"]["pos"]["y"], 
+                            -data["table"]["robot"]["pos"]["x"], 
+                            250, 
+                            data["table"]["robot"]["pos"]["teta"] - 90);
 
             // Draw enemy
             ctx.strokeStyle = 'white';
@@ -180,7 +183,7 @@
             const rotatedPoints = points.map(point => {
                 return {
                     x: x + centerX + point.x * Math.cos(angleRad) - point.y * Math.sin(angleRad),
-                    y: - y + centerY + point.x * Math.sin(angleRad) + point.y * Math.cos(angleRad)
+                    y: y + centerY + point.x * Math.sin(angleRad) + point.y * Math.cos(angleRad)
                 };
             });
 

@@ -42,7 +42,7 @@ void position_ennemie(lidarAnalize_t* data, int count, position_t *position){
     }
     position->x = position->x + som_dist/nb*cos((som_angle/nb + position->teta)*DEG_TO_RAD) + 55*cos(position->teta*DEG_TO_RAD);
     position->y = position->y - som_dist/nb*sin((som_angle/nb + position->teta)*DEG_TO_RAD) - 55*sin(position->teta*DEG_TO_RAD);
-    }
+}
 
 void printLidarAxial(lidarAnalize_t* data, int count){
     for(int i = 0; i< count; i++){
@@ -140,136 +140,6 @@ int collide(lidarAnalize_t* data, int count ,int distanceStop){
     //LOG_DEBUG("Collide : ",iRet);
     // LOG_DEBUG("Prec : ",iRetPre);
     return iRet;
-}
-
-void pixelArtPrint(lidarAnalize_t* data, int count,int sizeX,int sizeY,int scale,position_t position){
-    char* matriceAffichage;
-    matriceAffichage = (char*)malloc(sizeX * sizeY * sizeof(char));
-    
-    //initMatrice
-    for(int i = 0; i<sizeX * sizeY; i++){
-        matriceAffichage[i] = ' ';
-    }
-
-    int posix, posiy;
-    for(int i = 0; i<count; i++){
-        if(data[i].valid == true){
-            posix = data[i].x/scale + sizeX/2;
-            posiy = data[i].y/scale + sizeY/2;
-            if(posix<sizeX && posix>=0 && posiy<sizeY && posiy>=0){
-                if(data[i].onTable)
-                    matriceAffichage[posix + sizeX * posiy] = '*';
-                else
-                    matriceAffichage[posix + sizeX * posiy] = 'X';
-            }                
-            else{
-                if(posix>=sizeX)
-                    posix = sizeX-1;
-                if(posix<0)
-                    posix = 0;
-                if(posiy>=sizeY)
-                    posiy = sizeY-1;
-                if(posiy<0)
-                    posiy = 0;
-                matriceAffichage[posix + sizeX * posiy] = 'W';
-            }
-        }
-    }
-    //fill
-
-    int positionRoboty = position.x/scale + sizeX/2;
-    int positionRobotx = position.y/scale + sizeY/2;
-
-    for(int i = 0; i<sizeX; i++){
-        char chartype = ' ';
-        for(int j = positionRoboty; j<sizeY; j++){
-            int posX = MAP(j,positionRoboty,sizeY,positionRobotx,i);
-            if(matriceAffichage[posX + sizeX * j] != ' '){
-                chartype = matriceAffichage[posX + sizeX * j];
-            }                
-            if(chartype != ' '){
-                matriceAffichage[posX + sizeX * j] = chartype;
-            }
-        }
-    }
-
-    for(int i = 0; i<sizeX; i++){
-        char chartype = ' ';
-        for(int j = positionRoboty; j>=0; j--){
-            int posX = MAP(j,positionRoboty,0,positionRobotx,i);
-            if(matriceAffichage[posX + sizeX * j] != ' '){
-                chartype = matriceAffichage[posX + sizeX * j];
-            }                
-            if(chartype != ' '){
-                matriceAffichage[posX + sizeX * j] = chartype;
-            }
-        }
-    }
-
-
-    for(int j = 0; j<sizeY; j++){
-        char chartype = ' ';
-        for(int i = positionRobotx; i<sizeX; i++){
-            int posY = MAP(i,positionRobotx,sizeX,positionRoboty,j);
-            if(matriceAffichage[i + sizeX * posY] != ' '){
-                chartype = matriceAffichage[i + sizeX * posY];
-            }                
-            if(chartype != ' '){
-                matriceAffichage[i + sizeX * posY] = chartype;
-            }
-        }
-    }
-
-    for(int j = 0; j<sizeY; j++){
-        char chartype = ' ';
-        for(int i = positionRobotx; i>=0; i--){
-            int posY = MAP(i,positionRobotx,0,positionRoboty,j);
-            if(matriceAffichage[i + sizeX * posY] != ' '){
-                chartype = matriceAffichage[i + sizeX * posY];
-            }                
-            if(chartype != ' '){
-                matriceAffichage[i + sizeX * posY] = chartype;
-            }
-        }
-    }
-    
-    //add border
-    int posiyPos, posiyNeg;
-    for(int i = 0; i<sizeX; i+=(sizeX/scale)+1){
-        posix = i;
-        posiyPos = 1600/scale + sizeY/2;
-        posiyNeg = (-1600)/scale + sizeY/2;
-        if(posix < sizeX && posix >= 0 && posiyPos < sizeY && posiyPos >= 0 && posiyNeg < sizeY && posiyNeg >= 0){
-            matriceAffichage[posix + sizeX * posiyPos] = 'Z';
-            matriceAffichage[posix + sizeX * posiyNeg] = 'Z';
-        }
-    }
-    int posixPos, posixNeg;
-    for(int i = 0; i<sizeY; i+=(sizeY/scale)+1){
-        posixNeg = (-1000)/scale + sizeX/2;
-        posixPos = 1000/scale + sizeX/2;
-        posiy = i;
-        if(posixPos < sizeX && posixPos >= 0 && posixNeg < sizeX && posixNeg >= 0  && posiyNeg < sizeY && posiyNeg >= 0){
-            matriceAffichage[posixPos + sizeX * posiy] = 'Z';
-            matriceAffichage[posixNeg + sizeX * posiy] = 'Z';
-        }
-    }
-
-    posix = position.x/scale + sizeX/2;
-    posiy = position.y/scale + sizeY/2;
-    if(posix<sizeX && posix>=0 && posiy<sizeY && posiy>=0)
-        matriceAffichage[posix + sizeX * posiy] = 'O';
-
-    //print
-    for(int x = sizeX-1; x>=0; x--){
-        for(int y = sizeY-1; y>=0; y--){
-            printf("%c%c",matriceAffichage[x + y * sizeX],matriceAffichage[x + y * sizeX]);
-        }
-        printf("\n");
-    }
-
-    free(matriceAffichage);
-
 }
 
 void supprimerElement(element_decord**& array, int& rows, int index) {

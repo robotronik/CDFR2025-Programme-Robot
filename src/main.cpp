@@ -33,8 +33,8 @@ CmdAsserv *robotI2C;
 lidarAnalize_t lidarData[SIZEDATALIDAR];
 
 int countStart = 0, count_pos = 0;
-int16_t x =0,y=0,teta=0,distance;
 int countSetHome = 0;
+int lidar_count = 0;
 
 Affichage *affichage;
 SSD1306 display(0x3C);
@@ -58,8 +58,7 @@ void executePythonScript(const std::string& command);
 
 // Signal Management
 bool ctrl_c_pressed = false;
-void ctrlc(int)
-{
+void ctrlc(int) {
     LOG_DEBUG("Stop Signal Recieved");
     ctrl_c_pressed = true;
 }
@@ -79,9 +78,19 @@ int main(int argc, char *argv[]) {
         LOG_SCOPE("Main");
         sleep(0.01);
         
-        if(currentState != FIN){
-            GetLidar();
+        // Get Sensor Data
+        {
+            int16_t x, y, teta;
+            robotI2C->get_coordinates(x, y, teta);
+            tableStatus.robot.pos = {x, y, 0, teta, 0};
+            // LOG_GREEN_INFO("X = ", x," Y = ", y, " teta = ", teta);
+
+            if(currentState != FIN){
+                GetLidar();
+            }
         }
+
+        // State machine
         switch (currentState) {
             //****************************************************************
             case INIT:{
@@ -206,15 +215,15 @@ int main(int argc, char *argv[]) {
             case RUN:{
                 if(initState) 
                     LOG_STATE("RUN");
-                bool finish;
+                bool finished;
                 if(tableStatus.robot.colorTeam == YELLOW){
-                    finish = actionSystem->actionContainerRun(robotI2C,&tableStatus);
-                    //finish =  FSMMatch(mainRobot,robotI2C, arduino);
+                    finished = actionSystem->actionContainerRun(robotI2C,&tableStatus);
+                    //finished =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
                 else{
-                    finish = actionSystem->actionContainerRun(robotI2C,&tableStatus);
-                    //finish =  TestPinceFSM(mainRobot,robotI2C, arduino);
-                    //finish =  FSMMatch(mainRobot,robotI2C, arduino);
+                    finished = actionSystem->actionContainerRun(robotI2C,&tableStatus);
+                    //finished =  TestPinceFSM(mainRobot,robotI2C, arduino);
+                    //finished =  FSMMatch(mainRobot,robotI2C, arduino);
                 }
                 if(tableStatus.startTime+90000 < millis()){
                     nextState = FIN;
@@ -222,7 +231,7 @@ int main(int argc, char *argv[]) {
                 if (tableStatus.FIN){
                     nextState = FIN;
                 }
-                if(finish){
+                if(finished){
                     nextState = FIN;
                 }
                 break;
@@ -298,18 +307,7 @@ int StartSequence(){
     });
 
 #ifdef TEST_API_ONLY
-    teta = 45.0;
-    x = 100;
-    y = 100;
-
-    tableStatus.init(affichage);
-    tableStatus.ennemie.x = 300;
-    tableStatus.ennemie.y = 300;
-
-    while(!ctrl_c_pressed){
-        sleep(1);
-    }
-    StopAPIServer();
+    TestAPIServer();
     api_server_thread.join();
     return -1;
 #endif
@@ -348,48 +346,49 @@ int StartSequence(){
     // std::filesystem::path python_script_pathTest = exe_pathTest / "../startPAMI.py";
     // std::string commandTest = "python3 " + python_script_pathTest.string() + " " +  colorTest;
     // std::thread python_threadTest(executePythonScript,commandTest);
+
+    LOG_INFO("Init sequence done");
     return 0;
 }
 
 void GetLidar(){
     // LIDAR could be threadded
-    int count = SIZEDATALIDAR;
-    if(getlidarData(lidarData,count)){
-        robotI2C->get_coordinates(x,y,teta);
-        position_t position = {x,y,0,teta,0};
-        position_t pos_ennemie = {x,y,0,teta,0};
-        convertAngularToAxial(lidarData,count,&position,-100);
-        init_position_balise(lidarData,count, &position);
-        //LOG_GREEN_INFO("X = ", position.x,"Y = ", position.y, "teta = ", position.teta);
-        convertAngularToAxial(lidarData,count,&position,50);
-        position_ennemie(lidarData, count, &pos_ennemie);
-        
+    if(getlidarData(lidarData,lidar_count)){
+        int16_t distance;
+        position_t position = tableStatus.robot.pos;
+        position_t pos_ennemie = position;
+        convertAngularToAxial(lidarData, lidar_count, &position, -100);
+        init_position_balise(lidarData, lidar_count, &position);
+        convertAngularToAxial(lidarData, lidar_count, &position, 50);
+        position_ennemie(lidarData, lidar_count, &pos_ennemie);
+
         tableStatus.ennemie.x += pos_ennemie.x;
         tableStatus.ennemie.y += pos_ennemie.y;
         tableStatus.nb += 1;
-        if (tableStatus.nb == 5){
-            pos_ennemie.x = tableStatus.ennemie.x/tableStatus.nb;
-            pos_ennemie.y = tableStatus.ennemie.y/tableStatus.nb;
-            distance = sqrt(pow(tableStatus.prev_pos.x - pos_ennemie.x,2)+ pow(tableStatus.prev_pos.y - pos_ennemie.y,2));
+        if (tableStatus.nb == 5)
+        {
+            pos_ennemie.x = tableStatus.ennemie.x / tableStatus.nb;
+            pos_ennemie.y = tableStatus.ennemie.y / tableStatus.nb;
+            distance = sqrt(pow(tableStatus.prev_pos.x - pos_ennemie.x, 2) + pow(tableStatus.prev_pos.y - pos_ennemie.y, 2));
             tableStatus.prev_pos.x = pos_ennemie.x;
             tableStatus.prev_pos.y = pos_ennemie.y;
-            tableStatus.nb = 0; tableStatus.ennemie.x = 0; tableStatus.ennemie.y = 0;
-            if( distance < 250) {ennemieInAction(&tableStatus, &pos_ennemie);}
+            tableStatus.nb = 0;
+            tableStatus.ennemie.x = 0;
+            tableStatus.ennemie.y = 0;
+            if (distance < 250)
+            {
+                ennemieInAction(&tableStatus, &pos_ennemie);
+            }
         }
-        
-        
-        
-        if (count_pos == 10){
-            affichage->updatePosition(pos_ennemie.x,pos_ennemie.y);
+
+        if (count_pos == 10)
+        {
+            affichage->updatePosition(pos_ennemie.x, pos_ennemie.y);
             count_pos = 0;
         }
-        count_pos ++;
-        if(ctrl_z_pressed){
-            ctrl_z_pressed = false;
-            pixelArtPrint(lidarData,count,50,50,100,position);
-        }                
+        count_pos++;
         robotI2C->get_braking_distance(distance);
-        tableStatus.robot.collide = collide(lidarData,count,distance);
+        tableStatus.robot.collide = collide(lidarData, lidar_count, distance);
     }
 }
 

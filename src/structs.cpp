@@ -31,6 +31,7 @@ void to_json(json& j, const robot_t& p) {
         {"vit_x", p.vit_x},
         {"vit_y", p.vit_y},
         {"collide", p.collide},
-        {"robotHavePlante", p.robotHavePlante}
+        {"columns_count", p.columns_count},
+        {"plank_count", p.plank_count}
     };
 }
