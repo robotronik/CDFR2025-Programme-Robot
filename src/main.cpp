@@ -437,7 +437,7 @@ void GetLidarV2()
     const float alpha = 0.2f; // Adjust this value for more or less smoothing on the opponent robot posititon
 
     static position_t pos_opponent_filtered = {0, 0, 0, 0, 0};
-    static bool first_reading = true, count_pos = 0;;
+    static bool first_reading = true, count_pos = 0;
 
     if (getlidarData(lidarData, lidar_count))
     {
