@@ -70,7 +70,7 @@ typedef enum {
 int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int teta);
 int returnToHome(TableState* itable,CmdAsserv* iAsser);
 void resetActionneur(CmdAsserv* iAsser, Arduino* arduino);
-void ennemieInAction(TableState* itable, position_t* position);
+void opponentInAction(TableState* itable, position_t* position);
 
 //TODO : Remove
 /*

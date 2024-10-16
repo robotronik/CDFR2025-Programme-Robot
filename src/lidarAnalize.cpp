@@ -19,10 +19,10 @@ void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position
         }
     }
 }
-void position_ennemie(lidarAnalize_t* data, int count, position_t *position){
+void position_opponent(lidarAnalize_t* data, int count, position_t *position){
     double som_dist=0,som_angle=0;
     int nb = 0, next_valid;
-    for(int i = 0; i <count; i++){        
+    for(int i = 0; i < count; i++){        
         if(data[i].onTable){
             som_angle += data[i].angle;
             som_dist += data[i].dist;

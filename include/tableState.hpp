@@ -9,7 +9,7 @@ typedef struct
 {
     bool etat; // si l'action a été faite ou non
     int cout; // points que rapporte l'action
-    float tps; //temps passé par l'ennemie dans l'action
+    float tps; //temps passé par l'opponent dans l'action
     colorTeam_t color; //NONE, BLUE or YELLOW
 }table_t;
 
@@ -30,10 +30,8 @@ public:
     
     /* data generale*/
     int dx,dy;                //Faut que quelquun me dise ce que c'est ça
-    position_t ennemie;
-    position_t prev_pos;
+    position_t pos_opponent;
     position_t init_pos; 
-    int nb;                   //Et ça
     unsigned long startTime;
     bool FIN;
     robot_t robot;

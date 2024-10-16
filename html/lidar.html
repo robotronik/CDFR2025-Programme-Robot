@@ -87,10 +87,10 @@
         //takes the lidar data
         function drawLidar(ctx, data){
             draw();
-            let count = data["count"]; // Get the number of points to process
+            //let count = data["count"]; // Get the number of points to process
 
             // Filter valid points and take only the first `count`
-            let validPoints = data["data"].filter(point => point.valid).slice(0, count);
+            let validPoints = data["data"].filter(point => point.valid); //.slice(0, count);
 
             validPoints.forEach(point => {
                 ctx.strokeStyle = "green";

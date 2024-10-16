@@ -31,10 +31,10 @@ main_State_t currentState;
 TableState tableStatus;
 CmdAsserv *robotI2C;
 lidarAnalize_t lidarData[SIZEDATALIDAR];
+int lidar_count = 0;
 
 int countStart = 0, count_pos = 0;
 int countSetHome = 0;
-int lidar_count = 0;
 
 Affichage *affichage;
 SSD1306 display(0x3C);
@@ -46,7 +46,9 @@ actionContainer* actionSystem;
 
 std::thread api_server_thread;
 
-
+// Averages the position of the opponent over a few scans
+position_t pos_opponent_avg_sum;
+int pos_opponent_avg_count;
 
 // Prototypes
 int StartSequence();
@@ -328,6 +330,8 @@ int StartSequence(){
 
     actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
 
+    pos_opponent_avg_sum = {0, 0, 0, 0, 0};
+    pos_opponent_avg_count = 0;
 
     // arduino->enableStepper(1);
     // arduino->servoPosition(1,180);
@@ -356,34 +360,43 @@ void GetLidar(){
     if(getlidarData(lidarData,lidar_count)){
         int16_t distance;
         position_t position = tableStatus.robot.pos;
-        position_t pos_ennemie = position;
+        position_t pos_opponent = position;
         convertAngularToAxial(lidarData, lidar_count, &position, -100);
         init_position_balise(lidarData, lidar_count, &position);
         convertAngularToAxial(lidarData, lidar_count, &position, 50);
-        position_ennemie(lidarData, lidar_count, &pos_ennemie);
+        position_opponent(lidarData, lidar_count, &pos_opponent);
 
-        tableStatus.ennemie.x += pos_ennemie.x;
-        tableStatus.ennemie.y += pos_ennemie.y;
-        tableStatus.nb += 1;
-        if (tableStatus.nb == 5)
+        pos_opponent_avg_sum.x += pos_opponent.x;
+        pos_opponent_avg_sum.y += pos_opponent.y;
+        pos_opponent_avg_count ++;
+        if (pos_opponent_avg_count == 5)
         {
-            pos_ennemie.x = tableStatus.ennemie.x / tableStatus.nb;
-            pos_ennemie.y = tableStatus.ennemie.y / tableStatus.nb;
-            distance = sqrt(pow(tableStatus.prev_pos.x - pos_ennemie.x, 2) + pow(tableStatus.prev_pos.y - pos_ennemie.y, 2));
-            tableStatus.prev_pos.x = pos_ennemie.x;
-            tableStatus.prev_pos.y = pos_ennemie.y;
-            tableStatus.nb = 0;
-            tableStatus.ennemie.x = 0;
-            tableStatus.ennemie.y = 0;
+            // Calculate the average position
+            pos_opponent.x = pos_opponent_avg_sum.x / pos_opponent_avg_count;
+            pos_opponent.y = pos_opponent_avg_sum.y / pos_opponent_avg_count;
+            
+            // Calculate the distance the opponent moved
+            distance = sqrt(pow(tableStatus.pos_opponent.x - pos_opponent.x, 2) + pow(tableStatus.pos_opponent.y - pos_opponent.y, 2));
+
+            // Save the position to tableStatus
+            tableStatus.pos_opponent.x = pos_opponent.x;
+            tableStatus.pos_opponent.y = pos_opponent.y;
+
+            // Reset the average counters
+            pos_opponent_avg_count = 0;
+            pos_opponent_avg_sum.x = 0;
+            pos_opponent_avg_sum.y = 0;
+
+            // Execute if opponent is close
             if (distance < 250)
             {
-                ennemieInAction(&tableStatus, &pos_ennemie);
+                opponentInAction(&tableStatus, &pos_opponent);
             }
         }
 
         if (count_pos == 10)
         {
-            affichage->updatePosition(pos_ennemie.x, pos_ennemie.y);
+            affichage->updatePosition(pos_opponent.x, pos_opponent.y);
             count_pos = 0;
         }
         count_pos++;

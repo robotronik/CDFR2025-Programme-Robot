@@ -8,11 +8,10 @@ void TableState::init(Affichage* i_affichage)
     affichage = i_affichage;
     score = 1;
     FIN = false;
-    init_pos.x = 0; init_pos.y = 0; init_pos.teta = -90; nb = 0;
+    init_pos.x = 0; init_pos.y = 0; init_pos.teta = -90;
     
     dx = 0; dy = 0;
-    prev_pos.x = 0; prev_pos.y = 0;prev_pos.teta=0;
-    ennemie.x = 0; ennemie.y = 0; nb = 0;
+    pos_opponent.x = 0; pos_opponent.y = 0;
 
     robot.pos = {0, 0, 0, 0, 0};
     robot.colorTeam = 0;
@@ -69,10 +68,8 @@ void to_json(json& j, const TableState& ts) {
         {"zoneFull", ts.zoneFull},
         {"dx", ts.dx},
         {"dy", ts.dy},
-        {"ennemie", ts.ennemie},
-        {"prev_pos", ts.prev_pos},
+        {"opponent", ts.pos_opponent},
         {"init_pos", ts.init_pos},
-        {"nb", ts.nb},
         {"startTime", ts.startTime},
         {"FIN", ts.FIN},
         {"robot", ts.robot}

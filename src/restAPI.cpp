@@ -92,8 +92,15 @@ void StartAPIServer(){
     CROW_ROUTE(app, "/get_lidar")
     ([](){
         json response;
+        
+        json limitedLidarData = json::array();
+
+        // Add the first lidar_count elements to the new array
+        for (int i = 0; i < lidar_count && i < lidarData.size(); ++i) {
+            limitedLidarData.push_back(lidarData[i]);
+        }
         response["data"] = lidarData;
-        response["count"] = lidar_count;
+        //response["count"] = lidar_count;
         return crow::response(response.dump());
     });
 
@@ -188,8 +195,8 @@ void TestAPIServer(){
     tableStatus.robot.pos.x = 100;
     tableStatus.robot.pos.y = 100;
 
-    tableStatus.ennemie.x = 300;
-    tableStatus.ennemie.y = 300;
+    tableStatus.opponent.x = 300;
+    tableStatus.opponent.y = 300;
 
     // Wait for program termination
     while(!ctrl_c_pressed){
