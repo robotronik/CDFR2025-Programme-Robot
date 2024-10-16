@@ -35,3 +35,8 @@ void to_json(json& j, const robot_t& p) {
         {"plank_count", p.plank_count}
     };
 }
+
+double position_distance(position_t p1, position_t p2){
+    // Calculates the position between the two points
+    return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
+}

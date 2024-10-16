@@ -394,9 +394,9 @@ void GetLidar()
             pos_opponent.x = pos_opponent_avg_sum.x / pos_opponent_avg_count;
             pos_opponent.y = pos_opponent_avg_sum.y / pos_opponent_avg_count;
 
-            int16_t distance;
+            double dist;
             // Calculate the distance the opponent moved
-            distance = sqrt(pow(tableStatus.pos_opponent.x - pos_opponent.x, 2) + pow(tableStatus.pos_opponent.y - pos_opponent.y, 2));
+            dist = position_distance(tableStatus.pos_opponent, pos_opponent);
 
             // Save the position to tableStatus
             tableStatus.pos_opponent.x = pos_opponent.x;
@@ -408,7 +408,7 @@ void GetLidar()
             pos_opponent_avg_sum.y = 0;
 
             // Execute if opponent has not moved too much
-            if (distance < 250)
+            if (dist < 250)
             {
                 opponentInAction(&tableStatus, &pos_opponent);
             }

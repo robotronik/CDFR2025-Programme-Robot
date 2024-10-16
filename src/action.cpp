@@ -114,9 +114,12 @@ int action::costAction(void){
 }
 
 void action::setCostAction(int num_action, int num_i_action, TableState *itable, int x_start, int y_start){
-    int16_t x_pos,y_pos,theta_pos;
     int distance_action;
+
+    // TODO : Change this to use itable.robot.pos instead
+    int16_t x_pos,y_pos,theta_pos;
     robot->get_coordinates(x_pos,y_pos,theta_pos);
+
     validActionPtr = -1;
     //ACTION 1 : TAKE STOCK
     //TODO
