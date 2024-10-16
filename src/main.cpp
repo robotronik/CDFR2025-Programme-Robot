@@ -70,10 +70,11 @@ int main(int argc, char *argv[])
 
     // Private counters
     int countStart = 0, countSetHome = 0;
+    unsigned long loopStartTime;
     while (!ctrl_c_pressed)
     {
         LOG_SCOPE("Main");
-        sleep(0.01); // We might change this to use a better clock so that the state machine runs at a constant rate
+        loopStartTime = millis();
 
         // Get Sensor Data
         {
@@ -284,6 +285,9 @@ int main(int argc, char *argv[])
             initState = true;
             currentState = nextState;
         }
+
+        //State machine runs at a constant rate
+        while(millis() < loopStartTime + LOOP_TIME_MS){}
     }
 
     EndSequence();
