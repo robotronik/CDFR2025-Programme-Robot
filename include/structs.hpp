@@ -27,10 +27,10 @@ typedef struct {
 typedef struct 
 {
     bool   valid;
-    double   angle;
-    double   dist;
-    int   x;
-    int   y;
+    double angle;
+    double dist;
+    int    x;
+    int    y;
     bool   onTable;
 }lidarAnalize_t;
 

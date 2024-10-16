@@ -11,7 +11,6 @@
 #include <fstream>
 
 #include "main.hpp"
-#include "fonction.h"
 #include "lidarAnalize.h"
 #include "lidar.h"
 #include "arduino.hpp"
@@ -32,9 +31,6 @@ CmdAsserv *robotI2C;
 lidarAnalize_t lidarData[SIZEDATALIDAR];
 int lidar_count = 0;
 
-// Private counters
-int countStart = 0, count_pos = 0, countSetHome = 0;
-
 Affichage *affichage;
 SSD1306 display(0x3C);
 Arduino *arduino;
@@ -44,10 +40,6 @@ bool initState;
 actionContainer *actionSystem;
 
 std::thread api_server_thread;
-
-// Averages the position of the opponent over a few scans
-position_t pos_opponent_avg_sum;
-int pos_opponent_avg_count;
 
 // Prototypes
 int StartSequence();
@@ -76,11 +68,12 @@ int main(int argc, char *argv[])
     if (StartSequence() != 0)
         return -1;
 
+    // Private counters
+    int countStart = 0, count_pos = 0, countSetHome = 0;
     while (!ctrl_c_pressed)
     {
-
         LOG_SCOPE("Main");
-        sleep(0.01); // We might change this to use a better clock so that the program runs at a constant rate
+        sleep(0.01); // We might change this to use a better clock so that the state machine runs at a constant rate
 
         // Get Sensor Data
         {
@@ -349,9 +342,6 @@ int StartSequence()
 
     actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
 
-    pos_opponent_avg_sum = {0, 0, 0, 0, 0};
-    pos_opponent_avg_count = 0;
-
     // arduino->enableStepper(1);
     // arduino->servoPosition(1,180);
     // arduino->servoPosition(2,0);
@@ -376,6 +366,10 @@ int StartSequence()
 
 void GetLidar()
 {
+    // Averages the position of the opponent over a few scans
+    static position_t pos_opponent_avg_sum = {0, 0, 0, 0, 0};
+    static int pos_opponent_avg_count = 0;
+
     if (getlidarData(lidarData, lidar_count))
     {
         position_t position = tableStatus.robot.pos;

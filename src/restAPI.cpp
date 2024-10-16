@@ -62,9 +62,7 @@ void StartAPIServer(){
     CROW_ROUTE(app, "/get_pos")
     ([](){
         json response;
-        response["x"] = x;
-        response["y"] = y;
-        response["teta"] = teta;
+        response["pos"] = tableStatus.robot.pos;
 
         return crow::response(response.dump(4));
     });
