@@ -53,7 +53,6 @@ typedef struct {
     int count;
 } opponent_detection_blob;
 
-// This works only if the array contains angular data in order from 0 to 360
 bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
     //Creates blobs
     const double max_blob_distance = 30.0; //Max distance between points for them to be in the same blob (mm)
@@ -152,6 +151,7 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
         return false;
 }
 
+//TODO : These can go
 void printLidarAxial(lidarAnalize_t* data, int count){
     for(int i = 0; i< count; i++){
         const char* charMessage = "          ";

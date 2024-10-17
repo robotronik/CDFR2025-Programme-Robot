@@ -19,6 +19,7 @@ typedef struct {
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position,int narrow);
 
 bool position_opponent(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos);
+bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos);
 
 bool collideFordward(lidarAnalize_t* data, int count);
 
