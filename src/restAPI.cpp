@@ -62,9 +62,7 @@ void StartAPIServer(){
     CROW_ROUTE(app, "/get_pos")
     ([](){
         json response;
-        response["x"] = x;
-        response["y"] = y;
-        response["teta"] = teta;
+        response["pos"] = tableStatus.robot.pos;
 
         return crow::response(response.dump(4));
     });
@@ -83,9 +81,6 @@ void StartAPIServer(){
     ([](){
         json response;
         response["status"] = currentState;
-        response["x"] = x;
-        response["y"] = y;
-        response["teta"] = teta;
         response["table"] = tableStatus;
         response["score"] = tableStatus.getScore();
         return crow::response(response.dump(4));
@@ -95,7 +90,15 @@ void StartAPIServer(){
     CROW_ROUTE(app, "/get_lidar")
     ([](){
         json response;
+        
+        json limitedLidarData = json::array();
+
+        // Add the first lidar_count elements to the new array
+        for (int i = 0; i < lidar_count && i < lidarData.size(); ++i) {
+            limitedLidarData.push_back(lidarData[i]);
+        }
         response["data"] = lidarData;
+        //response["count"] = lidar_count;
         return crow::response(response.dump());
     });
 
@@ -108,8 +111,17 @@ void StartAPIServer(){
         // Extract fields
         main_State_t req_state = req_data["state"];
 
+        if (req_state < 0 || req_state > 6){
+            // Denies the POST resquest
+            json response;
+            response["message"] = "Requested state out of borders!";
+
+            // Return the response as JSON
+            return crow::response(400, response.dump(4));
+        }
+
         // Apply the post method
-        currentState = req_state;
+        nextState = req_state;
 
         // Create a response JSON
         json response;
@@ -170,6 +182,24 @@ void StartAPIServer(){
 void StopAPIServer(){
     app.stop();
     LOG_INFO("Stopped API Server");
+}
+
+void TestAPIServer(){
+    // Sets some variable to display them statically
+    tableStatus.init(affichage);
+
+    tableStatus.robot.pos.teta = 45;
+    tableStatus.robot.pos.x = 100;
+    tableStatus.robot.pos.y = 100;
+
+    tableStatus.opponent.x = 300;
+    tableStatus.opponent.y = 300;
+
+    // Wait for program termination
+    while(!ctrl_c_pressed){
+        sleep(1);
+    }
+    StopAPIServer();
 }
 
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "utils.h"
+#include <math.h>
 #include "constante.h"
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -26,10 +27,10 @@ typedef struct {
 typedef struct 
 {
     bool   valid;
-    double   angle;
-    double   dist;
-    int   x;
-    int   y;
+    double angle;
+    double dist;
+    int    x;
+    int    y;
     bool   onTable;
 }lidarAnalize_t;
 
@@ -51,7 +52,8 @@ typedef struct
     int collide;
     //obstacle_t obstacle;
 
-    bool robotHavePlante;// le robot a des plantes
+    int columns_count;
+    int plank_count;
     
 }robot_t;
 

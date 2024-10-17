@@ -11,41 +11,27 @@
 class actionContainer
 {
 private:
-    action* takePlante0droite;
-    action* takePlante0droitebis;
-    action* takePlante1droite;
-    action* takePlante2droite;
-    action* takePlante3droite;
-    action* takePlante4droite;
-    action* takePlante5droite;
+    action* takeStock0;
+    action* takeStock1;
+    action* takeStock2;
+    action* takeStock3;
+    action* takeStock4;
+    action* takeStock5;
+    action* takeStock6;
+    action* takeStock7;
+    action* takeStock8;
+    action* takeStock9;
 
-    action* takePlante0gauche;
-    action* takePlante0gaucheBis;
-    action* takePlante1gauche;
-    action* takePlante2gauche;
-    action* takePlante3gauche;
-    action* takePlante4gauche;
-    action* takePlante5gauche;
-
-    action* putInJardiniere0;
-    action* putInJardiniere1;
-    action* putInJardiniere2;
-    action* putInJardiniere3;
-    action* putInJardiniere4;
-    action* putInJardiniere5;
+    action* putInConstruction0;
+    action* putInConstruction1;
+    action* putInConstruction2;
+    action* putInConstruction3;
+    action* putInConstruction4;
+    action* putInConstruction5;
 
     action * waitFin;
-    action* turnSolarPanelAction;
     action* returnToHomeAction;
     action* currentAction;
-    action* VolZone;
-    action* VolJardiniereBlue;
-    action* VolJardiniereYellow;
-
-    action* pushPotAction0;
-    action* pushPotAction1;
-    action* pushPotAction4;
-    action* pushPotAction5;
 
     CmdAsserv* robot;
     Arduino* arduino;

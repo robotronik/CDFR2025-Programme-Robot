@@ -90,6 +90,9 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int teta){
     return ireturn;
 }
 
+/*
+TODO : Remove
+
 int turnSolarPannel(TableState* itable, CmdAsserv* iAsser,Arduino* arduino){
     LOG_SCOPE("SolarPanel");
     static fsmSolarPanel_t currentState = VITESSEE_INIT;
@@ -420,19 +423,27 @@ bool allStockPlanteUsed(TableState* itable){
     return true;
 }
 
-void resetActionneur(CmdAsserv* iAsser, Arduino* arduino){
-    arduino->servoPosition(1,180);
-    arduino->servoPosition(2,CLAMPSLEEP);
-    arduino->moveStepper(ELEVATORJARDINIERE,1);
-    
+*/
+
+//TODO : Functions to fill in
+int takeStock( CmdAsserv* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone){
+    return 0;
+}
+int construct(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta){
+    return 0;
 }
 
 
 
 
 
-
-
+void resetActionneur(CmdAsserv* iAsser, Arduino* arduino){
+    arduino->servoPosition(1,180);
+    //TODO
+    //arduino->servoPosition(2,CLAMPSLEEP);
+    //arduino->moveStepper(ELEVATORJARDINIERE,1);
+    
+}
 
 
 int returnToHome(TableState* itable,CmdAsserv* iAsser){
@@ -459,19 +470,22 @@ int returnToHome(TableState* itable,CmdAsserv* iAsser){
 }
 
 
-void ennemieInAction(TableState* itable, position_t* position){
+void opponentInAction(TableState* itable, position_t* position){
+    //TODO : Fill this in again
+    /*
+
     double distance;
     for (int i = 0; i < 6; i++){
         distance = sqrt(pow(plantPosition[i].x - position->x,2) + pow(plantPosition[i].y - position->y,2));
         if (distance < rayon[0]) {
             itable->planteStockFull[i].etat = false;
-            LOG_GREEN_INFO("ENNEMIE IN ACTION PLANT :", i, " / x = ", position->x , " / y = ", position->y);
+            LOG_GREEN_INFO("opponent IN ACTION PLANT :", i, " / x = ", position->x , " / y = ", position->y);
         }
     }
     for (int i=3; i<6; i++){
         distance = sqrt(pow(table[i] - position->y,2) + pow(900 - position->x,2));
         if (distance < rayon[1]) {
-            LOG_GREEN_INFO("ENNEMIE IN ACTION SOLAR PANEL:", i, " / x = ", position->x , " / y = ", position->y);
+            LOG_GREEN_INFO("opponent IN ACTION SOLAR PANEL:", i, " / x = ", position->x , " / y = ", position->y);
             itable->panneauSolaireRotate[i].etat = true;
             }
     }
@@ -479,11 +493,14 @@ void ennemieInAction(TableState* itable, position_t* position){
         distance = sqrt(pow(JardinierePosition[i].x - position->x,2) + pow(JardinierePosition[i].y - position->y,2));
         if (distance < rayon[2] && itable->robot.colorTeam != itable->JardiniereFull[i].color){
             itable->JardiniereFull[i].etat == true;
-            LOG_GREEN_INFO("ENNEMIE IN ACTION JARDINIERE :", i, " / x = ", position->x , " / y = ", position->y);
+            LOG_GREEN_INFO("opponent IN ACTION JARDINIERE :", i, " / x = ", position->x , " / y = ", position->y);
         }
     }
+    */
 }
 
+//TODO : Remove
+/*
 int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta){
     LOG_SCOPE("putPlant");
     int ireturn = 0;
@@ -585,4 +602,4 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
     currentState = nextState;
     return ireturn;
 }
-
+*/
