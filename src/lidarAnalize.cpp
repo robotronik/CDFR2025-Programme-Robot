@@ -70,7 +70,7 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
     }
 
     // Iterate through points and create blobs
-    for (int i = 1; i < count; i++) {
+    for (int i = 0; i < count; i++) {
         if (!data[i].onTable){
             if (blobs[blob_idx].count != 0){
                 blob_idx++;
