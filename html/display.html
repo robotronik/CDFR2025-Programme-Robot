@@ -175,7 +175,7 @@
                 { x: -halfSize, y: halfSize },
                 { x: -halfSize, y: -halfSize },
                 { x: halfSize, y: -halfSize },
-                { x: halfSize, y: -halfSize * 0.8 },
+                { x: 0, y: -halfSize * 0.8 },
                 { x: -halfSize, y: -halfSize },
             ];
 
@@ -183,7 +183,7 @@
             const rotatedPoints = points.map(point => {
                 return {
                     x: x + centerX + point.x * Math.cos(angleRad) - point.y * Math.sin(angleRad),
-                    y: y + centerY + point.x * Math.sin(angleRad) + point.y * Math.cos(angleRad)
+                    y: y + centerY - point.x * Math.sin(angleRad) - point.y * Math.cos(angleRad)
                 };
             });
 

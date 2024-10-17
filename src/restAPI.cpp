@@ -94,7 +94,7 @@ void StartAPIServer(){
         json limitedLidarData = json::array();
 
         // Add the first lidar_count elements to the new array
-        for (int i = 0; i < lidar_count && i < lidarData.size(); ++i) {
+        for (int i = 0; i < lidar_count; ++i) {
             limitedLidarData.push_back(lidarData[i]);
         }
         response["data"] = lidarData;
@@ -186,20 +186,13 @@ void StopAPIServer(){
 
 void TestAPIServer(){
     // Sets some variable to display them statically
-    tableStatus.init(affichage);
 
-    tableStatus.robot.pos.teta = 45;
+    tableStatus.robot.pos.teta = 15;
     tableStatus.robot.pos.x = 100;
     tableStatus.robot.pos.y = 100;
 
-    tableStatus.opponent.x = 300;
-    tableStatus.opponent.y = 300;
-
-    // Wait for program termination
-    while(!ctrl_c_pressed){
-        sleep(1);
-    }
-    StopAPIServer();
+    tableStatus.pos_opponent.x = 300;
+    tableStatus.pos_opponent.y = 300;
 }
 
 

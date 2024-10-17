@@ -54,10 +54,6 @@ typedef struct {
 } opponent_detection_blob;
 
 bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
-    //Creates blobs
-    const double max_blob_distance = 30.0; //Max distance between points for them to be in the same blob (mm)
-    const double max_blob_distance_squared = max_blob_distance * max_blob_distance; //For optimisation purposes
-
     opponent_detection_blob blobs[MAX_BLOBS]; // Array to hold detected blobs
     int blob_idx = 0; // Count of detected blobs
 
@@ -110,8 +106,8 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
     opponent_detection_blob* largest_blob = nullptr;
     int max_count = 0; //It can be greater than 0 if we want only a minimum count of points
     for (int j = 0; j <= blob_idx; j++) {
-        if (blobs[j].point_count > max_count) {
-            max_count = blobs[j].point_count;
+        if (blobs[j].count > max_count) {
+            max_count = blobs[j].count;
             largest_blob = &blobs[j];
         }
     }

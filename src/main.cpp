@@ -329,7 +329,13 @@ int StartSequence()
                                     { StartAPIServer(); });
 
 #ifdef TEST_API_ONLY
+    tableStatus.init(affichage);
     TestAPIServer();
+    // Wait for program termination
+    while(!ctrl_c_pressed){
+        sleep(1);
+    }
+    StopAPIServer();
     api_server_thread.join();
     return -1;
 #endif
@@ -383,9 +389,9 @@ void GetLidar()
         position_t position = tableStatus.robot.pos;
         position_t pos_opponent = position;
         convertAngularToAxial(lidarData, lidar_count, &position, -100);
-        init_position_balise(lidarData, lidar_count, &position);
+        //init_position_balise(lidarData, lidar_count, &position);
         convertAngularToAxial(lidarData, lidar_count, &position, 50);
-        if (position_opponent(lidarData, lidar_count, &pos_opponent)){
+        if (position_opponent(lidarData, lidar_count, position, &pos_opponent)){
             pos_opponent_avg_sum.x += pos_opponent.x;
             pos_opponent_avg_sum.y += pos_opponent.y;
             pos_opponent_avg_count++;
@@ -446,7 +452,7 @@ void GetLidarV2()
         position_t position = tableStatus.robot.pos;
         position_t pos_opponent;
         convertAngularToAxial(lidarData, lidar_count, &position, -100);
-        init_position_balise(lidarData, lidar_count, &position);
+        //init_position_balise(lidarData, lidar_count, &position);
         convertAngularToAxial(lidarData, lidar_count, &position, 50);
         //TODO : Validate the newer version
         if (position_opponentV2(lidarData, lidar_count, position, &pos_opponent)){

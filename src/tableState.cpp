@@ -11,7 +11,7 @@ void TableState::init(Affichage* i_affichage)
     pos_opponent.x = 0; pos_opponent.y = 0;
 
     robot.pos = {0, 0, 0, 0, 0};
-    robot.colorTeam = 0;
+    robot.colorTeam = NONE;
 
 
     /* data show must go on*/
