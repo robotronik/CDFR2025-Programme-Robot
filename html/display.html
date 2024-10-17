@@ -128,14 +128,14 @@
 
             // Draw robot
             drawSquare(ctx, data["table"]["robot"]["pos"]["y"], 
-                            -data["table"]["robot"]["pos"]["x"], 
+                            data["table"]["robot"]["pos"]["x"], 
                             250, 
-                            data["table"]["robot"]["pos"]["teta"] - 90);
+                            data["table"]["robot"]["pos"]["teta"]);
 
             // Draw enemy
             ctx.strokeStyle = 'white';
             ctx.beginPath();
-            ctx.arc(data["table"]["pos_opponent"]["y"] + centerX, -data["table"]["pos_opponent"]["x"] + centerY, 150, 0, Math.PI * 2);
+            ctx.arc(data["table"]["pos_opponent"]["y"] + centerX, data["table"]["pos_opponent"]["x"] + centerY, 150, 0, Math.PI * 2);
             ctx.closePath();
             ctx.stroke();
 
@@ -170,13 +170,13 @@
 
             // Calculate corner points relative to the center of the square
             const points = [
+                { x: halfSize, y: -halfSize },
                 { x: halfSize, y: halfSize },
                 { x: -halfSize, y: halfSize },
                 { x: -halfSize, y: -halfSize },
                 { x: halfSize, y: -halfSize },
-                { x: halfSize, y: halfSize },
-                { x: halfSize * 0.8, y: 0 },
-                { x: halfSize, y: -halfSize }
+                { x: halfSize, y: -halfSize * 0.8 },
+                { x: -halfSize, y: -halfSize },
             ];
 
             // Rotate points around the center
