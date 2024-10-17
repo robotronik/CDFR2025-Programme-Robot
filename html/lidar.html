@@ -90,10 +90,10 @@
             //let count = data["count"]; // Get the number of points to process
 
             // Filter valid points and take only the first `count`
-            let validPoints = data["data"].filter(point => point.valid); //.slice(0, count);
+            let validPoints = data["data"]; //.filter(point => point.valid); //.slice(0, count);
 
             validPoints.forEach(point => {
-                ctx.strokeStyle = "green";
+                ctx.strokeStyle = point.valid ? "green" : "red";
                 let A = (point.A - 90) / 180 * Math.PI;
                 let x = point.R * Math.cos(A);
                 let y = point.R * Math.sin(A);
