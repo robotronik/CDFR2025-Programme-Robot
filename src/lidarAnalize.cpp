@@ -19,7 +19,7 @@ void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position
         }
     }
 }
-bool position_opponent(lidarAnalize_t* data, int count, position_t *position){
+bool position_opponent(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
     double som_dist=0,som_angle=0;
     int nb = 0, next_valid;
     for(int i = 0; i < count; i++){        
@@ -32,17 +32,124 @@ bool position_opponent(lidarAnalize_t* data, int count, position_t *position){
             if (fabs(data[i].dist - data[i+next_valid].dist) > 50 || fabs(data[i].angle- data[i+next_valid].angle) > 1){ 
                 if (nb < 2) return false;
                 som_dist += 30*nb;
-                position->x = position->x + som_dist/nb*cos((360 - (int)(som_angle/nb + position->teta)%360 ) *DEG_TO_RAD) + 55*cos(position->teta*DEG_TO_RAD);
-                position->y = position->y + som_dist/nb*sin((360 - (int)(som_angle/nb + position->teta)%360) *DEG_TO_RAD) - 55*sin(position->teta*DEG_TO_RAD);
+                opponent_pos->x = robot_pos.x + som_dist/nb*cos((360 - (int)(som_angle/nb + robot_pos.teta)%360 ) *DEG_TO_RAD) + 55*cos(robot_pos.teta*DEG_TO_RAD);
+                opponent_pos->y = robot_pos.y + som_dist/nb*sin((360 - (int)(som_angle/nb + robot_pos.teta)%360) *DEG_TO_RAD) - 55*sin(robot_pos.teta*DEG_TO_RAD);
                 //LOG_GREEN_INFO("nb ", nb);
                 
                 return true;
             }
         }
     }
-    position->x = position->x + som_dist/nb*cos((som_angle/nb + position->teta)*DEG_TO_RAD) + 55*cos(position->teta*DEG_TO_RAD);
-    position->y = position->y - som_dist/nb*sin((som_angle/nb + position->teta)*DEG_TO_RAD) - 55*sin(position->teta*DEG_TO_RAD);
+    opponent_pos->x = robot_pos.x + som_dist/nb*cos((360 - (int)(som_angle/nb + robot_pos.teta)%360 ) *DEG_TO_RAD) + 55*cos(robot_pos.teta*DEG_TO_RAD);
+    opponent_pos->y = robot_pos.y + som_dist/nb*sin((360 - (int)(som_angle/nb + robot_pos.teta)%360) *DEG_TO_RAD) - 55*sin(robot_pos.teta*DEG_TO_RAD);
     return true; //TODO : Not quite sure of this one
+}
+
+#define MAX_BLOBS 30 // Define the maximum number of blobs
+
+typedef struct {
+    int index_start;
+    int index_stop;
+    int count;
+} opponent_detection_blob;
+
+// This works only if the array contains angular data in order from 0 to 360
+bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
+    //Creates blobs
+    const double max_blob_distance = 30.0; //Max distance between points for them to be in the same blob (mm)
+    const double max_blob_distance_squared = max_blob_distance * max_blob_distance; //For optimisation purposes
+
+    opponent_detection_blob blobs[MAX_BLOBS]; // Array to hold detected blobs
+    int blob_idx = 0; // Count of detected blobs
+
+    // Initialize blobs
+    for (int b = 0; b < MAX_BLOBS; b++) {
+        blobs[b].index_start = 0;
+        blobs[b].index_stop = 0;
+        blobs[b].count = 0;
+    }
+
+    // Iterate through points and create blobs
+    for (int i = 1; i < count; i++) {
+        if (!data[i].onTable){
+            if (blobs[blob_idx].count != 0){
+                blob_idx++;
+                if (blob_idx == MAX_BLOBS){
+                    LOG_WARNING("position_opponentV2 - No more place for more blobs!");
+                    return false;
+                }
+            }
+            continue;
+        }
+
+        if (blobs[blob_idx].count == 0){
+            blobs[blob_idx].index_start = i;
+            blobs[blob_idx].index_stop = i;
+            blobs[blob_idx].count = 1;
+        }
+        else if (fabs(data[i-1].dist - data[i].dist) > 50){ //If two points are further than 50mm then create a new blob
+            blob_idx++;
+            if (blob_idx == MAX_BLOBS){
+                LOG_WARNING("position_opponentV2 - No more place for more blobs!");
+                return false;
+            }
+            blobs[blob_idx].index_start = i;
+            blobs[blob_idx].index_stop = i;
+            blobs[blob_idx].count = 1;
+        }
+        else{ //Add the point to the current blob
+            blobs[blob_idx].index_stop = i;
+            blobs[blob_idx].count ++;
+        }
+    }
+    //Check for the edge case where opponent is right in front
+    if (data[0].onTable && data[count - 1].onTable){
+        blobs[0].index_start = blobs[blob_idx].index_start;
+    }
+
+    // determination of the opponent could be using the bounding box of the blob
+    opponent_detection_blob* largest_blob = nullptr;
+    int max_count = 0; //It can be greater than 0 if we want only a minimum count of points
+    for (int j = 0; j <= blob_idx; j++) {
+        if (blobs[j].point_count > max_count) {
+            max_count = blobs[j].point_count;
+            largest_blob = &blobs[j];
+        }
+    }
+
+    // Update opponent_pos with the centroid of the largest blob, if found
+    if (largest_blob != nullptr) {
+        
+        // Calculate the centroid of the largest blob
+        int pos_sum_x = 0;
+        int pos_sum_y = 0;
+        if (largest_blob->index_stop >= largest_blob->index_start){
+            for (int i = largest_blob->index_start; i <= largest_blob->index_stop; i++){
+                pos_sum_x += data[i].x;
+                pos_sum_y += data[i].y;
+            }
+        }
+        else{
+            // edgecase
+            for (int i = largest_blob->index_start; i < count; i++){
+                pos_sum_x += data[i].x;
+                pos_sum_y += data[i].y;
+            }
+            for (int i = 0; i <= largest_blob->index_stop; i++){
+                pos_sum_x += data[i].x;
+                pos_sum_y += data[i].y;
+            }
+        }
+        opponent_pos->x = pos_sum_x / largest_blob->count;
+        opponent_pos->y = pos_sum_y / largest_blob->count;
+
+        double angle_robot_opponent = atan2(opponent_pos->x - robot_pos.x, opponent_pos->y - robot_pos.y);
+        opponent_pos->x += 15*cos(angle_robot_opponent); //Offset the position my 15mm
+        opponent_pos->y += 15*sin(angle_robot_opponent);
+
+        return true;
+    } else
+        return false;
 }
 
 void printLidarAxial(lidarAnalize_t* data, int count){

@@ -444,11 +444,11 @@ void GetLidarV2()
     if (getlidarData(lidarData, lidar_count))
     {
         position_t position = tableStatus.robot.pos;
-        position_t pos_opponent = position;
+        position_t pos_opponent;
         convertAngularToAxial(lidarData, lidar_count, &position, -100);
         init_position_balise(lidarData, lidar_count, &position);
         convertAngularToAxial(lidarData, lidar_count, &position, 50);
-        if (position_opponent(lidarData, lidar_count, &pos_opponent)){
+        if (position_opponent(lidarData, lidar_count, position, &pos_opponent)){
             // If it's the first reading, initialize the filtered position
             if (first_reading)
             {
