@@ -18,7 +18,8 @@ typedef struct {
 
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position,int narrow);
 
-void position_ennemie(lidarAnalize_t* data, int count, position_t *position);
+bool position_opponent(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos);
+bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos);
 
 bool collideFordward(lidarAnalize_t* data, int count);
 
@@ -29,8 +30,6 @@ int collide(lidarAnalize_t* data, int count ,int distanceStop);
 void printLidarAxial(lidarAnalize_t* data, int count);
 
 void printAngular(lidarAnalize_t* data, int count);
-
-void pixelArtPrint(lidarAnalize_t* data, int count,int sizeX,int sizeY,int scale,position_t position);
 
 double distance_2_pts(double d1,double deg1, double d2, double deg2);
 
