@@ -151,7 +151,8 @@
             ctx.beginPath(); ctx.arc(centerX + 1594, centerY + 950, 20, 0, Math.PI * 2); ctx.fill();
             ctx.beginPath(); ctx.arc(centerX - 1594, centerY - 0, 20, 0, Math.PI * 2); ctx.fill();
 
-
+            //Draws an arrow
+            drawArrow(ctx, 100, 200, 10);
             
             // Draw point in the center
             ctx.fillStyle = 'red';
@@ -189,6 +190,44 @@
 
             ctx.lineWidth = 4;
             ctx.strokeStyle = 'white';
+            // Set line width
+            // Draw the rotated square
+            ctx.beginPath();
+            for (let i = 0; i < rotatedPoints.length; i++) {
+                ctx.lineTo(rotatedPoints[i].x, rotatedPoints[i].y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+        }
+        function drawArrow(ctx, x, y, angleDeg) {
+            // Convert angle from degrees to radians
+            const angleRad = angleDeg * Math.PI / 180;
+
+            const segSize = 50;
+
+            // Points of an arrow pointing downwards
+            const points = [
+                { x: -segSize, y: 0 },
+                { x: segSize, y: 0 },
+                { x: 0, y: 0 },
+                { x: 0, y: segSize },
+                { x: 0, y: -3 * segSize },
+                { x: -segSize, y: -3 * segSize },
+                { x: 0, y: -4 * segSize },
+                { x: segSize, y: -3 * segSize },
+                { x: 0, y: -3 * segSize },
+            ];
+
+            // Rotate points around the center
+            const rotatedPoints = points.map(point => {
+                return {
+                    x: x + centerX + point.x * Math.cos(angleRad) - point.y * Math.sin(angleRad),
+                    y: y + centerY - point.x * Math.sin(angleRad) - point.y * Math.cos(angleRad)
+                };
+            });
+
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = 'red';
             // Set line width
             // Draw the rotated square
             ctx.beginPath();
