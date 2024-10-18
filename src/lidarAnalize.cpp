@@ -53,7 +53,10 @@ typedef struct {
     int count;
 } opponent_detection_blob;
 
+// Dans le pire des cas, on a 0.3% des points qui sont l'ennemi
 bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
+    int min_points = 3 * count / 1000 ; //3% of points to be a good blob
+    LOG_DEBUG("Total lidar point count is ", count, ", minium to be an opponent is ", min_points);
     opponent_detection_blob blobs[MAX_BLOBS]; // Array to hold detected blobs
     int blob_idx = 0; // Count of detected blobs
 
@@ -104,17 +107,16 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
 
     // determination of the opponent could be using the bounding box of the blob
     opponent_detection_blob* largest_blob = nullptr;
-    int max_count = 0; //It can be greater than 0 if we want only a minimum count of points
+    int max_count = min_points;
     for (int j = 0; j <= blob_idx; j++) {
         if (blobs[j].count > max_count) {
             max_count = blobs[j].count;
             largest_blob = &blobs[j];
         }
     }
-
     // Update opponent_pos with the centroid of the largest blob, if found
     if (largest_blob != nullptr) {
-        
+        LOG_DEBUG("Found opponent with ", max_count, " points");
         // Calculate the centroid of the largest blob
         int pos_sum_x = 0;
         int pos_sum_y = 0;
@@ -144,6 +146,7 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
 
         return true;
     } else
+        LOG_DEBUG("Did not find an opponent");
         return false;
 }
 
