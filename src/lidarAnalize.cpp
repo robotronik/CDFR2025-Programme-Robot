@@ -55,7 +55,7 @@ typedef struct {
 
 // Dans le pire des cas, on a 0.3% des points qui sont l'ennemi
 bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
-    int min_points = 3 * count / 1000 ; //3% of points to be a good blob
+    int min_points = 3 * count / 1000 ; //0.3% of points to be a good blob
     LOG_DEBUG("Total lidar point count is ", count, ", minium to be an opponent is ", min_points);
     opponent_detection_blob blobs[MAX_BLOBS]; // Array to hold detected blobs
     int blob_idx = 0; // Count of detected blobs
@@ -70,12 +70,15 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
     // Iterate through points and create blobs
     for (int i = 0; i < count; i++) {
         if (!data[i].onTable){
-            if (blobs[blob_idx].count != 0){
+            if (blobs[blob_idx].count < min_points){
                 blob_idx++;
                 if (blob_idx == MAX_BLOBS){
                     LOG_WARNING("position_opponentV2 - No more place for more blobs!");
                     return false;
                 }
+            }
+            else if (blobs[blob_idx].count > 0){
+                blobs[blob_idx].count = 0;
             }
             continue;
         }
