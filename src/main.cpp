@@ -451,7 +451,7 @@ void GetLidarV2()
     {
         position_t position = tableStatus.robot.pos;
         position_t pos_opponent;
-        convertAngularToAxial(lidarData, lidar_count, &position, -100);
+        //convertAngularToAxial(lidarData, lidar_count, &position, -100);
         //init_position_balise(lidarData, lidar_count, &position);
         convertAngularToAxial(lidarData, lidar_count, &position, 50);
         //TODO : Validate the newer version
