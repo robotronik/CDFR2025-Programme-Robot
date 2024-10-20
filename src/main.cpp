@@ -85,7 +85,9 @@ int main(int argc, char *argv[])
 
             if (currentState != FIN)
             {
+#ifndef DISABLE_LIDAR
                 GetLidar();
+#endif
             }
         }
 
