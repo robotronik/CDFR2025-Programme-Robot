@@ -19,10 +19,10 @@ void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position
         }
     }
 }
-void position_ennemie(lidarAnalize_t* data, int count, position_t *position){
+bool position_opponent(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
     double som_dist=0,som_angle=0;
     int nb = 0, next_valid;
-    for(int i = 0; i <count; i++){        
+    for(int i = 0; i < count; i++){        
         if(data[i].onTable){
             som_angle += data[i].angle;
             som_dist += data[i].dist;
@@ -30,20 +30,130 @@ void position_ennemie(lidarAnalize_t* data, int count, position_t *position){
             next_valid = 1;
             while ((!data[i+next_valid].onTable) && ((i+next_valid) <count-1)) {next_valid++;}
             if (fabs(data[i].dist - data[i+next_valid].dist) > 50 || fabs(data[i].angle- data[i+next_valid].angle) > 1){ 
-                if (nb < 2) return;
+                if (nb < 2) return false;
                 som_dist += 30*nb;
-                position->x = position->x + som_dist/nb*cos((360 - (int)(som_angle/nb + position->teta)%360 ) *DEG_TO_RAD) + 55*cos(position->teta*DEG_TO_RAD);
-                position->y = position->y + som_dist/nb*sin((360 - (int)(som_angle/nb + position->teta)%360) *DEG_TO_RAD) - 55*sin(position->teta*DEG_TO_RAD);
+                opponent_pos->x = robot_pos.x + som_dist/nb*cos((360 - (int)(som_angle/nb + robot_pos.teta)%360 ) *DEG_TO_RAD) + 55*cos(robot_pos.teta*DEG_TO_RAD);
+                opponent_pos->y = robot_pos.y + som_dist/nb*sin((360 - (int)(som_angle/nb + robot_pos.teta)%360) *DEG_TO_RAD) - 55*sin(robot_pos.teta*DEG_TO_RAD);
                 //LOG_GREEN_INFO("nb ", nb);
                 
-                return;
+                return true;
             }
         }
     }
-    position->x = position->x + som_dist/nb*cos((som_angle/nb + position->teta)*DEG_TO_RAD) + 55*cos(position->teta*DEG_TO_RAD);
-    position->y = position->y - som_dist/nb*sin((som_angle/nb + position->teta)*DEG_TO_RAD) - 55*sin(position->teta*DEG_TO_RAD);
+    opponent_pos->x = robot_pos.x + som_dist/nb*cos((360 - (int)(som_angle/nb + robot_pos.teta)%360 ) *DEG_TO_RAD) + 55*cos(robot_pos.teta*DEG_TO_RAD);
+    opponent_pos->y = robot_pos.y + som_dist/nb*sin((360 - (int)(som_angle/nb + robot_pos.teta)%360) *DEG_TO_RAD) - 55*sin(robot_pos.teta*DEG_TO_RAD);
+    return true; //TODO : Not quite sure of this one
+}
+
+#define MAX_BLOBS 30 // Define the maximum number of blobs
+
+typedef struct {
+    int index_start;
+    int index_stop;
+    int count;
+} opponent_detection_blob;
+
+// Dans le pire des cas, on a 0.3% des points qui sont l'ennemi
+bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
+    int min_points = 3 * count / 1000 ; //0.3% of points to be a good blob
+    LOG_DEBUG("Total lidar point count is ", count, ", minium to be an opponent is ", min_points);
+    opponent_detection_blob blobs[MAX_BLOBS]; // Array to hold detected blobs
+    int blob_idx = 0; // Count of detected blobs
+
+    // Initialize blobs
+    for (int b = 0; b < MAX_BLOBS; b++) {
+        blobs[b].index_start = 0;
+        blobs[b].index_stop = 0;
+        blobs[b].count = 0;
     }
 
+    // Iterate through points and create blobs
+    for (int i = 0; i < count; i++) {
+        if (!data[i].onTable){
+            if (blobs[blob_idx].count < min_points){
+                blob_idx++;
+                if (blob_idx == MAX_BLOBS){
+                    LOG_WARNING("position_opponentV2 - No more place for more blobs!");
+                    return false;
+                }
+            }
+            else if (blobs[blob_idx].count > 0){
+                blobs[blob_idx].count = 0;
+            }
+            continue;
+        }
+
+        if (blobs[blob_idx].count == 0){
+            blobs[blob_idx].index_start = i;
+            blobs[blob_idx].index_stop = i;
+            blobs[blob_idx].count = 1;
+        }
+        else if (fabs(data[i-1].dist - data[i].dist) > 50){ //If two points are further than 50mm then create a new blob
+            blob_idx++;
+            if (blob_idx == MAX_BLOBS){
+                LOG_WARNING("position_opponentV2 - No more place for more blobs!");
+                return false;
+            }
+            blobs[blob_idx].index_start = i;
+            blobs[blob_idx].index_stop = i;
+            blobs[blob_idx].count = 1;
+        }
+        else{ //Add the point to the current blob
+            blobs[blob_idx].index_stop = i;
+            blobs[blob_idx].count ++;
+        }
+    }
+    //Check for the edge case where opponent is right in front
+    if (data[0].onTable && data[count - 1].onTable){
+        blobs[0].index_start = blobs[blob_idx].index_start;
+    }
+
+    // determination of the opponent could be using the bounding box of the blob
+    opponent_detection_blob* largest_blob = nullptr;
+    int max_count = min_points;
+    for (int j = 0; j <= blob_idx; j++) {
+        if (blobs[j].count > max_count) {
+            max_count = blobs[j].count;
+            largest_blob = &blobs[j];
+        }
+    }
+    // Update opponent_pos with the centroid of the largest blob, if found
+    if (largest_blob != nullptr) {
+        LOG_DEBUG("Found opponent with ", max_count, " points");
+        // Calculate the centroid of the largest blob
+        int pos_sum_x = 0;
+        int pos_sum_y = 0;
+        if (largest_blob->index_stop >= largest_blob->index_start){
+            for (int i = largest_blob->index_start; i <= largest_blob->index_stop; i++){
+                pos_sum_x += data[i].x;
+                pos_sum_y += data[i].y;
+            }
+        }
+        else{
+            // edgecase
+            for (int i = largest_blob->index_start; i < count; i++){
+                pos_sum_x += data[i].x;
+                pos_sum_y += data[i].y;
+            }
+            for (int i = 0; i <= largest_blob->index_stop; i++){
+                pos_sum_x += data[i].x;
+                pos_sum_y += data[i].y;
+            }
+        }
+        opponent_pos->x = pos_sum_x / largest_blob->count;
+        opponent_pos->y = pos_sum_y / largest_blob->count;
+
+        double angle_robot_opponent = atan2(opponent_pos->x - robot_pos.x, opponent_pos->y - robot_pos.y);
+        opponent_pos->x += 15*cos(angle_robot_opponent); //Offset the position my 15mm
+        opponent_pos->y += 15*sin(angle_robot_opponent);
+
+        return true;
+    } else
+        LOG_DEBUG("Did not find an opponent");
+        return false;
+}
+
+//TODO : These can go
 void printLidarAxial(lidarAnalize_t* data, int count){
     for(int i = 0; i< count; i++){
         const char* charMessage = "          ";
@@ -140,136 +250,6 @@ int collide(lidarAnalize_t* data, int count ,int distanceStop){
     //LOG_DEBUG("Collide : ",iRet);
     // LOG_DEBUG("Prec : ",iRetPre);
     return iRet;
-}
-
-void pixelArtPrint(lidarAnalize_t* data, int count,int sizeX,int sizeY,int scale,position_t position){
-    char* matriceAffichage;
-    matriceAffichage = (char*)malloc(sizeX * sizeY * sizeof(char));
-    
-    //initMatrice
-    for(int i = 0; i<sizeX * sizeY; i++){
-        matriceAffichage[i] = ' ';
-    }
-
-    int posix, posiy;
-    for(int i = 0; i<count; i++){
-        if(data[i].valid == true){
-            posix = data[i].x/scale + sizeX/2;
-            posiy = data[i].y/scale + sizeY/2;
-            if(posix<sizeX && posix>=0 && posiy<sizeY && posiy>=0){
-                if(data[i].onTable)
-                    matriceAffichage[posix + sizeX * posiy] = '*';
-                else
-                    matriceAffichage[posix + sizeX * posiy] = 'X';
-            }                
-            else{
-                if(posix>=sizeX)
-                    posix = sizeX-1;
-                if(posix<0)
-                    posix = 0;
-                if(posiy>=sizeY)
-                    posiy = sizeY-1;
-                if(posiy<0)
-                    posiy = 0;
-                matriceAffichage[posix + sizeX * posiy] = 'W';
-            }
-        }
-    }
-    //fill
-
-    int positionRoboty = position.x/scale + sizeX/2;
-    int positionRobotx = position.y/scale + sizeY/2;
-
-    for(int i = 0; i<sizeX; i++){
-        char chartype = ' ';
-        for(int j = positionRoboty; j<sizeY; j++){
-            int posX = MAP(j,positionRoboty,sizeY,positionRobotx,i);
-            if(matriceAffichage[posX + sizeX * j] != ' '){
-                chartype = matriceAffichage[posX + sizeX * j];
-            }                
-            if(chartype != ' '){
-                matriceAffichage[posX + sizeX * j] = chartype;
-            }
-        }
-    }
-
-    for(int i = 0; i<sizeX; i++){
-        char chartype = ' ';
-        for(int j = positionRoboty; j>=0; j--){
-            int posX = MAP(j,positionRoboty,0,positionRobotx,i);
-            if(matriceAffichage[posX + sizeX * j] != ' '){
-                chartype = matriceAffichage[posX + sizeX * j];
-            }                
-            if(chartype != ' '){
-                matriceAffichage[posX + sizeX * j] = chartype;
-            }
-        }
-    }
-
-
-    for(int j = 0; j<sizeY; j++){
-        char chartype = ' ';
-        for(int i = positionRobotx; i<sizeX; i++){
-            int posY = MAP(i,positionRobotx,sizeX,positionRoboty,j);
-            if(matriceAffichage[i + sizeX * posY] != ' '){
-                chartype = matriceAffichage[i + sizeX * posY];
-            }                
-            if(chartype != ' '){
-                matriceAffichage[i + sizeX * posY] = chartype;
-            }
-        }
-    }
-
-    for(int j = 0; j<sizeY; j++){
-        char chartype = ' ';
-        for(int i = positionRobotx; i>=0; i--){
-            int posY = MAP(i,positionRobotx,0,positionRoboty,j);
-            if(matriceAffichage[i + sizeX * posY] != ' '){
-                chartype = matriceAffichage[i + sizeX * posY];
-            }                
-            if(chartype != ' '){
-                matriceAffichage[i + sizeX * posY] = chartype;
-            }
-        }
-    }
-    
-    //add border
-    int posiyPos, posiyNeg;
-    for(int i = 0; i<sizeX; i+=(sizeX/scale)+1){
-        posix = i;
-        posiyPos = 1600/scale + sizeY/2;
-        posiyNeg = (-1600)/scale + sizeY/2;
-        if(posix < sizeX && posix >= 0 && posiyPos < sizeY && posiyPos >= 0 && posiyNeg < sizeY && posiyNeg >= 0){
-            matriceAffichage[posix + sizeX * posiyPos] = 'Z';
-            matriceAffichage[posix + sizeX * posiyNeg] = 'Z';
-        }
-    }
-    int posixPos, posixNeg;
-    for(int i = 0; i<sizeY; i+=(sizeY/scale)+1){
-        posixNeg = (-1000)/scale + sizeX/2;
-        posixPos = 1000/scale + sizeX/2;
-        posiy = i;
-        if(posixPos < sizeX && posixPos >= 0 && posixNeg < sizeX && posixNeg >= 0  && posiyNeg < sizeY && posiyNeg >= 0){
-            matriceAffichage[posixPos + sizeX * posiy] = 'Z';
-            matriceAffichage[posixNeg + sizeX * posiy] = 'Z';
-        }
-    }
-
-    posix = position.x/scale + sizeX/2;
-    posiy = position.y/scale + sizeY/2;
-    if(posix<sizeX && posix>=0 && posiy<sizeY && posiy>=0)
-        matriceAffichage[posix + sizeX * posiy] = 'O';
-
-    //print
-    for(int x = sizeX-1; x>=0; x--){
-        for(int y = sizeY-1; y>=0; y--){
-            printf("%c%c",matriceAffichage[x + y * sizeX],matriceAffichage[x + y * sizeX]);
-        }
-        printf("\n");
-    }
-
-    free(matriceAffichage);
-
 }
 
 void supprimerElement(element_decord**& array, int& rows, int index) {

@@ -31,6 +31,12 @@ void to_json(json& j, const robot_t& p) {
         {"vit_x", p.vit_x},
         {"vit_y", p.vit_y},
         {"collide", p.collide},
-        {"robotHavePlante", p.robotHavePlante}
+        {"columns_count", p.columns_count},
+        {"plank_count", p.plank_count}
     };
+}
+
+double position_distance(position_t p1, position_t p2){
+    // Calculates the position between the two points
+    return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
 }

@@ -7,7 +7,7 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int teta){
     static fsminitPos_t currentState = SETPOS_INIT;
     fsminitPos_t nextState = currentState;
     int16_t xSave,ySave,tetaSave;
-    static unsigned long startTime;
+    //static unsigned long startTime;
     //static int step = -1;
 
     int TetaStart = -90;
@@ -37,7 +37,7 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int teta){
         iAsser->get_coordinates(xSave,ySave,tetaSave);
         iAsser->set_max_speed_backward(150);
         iAsser->set_max_speed_forward(150);
-        startTime = millis()+100;
+        //startTime = millis()+100;
         nextState = SETPOS_FIRSTFORWARD;
         break;
 
@@ -89,6 +89,9 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int teta){
     currentState = nextState;
     return ireturn;
 }
+
+/*
+TODO : Remove
 
 int turnSolarPannel(TableState* itable, CmdAsserv* iAsser,Arduino* arduino){
     LOG_SCOPE("SolarPanel");
@@ -341,14 +344,14 @@ int jardinierePutPlant(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,in
 
     switch (currentState)
     {
-    //****************************************************************
+    //-------------------------------------------------------------------
     case PUTPLANT_INIT :
         if(initStat) LOG_STATE("PUTPLANT_INIT");
         iAsser->set_max_speed_forward(200);
         iAsser->set_max_speed_backward(200);
         nextState = PUTPLANT_GOBORDER;
         break;
-    //****************************************************************
+    //-------------------------------------------------------------------
     case PUTPLANT_GOBORDER :
         if(initStat) LOG_STATE("PUTPLANT_GOBORDER");
         
@@ -364,7 +367,7 @@ int jardinierePutPlant(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,in
             ireturn = -1;
         }        
         break;
-    //****************************************************************
+    //-------------------------------------------------------------------
     case PUTPLANT_PLACE :
         if(initStat) LOG_STATE("PUTPLANT_PLACE");
         if(releasePlant(arduino)){
@@ -379,7 +382,7 @@ int jardinierePutPlant(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,in
             ireturn = 1;
         }
         break;
-    //****************************************************************    
+    //-------------------------------------------------------------------
     default:
         if(initStat) LOG_ERROR("default");
         nextState = PUTPLANT_INIT;
@@ -420,19 +423,27 @@ bool allStockPlanteUsed(TableState* itable){
     return true;
 }
 
-void resetActionneur(CmdAsserv* iAsser, Arduino* arduino){
-    arduino->servoPosition(1,180);
-    arduino->servoPosition(2,CLAMPSLEEP);
-    arduino->moveStepper(ELEVATORJARDINIERE,1);
-    
+*/
+
+//TODO : Functions to fill in
+int takeStock( CmdAsserv* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone){
+    return 0;
+}
+int construct(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta){
+    return 0;
 }
 
 
 
 
 
-
-
+void resetActionneur(CmdAsserv* iAsser, Arduino* arduino){
+    arduino->servoPosition(1,180);
+    //TODO
+    //arduino->servoPosition(2,CLAMPSLEEP);
+    //arduino->moveStepper(ELEVATORJARDINIERE,1);
+    
+}
 
 
 int returnToHome(TableState* itable,CmdAsserv* iAsser){
@@ -459,19 +470,22 @@ int returnToHome(TableState* itable,CmdAsserv* iAsser){
 }
 
 
-void ennemieInAction(TableState* itable, position_t* position){
+void opponentInAction(TableState* itable, position_t* position){
+    //TODO : Fill this in again
+    /*
+
     double distance;
     for (int i = 0; i < 6; i++){
         distance = sqrt(pow(plantPosition[i].x - position->x,2) + pow(plantPosition[i].y - position->y,2));
         if (distance < rayon[0]) {
             itable->planteStockFull[i].etat = false;
-            LOG_GREEN_INFO("ENNEMIE IN ACTION PLANT :", i, " / x = ", position->x , " / y = ", position->y);
+            LOG_GREEN_INFO("opponent IN ACTION PLANT :", i, " / x = ", position->x , " / y = ", position->y);
         }
     }
     for (int i=3; i<6; i++){
         distance = sqrt(pow(table[i] - position->y,2) + pow(900 - position->x,2));
         if (distance < rayon[1]) {
-            LOG_GREEN_INFO("ENNEMIE IN ACTION SOLAR PANEL:", i, " / x = ", position->x , " / y = ", position->y);
+            LOG_GREEN_INFO("opponent IN ACTION SOLAR PANEL:", i, " / x = ", position->x , " / y = ", position->y);
             itable->panneauSolaireRotate[i].etat = true;
             }
     }
@@ -479,11 +493,14 @@ void ennemieInAction(TableState* itable, position_t* position){
         distance = sqrt(pow(JardinierePosition[i].x - position->x,2) + pow(JardinierePosition[i].y - position->y,2));
         if (distance < rayon[2] && itable->robot.colorTeam != itable->JardiniereFull[i].color){
             itable->JardiniereFull[i].etat == true;
-            LOG_GREEN_INFO("ENNEMIE IN ACTION JARDINIERE :", i, " / x = ", position->x , " / y = ", position->y);
+            LOG_GREEN_INFO("opponent IN ACTION JARDINIERE :", i, " / x = ", position->x , " / y = ", position->y);
         }
     }
+    */
 }
 
+//TODO : Remove
+/*
 int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta){
     LOG_SCOPE("putPlant");
     int ireturn = 0;
@@ -495,7 +512,7 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
 
     switch (currentState)
     {
-    //****************************************************************
+    //-------------------------------------------------------------------
     case VOLPLANT_INIT :
         if(initStat) LOG_STATE("VOLPLANT_INIT");
         iAsser->set_max_speed_backward(200);
@@ -503,7 +520,7 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
         arduino->moveStepper(2000,1);
         nextState = VOLPLANT_GOBORDER;
         break;
-    //****************************************************************
+    //-------------------------------------------------------------------
     case VOLPLANT_GOBORDER :
         if(initStat) LOG_STATE("VOLPLANT_GOBORDER");
         
@@ -519,7 +536,7 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
             ireturn = -1;
         }        
         break;
-    //****************************************************************
+    //-------------------------------------------------------------------
     case VOLPLANT_PLACE :
         if(initStat) LOG_STATE("VOLPLANT_PLACE");
         if(catchPlant2(arduino)){
@@ -532,7 +549,7 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
             
         }
         break;
-    //****************************************************************
+    //-------------------------------------------------------------------
     case VOLPLANT_BACKWARD :
         if (initStat) LOG_STATE("VOLPLANT_BACKWARD");
         deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,x,y-200,teta,CmdAsserv::MOVE_BACKWARD,CmdAsserv::ROTATION_DIRECT);
@@ -547,7 +564,7 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
         }
         break;
 
-    //****************************************************************
+    //-------------------------------------------------------------------
     case VOLPLANT_ZONEFIN :
         if (initStat) LOG_STATE("VOLPLANT_ZONEFIN");
         deplacementreturn = deplacementgoToPoint(itable->robot.collide,iAsser,-200,1250,0,CmdAsserv::MOVE_FORWARD,CmdAsserv::ROTATION_DIRECT);
@@ -559,7 +576,7 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
             ireturn = -1;
         }
         break;
-    //****************************************************************
+    //-------------------------------------------------------------------
     case VOLPLANT_FIN : 
     if (initStat) LOG_STATE("VOLPLANT_FIN");
         if(FastReleasePlant(arduino)){
@@ -571,7 +588,7 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
             ireturn = 1;
         }
         break;
-    //****************************************************************    
+    //-------------------------------------------------------------------
     default:
         if(initStat) LOG_ERROR("default");
         nextState = VOLPLANT_INIT;
@@ -585,4 +602,4 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
     currentState = nextState;
     return ireturn;
 }
-
+*/

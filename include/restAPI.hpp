@@ -4,3 +4,4 @@
 
 void StartAPIServer();
 void StopAPIServer();
+void TestAPIServer();
