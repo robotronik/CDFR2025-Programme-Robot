@@ -9,7 +9,7 @@
 
 enum class LogLevel { DEBUG, INFO, WARNING, ERROR, GREENINFO};
 
-constexpr LogLevel CURRENT_LOG_LEVEL = LogLevel::INFO;
+constexpr LogLevel CURRENT_LOG_LEVEL = LogLevel::DEBUG;
 
 class ScopeLogger {
 private:
