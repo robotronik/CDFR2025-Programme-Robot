@@ -97,7 +97,7 @@ void StartAPIServer(){
         for (int i = 0; i < lidar_count; ++i) {
             limitedLidarData.push_back(lidarData[i]);
         }
-        response["data"] = lidarData;
+        response["data"] = limitedLidarData;
         //response["count"] = lidar_count;
         return crow::response(response.dump());
     });
