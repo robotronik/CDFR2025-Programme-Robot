@@ -333,7 +333,10 @@ int StartSequence()
     TestAPIServer();
     // Wait for program termination
     while(!ctrl_c_pressed){
-        sleep(1);
+        sleep(0.1);
+#ifndef DISABLE_LIDAR
+        getlidarData(lidarData, lidar_count);
+#endif
     }
     StopAPIServer();
     api_server_thread.join();
