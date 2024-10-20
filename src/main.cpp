@@ -308,7 +308,7 @@ int StartSequence(){
 
     tableStatus.init(affichage);
     
-    CmdAsserv *robotI2C = new CmdAsserv(I2C_ASSER_ADDR);
+    robotI2C = new CmdAsserv(I2C_ASSER_ADDR);
     //LOG_SETROBOT(robotI2C);
 
     arduino = new Arduino(I2C_ARDUINO_ADDR);
