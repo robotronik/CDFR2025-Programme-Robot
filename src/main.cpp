@@ -9,6 +9,7 @@
 #include <pigpio.h>
 #include <thread>
 #include <fstream>
+#include <unistd.h>  // for usleep
 
 #include "main.hpp"
 #include "lidarAnalize.h"
