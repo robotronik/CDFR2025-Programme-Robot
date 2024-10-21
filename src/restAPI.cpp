@@ -187,7 +187,7 @@ void StopAPIServer(){
 void TestAPIServer(){
     // Sets some variable to display them statically
 
-    tableStatus.robot.pos.teta = 15;
+    tableStatus.robot.pos.theta = 15;
     tableStatus.robot.pos.x = 100;
     tableStatus.robot.pos.y = 100;
 

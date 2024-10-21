@@ -50,10 +50,10 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
         return construct(itable, iAsser, iarduino, 0, 0, 90);
     });
     putInConstruction0->goodEnd([](TableState*itable,CmdAsserv*irobot){
-        //int16_t x,y,teta;
+        //int16_t x,y,theta;
         //itable->robot.robotHavePlante = false;
         //itable->JardiniereFull[0].etat = true;
-        //irobot->get_coordinates(x,y,teta);
+        //irobot->get_coordinates(x,y,theta);
         //irobot->set_coordinates(x,- 1500 + ROBOT_Y_OFFSET ,90);
         //itable->incrementScore(PLANTE_JARDINIERE);
     });

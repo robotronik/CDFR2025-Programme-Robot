@@ -78,10 +78,10 @@ int main(int argc, char *argv[])
 
         // Get Sensor Data
         {
-            int16_t x, y, teta;
-            robotI2C->get_coordinates(x, y, teta);
-            tableStatus.robot.pos = {x, y, 0, teta, 0};
-            // LOG_GREEN_INFO("X = ", x," Y = ", y, " teta = ", teta);
+            int16_t x, y, theta;
+            robotI2C->get_coordinates(x, y, theta);
+            tableStatus.robot.pos = {x, y, 0, theta, 0};
+            // LOG_GREEN_INFO("X = ", x," Y = ", y, " theta = ", theta);
 
             if (currentState != FIN)
             {

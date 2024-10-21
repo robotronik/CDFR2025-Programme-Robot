@@ -158,23 +158,23 @@ void action::setRunAction(std::function<int(action*, CmdAsserv*, Arduino*, Table
 }
 
 int action::goToStart(void){
-    if(noTetaStart){
+    if(nothetaStart){
         return deplacementgoToPointNoTurn(table->robot.collide, robot, startPostion.x,startPostion.y, startDirection,startRotation);
     }
     else{
-        return deplacementgoToPoint(table->robot.collide, robot, startPostion.x,startPostion.y, startPostion.teta, startDirection);
+        return deplacementgoToPoint(table->robot.collide, robot, startPostion.x,startPostion.y, startPostion.theta, startDirection);
     }    
 }
 
 
 int action::goToEnd(void){
-    return deplacementgoToPoint(table->robot.collide, robot, endPostion.x, endPostion.y, endPostion.teta, endDirection);
+    return deplacementgoToPoint(table->robot.collide, robot, endPostion.x, endPostion.y, endPostion.theta, endDirection);
 }
 
-void action::setStartPoint(int x, int y, int teta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
+void action::setStartPoint(int x, int y, int theta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
     startPostion.x = x;
     startPostion.y = y;
-    startPostion.teta = teta;
+    startPostion.theta = theta;
     startDirection = Direction;
     startRotation = rotation;
 }
@@ -184,13 +184,13 @@ void action::setStartPoint(int x, int y, CmdAsserv::direction Direction, CmdAsse
     startPostion.y = y;
     startDirection = Direction;
     startRotation = rotation;
-    noTetaStart = true;
+    nothetaStart = true;
 }
 
-void action::setEndPoint(int x, int y, int teta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
+void action::setEndPoint(int x, int y, int theta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
     endPostion.x = x;
     endPostion.y = y;
-    endPostion.teta = teta;
+    endPostion.theta = theta;
     endDirection = Direction;
     endRotation = rotation;
     noEndPoint = false;

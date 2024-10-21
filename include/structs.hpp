@@ -10,7 +10,7 @@ typedef struct
     int  x;
     int  y;
     int  dist;
-    int  teta;
+    int  theta;
     int  time;
 }position_t; 
 

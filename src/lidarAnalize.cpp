@@ -5,9 +5,9 @@
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position,int narrow){
     for(int i = 0; i< count; i++){
         if(data[i].valid){
-            data[i].x = data[i].dist*cos(double((data[i].angle + position->teta)*DEG_TO_RAD)) + position->x ;
-            data[i].y = - data[i].dist*sin(double((data[i].angle+position->teta)*DEG_TO_RAD)) + position->y;
-            //if (i%2 && data[i].angle < 90) {LOG_INFO("X = ", data[i].x, "/ Y =",data[i].y, "dist = ", data[i].dist, "/ angle=",data[i].angle, "/ angle=",position->teta);}
+            data[i].x = data[i].dist*cos(double((data[i].angle + position->theta)*DEG_TO_RAD)) + position->x ;
+            data[i].y = - data[i].dist*sin(double((data[i].angle+position->theta)*DEG_TO_RAD)) + position->y;
+            //if (i%2 && data[i].angle < 90) {LOG_INFO("X = ", data[i].x, "/ Y =",data[i].y, "dist = ", data[i].dist, "/ angle=",data[i].angle, "/ angle=",position->theta);}
                 
             //get table valid
             if(data[i].x<1000-narrow && data[i].x>-1000+narrow && data[i].y<1600-narrow && data[i].y>-1600+narrow){
@@ -32,16 +32,16 @@ bool position_opponent(lidarAnalize_t* data, int count, position_t robot_pos, po
             if (fabs(data[i].dist - data[i+next_valid].dist) > 50 || fabs(data[i].angle- data[i+next_valid].angle) > 1){ 
                 if (nb < 2) return false;
                 som_dist += 30*nb;
-                opponent_pos->x = robot_pos.x + som_dist/nb*cos((360 - (int)(som_angle/nb + robot_pos.teta)%360 ) *DEG_TO_RAD) + 55*cos(robot_pos.teta*DEG_TO_RAD);
-                opponent_pos->y = robot_pos.y + som_dist/nb*sin((360 - (int)(som_angle/nb + robot_pos.teta)%360) *DEG_TO_RAD) - 55*sin(robot_pos.teta*DEG_TO_RAD);
+                opponent_pos->x = robot_pos.x + som_dist/nb*cos((360 - (int)(som_angle/nb + robot_pos.theta)%360 ) *DEG_TO_RAD) + 55*cos(robot_pos.theta*DEG_TO_RAD);
+                opponent_pos->y = robot_pos.y + som_dist/nb*sin((360 - (int)(som_angle/nb + robot_pos.theta)%360) *DEG_TO_RAD) - 55*sin(robot_pos.theta*DEG_TO_RAD);
                 //LOG_GREEN_INFO("nb ", nb);
                 
                 return true;
             }
         }
     }
-    opponent_pos->x = robot_pos.x + som_dist/nb*cos((360 - (int)(som_angle/nb + robot_pos.teta)%360 ) *DEG_TO_RAD) + 55*cos(robot_pos.teta*DEG_TO_RAD);
-    opponent_pos->y = robot_pos.y + som_dist/nb*sin((360 - (int)(som_angle/nb + robot_pos.teta)%360) *DEG_TO_RAD) - 55*sin(robot_pos.teta*DEG_TO_RAD);
+    opponent_pos->x = robot_pos.x + som_dist/nb*cos((360 - (int)(som_angle/nb + robot_pos.theta)%360 ) *DEG_TO_RAD) + 55*cos(robot_pos.theta*DEG_TO_RAD);
+    opponent_pos->y = robot_pos.y + som_dist/nb*sin((360 - (int)(som_angle/nb + robot_pos.theta)%360) *DEG_TO_RAD) - 55*sin(robot_pos.theta*DEG_TO_RAD);
     return true; //TODO : Not quite sure of this one
 }
 
@@ -163,7 +163,7 @@ void printLidarAxial(lidarAnalize_t* data, int count){
         if(data[i].onTable){
             charMessage = "non Table ";
         }
-        printf("%s teta : %lf \t x : %d \ty : %d\n",charMessage,data[i].angle,data[i].x,data[i].y);
+        printf("%s theta : %lf \t x : %d \ty : %d\n",charMessage,data[i].angle,data[i].x,data[i].y);
     }
 }
 

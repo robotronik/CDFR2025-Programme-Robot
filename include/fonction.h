@@ -67,7 +67,7 @@ typedef enum {
 } fsminitPos_t;
 
 
-int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int teta);
+int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta);
 int returnToHome(TableState* itable,CmdAsserv* iAsser);
 void resetActionneur(CmdAsserv* iAsser, Arduino* arduino);
 void opponentInAction(TableState* itable, position_t* position);
@@ -76,15 +76,15 @@ void opponentInAction(TableState* itable, position_t* position);
 /*
 int turnSolarPannel(TableState* itable,CmdAsserv* iAsser,Arduino* arduino);
 int takePlant2(CmdAsserv* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone);
-int jardinierePutPlant(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta);
+int jardinierePutPlant(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int theta);
 bool allJardiniereFull(TableState* itable);
 bool DeuxJardiniereFull(TableState* itable);
 bool allStockPlanteUsed(TableState* itable);
-int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta);
+int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int theta);
 */
 //TODO : New functions
 int takeStock(CmdAsserv* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone);
-int construct(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int teta);
+int construct(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int theta);
 
 
 #endif // MYFUNCTION_H
