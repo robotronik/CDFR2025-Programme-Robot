@@ -183,11 +183,11 @@ deploy: check build_arm_lidarLib build_arm_pigpio $(ARM_TARGET) copy_html_arm
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
 
-deploy_tests: check build_arm_lidarLib build_arm_pigpio $(ARM_TEST_TARGET)
+deploy_tests: check build_arm_lidarLib build_arm_pigpio $(ARM_TEST_TARGET) copy_lidar_arm
 	@echo "--------------------------------- Exécution des tests... ---------------------------------"
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
-	ssh $(PI_USER)@$(PI_HOST) '$(PI_DIR)/$(ARM_TEST_TARGET)'
+	ssh $(PI_USER)@$(PI_HOST) '(cd $(PI_DIR)/$(ARMBINDIR) && ./tests)'
 
 run: deploy
 	ssh $(PI_USER)@$(PI_HOST) '$(PI_DIR)/$(ARM_TARGET)'
@@ -214,6 +214,9 @@ copy_html: | $(BINDIR)
 # Rule to copy the HTML directory to the arm bin
 copy_html_arm: | $(ARMBINDIR)
 	cp -r html $(ARMBINDIR)
+# Rule to copy the lidar json directory to the arm bin
+copy_lidar_arm: | $(ARMBINDIR)
+	cp -r tests/lidar $(ARMBINDIR)
 
 
 clean:

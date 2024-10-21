@@ -5,8 +5,8 @@
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position,int narrow){
     for(int i = 0; i< count; i++){
         if(data[i].valid){
-            data[i].x = data[i].dist*cos(double((data[i].angle + position->theta)*DEG_TO_RAD)) + position->x ;
-            data[i].y = - data[i].dist*sin(double((data[i].angle+position->theta)*DEG_TO_RAD)) + position->y;
+            data[i].x = data[i].dist*cos(double((data[i].angle - position->theta)*DEG_TO_RAD)) + position->x ;
+            data[i].y = - data[i].dist*sin(double((data[i].angle-position->theta)*DEG_TO_RAD)) + position->y;
             //if (i%2 && data[i].angle < 90) {LOG_INFO("X = ", data[i].x, "/ Y =",data[i].y, "dist = ", data[i].dist, "/ angle=",data[i].angle, "/ angle=",position->theta);}
                 
             //get table valid
@@ -55,7 +55,7 @@ typedef struct {
 
 // Dans le pire des cas, on a 0.3% des points qui sont l'ennemi
 bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
-    int min_points = 3 * count / 1000 ; //0.3% of points to be a good blob
+    int min_points = 4 ; //4 points to be an opponent
     LOG_DEBUG("Total lidar point count is ", count, ", minium to be an opponent is ", min_points);
     opponent_detection_blob blobs[MAX_BLOBS]; // Array to hold detected blobs
     int blob_idx = 0; // Count of detected blobs
@@ -69,8 +69,10 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
 
     // Iterate through points and create blobs
     for (int i = 0; i < count; i++) {
+        if (!data[i].valid)
+            continue;
         if (!data[i].onTable){
-            if (blobs[blob_idx].count < min_points){
+            if (blobs[blob_idx].count > min_points){
                 blob_idx++;
                 if (blob_idx == MAX_BLOBS){
                     LOG_WARNING("position_opponentV2 - No more place for more blobs!");
@@ -88,7 +90,7 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
             blobs[blob_idx].index_stop = i;
             blobs[blob_idx].count = 1;
         }
-        else if (fabs(data[i-1].dist - data[i].dist) > 50){ //If two points are further than 50mm then create a new blob
+        else if (fabs(data[blobs[blob_idx].index_stop].dist - data[i].dist) > 50){ //If two points are further than 50mm then create a new blob
             blob_idx++;
             if (blob_idx == MAX_BLOBS){
                 LOG_WARNING("position_opponentV2 - No more place for more blobs!");
@@ -125,6 +127,7 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
         int pos_sum_y = 0;
         if (largest_blob->index_stop >= largest_blob->index_start){
             for (int i = largest_blob->index_start; i <= largest_blob->index_stop; i++){
+                if (!data[i].valid) continue;
                 pos_sum_x += data[i].x;
                 pos_sum_y += data[i].y;
             }
@@ -132,10 +135,12 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
         else{
             // edgecase
             for (int i = largest_blob->index_start; i < count; i++){
+                if (!data[i].valid) continue;
                 pos_sum_x += data[i].x;
                 pos_sum_y += data[i].y;
             }
             for (int i = 0; i <= largest_blob->index_stop; i++){
+                if (!data[i].valid) continue;
                 pos_sum_x += data[i].x;
                 pos_sum_y += data[i].y;
             }
