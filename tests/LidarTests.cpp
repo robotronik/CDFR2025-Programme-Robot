@@ -2,13 +2,13 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include "lidarAnalize.h"
-#include "lidar.h"
+//#include "lidar.h"
 #include "structs.hpp"
-#include "constant.h"
+#include "constante.h"
 
-bool run_lidar_opponent_test(const std::string& testName, const std::string& data_file_name, const position_t& robot_pos, const position_t& expected_opponent_pos, const bool& has_opponent);
-bool run_lidar_beacons_test(const std::string& testName, const std::string& data_file_name, const position_t& approx_robot_pos, const position_t& expected_robot_pos);
-int loadLidarJson(const std::string& filename, const lidarAnalize_t* lidarData);
+bool run_lidar_opponent_test(const std::string& testName, const std::string& data_file_name, position_t robot_pos, position_t expected_opponent_pos, bool has_opponent);
+bool run_lidar_beacons_test(const std::string& testName, const std::string& data_file_name, position_t approx_robot_pos, position_t expected_robot_pos);
+int loadLidarJson(const std::string& filename, lidarAnalize_t* lidarData);
 
 bool test_lidar_opponent() {
     position_t robot_pos = {0, 0, 0, 0, 0};
@@ -66,7 +66,7 @@ bool test_lidar_beacons() {
     return true;
 }
 
-bool run_lidar_opponent_test(const std::string& testName, const std::string& data_file_name, const position_t& robot_pos, const position_t& expected_opponent_pos, const bool& has_opponent) {
+bool run_lidar_opponent_test(const std::string& testName, const std::string& data_file_name, position_t robot_pos, position_t expected_opponent_pos, bool has_opponent) {
     lidarAnalize_t lidarData[SIZEDATALIDAR];
     position_t pos_opponent;
     bool test_passed = false;
@@ -80,7 +80,7 @@ bool run_lidar_opponent_test(const std::string& testName, const std::string& dat
         std::cout << testName << " Found opponent_pos\t= {\tx=" << pos_opponent.x << ",\ty=" << pos_opponent.y << " }" << std::endl;
         std::cout << testName << " Expects opponent_pos\t= {\tx=" << expected_opponent_pos.x << ",\ty=" << expected_opponent_pos.y << " }" << std::endl;
         test_passed = std::abs(pos_opponent.x - expected_opponent_pos.x) < tolerance &&
-                    std::abs(pos_opponent.y - expected_opponent_pos.y) < tolerance
+                    std::abs(pos_opponent.y - expected_opponent_pos.y) < tolerance;
     }
     else{        
         std::cout << testName << " Did not find any opponent" << std::endl;
@@ -94,7 +94,7 @@ bool run_lidar_opponent_test(const std::string& testName, const std::string& dat
     }
     return test_passed;
 }
-bool run_lidar_beacons_test(const std::string& testName, const std::string& data_file_name, const position_t& approx_robot_pos, const position_t& expected_robot_pos) {
+bool run_lidar_beacons_test(const std::string& testName, const std::string& data_file_name, position_t approx_robot_pos, position_t expected_robot_pos) {
     lidarAnalize_t lidarData[SIZEDATALIDAR];
     bool test_passed = false;
     int tolerance = 10; //10mm of tolerance on each axis
@@ -110,7 +110,7 @@ bool run_lidar_beacons_test(const std::string& testName, const std::string& data
 
     test_passed = std::abs(robot_pos.x - expected_robot_pos.x) < tolerance &&
                     std::abs(robot_pos.y - expected_robot_pos.y) < tolerance &&
-                    std::abs(robot_pos.theta - expected_robot_pos.theta) < angle_tolerance
+                    std::abs(robot_pos.theta - expected_robot_pos.theta) < angle_tolerance;
 
     std::cout << testName << " Found robot_pos\t= { x=" << robot_pos.x << ",\ty=" << robot_pos.y << ",\ttheta=" << robot_pos.theta <<" }" << std::endl;
     std::cout << testName << " Expects robot_pos\t= { x=" << expected_robot_pos.x << ",\ty=" << expected_robot_pos.y << ",\ttheta=" << expected_robot_pos.theta <<" }" << std::endl;
@@ -124,7 +124,7 @@ bool run_lidar_beacons_test(const std::string& testName, const std::string& data
 }
 
 // Returns lidar count
-int loadLidarJson(const std::string& filename, const lidarAnalize_t* lidarData) {
+int loadLidarJson(const std::string& filename, lidarAnalize_t* lidarData) {
     std::ifstream file(filename);
     nlohmann::json j;
     file >> j;
