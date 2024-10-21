@@ -289,9 +289,9 @@ int main(int argc, char *argv[])
             currentState = nextState;
         }
 
-        // Check if state machine is running below loop time
+        // Check if state machine is running above loop time
         if (millis() > loopStartTime + LOOP_TIME_MS){
-            LOG_WARNING("Loop took more than " , LOOP_TIME_MS, "ms to execute (", (millis() - loopStartTime), "ms)");
+            LOG_WARNING("Loop took more than " , LOOP_TIME_MS, "ms to execute (", (millis() - loopStartTime), " ms)");
         }
         //State machine runs at a constant rate
         while(millis() < loopStartTime + LOOP_TIME_MS){    
