@@ -121,12 +121,7 @@ bool run_lidar_opponent_test(std::string testName, std::string data_file_name, p
         std::cout << testName << " Did not find any opponent" << std::endl;
         test_passed = !has_opponent;
     }
-
-    if (test_passed) {
-        std::cout << testName << " passed!" << std::endl;
-    } else {
-        std::cout << testName << " failed!" << std::endl;
-    }
+    std::cout << testName << (test_passed ? " passed!" : " failed!") << std::endl;
     return test_passed;
 }
 bool run_lidar_beacons_test(std::string testName, std::string data_file_name, position_t approx_robot_pos, position_t expected_robot_pos) {
@@ -143,6 +138,11 @@ bool run_lidar_beacons_test(std::string testName, std::string data_file_name, po
         return false;
 
     convertAngularToAxial(lidarData, lidar_count, &robot_pos, -100);
+
+    //Try method 2
+    position_robot_beacons(lidarData, lidar_count, &robot_pos);
+
+    //Try method 1
     init_position_balise(lidarData, lidar_count, &robot_pos);
 
     test_passed = std::abs(robot_pos.x - expected_robot_pos.x) < tolerance &&
@@ -151,12 +151,7 @@ bool run_lidar_beacons_test(std::string testName, std::string data_file_name, po
 
     std::cout << testName << " Found robot_pos\t= { x=" << robot_pos.x << ",\ty=" << robot_pos.y << ",\ttheta=" << robot_pos.theta <<" }" << std::endl;
     std::cout << testName << " Expects robot_pos\t= { x=" << expected_robot_pos.x << ",\ty=" << expected_robot_pos.y << ",\ttheta=" << expected_robot_pos.theta <<" }" << std::endl;
-
-    if (test_passed) {
-        std::cout << testName << " passed!" << std::endl;
-    } else {
-        std::cout << testName << " failed!" << std::endl;
-    }
+    std::cout << testName << (test_passed ? " passed!" : " failed!") << std::endl;
     return test_passed;
 }
 

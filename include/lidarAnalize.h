@@ -44,3 +44,5 @@ position_float_t position_estime2(double alpha12, double alpha23, double alpha31
 void init_position_balise(lidarAnalize_t* data, int count, position_t *position);
 
 
+// Ludovic Bouchard - beacons v2
+bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *position);
