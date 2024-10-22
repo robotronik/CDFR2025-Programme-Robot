@@ -589,6 +589,12 @@ void blob_delimiter(lidarAnalize_t* data, int count, lidar_blob_detection blob, 
     *diam = 2 * (distance1 > distance2 ? distance1 : distance2);    
 }
 
+// Function to calculate the orthogonal distance from a point to the line
+double orthogonal_distance(double x, double y, double m, double b) {
+    // Line equation: y = mx + b
+    double y_line = m * x + b; // Calculate the y value on the line
+    return fabs(y - y_line) / sqrt(1 + m * m); // Orthogonal distance formula
+}
 
 // The result is local to lidar coordinates. Returns R squared
 double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection blob, double* angle, double* bx, double* by) {
@@ -636,37 +642,34 @@ double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection b
     *bx = sum_x / (double)(blob.count);  // Center of the lines
     *by = sum_y / (double)(blob.count);
 
-    
-    double sum_y_pred = 0, sum_y2 = 0, sum_y_residuals2 = 0;
-    double y_mean;
+    // Calculate orthogonal distances and find the mean
+    double sum_distances = 0.0;
 
-    y_mean = sum_y / blob.count;
 
-    if (blob.index_stop >= blob.index_start){
-        for (int i = blob.index_start; i <= blob.index_stop; i++){
+
+    if (blob.index_stop >= blob.index_start) {
+        for (int i = blob.index_start; i <= blob.index_stop; i++) {
             local_lidar_point_position(data, i, &x, &y);
-            double y_pred = m * x + b;
-            sum_y2 += (y - y_mean) * (y - y_mean);               // Total variance
-            sum_y_residuals2 += (y - y_pred) * (y - y_pred);     // Residual variance
+            double dista = orthogonal_distance(x, y, m, b);
+            sum_distances += dista * dista;
         }
     }
     else{
         // edgecase where blob right in front
         for (int i = blob.index_start; i < count; i++){
             local_lidar_point_position(data, i, &x, &y);
-            double y_pred = m * x + b;
-            sum_y2 += (y - y_mean) * (y - y_mean);               // Total variance
-            sum_y_residuals2 += (y - y_pred) * (y - y_pred);     // Residual variance
+            double dista = orthogonal_distance(x, y, m, b);
+            sum_distances += dista * dista;
         }
         for (int i = 0; i <= blob.index_stop; i++){
             local_lidar_point_position(data, i, &x, &y);
-            double y_pred = m * x + b;
-            sum_y2 += (y - y_mean) * (y - y_mean);               // Total variance
-            sum_y_residuals2 += (y - y_pred) * (y - y_pred);     // Residual variance
+            double dista = orthogonal_distance(x, y, m, b);
+            sum_distances += dista * dista;
         }
     }
+    double mean_distance = sum_distances / blob.count;
 
-    return 1 - (sum_y_residuals2 / sum_y2);  // R-squared
+    return mean_distance;  // R-squared
 }
 
 // transforme le vecteur à 0,0 avec 0deg vers l'espace absolue en se basant sur le vecteur 1 vers 1_prime
@@ -757,10 +760,10 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
 
         // determination of the linearity of the blobs
         double pangle, px, py;
-        double r_squared = linear_regression(data, count, blob, &pangle, &px, &py);
-        LOG_DEBUG("Found a blob with r_squared=", r_squared);
+        double mean_deriv = linear_regression(data, count, blob, &pangle, &px, &py);
+        LOG_DEBUG("Found a blob with a mean_deriv = ", mean_deriv);
 
-        if (r_squared > 0.7){ //TODO Might need to be tweaked
+        if (mean_deriv < 15.0){ //TODO Might need to be tweaked
             if (beacon_idx == BEACONS_COUNT){
                 LOG_WARNING("Too many beacons were found, stopping");
                 return false;
@@ -795,7 +798,7 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
     // The order is important, use the same as the spinning of the lidar
     position_t beacons_real_pos[BEACONS_COUNT];
     beacons_real_pos[0] = {0, 1594, 0, 0, 0}; 
-    beacons_real_pos[1] = {950, -1594, 0, 30, 0}; //TODO : Have the real angle of the beacon
+    beacons_real_pos[1] = {950, -1594, 0, 27, 0}; //TODO : Have the real angle of the beacon
     beacons_real_pos[2] = {-950, -1594, 0, -30, 0};
 
     // We calculate what would be our position for each of the beacons and check the best combo of 3 positions
