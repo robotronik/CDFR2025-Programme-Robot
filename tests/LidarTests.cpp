@@ -20,7 +20,7 @@ bool test_lidar_opponent() {
         robot_pos.theta = 0;
         expected_opponent_pos.x = 340;
         expected_opponent_pos.y = 340;    
-        if (!run_lidar_opponent_test("Lidar Opponent Case 1", "lidar/42cm45degLeft.json", robot_pos, expected_opponent_pos, true))
+        if (!run_lidar_opponent_test("Lidar Opponent Case 1", "lidar/opponent42cm45degLeft.json", robot_pos, expected_opponent_pos, true))
             return false;
     }
 
@@ -31,7 +31,7 @@ bool test_lidar_opponent() {
         robot_pos.theta = 0;
         expected_opponent_pos.x = 300;
         expected_opponent_pos.y = 0;  
-        if (!run_lidar_opponent_test("Lidar Opponent Case 2", "lidar/30cmFront.json", robot_pos, expected_opponent_pos, true))
+        if (!run_lidar_opponent_test("Lidar Opponent Case 2", "lidar/opponent30cmFront.json", robot_pos, expected_opponent_pos, true))
             return false;
     }
 
@@ -41,7 +41,7 @@ bool test_lidar_opponent() {
         robot_pos.x = 0;
         robot_pos.y = 0;
         robot_pos.theta = 0;    
-        if (!run_lidar_opponent_test("Lidar Opponent Case 3", "lidar/none.json", robot_pos, expected_opponent_pos, false))
+        if (!run_lidar_opponent_test("Lidar Opponent Case 3", "lidar/opponentNone.json", robot_pos, expected_opponent_pos, false))
             return false;
     }
 
@@ -52,7 +52,7 @@ bool test_lidar_opponent() {
         robot_pos.theta = 90;
         expected_opponent_pos.x = 200;
         expected_opponent_pos.y = 1350;
-        if (!run_lidar_opponent_test("Lidar Opponent Case 4", "lidar/190cmFront.json", robot_pos, expected_opponent_pos, true))
+        if (!run_lidar_opponent_test("Lidar Opponent Case 4", "lidar/opponent190cmFront.json", robot_pos, expected_opponent_pos, true))
             return false;
     }
 
@@ -63,7 +63,7 @@ bool test_lidar_opponent() {
         robot_pos.theta = 0;
         expected_opponent_pos.x = 0;
         expected_opponent_pos.y = -1500;
-        if (!run_lidar_opponent_test("Lidar Opponent Case 5", "lidar/190cm90degRight.json", robot_pos, expected_opponent_pos, true))
+        if (!run_lidar_opponent_test("Lidar Opponent Case 5", "lidar/opponent190cm90degRight.json", robot_pos, expected_opponent_pos, true))
             return false;
     }
     return true;
@@ -74,13 +74,24 @@ bool test_lidar_beacons() {
     position_t expected_robot_pos = {0, 0, 0, 0, 0};
     // Test 1
     {
-        approx_robot_pos.x = 500;
-        approx_robot_pos.y = -500;
-        approx_robot_pos.theta = 45;  
-        expected_robot_pos.x = 512;
-        expected_robot_pos.y = -508;
-        expected_robot_pos.theta = 47;  
-        if (!run_lidar_beacons_test("Lidar Beacons Case 1", "dataaaa1.json", approx_robot_pos, expected_robot_pos))
+        approx_robot_pos.x = 0;
+        approx_robot_pos.y = 0;
+        approx_robot_pos.theta = 0;  
+        expected_robot_pos.x = 0;
+        expected_robot_pos.y = 0;
+        expected_robot_pos.theta = 0;  
+        if (!run_lidar_beacons_test("Lidar Beacons Case 1", "beaconsCenterBlue.json", approx_robot_pos, expected_robot_pos))
+            return false;
+    }
+    // Test 2
+    {
+        approx_robot_pos.x = -40;
+        approx_robot_pos.y = 0;
+        approx_robot_pos.theta = 0;  
+        expected_robot_pos.x = -40;
+        expected_robot_pos.y = 0;
+        expected_robot_pos.theta = 0;  
+        if (!run_lidar_beacons_test("Lidar Beacons Case 2", "beacons40cmUpBlue.json", approx_robot_pos, expected_robot_pos))
             return false;
     }
 
