@@ -43,7 +43,7 @@ bool position_opponent(lidarAnalize_t* data, int count, position_t robot_pos, po
     return true; //TODO : Not quite sure of this one
 }
 
-#define BLOBS_COUNT 50 // Define the maximum number of blobs
+#define BLOBS_COUNT 200 // Define the maximum number of blobs
 
 typedef struct {
     int index_start;
@@ -85,8 +85,9 @@ int find_blobs(lidarAnalize_t* data, int count, lidar_blob_detection* blobs, int
             blobs[blob_idx].index_stop = i;
             blobs[blob_idx].count = 1;
         }
-        else if (fabs(data[blobs[blob_idx].index_stop].dist - data[i].dist) > max_distance){ //If two points are further than 50mm then create a new blob
-            blob_idx++;
+        else if (fabs(data[blobs[blob_idx].index_stop].dist - data[i].dist) > max_distance || data[i].angle - data[blobs[blob_idx].index_stop].angle > 1.0){ //If two points are further than max_distance then create a new blob
+            if (blobs[blob_idx].count >= min_points)
+                blob_idx++;
             if (blob_idx == BLOBS_COUNT){
                 LOG_WARNING("position_opponentV2 - No more place for more blobs!");
                 return -1;
@@ -208,7 +209,7 @@ bool collideBackward(lidarAnalize_t* data, int count){
     for(int i = 0; i <count; i++){
         bool willCollide = data[i].onTable &&
                         (data[i].angle<(180+30) && data[i].angle>(180-30)) &&
-                        (data[i].dist < 500)
+                        (data[i].dist < 500);
         if (willCollide)
             return true;
     }
@@ -550,13 +551,13 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
 // Ludovic Bouchard - Beacons V2
 
 bool double_in_table(double x, double y){
-    return (x < 1000 && x > -1000 && y > -1500 && y < 1500)
+    return (x < 1000 && x > -1000 && y > -1500 && y < 1500);
 }
 
 // Calculate the local points to lidar. Inverses angle from clockwise to trig
-void local_lidar_point_position(lidarAnalize_t* data, idx, double* x, double* y){
-    *x = data[i].dist * cos((double)(-data[i].angle * DEG_TO_RAD));
-    *y = data[i].dist * sin((double)(-data[i].angle * DEG_TO_RAD));
+void local_lidar_point_position(lidarAnalize_t* data, int idx, double* x, double* y){
+    *x = data[idx].dist * cos((double)(-data[idx].angle * DEG_TO_RAD));
+    *y = data[idx].dist * sin((double)(-data[idx].angle * DEG_TO_RAD));
 }
 
 //Calculate the average diameter of a blob, also returns the dist 
@@ -585,12 +586,12 @@ void blob_delimiter(lidarAnalize_t* data, int count, lidar_blob_detection blob, 
     double distance1 = distance_2_pts(*dist, *angle, data[blob.index_start].dist, min_a);
     double distance2 = distance_2_pts(*dist, *angle, data[blob.index_stop].dist, max_a);
 
-    *diam = distance1 > distance2 ? distance1 : distance2;    
+    *diam = 2 * (distance1 > distance2 ? distance1 : distance2);    
 }
 
 
 // The result is local to lidar coordinates. Returns R squared
-double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection blob, double* angle, double* x, double* y) {
+double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection blob, double* angle, double* bx, double* by) {
     double sum_x = 0, sum_y = 0, sum_xy = 0, sum_x2 = 0;
     double x, y;
 
@@ -600,7 +601,7 @@ double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection b
             sum_x += x;
             sum_y += y;
             sum_xy += x * y;
-            sum_x2 += x * y;
+            sum_x2 += x * x;
         }
     }
     else{
@@ -610,14 +611,14 @@ double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection b
             sum_x += x;
             sum_y += y;
             sum_xy += x * y;
-            sum_x2 += x * y;
+            sum_x2 += x * x;
         }
         for (int i = 0; i <= blob.index_stop; i++){
             local_lidar_point_position(data, i, &x, &y);
             sum_x += x;
             sum_y += y;
             sum_xy += x * y;
-            sum_x2 += x * y;
+            sum_x2 += x * x;
         }
     }
 
@@ -630,10 +631,10 @@ double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection b
     double m = (blob.count * sum_xy - sum_x * sum_y) / denominator;
     double b = (sum_y * sum_x2 - sum_x * sum_xy) / denominator;
 
-    *angle = atan(m) * (180.0 / M_PI);  // Angle of the line in degrees, -90 to 90
+    *angle = atan(m) * RAD_TO_DEG;  // Angle of the line in degrees, -90 to 90
 
-    *x = sum_x / (double)(blob.count);  // Center of the lines
-    *y = sum_y / (double)(blob.count);
+    *bx = sum_x / (double)(blob.count);  // Center of the lines
+    *by = sum_y / (double)(blob.count);
 
     
     double sum_y_pred = 0, sum_y2 = 0, sum_y_residuals2 = 0;
@@ -641,66 +642,101 @@ double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection b
 
     y_mean = sum_y / blob.count;
 
-    for (int i = 0; i < n; i++) {
-        double y_pred = m * x[i] + b;
-        sum_y2 += (y[i] - y_mean) * (y[i] - y_mean);               // Total variance
-        sum_y_residuals2 += (y[i] - y_pred) * (y[i] - y_pred);     // Residual variance
+    if (blob.index_stop >= blob.index_start){
+        for (int i = blob.index_start; i <= blob.index_stop; i++){
+            local_lidar_point_position(data, i, &x, &y);
+            double y_pred = m * x + b;
+            sum_y2 += (y - y_mean) * (y - y_mean);               // Total variance
+            sum_y_residuals2 += (y - y_pred) * (y - y_pred);     // Residual variance
+        }
+    }
+    else{
+        // edgecase where blob right in front
+        for (int i = blob.index_start; i < count; i++){
+            local_lidar_point_position(data, i, &x, &y);
+            double y_pred = m * x + b;
+            sum_y2 += (y - y_mean) * (y - y_mean);               // Total variance
+            sum_y_residuals2 += (y - y_pred) * (y - y_pred);     // Residual variance
+        }
+        for (int i = 0; i <= blob.index_stop; i++){
+            local_lidar_point_position(data, i, &x, &y);
+            double y_pred = m * x + b;
+            sum_y2 += (y - y_mean) * (y - y_mean);               // Total variance
+            sum_y_residuals2 += (y - y_pred) * (y - y_pred);     // Residual variance
+        }
     }
 
     return 1 - (sum_y_residuals2 / sum_y2);  // R-squared
 }
 
 // transforme le vecteur à 0,0 avec 0deg vers l'espace absolue en se basant sur le vecteur 1 vers 1_prime
-void transform_coordinates(double x1, double y1, double theta1, double x1_prime, double y1_prime, double theta1_prime, double* x, double* y, double* theta){
+// returns true if inside the table
+bool transform_coordinates(double x1, double y1, double theta1, double x1_prime, double y1_prime, double theta1_prime, double* x, double* y, double* theta){
     // Convert angles from degrees
-    theta1 = theta1*DEG_TO_RAD;
-    theta1_prime = theta1_prime*DEG_TO_RAD;
-    double theta_prime = theta1_prime - theta1;
+    *theta = (theta1_prime - theta1);
+    double theta_rad = *theta * DEG_TO_RAD;
 
     // Calculate the absolute coordinates
-    *x = - x1 * cos(theta_prime) + y1 * sin(theta_prime) + x1_prime;
-    *y = - x1 * sin(theta_prime) - y1 * cos(theta_prime) + y1_prime;
-    // Convert the angle back to degrees
-    *theta = theta_prime*RAD_TO_DEG;
+    *x = - x1 * cos(theta_rad) + y1 * sin(theta_rad) + x1_prime;
+    *y = - x1 * sin(theta_rad) - y1 * cos(theta_rad) + y1_prime;
 
-    if (double_in_table(*x,*y)) return;
+    if (double_in_table(*x,*y)) return true;
 
-    //Theres two possibility of position, so rotate the vector by pi
-    theta_prime -= M_PI;
+    //Theres two possibility of position, so rotate the vector by 180 degs
+    *theta -= 180;
+    theta_rad = *theta * DEG_TO_RAD;
     
     // Calculate the absolute coordinates
-    *x = - x1 * cos(theta_prime) + y1 * sin(theta_prime) + x1_prime;
-    *y = - x1 * sin(theta_prime) - y1 * cos(theta_prime) + y1_prime;
-    // Convert the angle back to degrees
-    *theta = theta_prime*RAD_TO_DEG;
+    *x = - x1 * cos(theta_rad) + y1 * sin(theta_rad) + x1_prime;
+    *y = - x1 * sin(theta_rad) - y1 * cos(theta_rad) + y1_prime;
 
-    if (double_in_table(*x,*y)) return;
+    if (double_in_table(*x,*y)) return true;
 
-    LOG_ERROR("transform_coordinates - Something wrong happened, robot is outside of table");
+    // Robot is not inside the table
+    return false;
 }
 
 
 bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *position){
+
+    // Propagate exterior points
+    // 120mm safe zone around beacons
+    for (int i = 0; i < count; i++) data[i].onTable = true;
+    for (int i = 0; i < count; i++){
+        if (data[i].onTable && data[i].dist > 3600){
+            data[i].onTable = false;
+            int backtrack = i - 1;
+            //Backtrack until i = 0 or that the seperation is too big
+            while(backtrack >= 0 && data[backtrack].onTable){
+                if (fabs(data[backtrack].dist - data[backtrack + 1].dist) > 120.0 || data[backtrack + 1].angle - data[backtrack].angle > 1.0){
+                    break;
+                }
+                data[backtrack].onTable = false;
+                backtrack--;
+            }
+            //Forward until i = count or that the seperation is too big
+            int forwtrack = i + 1;
+            while(forwtrack < count && data[forwtrack].onTable){
+                if (fabs(data[forwtrack].dist - data[forwtrack - 1].dist) > 120.0 || data[forwtrack].angle - data[forwtrack - 1].angle > 1.0){
+                    break;
+                }
+                data[forwtrack].onTable = false;
+                forwtrack++;
+            }
+        }
+    }
+
     lidar_blob_detection blobs[BLOBS_COUNT]; // Array to hold detected blobs
-    int min_points = 4 ; //4 points min to be a beacon
+    int min_points = 6 ; //6 points min to be a beacon
     int max_distance = 20; //20mm to be a different blob
-    int blob_count = find_blobs(data, count, blobs, min_points, max_distance) + 1;
+    int blob_count = find_blobs(data, count, blobs, min_points, max_distance);
 
 #define BEACONS_COUNT 3
 
     if (blob_count < BEACONS_COUNT){
+        LOG_DEBUG("Found ", blob_count, " blobs");
         return false;
     }
-
-    // Definition of blue beacons
-    // 0:Right, 1:BottomLeft 2:TopLeft   - when looking at public perspective
-    // The order is important, use the same as the spinning of the lidar
-    position_t beacons_real_pos[BEACONS_COUNT];
-    beacons_real_pos[0] = {0, 1594, 0, 90, 0}; 
-    beacons_real_pos[1] = {950, -1594, 0, 30, 0}; //TODO : Have the real angle of the beacon
-    beacons_real_pos[2] = {-950, -1594, 0, -30, 0};
-
-
 
     lidar_blob_detection* beacons_blobs[BEACONS_COUNT];
     // Relative to the lidar
@@ -716,20 +752,31 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
         // determination of the blob size
         double diam, dist, angle;
         blob_delimiter(data, count, blob, &diam, &dist, &angle);
-        if (diam > 200) continue;
+        if (diam > 120 || diam < 92) continue; //TODO Might need to be tweaked
+        LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", data[blob.index_start].angle, " degrees ", data[blob.index_start].dist, "mm far");
 
         // determination of the linearity of the blobs
-        double r_squared = linear_regression(data, count, blob, &beacons_angles[beacon_idx], &beacons_pos_x[beacon_idx], &beacons_pos_y[beacon_idx]);
+        double pangle, px, py;
+        double r_squared = linear_regression(data, count, blob, &pangle, &px, &py);
         LOG_DEBUG("Found a blob with r_squared=", r_squared);
 
-        if (r_squared > 0.95){
+        if (r_squared > 0.7){ //TODO Might need to be tweaked
+            if (beacon_idx == BEACONS_COUNT){
+                LOG_WARNING("Too many beacons were found, stopping");
+                return false;
+            }
+            beacons_angles[beacon_idx] = pangle;
+            beacons_pos_x[beacon_idx] = px;
+            beacons_pos_y[beacon_idx] = py;
+
             LOG_DEBUG("Beacon ", beacon_idx, " is relative to lidar at\tx=", beacons_pos_x[beacon_idx], "\ty=", beacons_pos_y[beacon_idx], "\ttheta=", beacons_angles[beacon_idx], " degs");
             beacons_blobs[beacon_idx] = &blobs[j];
             // Blob considered as beacon
             beacon_idx++;
             if (beacon_idx == BEACONS_COUNT)
-                break; //We conclude that we have found the 3 beacons
+                LOG_DEBUG("search for beacons : ", BEACONS_COUNT, " are found");
         }
+        LOG_DEBUG("");
     }
     if (beacon_idx != BEACONS_COUNT){
         LOG_DEBUG("Did not find the ", BEACONS_COUNT, " beacons");
@@ -740,16 +787,27 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
     double robot_pos_x[BEACONS_COUNT*BEACONS_COUNT];
     double robot_pos_y[BEACONS_COUNT*BEACONS_COUNT];
     double robot_angles[BEACONS_COUNT*BEACONS_COUNT];
+    bool robot_ins_table[BEACONS_COUNT*BEACONS_COUNT];
+
+
+    // Definition of blue beacons
+    // 0:Right, 1:BottomLeft 2:TopLeft   - when looking at public perspective
+    // The order is important, use the same as the spinning of the lidar
+    position_t beacons_real_pos[BEACONS_COUNT];
+    beacons_real_pos[0] = {0, 1594, 0, 0, 0}; 
+    beacons_real_pos[1] = {950, -1594, 0, 30, 0}; //TODO : Have the real angle of the beacon
+    beacons_real_pos[2] = {-950, -1594, 0, -30, 0};
 
     // We calculate what would be our position for each of the beacons and check the best combo of 3 positions
     for (int i = 0; i < BEACONS_COUNT; i++) { // Iterate blobs
         lidar_blob_detection blob = *beacons_blobs[i];
         for (int j = 0; j < BEACONS_COUNT; j++) { //Iterate real beacons
             int idx = i * BEACONS_COUNT + j;
-            transform_coordinates(beacons_pos_x[i], beacons_pos_y[i], beacons_angles[i], 
+            robot_ins_table[idx] = transform_coordinates(beacons_pos_x[i], beacons_pos_y[i], beacons_angles[i], 
                                 (double)beacons_real_pos[j].x, (double)beacons_real_pos[j].y, (double)beacons_real_pos[j].theta, 
                                 &robot_pos_x[idx], &robot_pos_y[idx], &robot_angles[idx]);
-            LOG_DEBUG("Beacon ", i, "relative to beacon ", j, " could be at\tx=", robot_pos_x[idx], "\ty=", robot_pos_y[idx], "\ttheta=", robot_angles[idx], " degs");
+            if (robot_ins_table[idx])
+                LOG_DEBUG("Beacon ", i, " relative to beacon ", j, " could be at\tx=", robot_pos_x[idx], "\ty=", robot_pos_y[idx], "\ttheta=", robot_angles[idx], " degs");
         }
     }
 

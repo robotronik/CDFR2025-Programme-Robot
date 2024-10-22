@@ -80,18 +80,18 @@ bool test_lidar_beacons() {
         expected_robot_pos.x = 0;
         expected_robot_pos.y = 0;
         expected_robot_pos.theta = 0;  
-        if (!run_lidar_beacons_test("Lidar Beacons Case 1", "beaconsCenterBlue.json", approx_robot_pos, expected_robot_pos))
+        if (!run_lidar_beacons_test("Lidar Beacons Case 1", "lidar/beaconsCenterBlue.json", approx_robot_pos, expected_robot_pos))
             return false;
     }
     // Test 2
     {
-        approx_robot_pos.x = -40;
+        approx_robot_pos.x = -400;
         approx_robot_pos.y = 0;
         approx_robot_pos.theta = 0;  
-        expected_robot_pos.x = -40;
+        expected_robot_pos.x = -400;
         expected_robot_pos.y = 0;
         expected_robot_pos.theta = 0;  
-        if (!run_lidar_beacons_test("Lidar Beacons Case 2", "beacons40cmUpBlue.json", approx_robot_pos, expected_robot_pos))
+        if (!run_lidar_beacons_test("Lidar Beacons Case 2", "lidar/beacons40cmUpBlue.json", approx_robot_pos, expected_robot_pos))
             return false;
     }
 
@@ -137,11 +137,10 @@ bool run_lidar_beacons_test(std::string testName, std::string data_file_name, po
     if (lidar_count < 0)
         return false;
 
-    convertAngularToAxial(lidarData, lidar_count, &robot_pos, -100);
-
     //Try method 2
     position_robot_beacons(lidarData, lidar_count, &robot_pos);
 
+    convertAngularToAxial(lidarData, lidar_count, &robot_pos, -100);
     //Try method 1
     init_position_balise(lidarData, lidar_count, &robot_pos);
 
@@ -189,10 +188,11 @@ int loadLidarJson(std::string filename, lidarAnalize_t* lidarData) {
         }
 
         // Check if required fields are present and valid
-        if (item.contains("valid"))
+        if (item.contains("valid")){
             bool valid = item["valid"].get<bool>();
             if (!valid)
                 continue;
+        }
         if (item.contains("A") && item.contains("R")) {
             lidarAnalize_t point;
             point.angle = item["A"].get<float>();
@@ -202,7 +202,6 @@ int loadLidarJson(std::string filename, lidarAnalize_t* lidarData) {
         } else {
             std::cerr << "Warning: Missing required fields in data item." << std::endl;
         }
-    }
-    
+    }    
     return lidar_count; // Return the count of loaded lidar data
 }
