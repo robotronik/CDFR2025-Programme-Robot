@@ -14,7 +14,6 @@ void to_json(json& j, const position_t& p) {
 // Define serialization for lidarAnalize_t
 void to_json(json& j, const lidarAnalize_t& p) {
     j = json{
-        {"valid", p.valid},
         {"A", p.angle},
         {"R", p.dist},
         //{"x", p.x},

@@ -183,9 +183,12 @@ int loadLidarJson(std::string filename, lidarAnalize_t* lidarData) {
         }
 
         // Check if required fields are present and valid
-        if (item.contains("valid") && item.contains("A") && item.contains("R")) {
+        if (item.contains("valid"))
+            bool valid = item["valid"].get<bool>();
+            if (!valid)
+                continue;
+        if (item.contains("A") && item.contains("R")) {
             lidarAnalize_t point;
-            point.valid = item["valid"].get<bool>();
             point.angle = item["A"].get<float>();
             point.dist = item["R"].get<float>();
             lidarData[lidar_count] = point;

@@ -26,7 +26,6 @@ typedef struct {
 
 typedef struct 
 {
-    bool   valid;
     double angle;
     double dist;
     int    x;

@@ -4,19 +4,16 @@
 
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position,int narrow){
     for(int i = 0; i< count; i++){
-        if(data[i].valid){
-            data[i].x = data[i].dist*cos(double((data[i].angle - position->theta)*DEG_TO_RAD)) + position->x ;
-            data[i].y = - data[i].dist*sin(double((data[i].angle-position->theta)*DEG_TO_RAD)) + position->y;
-            //if (i%2 && data[i].angle < 90) {LOG_INFO("X = ", data[i].x, "/ Y =",data[i].y, "dist = ", data[i].dist, "/ angle=",data[i].angle, "/ angle=",position->theta);}
-                
-            //get table valid
-            if(data[i].x<1000-narrow && data[i].x>-1000+narrow && data[i].y<1600-narrow && data[i].y>-1600+narrow){
-                //LOG_INFO("X = ", data[i].x, "/ Y =",data[i].y, "dist = ", data[i].dist, "/ angle=",data[i].angle);
-                //printf("\nx = %i / y = %i / in ? = %i",data[i].x, data[i].y, data[i].x<1100 && data[i].x>-1100 && data[i].y<1700 && data[i].y>-1700);
-                data[i].onTable = true;}
-            else{data[i].onTable = false;}
+        data[i].x = data[i].dist*cos(double((data[i].angle - position->theta)*DEG_TO_RAD)) + position->x ;
+        data[i].y = - data[i].dist*sin(double((data[i].angle-position->theta)*DEG_TO_RAD)) + position->y;
+        //if (i%2 && data[i].angle < 90) {LOG_INFO("X = ", data[i].x, "/ Y =",data[i].y, "dist = ", data[i].dist, "/ angle=",data[i].angle, "/ angle=",position->theta);}
             
-        }
+        //get table valid
+        if(data[i].x<1000-narrow && data[i].x>-1000+narrow && data[i].y<1600-narrow && data[i].y>-1600+narrow){
+            //LOG_INFO("X = ", data[i].x, "/ Y =",data[i].y, "dist = ", data[i].dist, "/ angle=",data[i].angle);
+            //printf("\nx = %i / y = %i / in ? = %i",data[i].x, data[i].y, data[i].x<1100 && data[i].x>-1100 && data[i].y<1700 && data[i].y>-1700);
+            data[i].onTable = true;}
+        else{data[i].onTable = false;}
     }
 }
 bool position_opponent(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
@@ -69,8 +66,6 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
 
     // Iterate through points and create blobs
     for (int i = 0; i < count; i++) {
-        if (!data[i].valid)
-            continue;
         if (!data[i].onTable){
             if (blobs[blob_idx].count > min_points){
                 blob_idx++;
@@ -127,7 +122,6 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
         int pos_sum_y = 0;
         if (largest_blob->index_stop >= largest_blob->index_start){
             for (int i = largest_blob->index_start; i <= largest_blob->index_stop; i++){
-                if (!data[i].valid) continue;
                 pos_sum_x += data[i].x;
                 pos_sum_y += data[i].y;
             }
@@ -135,12 +129,10 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
         else{
             // edgecase
             for (int i = largest_blob->index_start; i < count; i++){
-                if (!data[i].valid) continue;
                 pos_sum_x += data[i].x;
                 pos_sum_y += data[i].y;
             }
             for (int i = 0; i <= largest_blob->index_stop; i++){
-                if (!data[i].valid) continue;
                 pos_sum_x += data[i].x;
                 pos_sum_y += data[i].y;
             }
@@ -162,9 +154,6 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
 void printLidarAxial(lidarAnalize_t* data, int count){
     for(int i = 0; i< count; i++){
         const char* charMessage = "          ";
-        if(!data[i].valid){
-            charMessage = "non Valide";
-        }
         if(data[i].onTable){
             charMessage = "non Table ";
         }
@@ -174,12 +163,7 @@ void printLidarAxial(lidarAnalize_t* data, int count){
 
 void printAngular(lidarAnalize_t* data, int count){
     for(int i = 0; i< count; i++){
-        if(data[i].valid){
-            printf("theta: %03.2f \tDist: %08.2f\n",data[i].angle,data[i].dist);
-        }
-        else{
-            printf("non valid\n");
-        }
+        printf("theta: %03.2f \tDist: %08.2f\n",data[i].angle,data[i].dist);
     }
 }
 
@@ -196,22 +180,22 @@ void maxDistance(lidarAnalize_t* data, int count,int& maxX, int maxY){
 
 bool collideFordward(lidarAnalize_t* data, int count){
     for(int i = 0; i <count; i++){
-        if(data[i].valid && data[i].onTable)
-            if(data[i].angle <30 || data[i].angle>(360-30))
-                if(data[i].dist < 500){
-                    return true;
-                }
+        bool willCollide = data[i].onTable &&
+                        (data[i].angle <30 || data[i].angle>(360-30)) &&
+                        (data[i].dist < 500);
+        if (willCollide) 
+            return true;
     }
     return false;
 }
 
 bool collideBackward(lidarAnalize_t* data, int count){
     for(int i = 0; i <count; i++){
-        if(data[i].valid && data[i].onTable)
-            if(data[i].angle<(180+30) && data[i].angle>(180-30))
-                if(data[i].dist < 500){
-                    return true;
-                }
+        bool willCollide = data[i].onTable &&
+                        (data[i].angle<(180+30) && data[i].angle>(180-30)) &&
+                        (data[i].dist < 500)
+        if (willCollide)
+            return true;
     }
     return false;
 }
@@ -234,19 +218,18 @@ int collide(lidarAnalize_t* data, int count ,int distanceStop){
 
     int iRet = 12000; //maximum capation distance for lidar
     for(int i = 0; i <count; i++){
-        if(data[i].valid && data[i].onTable){    
-            if(distanceStop >= 0){
-                if(data[i].angle <45 || data[i].angle>(360-45)){
-                    if(data[i].dist-distanceStop < iRet){
-                        iRet = data[i].dist-distanceStop;
-                    }
+        if (!data[i].onTable) continue;
+        if(distanceStop >= 0){
+            if(data[i].angle <45 || data[i].angle>(360-45)){
+                if(data[i].dist-distanceStop < iRet){
+                    iRet = data[i].dist-distanceStop;
                 }
             }
-            else{
-                if(data[i].angle<(180+45) && data[i].angle>(180-45)){
-                    if(data[i].dist+distanceStop < iRet){
-                        iRet = data[i].dist+distanceStop;
-                    }
+        }
+        else{
+            if(data[i].angle<(180+45) && data[i].angle>(180-45)){
+                if(data[i].dist+distanceStop < iRet){
+                    iRet = data[i].dist+distanceStop;
                 }
             }
         }

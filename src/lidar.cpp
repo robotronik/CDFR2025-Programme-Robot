@@ -93,14 +93,16 @@ bool getlidarData(lidarAnalize_t* data, int& countdata){
     if (SL_IS_OK(op_result)) {
         drv->ascendScanData(nodes, count);
         int pos;
+        countdata = 0;
         for (pos = 0; pos < (int)count; ++pos) {
-            data[pos].onTable = 0;
-            //data[pos].valid = 0;
-            data[pos].valid = (nodes[pos].quality >> SL_LIDAR_RESP_MEASUREMENT_QUALITY_SHIFT) != 0;
-            data[pos].dist = nodes[pos].dist_mm_q2/4.0f;
-            data[pos].angle = (nodes[pos].angle_z_q14 * 90.f) / 16384.f;
+            bool valid = (nodes[pos].quality >> SL_LIDAR_RESP_MEASUREMENT_QUALITY_SHIFT) != 0;
+            if (valid){
+                data[countdata].onTable = 0;
+                data[countdata].dist = nodes[pos].dist_mm_q2/4.0f;
+                data[countdata].angle = (nodes[pos].angle_z_q14 * 90.f) / 16384.f;
+                countdata++;
+            }
         }
-        countdata = pos;
     }
     return SL_IS_OK(op_result);
 }
