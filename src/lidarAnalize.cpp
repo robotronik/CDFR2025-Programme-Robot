@@ -601,8 +601,11 @@ double average_angles(double angles[], int count) {
     return avg_angle;
 }
 
-bool double_in_table(double x, double y){
-    return (x < 1000 && x > -1000 && y > -1500 && y < 1500);
+bool double_in_table(double x, double y, double robot_padding){
+    return (x < 1000.0 - robot_padding &&
+        x > -1000.0 + robot_padding &&
+        y > -1500.0 + robot_padding &&
+        y < 1500.0 - robot_padding);
 }
 
 // Calculate the local points to lidar. Inverses angle from clockwise to trig
@@ -734,7 +737,8 @@ bool transform_coordinates(double x1, double y1, double theta1, double x1_prime,
     *x = - x1 * cos(theta_rad) + y1 * sin(theta_rad) + x1_prime;
     *y = - x1 * sin(theta_rad) - y1 * cos(theta_rad) + y1_prime;
 
-    if (double_in_table(*x,*y)) return true;
+    // Padding in mm (Bit less than half of the robot size)
+    if (double_in_table(*x,*y, 100.0)) return true;
 
     //Theres two possibility of position, so rotate the vector by 180 degs
     *theta -= 180;
