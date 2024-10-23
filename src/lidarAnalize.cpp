@@ -751,7 +751,7 @@ bool transform_coordinates(double x1, double y1, double theta1, double x1_prime,
     *x = - x1 * cos(theta_rad) + y1 * sin(theta_rad) + x1_prime;
     *y = - x1 * sin(theta_rad) - y1 * cos(theta_rad) + y1_prime;
 
-    if (double_in_table(*x,*y)) return true;
+    if (double_in_table(*x,*y, 100.0)) return true;
 
     // Robot is not inside the table
     return false;
@@ -769,7 +769,7 @@ bool find_beacons_best_fit(position_double_t* beacons_real_pos, position_double_
         for (int j = 0; j < BEACONS_COUNT; j++) { //Iterate real beacons
             int idx = i * BEACONS_COUNT + j;
             robot_ins_table[idx] = transform_coordinates(beacons_blob_pos[i].x, beacons_blob_pos[i].y, beacons_blob_pos[i].angle, 
-                                beacons_real_pos[j].x, beacons_real_pos[j].y, beacons_real_pos[j].theta, 
+                                beacons_real_pos[j].x, beacons_real_pos[j].y, beacons_real_pos[j].angle, 
                                 &robot_pos_x[idx], &robot_pos_y[idx], &robot_angles[idx]);
             if (robot_ins_table[idx])
                 LOG_DEBUG("Beacon ", i, " relative to beacon ", j, " could be at\tx=", robot_pos_x[idx], "\ty=", robot_pos_y[idx], "\ttheta=", robot_angles[idx], " degs");
@@ -866,7 +866,7 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
         // determination of the blob size
         double diam, dist, angle;
         blob_delimiter(data, count, blob, &diam, &dist, &angle);
-        if (diam > 120 || diam < 92) continue; //TODO Might need to be tweaked
+        if (diam > 130 || diam < 92) continue; //TODO Might need to be tweaked
         LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", data[blob.index_start].angle, " degrees ", data[blob.index_start].dist, "mm far");
 
         // determination of the linearity of the blobs
@@ -881,7 +881,7 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
             }
             beacons_blob_pos[beacon_idx] = {px, py, pangle};
 
-            //LOG_DEBUG("Beacon ", beacon_idx, " is relative to lidar at\tx=", beacons_pos_x[beacon_idx], "\ty=", beacons_pos_y[beacon_idx], "\ttheta=", beacons_angles[beacon_idx], " degs");
+            LOG_DEBUG("Beacon ", beacon_idx, " is relative to lidar at\tx=", beacons_blob_pos[beacon_idx].x, "\ty=", beacons_blob_pos[beacon_idx].y, "\ttheta=", beacons_blob_pos[beacon_idx].angle, " degs");
             beacons_blobs[beacon_idx] = &blobs[j];
             // Blob considered as beacon
             beacon_idx++;
@@ -902,14 +902,14 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
     // Those are the positions for blue
     position_double_t beacons_real_pos[BEACONS_COUNT];
     beacons_real_pos[0] = {0, 1594, 0}; 
-    beacons_real_pos[1] = {950, -1594, 27}; //TODO : Have the real angle of the beacon
+    beacons_real_pos[1] = {950, -1594, 30}; //TODO : Have the real angle of the beacon
     beacons_real_pos[2] = {-950, -1594, -30};
 
     // if team color is NONE, its going to find the best fit for both color, only works if 4 beacons (or asymetric disposition)
 
     if (team_color != YELLOW && find_beacons_best_fit(beacons_real_pos, beacons_blob_pos, position)){
         if (team_color == NONE)
-            out_team_color = BLUE;
+            *out_team_color = BLUE;
         return true;
     }
     else if (team_color != BLUE){
@@ -922,7 +922,7 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
         }
         if (find_beacons_best_fit(inv_beacons_real_pos, beacons_blob_pos, position)){
             if (team_color == NONE)
-                out_team_color = YELLOW;
+                *out_team_color = YELLOW;
             return true;
         }
         else
