@@ -24,6 +24,12 @@ typedef struct {
     float angle;
 } position_float_t;
 
+typedef struct {
+    double x;
+    double y;
+    double angle;
+} position_double_t;
+
 typedef struct 
 {
     double angle;

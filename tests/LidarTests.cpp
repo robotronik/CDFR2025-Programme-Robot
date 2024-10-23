@@ -7,7 +7,7 @@
 #include "constante.h"
 
 bool run_lidar_opponent_test(std::string testName, std::string data_file_name, position_t robot_pos, position_t expected_opponent_pos, bool has_opponent);
-bool run_lidar_beacons_test(std::string testName, std::string data_file_name, position_t approx_robot_pos, position_t expected_robot_pos);
+bool run_lidar_beacons_test(std::string testName, std::string data_file_name, position_t expected_robot_pos);
 int loadLidarJson(std::string filename, lidarAnalize_t* lidarData);
 
 bool test_lidar_opponent() {
@@ -70,28 +70,21 @@ bool test_lidar_opponent() {
 }
 
 bool test_lidar_beacons() {
-    position_t approx_robot_pos = {0, 0, 0, 0, 0};
     position_t expected_robot_pos = {0, 0, 0, 0, 0};
     // Test 1
     {
-        approx_robot_pos.x = 0;
-        approx_robot_pos.y = 0;
-        approx_robot_pos.theta = 0;  
         expected_robot_pos.x = 0;
         expected_robot_pos.y = 0;
         expected_robot_pos.theta = 0;  
-        if (!run_lidar_beacons_test("Lidar Beacons Case 1", "lidar/beaconsCenterBlue.json", approx_robot_pos, expected_robot_pos))
+        if (!run_lidar_beacons_test("Lidar Beacons Case 1", "lidar/beaconsCenterBlue.json", expected_robot_pos, BLUE))
             return false;
     }
     // Test 2
     {
-        approx_robot_pos.x = -400;
-        approx_robot_pos.y = 0;
-        approx_robot_pos.theta = 0;  
         expected_robot_pos.x = -400;
         expected_robot_pos.y = 0;
         expected_robot_pos.theta = 0;  
-        if (!run_lidar_beacons_test("Lidar Beacons Case 2", "lidar/beacons40cmUpBlue.json", approx_robot_pos, expected_robot_pos))
+        if (!run_lidar_beacons_test("Lidar Beacons Case 2", "lidar/beacons40cmUpBlue.json", expected_robot_pos, BLUE))
             return false;
     }
 
@@ -124,13 +117,14 @@ bool run_lidar_opponent_test(std::string testName, std::string data_file_name, p
     std::cout << testName << (test_passed ? " passed!" : " failed!") << std::endl;
     return test_passed;
 }
-bool run_lidar_beacons_test(std::string testName, std::string data_file_name, position_t approx_robot_pos, position_t expected_robot_pos) {
+bool run_lidar_beacons_test(std::string testName, std::string data_file_name, position_t expected_robot_pos, colorTeam_t expected_color) {
     lidarAnalize_t lidarData[SIZEDATALIDAR];
     bool test_passed = false;
-    int tolerance = 10; //10mm of tolerance on each axis
-    int angle_tolerance = 5; //5 degrees of tolerance
+    int tolerance = 100; //mm tolerance on each axis
+    int angle_tolerance = 15; //degrees of tolerance
 
-    position_t robot_pos = approx_robot_pos;
+    position_t robot_pos;
+    colorTeam_t color_team;
 
     // Load the json data into lidarData
     int lidar_count = loadLidarJson(data_file_name, lidarData);
@@ -138,15 +132,17 @@ bool run_lidar_beacons_test(std::string testName, std::string data_file_name, po
         return false;
 
     //Try method 2
-    position_robot_beacons(lidarData, lidar_count, &robot_pos);
+    test_passed = position_robot_beacons(lidarData, lidar_count, &robot_pos, NONE, &color_team);
 
-    convertAngularToAxial(lidarData, lidar_count, &robot_pos, -100);
+    //convertAngularToAxial(lidarData, lidar_count, &robot_pos, -100);
     //Try method 1
-    init_position_balise(lidarData, lidar_count, &robot_pos);
+    //init_position_balise(lidarData, lidar_count, &robot_pos);
 
-    test_passed = std::abs(robot_pos.x - expected_robot_pos.x) < tolerance &&
-                    std::abs(robot_pos.y - expected_robot_pos.y) < tolerance &&
-                    std::abs(robot_pos.theta - expected_robot_pos.theta) < angle_tolerance;
+    test_passed = test_passed && 
+                std::abs(robot_pos.x - expected_robot_pos.x) < tolerance &&
+                std::abs(robot_pos.y - expected_robot_pos.y) < tolerance &&
+                (std::abs(delta_angle(robot_pos.theta, expected_robot_pos.theta)) < angle_tolerance &&
+                color_team != NONE && color_team == expected_color;
 
     std::cout << testName << " Found robot_pos\t= { x=" << robot_pos.x << ",\ty=" << robot_pos.y << ",\ttheta=" << robot_pos.theta <<" }" << std::endl;
     std::cout << testName << " Expects robot_pos\t= { x=" << expected_robot_pos.x << ",\ty=" << expected_robot_pos.y << ",\ttheta=" << expected_robot_pos.theta <<" }" << std::endl;

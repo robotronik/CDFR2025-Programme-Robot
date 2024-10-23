@@ -45,4 +45,6 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
 
 
 // Ludovic Bouchard - beacons v2
-bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *position);
+int delta_angle(int angle1, int angle2);
+double delta_angle_double(double angle1, double angle2);
+bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *position, colorTeam_t team_color, colorTeam_t* out_team_color);

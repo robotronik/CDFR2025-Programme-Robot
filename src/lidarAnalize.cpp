@@ -550,6 +550,57 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
 
 // Ludovic Bouchard - Beacons V2
 
+
+int delta_angle(int angle1, int angle2) {
+    int delta = angle2 - angle1;
+
+    // Normalize to [-180, 180]
+    while (delta > 180) {
+        delta -= 360;
+    }
+    while (delta < -180) {
+        delta += 360;
+    }
+
+    return delta;
+}
+double delta_angle_double(double angle1, double angle2) {
+    double delta = angle2 - angle1;
+
+    // Normalize to [-180, 180]
+    while (delta > 180.0) {
+        delta -= 360.0;
+    }
+    while (delta < -180.0) {
+        delta += 360.0;
+    }
+
+    return delta;
+}
+double average_angles(double angles[], int count) {
+    double x_sum = 0.0, y_sum = 0.0;
+    
+    for (int i = 0; i < count; i++) {
+        // Convert angle to unit vector
+        x_sum += cos(angles[i] * DEG_TO_RAD);
+        y_sum += sin(angles[i] * DEG_TO_RAD);
+    }
+
+    // Calculate the average vector
+    double avg_x = x_sum / count;
+    double avg_y = y_sum / count;
+
+    // Convert back to angle
+    double avg_angle = atan2(avg_y, avg_x) * RAD_TO_DEG;
+
+    // Normalize angle to [0, 360) if needed
+    if (avg_angle < 0) {
+        avg_angle += 360.0;
+    }
+
+    return avg_angle;
+}
+
 bool double_in_table(double x, double y){
     return (x < 1000 && x > -1000 && y > -1500 && y < 1500);
 }
@@ -687,6 +738,9 @@ bool transform_coordinates(double x1, double y1, double theta1, double x1_prime,
 
     //Theres two possibility of position, so rotate the vector by 180 degs
     *theta -= 180;
+    if (*theta < 0) {
+        *theta += 360.0;
+    }
     theta_rad = *theta * DEG_TO_RAD;
     
     // Calculate the absolute coordinates
@@ -699,8 +753,65 @@ bool transform_coordinates(double x1, double y1, double theta1, double x1_prime,
     return false;
 }
 
+#define BEACONS_COUNT 3
 
-bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *position){
+bool find_beacons_best_fit(position_double_t* beacons_real_pos, position_double_t* beacons_blob_pos, position_t *position){
+    double robot_pos_x[BEACONS_COUNT*BEACONS_COUNT];
+    double robot_pos_y[BEACONS_COUNT*BEACONS_COUNT];
+    double robot_angles[BEACONS_COUNT*BEACONS_COUNT];
+    bool robot_ins_table[BEACONS_COUNT*BEACONS_COUNT];
+    // We calculate what would be our position for each of the beacons and check the best combo of 3 positions
+    for (int i = 0; i < BEACONS_COUNT; i++) { // Iterate blobs
+        for (int j = 0; j < BEACONS_COUNT; j++) { //Iterate real beacons
+            int idx = i * BEACONS_COUNT + j;
+            robot_ins_table[idx] = transform_coordinates(beacons_blob_pos[i].x, beacons_blob_pos[i].y, beacons_blob_pos[i].angle, 
+                                beacons_real_pos[j].x, beacons_real_pos[j].y, beacons_real_pos[j].theta, 
+                                &robot_pos_x[idx], &robot_pos_y[idx], &robot_angles[idx]);
+            if (robot_ins_table[idx])
+                LOG_DEBUG("Beacon ", i, " relative to beacon ", j, " could be at\tx=", robot_pos_x[idx], "\ty=", robot_pos_y[idx], "\ttheta=", robot_angles[idx], " degs");
+        }
+    }
+
+    // We iterate through checking the best combo of beacons
+    for (int i = 0; i < BEACONS_COUNT; i++) { //  i=0=> B0=b0 B1=b1 B2=b2    i=1=> B0=b1 B1=b2 B2=b0  ....
+        double sum_x = 0, sum_y = 0;
+        double angles[BEACONS_COUNT];
+        for (int j = 0; j < BEACONS_COUNT; j++) { // Blobs
+            int idx = j * BEACONS_COUNT + (j+i) % BEACONS_COUNT;
+            sum_x += robot_pos_x[idx];
+            sum_y += robot_pos_y[idx];
+            angles[j] = robot_angles[idx];
+        }
+        double avg_x = sum_x / (double)(BEACONS_COUNT);
+        double avg_y = sum_y / (double)(BEACONS_COUNT);
+        double avg_theta = average_angles(angles, BEACONS_COUNT);
+
+        bool is_solution = true;
+        //If any of the points calculated dont fit with the average, go to next combo
+        for (int j = 0; j < BEACONS_COUNT; j++) { // Blobs
+            int idx = j * BEACONS_COUNT + (j+i) % BEACONS_COUNT;
+            double x_error = fabs(avg_x - robot_pos_x[idx]);
+            double y_error = fabs(avg_y - robot_pos_y[idx]);
+            double theta_error = fabs(delta_angle_double(avg_theta, robot_angles[idx]));
+            if (x_error > 100.0 || y_error > 100.0 || theta_error > 10.0){ //mm and degs
+                is_solution = false;
+                break;
+            }
+        }
+        // Maybe use a weighted average using the linearity coefficient
+        if (is_solution){
+            LOG_GREEN_INFO("Found robot position using beacons, x = ", avg_x, ", y = ", avg_y, " theta = ", avg_theta);
+            position->x = round(avg_x);
+            position->y = round(avg_y);
+            position->theta = round(avg_theta);
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *position, colorTeam_t team_color, colorTeam_t* out_team_color){
 
     // Propagate exterior points
     // 120mm safe zone around beacons
@@ -734,7 +845,6 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
     int max_distance = 20; //20mm to be a different blob
     int blob_count = find_blobs(data, count, blobs, min_points, max_distance);
 
-#define BEACONS_COUNT 3
 
     if (blob_count < BEACONS_COUNT){
         LOG_DEBUG("Found ", blob_count, " blobs");
@@ -742,10 +852,7 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
     }
 
     lidar_blob_detection* beacons_blobs[BEACONS_COUNT];
-    // Relative to the lidar
-    double beacons_pos_x[BEACONS_COUNT];
-    double beacons_pos_y[BEACONS_COUNT];
-    double beacons_angles[BEACONS_COUNT];
+    position_double_t beacons_blob_pos[BEACONS_COUNT]; // Relative to the lidar
     int beacon_idx = 0;
 
     // determination of the linearity of the blobs
@@ -768,11 +875,9 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
                 LOG_WARNING("Too many beacons were found, stopping");
                 return false;
             }
-            beacons_angles[beacon_idx] = pangle;
-            beacons_pos_x[beacon_idx] = px;
-            beacons_pos_y[beacon_idx] = py;
+            beacons_blob_pos[beacon_idx] = {px, py, pangle};
 
-            LOG_DEBUG("Beacon ", beacon_idx, " is relative to lidar at\tx=", beacons_pos_x[beacon_idx], "\ty=", beacons_pos_y[beacon_idx], "\ttheta=", beacons_angles[beacon_idx], " degs");
+            //LOG_DEBUG("Beacon ", beacon_idx, " is relative to lidar at\tx=", beacons_pos_x[beacon_idx], "\ty=", beacons_pos_y[beacon_idx], "\ttheta=", beacons_angles[beacon_idx], " degs");
             beacons_blobs[beacon_idx] = &blobs[j];
             // Blob considered as beacon
             beacon_idx++;
@@ -787,32 +892,39 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
     }
     LOG_DEBUG("Found the ", BEACONS_COUNT, " beacons, further processing needed...");
 
-    double robot_pos_x[BEACONS_COUNT*BEACONS_COUNT];
-    double robot_pos_y[BEACONS_COUNT*BEACONS_COUNT];
-    double robot_angles[BEACONS_COUNT*BEACONS_COUNT];
-    bool robot_ins_table[BEACONS_COUNT*BEACONS_COUNT];
-
 
     // Definition of blue beacons
-    // 0:Right, 1:BottomLeft 2:TopLeft   - when looking at public perspective
+    // 0:Right, 1:BottomLeft 2:TopLeft   - when looking at public perspective   3:Top
     // The order is important, use the same as the spinning of the lidar
-    position_t beacons_real_pos[BEACONS_COUNT];
-    beacons_real_pos[0] = {0, 1594, 0, 0, 0}; 
-    beacons_real_pos[1] = {950, -1594, 0, 27, 0}; //TODO : Have the real angle of the beacon
-    beacons_real_pos[2] = {-950, -1594, 0, -30, 0};
+    // Those are the positions for blue
+    position_double_t beacons_real_pos[BEACONS_COUNT];
+    beacons_real_pos[0] = {0, 1594, 0}; 
+    beacons_real_pos[1] = {950, -1594, 27}; //TODO : Have the real angle of the beacon
+    beacons_real_pos[2] = {-950, -1594, -30};
 
-    // We calculate what would be our position for each of the beacons and check the best combo of 3 positions
-    for (int i = 0; i < BEACONS_COUNT; i++) { // Iterate blobs
-        lidar_blob_detection blob = *beacons_blobs[i];
-        for (int j = 0; j < BEACONS_COUNT; j++) { //Iterate real beacons
-            int idx = i * BEACONS_COUNT + j;
-            robot_ins_table[idx] = transform_coordinates(beacons_pos_x[i], beacons_pos_y[i], beacons_angles[i], 
-                                (double)beacons_real_pos[j].x, (double)beacons_real_pos[j].y, (double)beacons_real_pos[j].theta, 
-                                &robot_pos_x[idx], &robot_pos_y[idx], &robot_angles[idx]);
-            if (robot_ins_table[idx])
-                LOG_DEBUG("Beacon ", i, " relative to beacon ", j, " could be at\tx=", robot_pos_x[idx], "\ty=", robot_pos_y[idx], "\ttheta=", robot_angles[idx], " degs");
-        }
+    // if team color is NONE, its going to find the best fit for both color, only works if 4 beacons (or asymetric disposition)
+
+    if (team_color != YELLOW && find_beacons_best_fit(beacons_real_pos, beacons_blob_pos, position)){
+        if (team_color == NONE)
+            out_team_color = BLUE;
+        return true;
     }
-
-    return true;
+    else if (team_color != BLUE){
+        // Switch team color to YELLOW, inverse beacons position while keeping the lidar spinning order
+        position_double_t inv_beacons_real_pos[BEACONS_COUNT];
+        for (int i = 0; i < BEACONS_COUNT; i++){
+            inv_beacons_real_pos[BEACONS_COUNT - i - 1].x = -beacons_real_pos[i].x;
+            inv_beacons_real_pos[BEACONS_COUNT - i - 1].y = -beacons_real_pos[i].y;
+            inv_beacons_real_pos[BEACONS_COUNT - i - 1].angle = -beacons_real_pos[i].angle;
+        }
+        if (find_beacons_best_fit(inv_beacons_real_pos, beacons_blob_pos, position)){
+            if (team_color == NONE)
+                out_team_color = YELLOW;
+            return true;
+        }
+        else
+            return false;
+    }
+    else
+        return false;
 }
