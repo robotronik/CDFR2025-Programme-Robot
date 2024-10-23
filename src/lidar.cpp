@@ -1,4 +1,5 @@
 #include "lidar.h"
+#include <vector>
 
 static bool checkSLAMTECLIDARHealth(ILidarDriver * drv);
 static void lidarDelete(void);
@@ -52,6 +53,30 @@ bool lidarSetup(const char* serialPort ,int baudrate){
             , devinfo.firmware_version>>8
             , devinfo.firmware_version & 0xFF
             , (int)devinfo.hardware_version);
+
+            
+    // Get all supported scan modes
+    std::vector<LidarScanMode> scanModes;
+    sl_result res = drv->getAllSupportedScanModes(scanModes);
+    if (SL_IS_FAIL(res)) {
+        fprintf(stderr, "Error: Unable to retrieve scan modes.\n");
+        lidarDelete();
+        return false;
+    }
+
+    // Print each scan mode
+    printf("Supported Scan Modes:\n");
+    for (const auto &mode : scanModes) {
+        printf("Mode ID: %u\n", mode.id);
+        printf("Mode Name: %c\n", mode.scan_mode);
+        printf("Time per Sample: %f µs\n", mode.us_per_sample);
+        printf("Max Distance: %f m\n", mode.max_distance);
+        printf("Answer Type: %d\n\n", (int)mode.ans_type);
+    }
+
+
+
+
     // check health...
     if (!checkSLAMTECLIDARHealth(drv)) {
         lidarDelete();
