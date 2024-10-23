@@ -156,7 +156,7 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
         opponent_pos->x = pos_sum_x / largest_blob->count;
         opponent_pos->y = pos_sum_y / largest_blob->count;
 
-        double angle_robot_opponent = atan2(opponent_pos->x - robot_pos.x, opponent_pos->y - robot_pos.y);
+        double angle_robot_opponent = atan2(opponent_pos->y - robot_pos.y, opponent_pos->x - robot_pos.x);
         opponent_pos->x += 15*cos(angle_robot_opponent); //Offset the position my 15mm
         opponent_pos->y += 15*sin(angle_robot_opponent);
 
@@ -890,7 +890,6 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
         LOG_DEBUG("Did not find the ", BEACONS_COUNT, " beacons");
         return false;
     }
-    LOG_DEBUG("Found the ", BEACONS_COUNT, " beacons, further processing needed...");
 
 
     // Definition of blue beacons
