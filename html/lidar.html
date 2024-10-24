@@ -72,11 +72,14 @@
         const canvas = document.getElementById('displayCanvas');
         const ctx = canvas.getContext('2d');
         const statusDot = document.getElementById('statusDot');
+
+        const svgArrows = new Image();
+        svgArrows.src = 'arrows_dark.svg';
         
-        let x = 50;
-        let y = 150;
         let centerX = canvas.width / 2;
         let centerY = canvas.height / 2;
+
+        let scale = 1.5; // pixels per centimeter
 
         // Function to start the continuous Lidar fetching loop
         async function startContinuousLidarFetch() {
@@ -106,15 +109,11 @@
 
             //Draw robot
             ctx.fillStyle = 'blue';
-            ctx.fillRect(centerX - 15, centerY - 15, 30, 30);
+            ctx.fillRect(centerX - 15 * scale, centerY - 15 * scale, 30 * scale, 30 * scale);
 
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc(1500, 1000, 10, 0, Math.PI * 2); // x, y, radius, startAngle, endAngle
-            ctx.fill();
-
-            x += 1; // Move the rectangle horizontally
-            if (x > canvas.width) x = 0; // Reset position when it goes off-screen
+            // Draw arrows
+            ctx.drawImage(svgArrows, centerX - 50, centerY - 50, 100, 100);
+            let vector = {"angle" : 15, "x" : 300, "y" : 600};
         }
 
         //takes the lidar data
@@ -122,22 +121,52 @@
             draw();
             data["data"].forEach(point => {
                 ctx.strokeStyle = "red";
-                let A = (point.A - 90) / 180 * Math.PI;
+                let A = (point.A + 90) / 180 * Math.PI;
                 let x = point.R * Math.cos(A);
                 let y = point.R * Math.sin(A);
                 drawPoint(ctx, x, y);
             });
+            if (data["detection_debug"]["valid"]){
+                
+                for (let i = 0; i < data["detection_debug"]["count"]; i++) {
+                    ctx.strokeStyle = "green";
+                    drawVector(ctx, data["detection_debug"]["beacons_rel_pos"][i], 100);
+                    drawCircle(ctx, data["detection_debug"]["beacons_rel_pos"][i], data["detection_debug"]["distances"][i]);
+                }
+            }
+            
+            ctx.strokeStyle = 'white';
         }
         
         //draws a point from lidar data
         function drawPoint(ctx, x, y) {
-            let p_x = centerX + x / 10.0;
-            let p_y = centerY + y / 10.0;
+            let p_x = centerX + x / 10.0 * scale;
+            let p_y = centerY + y / 10.0 * scale;
             ctx.beginPath();
             ctx.roundRect(p_x, p_y, 2, 2, 1);
             ctx.stroke();
         }
-        
+        function drawVector(ctx, vector, length) {
+            const radians = vector.angle * (Math.PI / 180);
+
+            let p_x1 = centerX + vector.y / 10.0 * scale;
+            let p_y1 = centerY + vector.x / 10.0 * scale;
+            let p_x2 = p_x1 + length * Math.sin(radians);
+            let p_y2 = p_y1 + length * Math.cos(radians);
+
+            // Draw the line (vector)
+            ctx.beginPath();
+            ctx.moveTo(p_x1, p_y1); // Start point
+            ctx.lineTo(p_x2, p_y2);       // End point
+            ctx.lineWidth = 2;             // Set line width
+            ctx.stroke();                  // Render the line
+        }
+        function drawCircle(ctx, pos, r){
+            ctx.beginPath();
+            ctx.arc(centerX + pos.y  / 10.0 * scale, centerY + pos.x  / 10.0 * scale, r, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.stroke();
+        }
         // Start the continuous fetching loop
         startContinuousLidarFetch();
     </script>

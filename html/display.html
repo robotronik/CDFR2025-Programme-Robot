@@ -132,20 +132,20 @@
                             250, 
                             data["table"]["robot"]["pos"]["theta"]);
 
-            // Draw enemy
+            // Draw opponent
             ctx.strokeStyle = 'white';
             ctx.beginPath();
             ctx.arc(data["table"]["pos_opponent"]["y"] + centerX, data["table"]["pos_opponent"]["x"] + centerY, 150, 0, Math.PI * 2);
             ctx.closePath();
             ctx.stroke();
 
-            // Draw yellow balises
+            // Draw yellow beacons
             ctx.fillStyle = 'gold';
             ctx.beginPath(); ctx.arc(centerX - 1594, centerY - 950, 20, 0, Math.PI * 2); ctx.fill();
             ctx.beginPath(); ctx.arc(centerX - 1594, centerY + 950, 20, 0, Math.PI * 2); ctx.fill();
             ctx.beginPath(); ctx.arc(centerX + 1594, centerY - 0, 20, 0, Math.PI * 2); ctx.fill();
 
-            // Draw blue balises
+            // Draw blue beacons
             ctx.fillStyle = 'blue';
             ctx.beginPath(); ctx.arc(centerX + 1594, centerY - 950, 20, 0, Math.PI * 2); ctx.fill();
             ctx.beginPath(); ctx.arc(centerX + 1594, centerY + 950, 20, 0, Math.PI * 2); ctx.fill();
