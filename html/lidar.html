@@ -130,8 +130,8 @@
                 
                 for (let i = 0; i < data["detection_debug"]["count"]; i++) {
                     ctx.strokeStyle = "green";
-                    drawVector(ctx, data["detection_debug"]["beacons_rel_pos"][i], 100);
-                    drawCircle(ctx, data["detection_debug"]["beacons_rel_pos"][i], data["detection_debug"]["distances"][i]);
+                    drawVector(ctx, data["detection_debug"]["beacons_rel_pos"][i], 300);
+                    drawCircle(ctx, data["detection_debug"]["beacons_rel_pos"][i], data["detection_debug"]["distances"][i]/2.0);
                 }
             }
             
@@ -148,11 +148,13 @@
         }
         function drawVector(ctx, vector, length) {
             const radians = vector.angle * (Math.PI / 180);
-
-            let p_x1 = centerX + vector.y / 10.0 * scale;
-            let p_y1 = centerY + vector.x / 10.0 * scale;
-            let p_x2 = p_x1 + length * Math.sin(radians);
-            let p_y2 = p_y1 + length * Math.cos(radians);
+            let len_px = length / 20.0 * scale;
+            let p_x = centerX + vector.y / 10.0 * scale;
+            let p_y = centerY + vector.x / 10.0 * scale;
+            let p_x1 = p_x + len_px * Math.sin(radians);
+            let p_y1 = p_y + len_px * Math.cos(radians);
+            let p_x2 = p_x - len_px * Math.sin(radians);
+            let p_y2 = p_y - len_px * Math.cos(radians);
 
             // Draw the line (vector)
             ctx.beginPath();
@@ -163,7 +165,7 @@
         }
         function drawCircle(ctx, pos, r){
             ctx.beginPath();
-            ctx.arc(centerX + pos.y  / 10.0 * scale, centerY + pos.x  / 10.0 * scale, r, 0, Math.PI * 2);
+            ctx.arc(centerX + pos.y  / 10.0 * scale, centerY + pos.x  / 10.0 * scale, r / 10.0 * scale, 0, Math.PI * 2);
             ctx.closePath();
             ctx.stroke();
         }
