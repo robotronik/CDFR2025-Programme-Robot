@@ -153,9 +153,7 @@
 
             
             data["lidar"].forEach(point => {
-                let x = point.R * Math.cos(A);
-                let y = point.R * Math.sin(A);
-                drawPoint(ctx, data["lidar"]["y"], data["lidar"]["x"]);
+                drawPoint(ctx, point.y, point.x);
             });
 
             //Draws an arrow
