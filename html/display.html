@@ -151,6 +151,13 @@
             ctx.beginPath(); ctx.arc(centerX + 1594, centerY + 950, 20, 0, Math.PI * 2); ctx.fill();
             ctx.beginPath(); ctx.arc(centerX - 1594, centerY - 0, 20, 0, Math.PI * 2); ctx.fill();
 
+            
+            data["lidar"].forEach(point => {
+                let x = point.R * Math.cos(A);
+                let y = point.R * Math.sin(A);
+                drawPoint(ctx, data["lidar"]["y"], data["lidar"]["x"]);
+            });
+
             //Draws an arrow
             drawArrow(ctx, 100, 200, 10);
             
@@ -235,6 +242,14 @@
                 ctx.lineTo(rotatedPoints[i].x, rotatedPoints[i].y);
             }
             //ctx.closePath();
+            ctx.stroke();
+        }
+        //draws a point from lidar data
+        function drawPoint(ctx, x, y) {
+            let p_x = centerX + x;
+            let p_y = centerY + y;
+            ctx.beginPath();
+            ctx.roundRect(p_x, p_y, 2, 2, 1);
             ctx.stroke();
         }
 

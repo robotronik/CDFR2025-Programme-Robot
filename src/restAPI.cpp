@@ -83,7 +83,16 @@ void StartAPIServer(){
         response["status"] = currentState;
         response["table"] = tableStatus;
         response["score"] = tableStatus.getScore();
-        return crow::response(response.dump(4));
+        
+        json limitedAbsoluteLidarData = json::array();
+
+        // Add the first lidar_count elements to the new array
+        for (int i = 0; i < lidar_count; ++i) {
+            limitedAbsoluteLidarData.push_back({{"x", lidarData[i].x}, {"y", lidarData[i].y}});
+        }
+        response["lidar"] = limitedAbsoluteLidarData;
+
+        return crow::response(response.dump());
     });
 
     // Define a route for an simple GET request that returns the lidar data
