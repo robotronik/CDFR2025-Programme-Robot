@@ -631,11 +631,7 @@ void blob_delimiter(lidarAnalize_t* data, int count, lidar_blob_detection blob, 
     *dist = sum_r / (double)blob.count;
     double min_a = data[blob.index_start].angle;
     double max_a = data[blob.index_stop]. angle;
-    *angle = (max_a + min_a) / 2.0;
-
-    if (blob.index_stop < blob.index_start){
-        *angle -= 180;
-    }
+    *angle = delta_angle_double(min_a, max_a);
 
     double distance1 = distance_2_pts(*dist, *angle, data[blob.index_start].dist, min_a);
     double distance2 = distance_2_pts(*dist, *angle, data[blob.index_stop].dist, max_a);
@@ -697,8 +693,8 @@ double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection b
     *by = sum_y / (double)(blob.count);
 
     // Calculate orthogonal distances and find the mean
+    // aka Total least squares
     double sum_distances = 0.0;
-
 
 
     if (blob.index_stop >= blob.index_start) {
@@ -757,8 +753,6 @@ bool transform_coordinates(double x1, double y1, double theta1, double x1_prime,
     return false;
 }
 
-#define BEACONS_COUNT 3
-
 bool find_beacons_best_fit(position_double_t* beacons_real_pos, position_double_t* beacons_blob_pos, position_t *position){
     double robot_pos_x[BEACONS_COUNT*BEACONS_COUNT];
     double robot_pos_y[BEACONS_COUNT*BEACONS_COUNT];
@@ -814,8 +808,13 @@ bool find_beacons_best_fit(position_double_t* beacons_real_pos, position_double_
     return false;
 }
 
+beacon_detection_t beacon_detection = {
+    .valid = false,
+    .beacon_count = BEACONS_COUNT,
+};
 
 bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *position, colorTeam_t team_color, colorTeam_t* out_team_color){
+    beacon_detection.valid = false;
 
     // Propagate exterior points
     // 120mm safe zone around beacons
@@ -856,7 +855,6 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
     }
 
     lidar_blob_detection* beacons_blobs[BEACONS_COUNT];
-    position_double_t beacons_blob_pos[BEACONS_COUNT]; // Relative to the lidar
     int beacon_idx = 0;
 
     // determination of the linearity of the blobs
@@ -867,7 +865,7 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
         double diam, dist, angle;
         blob_delimiter(data, count, blob, &diam, &dist, &angle);
         if (diam > 130 || diam < 92) continue; //TODO Might need to be tweaked
-        LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", data[blob.index_start].angle, " degrees ", data[blob.index_start].dist, "mm far");
+        LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", data[blob.index_start].angle, " degrees ", dist, "mm far");
 
         // determination of the linearity of the blobs
         double pangle, px, py;
@@ -879,9 +877,10 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
                 LOG_WARNING("Too many beacons were found, stopping");
                 return false;
             }
-            beacons_blob_pos[beacon_idx] = {px, py, pangle};
+            beacon_detection.beacons_rel_pos[beacon_idx] = {px, py, pangle};
+            beacon_detection.diameters[beacon_idx] = diam;
 
-            LOG_DEBUG("Beacon ", beacon_idx, " is relative to lidar at\tx=", beacons_blob_pos[beacon_idx].x, "\ty=", beacons_blob_pos[beacon_idx].y, "\ttheta=", beacons_blob_pos[beacon_idx].angle, " degs");
+            LOG_DEBUG("Beacon ", beacon_idx, " is relative to lidar at\tx=", px, "\ty=", py, "\ttheta=", pangle, " degs");
             beacons_blobs[beacon_idx] = &blobs[j];
             // Blob considered as beacon
             beacon_idx++;
@@ -894,7 +893,7 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
         LOG_DEBUG("Did not find the ", BEACONS_COUNT, " beacons");
         return false;
     }
-
+    beacon_detection.valid = true;
 
     // Definition of blue beacons
     // 0:Right, 1:BottomLeft 2:TopLeft   - when looking at public perspective   3:Top
@@ -905,9 +904,9 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
     beacons_real_pos[1] = {950, -1594, 30}; //TODO : Have the real angle of the beacon
     beacons_real_pos[2] = {-950, -1594, -30};
 
-    // if team color is NONE, its going to find the best fit for both color, only works if 4 beacons (or asymetric disposition)
+    // if team color is NONE, its going to find the best fit for both color, starting with blue, only works if 4 beacons (or asymetric disposition)
 
-    if (team_color != YELLOW && find_beacons_best_fit(beacons_real_pos, beacons_blob_pos, position)){
+    if (team_color != YELLOW && find_beacons_best_fit(beacons_real_pos, beacon_detection.beacons_rel_pos, position)){
         if (team_color == NONE)
             *out_team_color = BLUE;
         return true;
@@ -916,11 +915,11 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
         // Switch team color to YELLOW, inverse beacons position while keeping the lidar spinning order
         position_double_t inv_beacons_real_pos[BEACONS_COUNT];
         for (int i = 0; i < BEACONS_COUNT; i++){
-            inv_beacons_real_pos[BEACONS_COUNT - i - 1].x = -beacons_real_pos[i].x;
+            inv_beacons_real_pos[BEACONS_COUNT - i - 1].x = beacons_real_pos[i].x;
             inv_beacons_real_pos[BEACONS_COUNT - i - 1].y = -beacons_real_pos[i].y;
             inv_beacons_real_pos[BEACONS_COUNT - i - 1].angle = -beacons_real_pos[i].angle;
         }
-        if (find_beacons_best_fit(inv_beacons_real_pos, beacons_blob_pos, position)){
+        if (find_beacons_best_fit(inv_beacons_real_pos, beacon_detection.beacons_rel_pos, position)){
             if (team_color == NONE)
                 *out_team_color = YELLOW;
             return true;
@@ -930,4 +929,29 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
     }
     else
         return false;
+}
+
+// Serialization for beacon_detection_t
+void to_json(json& j, const beacon_detection_t& bd) {
+    if (!bd.valid){
+        j = json{
+            {"valid", false}
+        };
+        return;
+    }
+
+    std::vector<json> beacons;
+    std::vector<double> diameters;
+    for (int i = 0; i < bd.beacon_count; ++i) {
+        beacons.push_back(bd.beacons_rel_pos[i]);
+        diameters.push_back(bd.diameters[i]);
+    }
+
+    // Create the final JSON object
+    j = json{
+        {"valid", bd.valid},
+        {"beacon_count", bd.beacon_count},
+        {"beacons_rel_pos", beacons},
+        {"diameters", diameters}
+    };
 }

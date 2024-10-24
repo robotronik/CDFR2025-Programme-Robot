@@ -30,6 +30,9 @@ typedef struct {
     double angle;
 } position_double_t;
 
+//Define serialization for position_t
+void to_json(json& j, const position_double_t& p);
+
 typedef struct 
 {
     double angle;

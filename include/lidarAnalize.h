@@ -6,6 +6,8 @@
 #include "structs.hpp"
 #include "math.h"
 #include "logger.hpp"
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 #define MAP(value, fromLow, fromHigh, toLow, toHigh) ((toLow) + (((value) - (fromLow)) * ((toHigh) - (toLow)) / ((fromHigh) - (fromLow))))
 typedef struct {
@@ -45,6 +47,18 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
 
 
 // Ludovic Bouchard - beacons v2
+#define BEACONS_COUNT 3
+
+typedef struct {
+    bool valid;
+    int beacon_count = BEACONS_COUNT;
+    position_double_t beacons_rel_pos[BEACONS_COUNT];
+    double diameters[BEACONS_COUNT];
+} beacon_detection_t;
+
+extern beacon_detection_t beacon_detection;
+void to_json(json& j, const beacon_detection_t& bd);
+
 int delta_angle(int angle1, int angle2);
 double delta_angle_double(double angle1, double angle2);
 bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *position, colorTeam_t team_color, colorTeam_t* out_team_color);
