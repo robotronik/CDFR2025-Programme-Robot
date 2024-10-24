@@ -646,8 +646,8 @@ double orthogonal_distance(double x, double y, double m, double b) {
     return fabs(y - y_line) / sqrt(1 + m * m); // Orthogonal distance formula
 }
 
-// The result is local to lidar coordinates. Returns R squared
-double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection blob, double* angle, double* bx, double* by) {
+// The result is local to lidar coordinates.
+double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection blob, double blob_size, double* angle, double* bx, double* by) {
     double sum_x = 0, sum_y = 0, sum_xy = 0, sum_x2 = 0;
     double x, y;
 
@@ -695,13 +695,14 @@ double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection b
     // Calculate orthogonal distances and find the mean
     // aka Total least squares
     double sum_distances = 0.0;
-
+    double sum_squared_distances = 0.0;
 
     if (blob.index_stop >= blob.index_start) {
         for (int i = blob.index_start; i <= blob.index_stop; i++) {
             local_lidar_point_position(data, i, &x, &y);
             double dista = orthogonal_distance(x, y, m, b);
-            sum_distances += dista * dista;
+            sum_distances += dista;
+            sum_squared_distances += dista * dista;
         }
     }
     else{
@@ -709,17 +710,27 @@ double linear_regression(lidarAnalize_t* data, int count, lidar_blob_detection b
         for (int i = blob.index_start; i < count; i++){
             local_lidar_point_position(data, i, &x, &y);
             double dista = orthogonal_distance(x, y, m, b);
-            sum_distances += dista * dista;
+            sum_distances += dista;
+            sum_squared_distances += dista * dista;
         }
         for (int i = 0; i <= blob.index_stop; i++){
             local_lidar_point_position(data, i, &x, &y);
             double dista = orthogonal_distance(x, y, m, b);
-            sum_distances += dista * dista;
+            sum_distances += dista;
+            sum_squared_distances += dista * dista;
         }
     }
     double mean_distance = sum_distances / blob.count;
+    double mean_squared_distance = sum_squared_distances / blob.count;
 
-    return mean_distance;  // R-squared
+    // Calculate variance and standard deviation
+    // double variance = (sum_squared_distances / blob.count) - (mean_distance * mean_distance);
+    // double stddev = std::sqrt(variance);
+
+    // Normalize by standard deviation
+    // double normalized_score = 1 - ((stddev != 0) ? (mean_distance / stddev) : 0);
+
+    return 100.0 * mean_squared_distance / (blob_size * blob_size);
 }
 
 // transforme le vecteur à 0,0 avec 0deg vers l'espace absolue en se basant sur le vecteur 1 vers 1_prime
@@ -869,10 +880,10 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
 
         // determination of the linearity of the blobs
         double pangle, px, py;
-        double mean_deriv = linear_regression(data, count, blob, &pangle, &px, &py);
+        double mean_deriv = linear_regression(data, count, blob, diam, &pangle, &px, &py);
         LOG_DEBUG("Found a blob with a mean_deriv = ", mean_deriv);
 
-        if (mean_deriv < 15.0){ //TODO Might need to be tweaked
+        if (mean_deriv < 0.3){ //TODO Might need to be tweaked
             if (beacon_idx == BEACONS_COUNT){
                 LOG_WARNING("Too many beacons were found, stopping");
                 return false;
