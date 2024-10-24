@@ -1,0 +1,30 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug remote with gdb-multiarch",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/arm_bin/programCDFR",
+      "miDebuggerServerAddress": "debianpc.local:1234",
+      "miDebuggerPath": "/usr/bin/gdb-multiarch",
+      "cwd": "${workspaceFolder}",
+      "targetArchitecture": "arm",
+      "externalConsole": false,
+      "setupCommands": [
+        {
+          "text": "-enable-pretty-printing",
+          "description": "Enable GDB pretty printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "startGDBserver",
+      "logging": {
+        "engineLogging": true
+      },
+      "stopAtEntry": false,
+      "MIMode": "gdb",
+      "args": []
+    }
+  ]
+}
