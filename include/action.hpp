@@ -53,15 +53,15 @@ private:
 
     unsigned long keyMoment;
     bool keyMomentSet = false;
-    bool noTetaStart = false;
+    bool nothetaStart = false;
 
 public:
     action(std::string name, CmdAsserv* irobot, Arduino* iarduino, TableState* itable);
     int runAction(void);
     void setRunAction(std::function<int(action*, CmdAsserv*, Arduino*, TableState*)> ptr);
-    void setStartPoint(int x, int y, int teta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation);
+    void setStartPoint(int x, int y, int theta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation);
     void setStartPoint(int x, int y, CmdAsserv::direction Direction, CmdAsserv::rotation rotation);
-    void setEndPoint(int x, int y, int teta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation);
+    void setEndPoint(int x, int y, int theta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation);
     int costAction(void);
     void goodEnd(std::function<void(TableState*, CmdAsserv*)> ptr);
     void badEnd(std::function<void(TableState*)> ptr);
