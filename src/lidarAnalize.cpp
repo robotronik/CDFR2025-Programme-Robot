@@ -864,7 +864,6 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
         return false;
     }
 
-    lidar_blob_detection* beacons_blobs[BEACONS_COUNT];
     int beacon_idx = 0;
 
     // determination of the linearity of the blobs
@@ -891,7 +890,6 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
             beacon_detection.diameters[beacon_idx] = diam;
 
             LOG_DEBUG("Beacon ", beacon_idx, " is relative to lidar at\tx=", px, "\ty=", py, "\ttheta=", pangle, " degs");
-            beacons_blobs[beacon_idx] = &blobs[j];
             // Blob considered as beacon 
             beacon_idx++;
             if (beacon_idx == BEACONS_COUNT)
