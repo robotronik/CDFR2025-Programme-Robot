@@ -81,10 +81,15 @@
 
         let scale = 1.5; // pixels per centimeter
 
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
         // Function to start the continuous Lidar fetching loop
         async function startContinuousLidarFetch() {
             while (true) {  // Infinite loop
                 await getLidar();  // Wait for the Lidar data to be fetched and drawn
+                await sleep(10);
             }
         }
 

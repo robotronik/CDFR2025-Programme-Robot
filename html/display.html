@@ -62,12 +62,16 @@
 
         let topLeftX = centerX - 3000/2;
         let topLeftY = centerY - 2000/2;
-
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
 
         // Function to start the continuous fetching loop
         async function startContinuousFetch() {
             while (true) {  // Infinite loop
                 await getData();  // Wait for the data to be fetched and drawn
+                await sleep(10);  // Wait for 10ms before the next iteration
             }
         }
 
