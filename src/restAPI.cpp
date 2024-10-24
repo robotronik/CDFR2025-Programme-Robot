@@ -6,6 +6,7 @@
 #include "logger.hpp"
 #include "main.hpp" //for static variables
 #include "tableState.hpp"
+#include "lidarAnalize.h" //for static variable
 
 
 #define API_PORT 8080
