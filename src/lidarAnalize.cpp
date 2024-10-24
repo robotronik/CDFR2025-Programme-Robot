@@ -629,12 +629,11 @@ void blob_delimiter(lidarAnalize_t* data, int count, lidar_blob_detection blob, 
     }
 
     *dist = sum_r / (double)blob.count;
-    double min_a = data[blob.index_start].angle;
-    double max_a = data[blob.index_stop]. angle;
-    *angle = delta_angle_double(min_a, max_a);
+    double angles[] = {data[blob.index_start].angle, data[blob.index_stop]. angle};
+    *angle = average_angles(angles, 2);
 
-    double distance1 = distance_2_pts(*dist, *angle, data[blob.index_start].dist, min_a);
-    double distance2 = distance_2_pts(*dist, *angle, data[blob.index_stop].dist, max_a);
+    double distance1 = distance_2_pts(*dist, *angle, data[blob.index_start].dist, angles[0]);
+    double distance2 = distance_2_pts(*dist, *angle, data[blob.index_stop].dist, angles[1]);
 
     *diam = 2 * (distance1 > distance2 ? distance1 : distance2);    
 }
@@ -883,7 +882,7 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
         double mean_deriv = linear_regression(data, count, blob, diam, &pangle, &px, &py);
         LOG_DEBUG("Found a blob with a mean_deriv = ", mean_deriv);
 
-        if (mean_deriv < 0.3){ //TODO Might need to be tweaked
+        if (mean_deriv < 0.1){ //TODO Might need to be tweaked
             if (beacon_idx == BEACONS_COUNT){
                 LOG_WARNING("Too many beacons were found, stopping");
                 return false;
@@ -893,7 +892,7 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
 
             LOG_DEBUG("Beacon ", beacon_idx, " is relative to lidar at\tx=", px, "\ty=", py, "\ttheta=", pangle, " degs");
             beacons_blobs[beacon_idx] = &blobs[j];
-            // Blob considered as beacon
+            // Blob considered as beacon 
             beacon_idx++;
             if (beacon_idx == BEACONS_COUNT)
                 LOG_DEBUG("search for beacons : ", BEACONS_COUNT, " are found");
