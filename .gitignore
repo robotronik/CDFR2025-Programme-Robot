@@ -18,5 +18,9 @@ tmp/
 .DS_Store
 Thumbs.db
 /.vs
-/.vscode/
 /CppProperties.json
+
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/c_cpp_properties.json

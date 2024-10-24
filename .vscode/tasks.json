@@ -1,0 +1,53 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "deploy",
+      "type": "shell",
+      "command": "make deploy",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "startGDBserver",
+      "type": "shell",
+      "command": "ssh robotronik@raspberrypi.local 'pkill gdbserver; gdbserver :1234 ~/CDFR2025/arm_bin/programCDFR'",
+      "dependsOn": "deploy",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": {
+            "pattern": [
+                {
+                    "regexp": ".",
+                    "file": 1,
+                    "location": 2,
+                    "message": 3
+                }
+            ],
+            "background": {
+                "activeOnStart": true,
+                "beginsPattern": "^.*Process*",
+                "endsPattern": "^.*Listening*"
+            }
+        },
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    }
+  ]
+}
