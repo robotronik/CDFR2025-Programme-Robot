@@ -14,6 +14,7 @@
 using json = nlohmann::json;
 
 crow::response readHtmlFile(const std::string& path);
+std::string getContentType(const std::string& path);
 
 crow::SimpleApp app;
 
@@ -188,7 +189,6 @@ void StartAPIServer(){
     // Route for serving SVG and PNG files
     CROW_ROUTE(app, "/assets/<string>")
     .methods(crow::HTTPMethod::GET)([](const std::string& filename) {
-        std::string extension = filename.substr(filename.find_last_of(".") + 1);
         std::ifstream file("html/assets/" + filename, std::ios::binary);
         
         if (!file) {
@@ -199,16 +199,19 @@ void StartAPIServer(){
         buffer << file.rdbuf();
         crow::response res{buffer.str()};
         res.set_header("Cache-Control", "public, max-age=3600");
-        // Set the appropriate Content-Type header based on file extension
-        if (extension == "svg") {
-            res.set_header("Content-Type", "image/svg+xml");
-        } else if (extension == "png") {
-            res.set_header("Content-Type", "image/png");
-        } else {
-            return crow::response(415, "Unsupported media type");
-        }
-
+        res.set_header("Content-Type", getContentType(filename));
         return res;
+    });
+
+    // Route for serving css files
+    CROW_ROUTE(app, "/css/<string>")
+    .methods(crow::HTTPMethod::GET)([](const std::string& filename) {
+        return readHtmlFile("html/css/" + filename);
+    });
+    // Route for serving js files
+    CROW_ROUTE(app, "/js/<string>")
+    .methods(crow::HTTPMethod::GET)([](const std::string& filename) {
+        return readHtmlFile("html/js/" + filename);
     });
 
 
@@ -250,12 +253,37 @@ void TestAPIServer(){
 }
 
 
-// Function to read an HTML file and return its content as a string
+// Function to read an HTML file and return its content as a crow::response
 crow::response readHtmlFile(const std::string& path) {
     std::ifstream file(path);
+    
+    if (!file) {  // Check if file exists and is open
+        return crow::response(404, "File not found");  // Return a 404 response if file is missing
+    }
+
     std::stringstream buffer;
     buffer << file.rdbuf();  // Read the file into the buffer
+
     crow::response res{buffer.str()};
+    res.set_header("Content-Type", getContentType(path));  // Set correct Content-Type header
     res.set_header("Cache-Control", "public, max-age=3600");
     return res;
+}
+
+// Helper function to determine Content-Type based on file extension
+std::string getContentType(const std::string& path) {
+    std::string extension = path.substr(path.find_last_of(".") + 1);
+    if (extension == "css") {
+        return "text/css";
+    } else if (extension == "js") {
+        return "application/javascript";
+    } else if (extension == "svg") {
+        return "image/svg+xml";
+    } else if (extension == "png") {
+        return "image/png";
+    } else if (extension == "html"){
+        return "text/html";
+    } else {
+        return "text/plain";  // Default to plain text
+    }
 }
