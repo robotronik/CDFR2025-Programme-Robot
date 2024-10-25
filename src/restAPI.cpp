@@ -51,7 +51,7 @@ void StartAPIServer(){
     });
 
     // Define a simple route for robot page
-    CROW_ROUTE(app, "/robot.html")
+    CROW_ROUTE(app, "/robot")
     ([](){
         return readHtmlFile("html/robot.html");
     });
