@@ -50,6 +50,12 @@ void StartAPIServer(){
         return readHtmlFile("html/navbar.html");
     });
 
+    // Define a simple route for robot page
+    CROW_ROUTE(app, "/robot.html")
+    ([](){
+        return readHtmlFile("html/robot.html");
+    });
+
     // Define a route for a simple GET request that returns the status
     CROW_ROUTE(app, "/get_status")
     ([](){
@@ -112,6 +118,18 @@ void StartAPIServer(){
         return crow::response(response.dump());
     });
 
+    // Define a route for an simple GET request that returns the general data
+    CROW_ROUTE(app, "/get_robot")
+    ([](){
+        json response;
+        response["status"] = currentState;
+        response["team"] = tableStatus.robot.colorTeam;
+        response["score"] = tableStatus.getScore();
+        response["time"] = millis() - tableStatus.startTime;
+        // TODO : Strategy number
+        return crow::response(response.dump(4));
+    });
+
     // Define a route for a POST request that accepts JSON data and responds with a message
     CROW_ROUTE(app, "/post_status").methods(crow::HTTPMethod::POST)([](const crow::request& req){
         // Parse the incoming JSON
@@ -141,11 +159,37 @@ void StartAPIServer(){
         return crow::response(response.dump(4));
     });
 
+    // Define a route for a POST request that accepts a color as JSON data (0:None, 1:Blue, 2:Yellow)
+    CROW_ROUTE(app, "/set_color").methods(crow::HTTPMethod::POST)([](const crow::request& req){
+        auto req_data = json::parse(req.body);
+        // Extract fields
+        colorTeam_t req_color = req_data["color"];
+
+        if (req_color < 0 || req_color > 2){
+            // Denies the POST resquest
+            json response;
+            response["message"] = "Invalid Request Color";
+
+            // Return the response as JSON
+            return crow::response(400, response.dump(4));
+        }
+
+        // Apply the post method
+        tableStatus.robot.colorTeam = req_color;
+
+        // Create a response JSON
+        json response;
+        response["message"] = "Successfull";
+
+        // Return the response as JSON
+        return crow::response(response.dump(4));
+    });
+
     // Route for serving SVG and PNG files
     CROW_ROUTE(app, "/assets/<string>")
     .methods(crow::HTTPMethod::GET)([](const std::string& filename) {
         std::string extension = filename.substr(filename.find_last_of(".") + 1);
-        std::ifstream file("html/" + filename, std::ios::binary);
+        std::ifstream file("html/assets/" + filename, std::ios::binary);
         
         if (!file) {
             return crow::response(404, "File not found");
