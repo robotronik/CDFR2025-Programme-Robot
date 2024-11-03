@@ -163,26 +163,46 @@ void StartAPIServer(){
     // Define a route for a POST request that accepts a color as JSON data (0:None, 1:Blue, 2:Yellow)
     CROW_ROUTE(app, "/set_color").methods(crow::HTTPMethod::POST)([](const crow::request& req){
         auto req_data = json::parse(req.body);
-        // Extract fields
         colorTeam_t req_color = req_data["color"];
 
         if (req_color < 0 || req_color > 2){
-            // Denies the POST resquest
             json response;
             response["message"] = "Invalid Request Color";
-
-            // Return the response as JSON
+            return crow::response(400, response.dump(4));
+        }
+        if (currentState == RUN){
+            json response;
+            response["message"] = "Cannot change the color in the current state";
             return crow::response(400, response.dump(4));
         }
 
-        // Apply the post method
         tableStatus.robot.colorTeam = req_color;
 
-        // Create a response JSON
         json response;
         response["message"] = "Successfull";
+        return crow::response(response.dump(4));
+    });
 
-        // Return the response as JSON
+    // Define a route for a POST request that accepts a strategy to apply
+    CROW_ROUTE(app, "/set_strat").methods(crow::HTTPMethod::POST)([](const crow::request& req){
+        auto req_data = json::parse(req.body);
+        int req_strat = req_data["strat"];
+
+        if (req_strat < 1 || req_strat > 4){
+            json response;
+            response["message"] = "Invalid Strategy Request";
+            return crow::response(400, response.dump(4));
+        }
+        if (currentState == RUN){
+            json response;
+            response["message"] = "Cannot change the strategy in the current state";
+            return crow::response(400, response.dump(4));
+        }
+
+        //TODO : Apply the strat
+
+        json response;
+        response["message"] = "Successfull";
         return crow::response(response.dump(4));
     });
 
