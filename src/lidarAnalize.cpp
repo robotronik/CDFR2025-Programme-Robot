@@ -13,8 +13,12 @@ void convertAngularToAxial(lidarAnalize_t* data, int count, position_t *position
         if(data[i].x<1000-narrow && data[i].x>-1000+narrow && data[i].y<1600-narrow && data[i].y>-1600+narrow){
             //LOG_INFO("X = ", data[i].x, "/ Y =",data[i].y, "dist = ", data[i].dist, "/ angle=",data[i].angle);
             //printf("\nx = %i / y = %i / in ? = %i",data[i].x, data[i].y, data[i].x<1100 && data[i].x>-1100 && data[i].y<1700 && data[i].y>-1700);
-            data[i].onTable = true;}
-        else{data[i].onTable = false;}
+            data[i].onTable = true;
+            //std::cout << "(" << data[i].x << "," << data[i].y << ")" << std::endl;
+        }
+        else 
+            data[i].onTable = false;
+
     }
 }
 bool position_opponent(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
@@ -419,13 +423,6 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
 
 
 
-
-
-
-
-
-
-
 // Ludovic Bouchard - Beacons V2
 
 
@@ -490,6 +487,7 @@ bool double_in_table(double x, double y, double robot_padding){
 void local_lidar_point_position(lidarAnalize_t* data, int idx, double* x, double* y){
     *x = data[idx].dist * cos((double)(-data[idx].angle * DEG_TO_RAD));
     *y = data[idx].dist * sin((double)(-data[idx].angle * DEG_TO_RAD));
+    //std::cout << "(" << *x << "," << *y << ")" << std::endl;
 }
 
 #define BLOBS_COUNT 200 // Define the maximum number of blobs
@@ -706,7 +704,7 @@ bool find_beacons_best_fit(position_double_t* beacons_real_pos, position_double_
 
 // Returns the number of blobs found
 int find_blobs(lidarAnalize_t* data, int count, lidar_blob_detection* blobs, int min_points, int max_distance){
-    LOG_DEBUG("Total lidar point count is ", count, ", minium to be a blob is ", min_points);
+    //LOG_DEBUG("Total lidar point count is ", count, ", minium to be a blob is ", min_points);
     
     int blob_idx = 0; // Count of detected blobs
 
@@ -719,6 +717,7 @@ int find_blobs(lidarAnalize_t* data, int count, lidar_blob_detection* blobs, int
 
     // Iterate through points and create blobs
     for (int i = 0; i < count; i++) {
+
         if (!data[i].onTable){
             if (blobs[blob_idx].count > min_points){
                 blob_idx++;
@@ -758,7 +757,7 @@ int find_blobs(lidarAnalize_t* data, int count, lidar_blob_detection* blobs, int
     if (data[0].onTable && data[count - 1].onTable && fabs(data[0].dist - data[count - 1].dist) < max_distance){
         //Merge the last into the first
         blobs[0].index_start = blobs[blob_idx].index_start;
-        blob_idx--;
+        blobs[0].count += blobs[blob_idx].count;
     }
     return blob_idx;
 }
@@ -785,8 +784,9 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
         // determination of the blob size
         double diam, dist, angle;
         blob_delimiter(data, count, blob, &diam, &dist, &angle);
-        if (diam > 100 || diam < 50) continue;
-        LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", data[blob.index_start].angle, " degrees ", dist, "mm far");
+        LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", angle, " degrees ", dist, "mm far");
+        if (diam > 100 || diam < 10) continue; //TODO Min should be 50mm
+        LOG_GREEN_INFO("Blob fits the requirements");
 
         if (opponent_idx != -1){
             LOG_WARNING("Too many opponents blobs were found, stopping");
@@ -868,6 +868,8 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
             }
         }
     }
+
+    //printRelativeLidar(data, count);
 
     lidar_blob_detection blobs[BLOBS_COUNT]; // Array to hold detected blobs
     int min_points = 6 ; //6 points min to be a beacon
