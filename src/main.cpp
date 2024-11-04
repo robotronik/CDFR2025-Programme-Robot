@@ -44,7 +44,7 @@ std::thread api_server_thread;
 
 // Prototypes
 int StartSequence();
-void GetLidar();
+void GetLidarV2();
 void EndSequence();
 
 bool isWifiConnected();
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
             if (currentState != FIN)
             {
 #ifndef DISABLE_LIDAR
-                GetLidar();
+                GetLidarV2();
 #endif
             }
         }
@@ -449,7 +449,7 @@ void GetLidarV2()
     // Simple exponential moving average (EMA)
     
     // Smoothing factor (0 < alpha < 1)
-    const float alpha = 0.2f; // Adjust this value for more or less smoothing on the opponent robot posititon
+    const float alpha = 0.5f; // Adjust this value for more or less smoothing on the opponent robot posititon
 
     static position_t pos_opponent_filtered = {0, 0, 0, 0, 0};
     static bool first_reading = true;

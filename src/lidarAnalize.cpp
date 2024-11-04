@@ -115,55 +115,68 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
     lidar_blob_detection blobs[BLOBS_COUNT]; // Array to hold detected blobs
     int min_points = 4 ; //4 points to be an opponent
     int max_distance = 50; //50mm to be a different blob
-    int blob_idx = find_blobs(data, count, blobs, min_points, max_distance);
+    int blob_count = find_blobs(data, count, blobs, min_points, max_distance);
 
-    if (blob_idx < 0){
+
+    if (blob_count < 1){
+        LOG_DEBUG("Did not find any opponent blob");
+        return false;
+    }
+
+    int opponent_idx = -1;
+
+    // determination of the linearity of the blobs
+    for (int j = 0; j < blob_count; j++) {
+        lidar_blob_detection blob = blobs[j];
+
+        // determination of the blob size
+        double diam, dist, angle;
+        blob_delimiter(data, count, blob, &diam, &dist, &angle);
+        if (diam > 100 || diam < 50) continue;
+        LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", data[blob.index_start].angle, " degrees ", dist, "mm far");
+
+        if (opponent_idx != -1){
+            LOG_WARNING("Too many opponents blobs were found, stopping");
+            return false;
+        }
+        // Blob considered as opponent 
+        opponent_idx = j;
+    }
+
+    if (opponent_idx == -1){
         return false;
     }
 
     // determination of the opponent could be using the bounding box of the blob
-    lidar_blob_detection* largest_blob = nullptr;
-    int max_count = min_points;
-    for (int j = 0; j <= blob_idx; j++) {
-        if (blobs[j].count > max_count) {
-            max_count = blobs[j].count;
-            largest_blob = &blobs[j];
+    lidar_blob_detection opponent_blob = blobs[opponent_idx];
+    // Calculate the centroid of the largest blob
+    int pos_sum_x = 0;
+    int pos_sum_y = 0;
+    if (opponent_blob.index_stop >= opponent_blob.index_start){
+        for (int i = opponent_blob.index_start; i <= opponent_blob.index_stop; i++){
+            pos_sum_x += data[i].x;
+            pos_sum_y += data[i].y;
         }
     }
-    // Update opponent_pos with the centroid of the largest blob, if found
-    if (largest_blob != nullptr) {
-        LOG_DEBUG("Found opponent with ", max_count, " points");
-        // Calculate the centroid of the largest blob
-        int pos_sum_x = 0;
-        int pos_sum_y = 0;
-        if (largest_blob->index_stop >= largest_blob->index_start){
-            for (int i = largest_blob->index_start; i <= largest_blob->index_stop; i++){
-                pos_sum_x += data[i].x;
-                pos_sum_y += data[i].y;
-            }
+    else{
+        // edgecase
+        for (int i = opponent_blob.index_start; i < count; i++){
+            pos_sum_x += data[i].x;
+            pos_sum_y += data[i].y;
         }
-        else{
-            // edgecase
-            for (int i = largest_blob->index_start; i < count; i++){
-                pos_sum_x += data[i].x;
-                pos_sum_y += data[i].y;
-            }
-            for (int i = 0; i <= largest_blob->index_stop; i++){
-                pos_sum_x += data[i].x;
-                pos_sum_y += data[i].y;
-            }
+        for (int i = 0; i <= opponent_blob.index_stop; i++){
+            pos_sum_x += data[i].x;
+            pos_sum_y += data[i].y;
         }
-        opponent_pos->x = pos_sum_x / largest_blob->count;
-        opponent_pos->y = pos_sum_y / largest_blob->count;
+    }
+    opponent_pos->x = pos_sum_x / opponent_blob.count;
+    opponent_pos->y = pos_sum_y / opponent_blob.count;
 
-        double angle_robot_opponent = atan2(opponent_pos->y - robot_pos.y, opponent_pos->x - robot_pos.x);
-        opponent_pos->x += 15*cos(angle_robot_opponent); //Offset the position my 15mm
-        opponent_pos->y += 15*sin(angle_robot_opponent);
+    double angle_robot_opponent = atan2(opponent_pos->y - robot_pos.y, opponent_pos->x - robot_pos.x);
+    opponent_pos->x += 15*cos(angle_robot_opponent); //Offset the position my 15mm
+    opponent_pos->y += 15*sin(angle_robot_opponent);
 
-        return true;
-    } else
-        LOG_DEBUG("Did not find an opponent");
-        return false;
+    return true;
 }
 
 //TODO : These can go
