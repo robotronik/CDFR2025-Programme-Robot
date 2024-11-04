@@ -43,141 +43,6 @@ bool position_opponent(lidarAnalize_t* data, int count, position_t robot_pos, po
     return true; //TODO : Not quite sure of this one
 }
 
-#define BLOBS_COUNT 200 // Define the maximum number of blobs
-
-typedef struct {
-    int index_start;
-    int index_stop;
-    int count;
-} lidar_blob_detection;
-
-// Returns the number of blobs found
-int find_blobs(lidarAnalize_t* data, int count, lidar_blob_detection* blobs, int min_points, int max_distance){
-    LOG_DEBUG("Total lidar point count is ", count, ", minium to be a blob is ", min_points);
-    
-    int blob_idx = 0; // Count of detected blobs
-
-    // Initialize blobs
-    for (int b = 0; b < BLOBS_COUNT; b++) {
-        blobs[b].index_start = 0;
-        blobs[b].index_stop = 0;
-        blobs[b].count = 0;
-    }
-
-    // Iterate through points and create blobs
-    for (int i = 0; i < count; i++) {
-        if (!data[i].onTable){
-            if (blobs[blob_idx].count > min_points){
-                blob_idx++;
-                if (blob_idx == BLOBS_COUNT){
-                    LOG_WARNING("position_opponentV2 - No more place for more blobs!");
-                    return -1;
-                }
-            }
-            else if (blobs[blob_idx].count > 0){
-                blobs[blob_idx].count = 0;
-            }
-            continue;
-        }
-
-        if (blobs[blob_idx].count == 0){
-            blobs[blob_idx].index_start = i;
-            blobs[blob_idx].index_stop = i;
-            blobs[blob_idx].count = 1;
-        }
-        else if (fabs(data[blobs[blob_idx].index_stop].dist - data[i].dist) > max_distance || data[i].angle - data[blobs[blob_idx].index_stop].angle > 1.0){ //If two points are further than max_distance then create a new blob
-            if (blobs[blob_idx].count >= min_points)
-                blob_idx++;
-            if (blob_idx == BLOBS_COUNT){
-                LOG_WARNING("position_opponentV2 - No more place for more blobs!");
-                return -1;
-            }
-            blobs[blob_idx].index_start = i;
-            blobs[blob_idx].index_stop = i;
-            blobs[blob_idx].count = 1;
-        }
-        else{ //Add the point to the current blob
-            blobs[blob_idx].index_stop = i;
-            blobs[blob_idx].count ++;
-        }
-    }
-    //Check for the edge case where opponent is right in front
-    if (data[0].onTable && data[count - 1].onTable && fabs(data[0].dist - data[count - 1].dist) < max_distance){
-        //Merge the last into the first
-        blobs[0].index_start = blobs[blob_idx].index_start;
-        blob_idx--;
-    }
-    return blob_idx;
-}
-
-// Dans le pire des cas, on a 0.3% des points qui sont l'ennemi
-bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
-    lidar_blob_detection blobs[BLOBS_COUNT]; // Array to hold detected blobs
-    int min_points = 4 ; //4 points to be an opponent
-    int max_distance = 50; //50mm to be a different blob
-    int blob_count = find_blobs(data, count, blobs, min_points, max_distance);
-
-
-    if (blob_count < 1){
-        LOG_DEBUG("Did not find any opponent blob");
-        return false;
-    }
-
-    int opponent_idx = -1;
-
-    // determination of the linearity of the blobs
-    for (int j = 0; j < blob_count; j++) {
-        lidar_blob_detection blob = blobs[j];
-
-        // determination of the blob size
-        double diam, dist, angle;
-        blob_delimiter(data, count, blob, &diam, &dist, &angle);
-        if (diam > 100 || diam < 50) continue;
-        LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", data[blob.index_start].angle, " degrees ", dist, "mm far");
-
-        if (opponent_idx != -1){
-            LOG_WARNING("Too many opponents blobs were found, stopping");
-            return false;
-        }
-        // Blob considered as opponent 
-        opponent_idx = j;
-    }
-
-    if (opponent_idx == -1){
-        return false;
-    }
-
-    // determination of the opponent could be using the bounding box of the blob
-    lidar_blob_detection opponent_blob = blobs[opponent_idx];
-    // Calculate the centroid of the largest blob
-    int pos_sum_x = 0;
-    int pos_sum_y = 0;
-    if (opponent_blob.index_stop >= opponent_blob.index_start){
-        for (int i = opponent_blob.index_start; i <= opponent_blob.index_stop; i++){
-            pos_sum_x += data[i].x;
-            pos_sum_y += data[i].y;
-        }
-    }
-    else{
-        // edgecase
-        for (int i = opponent_blob.index_start; i < count; i++){
-            pos_sum_x += data[i].x;
-            pos_sum_y += data[i].y;
-        }
-        for (int i = 0; i <= opponent_blob.index_stop; i++){
-            pos_sum_x += data[i].x;
-            pos_sum_y += data[i].y;
-        }
-    }
-    opponent_pos->x = pos_sum_x / opponent_blob.count;
-    opponent_pos->y = pos_sum_y / opponent_blob.count;
-
-    double angle_robot_opponent = atan2(opponent_pos->y - robot_pos.y, opponent_pos->x - robot_pos.x);
-    opponent_pos->x += 15*cos(angle_robot_opponent); //Offset the position my 15mm
-    opponent_pos->y += 15*sin(angle_robot_opponent);
-
-    return true;
-}
 
 //TODO : These can go
 void printLidarAxial(lidarAnalize_t* data, int count){
@@ -627,6 +492,14 @@ void local_lidar_point_position(lidarAnalize_t* data, int idx, double* x, double
     *y = data[idx].dist * sin((double)(-data[idx].angle * DEG_TO_RAD));
 }
 
+#define BLOBS_COUNT 200 // Define the maximum number of blobs
+
+typedef struct {
+    int index_start;
+    int index_stop;
+    int count;
+} lidar_blob_detection;
+
 //Calculate the average diameter of a blob, also returns the dist 
 void blob_delimiter(lidarAnalize_t* data, int count, lidar_blob_detection blob, double* diam, double* dist, double* angle){
     //Using the min and max angles seen by the lidar of the blob, you can find a circle the circles the blob
@@ -830,6 +703,136 @@ bool find_beacons_best_fit(position_double_t* beacons_real_pos, position_double_
     }
     return false;
 }
+
+// Returns the number of blobs found
+int find_blobs(lidarAnalize_t* data, int count, lidar_blob_detection* blobs, int min_points, int max_distance){
+    LOG_DEBUG("Total lidar point count is ", count, ", minium to be a blob is ", min_points);
+    
+    int blob_idx = 0; // Count of detected blobs
+
+    // Initialize blobs
+    for (int b = 0; b < BLOBS_COUNT; b++) {
+        blobs[b].index_start = 0;
+        blobs[b].index_stop = 0;
+        blobs[b].count = 0;
+    }
+
+    // Iterate through points and create blobs
+    for (int i = 0; i < count; i++) {
+        if (!data[i].onTable){
+            if (blobs[blob_idx].count > min_points){
+                blob_idx++;
+                if (blob_idx == BLOBS_COUNT){
+                    LOG_WARNING("position_opponentV2 - No more place for more blobs!");
+                    return -1;
+                }
+            }
+            else if (blobs[blob_idx].count > 0){
+                blobs[blob_idx].count = 0;
+            }
+            continue;
+        }
+
+        if (blobs[blob_idx].count == 0){
+            blobs[blob_idx].index_start = i;
+            blobs[blob_idx].index_stop = i;
+            blobs[blob_idx].count = 1;
+        }
+        else if (fabs(data[blobs[blob_idx].index_stop].dist - data[i].dist) > max_distance || data[i].angle - data[blobs[blob_idx].index_stop].angle > 1.0){ //If two points are further than max_distance then create a new blob
+            if (blobs[blob_idx].count >= min_points)
+                blob_idx++;
+            if (blob_idx == BLOBS_COUNT){
+                LOG_WARNING("position_opponentV2 - No more place for more blobs!");
+                return -1;
+            }
+            blobs[blob_idx].index_start = i;
+            blobs[blob_idx].index_stop = i;
+            blobs[blob_idx].count = 1;
+        }
+        else{ //Add the point to the current blob
+            blobs[blob_idx].index_stop = i;
+            blobs[blob_idx].count ++;
+        }
+    }
+    //Check for the edge case where opponent is right in front
+    if (data[0].onTable && data[count - 1].onTable && fabs(data[0].dist - data[count - 1].dist) < max_distance){
+        //Merge the last into the first
+        blobs[0].index_start = blobs[blob_idx].index_start;
+        blob_idx--;
+    }
+    return blob_idx;
+}
+
+// Dans le pire des cas, on a 0.3% des points qui sont l'ennemi
+bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, position_t *opponent_pos){
+    lidar_blob_detection blobs[BLOBS_COUNT]; // Array to hold detected blobs
+    int min_points = 4 ; //4 points to be an opponent
+    int max_distance = 50; //50mm to be a different blob
+    int blob_count = find_blobs(data, count, blobs, min_points, max_distance);
+
+
+    if (blob_count < 1){
+        LOG_DEBUG("Did not find any opponent blob");
+        return false;
+    }
+
+    int opponent_idx = -1;
+
+    // determination of the linearity of the blobs
+    for (int j = 0; j < blob_count; j++) {
+        lidar_blob_detection blob = blobs[j];
+
+        // determination of the blob size
+        double diam, dist, angle;
+        blob_delimiter(data, count, blob, &diam, &dist, &angle);
+        if (diam > 100 || diam < 50) continue;
+        LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", data[blob.index_start].angle, " degrees ", dist, "mm far");
+
+        if (opponent_idx != -1){
+            LOG_WARNING("Too many opponents blobs were found, stopping");
+            return false;
+        }
+        // Blob considered as opponent 
+        opponent_idx = j;
+    }
+
+    if (opponent_idx == -1){
+        return false;
+    }
+
+    // determination of the opponent could be using the bounding box of the blob
+    lidar_blob_detection opponent_blob = blobs[opponent_idx];
+    // Calculate the centroid of the largest blob
+    int pos_sum_x = 0;
+    int pos_sum_y = 0;
+    if (opponent_blob.index_stop >= opponent_blob.index_start){
+        for (int i = opponent_blob.index_start; i <= opponent_blob.index_stop; i++){
+            pos_sum_x += data[i].x;
+            pos_sum_y += data[i].y;
+        }
+    }
+    else{
+        // edgecase
+        for (int i = opponent_blob.index_start; i < count; i++){
+            pos_sum_x += data[i].x;
+            pos_sum_y += data[i].y;
+        }
+        for (int i = 0; i <= opponent_blob.index_stop; i++){
+            pos_sum_x += data[i].x;
+            pos_sum_y += data[i].y;
+        }
+    }
+    opponent_pos->x = pos_sum_x / opponent_blob.count;
+    opponent_pos->y = pos_sum_y / opponent_blob.count;
+
+    double angle_robot_opponent = atan2(opponent_pos->y - robot_pos.y, opponent_pos->x - robot_pos.x);
+    opponent_pos->x += 15*cos(angle_robot_opponent); //Offset the position my 15mm
+    opponent_pos->y += 15*sin(angle_robot_opponent);
+
+    return true;
+}
+
+
 
 beacon_detection_t beacon_detection = {
     .valid = false,
