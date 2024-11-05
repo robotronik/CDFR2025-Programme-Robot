@@ -156,6 +156,7 @@
             ctx.beginPath(); ctx.arc(centerX - 1594, centerY - 0, 20, 0, Math.PI * 2); ctx.fill();
 
             
+            ctx.strokeStyle = 'green';
             data["lidar"].forEach(point => {
                 drawPoint(ctx, point.y, point.x);
             });

@@ -685,7 +685,7 @@ bool find_beacons_best_fit(position_double_t* beacons_real_pos, position_double_
             double x_error = fabs(avg_x - robot_pos_x[idx]);
             double y_error = fabs(avg_y - robot_pos_y[idx]);
             double theta_error = fabs(delta_angle_double(avg_theta, robot_angles[idx]));
-            if (x_error > 100.0 || y_error > 100.0 || theta_error > 10.0){ //mm and degs
+            if (x_error > 300.0 || y_error > 300.0 || theta_error > 10.0){ //mm and degs
                 is_solution = false;
                 break;
             }
@@ -784,9 +784,9 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
         // determination of the blob size
         double diam, dist, angle;
         blob_delimiter(data, count, blob, &diam, &dist, &angle);
-        LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", angle, " degrees ", dist, "mm far");
+        //LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", angle, " degrees ", dist, "mm far");
         if (diam > 100 || diam < 10) continue; //TODO Min should be 50mm
-        LOG_GREEN_INFO("Blob fits the requirements");
+        //LOG_GREEN_INFO("Blob fits the requirements");
 
         if (opponent_idx != -1){
             LOG_WARNING("Too many opponents blobs were found, stopping");
@@ -878,7 +878,7 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
 
 
     if (blob_count < BEACONS_COUNT){
-        LOG_DEBUG("Found ", blob_count, " blobs");
+        //LOG_DEBUG("Found ", blob_count, " blobs");
         return false;
     }
 
@@ -892,14 +892,14 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
         double diam, dist, angle;
         blob_delimiter(data, count, blob, &diam, &dist, &angle);
         if (diam > 130 || diam < 92) continue; //TODO Might need to be tweaked
-        LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", data[blob.index_start].angle, " degrees ", dist, "mm far");
+        //LOG_DEBUG("Found a blob with diam=", diam, "mm, with ", blob.count, " points at ", data[blob.index_start].angle, " degrees ", dist, "mm far");
 
         // determination of the linearity of the blobs
         double pangle, px, py;
         double mean_deriv = linear_regression(data, count, blob, diam, &pangle, &px, &py);
-        LOG_DEBUG("Found a blob with a mean_deriv = ", mean_deriv);
+        //LOG_DEBUG("Found a blob with a mean_deriv = ", mean_deriv);
 
-        if (mean_deriv < 0.1){ //TODO Might need to be tweaked
+        if (mean_deriv < 0.12){ //TODO Might need to be tweaked
             if (beacon_idx == BEACONS_COUNT){
                 LOG_WARNING("Too many beacons were found, stopping");
                 return false;
@@ -907,13 +907,12 @@ bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *positio
             beacon_detection.beacons_rel_pos[beacon_idx] = {px, py, pangle};
             beacon_detection.diameters[beacon_idx] = diam;
 
-            LOG_DEBUG("Beacon ", beacon_idx, " is relative to lidar at\tx=", px, "\ty=", py, "\ttheta=", pangle, " degs");
+            //LOG_DEBUG("Beacon ", beacon_idx, " is relative to lidar at\tx=", px, "\ty=", py, "\ttheta=", pangle, " degs");
             // Blob considered as beacon 
             beacon_idx++;
             if (beacon_idx == BEACONS_COUNT)
                 LOG_DEBUG("search for beacons : ", BEACONS_COUNT, " are found");
         }
-        LOG_DEBUG("");
     }
     if (beacon_idx != BEACONS_COUNT){
         LOG_DEBUG("Did not find the ", BEACONS_COUNT, " beacons");

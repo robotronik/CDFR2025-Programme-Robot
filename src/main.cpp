@@ -459,8 +459,10 @@ void GetLidarV2()
     {
         position_t position;
         colorTeam_t color;
+        // TODO : Add offset to lidar robot pos
         if (position_robot_beacons(lidarData, lidar_count, &position, tableStatus.robot.colorTeam, &color)){
             LOG_GREEN_INFO("Successfully found the robot's position using beacons");
+            LOG_GREEN_INFO("X = ", position.x," Y = ", position.y, " theta = ", position.theta);
         }
         else{
             position = tableStatus.robot.pos;

@@ -132,11 +132,11 @@
                 drawPoint(ctx, x, y);
             });
             if (data["detection_debug"]["valid"]){
-                
-                for (let i = 0; i < data["detection_debug"]["count"]; i++) {
+                for (let i = 0; i < data["detection_debug"]["beacon_count"]; i++) {
+                    console.log("stroking");
                     ctx.strokeStyle = "green";
                     drawVector(ctx, data["detection_debug"]["beacons_rel_pos"][i], 300);
-                    drawCircle(ctx, data["detection_debug"]["beacons_rel_pos"][i], data["detection_debug"]["distances"][i]/2.0);
+                    drawCircle(ctx, data["detection_debug"]["beacons_rel_pos"][i], data["detection_debug"]["diameters"][i]/2.0);
                 }
             }
             

@@ -59,6 +59,7 @@ typedef struct {
 extern beacon_detection_t beacon_detection;
 void to_json(json& j, const beacon_detection_t& bd);
 
+bool transform_coordinates(double x1, double y1, double theta1, double x1_prime, double y1_prime, double theta1_prime, double* x, double* y, double* theta);
 int delta_angle(int angle1, int angle2);
 double delta_angle_double(double angle1, double angle2);
 bool position_robot_beacons(lidarAnalize_t* data, int count, position_t *position, colorTeam_t team_color, colorTeam_t* out_team_color);

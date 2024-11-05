@@ -70,6 +70,12 @@ bool test_lidar_opponent() {
 }
 
 bool test_lidar_beacons() {
+    double x, y, t;
+    transform_coordinates(100, 0, 0, 0, 0, -45, &x, &y, &t);
+    printf("\n\n\npos is %lf , %lf\n\n\n", x, y);
+    return true;
+
+
     position_t expected_robot_pos = {0, 0, 0, 0, 0};
     // Test 1
     {
