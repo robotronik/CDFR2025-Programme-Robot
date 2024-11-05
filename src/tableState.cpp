@@ -3,9 +3,8 @@
 //table_t : etat, cout, tps, color
 
 TableState::TableState(){}
-void TableState::init(Affichage* i_affichage)
+void TableState::init()
 {
-    affichage = i_affichage;
     score = 1;
     FIN = false;
     pos_opponent.x = 0; pos_opponent.y = 0;
@@ -40,13 +39,11 @@ int TableState::getScore()
 void TableState::setScore(int score)
 {
     this->score = score;
-    affichage->updateScore(this->score);
 }
 
 void TableState::incrementScore(int score)
 {
     this->score += score;
-    affichage->updateScore(this->score);
     LOG_GREEN_INFO("score = ", getScore());
 }
 

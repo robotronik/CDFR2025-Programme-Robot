@@ -15,7 +15,6 @@
 #include "lidarAnalize.h"
 #include "lidar.h"
 #include "arduino.hpp"
-#include "affichage.hpp"
 #include "utils.h"
 #include "arduinoSubFonction.h"
 #include "logger.hpp"
@@ -32,8 +31,9 @@ CmdAsserv *robotI2C;
 lidarAnalize_t lidarData[SIZEDATALIDAR];
 int lidar_count = 0;
 
-Affichage *affichage;
-SSD1306 display(0x3C);
+// TODO : Gone
+//Affichage *affichage;
+//SSD1306 display(0x3C);
 Arduino *arduino;
 
 main_State_t nextState;
@@ -255,7 +255,6 @@ int main(int argc, char *argv[])
             if (initState)
             {
                 LOG_STATE("FIN");
-                affichage->updateScore(tableStatus.getScore());
                 arduino->servoPosition(4, 180);
                 arduino->servoPosition(1, 180);
 
@@ -348,10 +347,7 @@ int StartSequence()
     return -1;
 #endif
 
-    affichage = new Affichage(display);
-    affichage->init();
-
-    tableStatus.init(affichage);
+    tableStatus.init();
 
     robotI2C = new CmdAsserv(I2C_ASSER_ADDR);
     // LOG_SETROBOT(robotI2C);
@@ -432,10 +428,7 @@ void GetLidar()
 
 
         if (count_pos == 10)
-        {
-            affichage->updatePosition(pos_opponent.x, pos_opponent.y);
             count_pos = 0;
-        }
         count_pos++;
 
         int16_t braking_distance;
@@ -493,10 +486,7 @@ void GetLidarV2()
         }
 
         if (count_pos == 10)
-        {
-            affichage->updatePosition(tableStatus.pos_opponent.x, tableStatus.pos_opponent.y);
             count_pos = 0;
-        }
         count_pos++;
 
         int16_t braking_distance;

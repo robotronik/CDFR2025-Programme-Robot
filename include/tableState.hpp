@@ -1,6 +1,5 @@
 #pragma once
 #include "structs.hpp"
-#include "affichage.hpp"
 #include "logger.hpp"
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -22,7 +21,7 @@ public:
 
     TableState();
     ~TableState();
-    void init(Affichage* affichage);
+    void init();
 
     int getScore();
     void setScore(int score);
@@ -41,7 +40,6 @@ public:
 
 private:
     int score;
-    Affichage* affichage;
 };
 
 // Serialize tableState
