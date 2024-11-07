@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=0.5">
     <title>Lidar</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
     <style>
         canvas {
             border: 2px solid white;
@@ -33,22 +33,63 @@
     </div>
 
     <!-- Canvas element where we will draw shapes and images -->
-    <canvas id="displayCanvas" width="1000" height="1000" class="m-5 justify-content-center align-items-center"></canvas>
+    <div class="d-flex justify-content-center m-4">
+        <canvas id="displayCanvas" width="1000" height="1000"></canvas>
+        <button id="saveLidarButton" class="btn btn-primary">Save LiDAR Data</button>
+    </div>
+
+    <script>
+        document.getElementById('saveLidarButton').addEventListener('click', function() {
+            fetch('/get_lidar') // Replace with your actual endpoint
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const jsonString = JSON.stringify(data, null); // Pretty print JSON
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+
+                // Create a temporary anchor element to trigger download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'lidar_data.json'; // Default file name
+                document.body.appendChild(a);
+                a.click(); // Programmatically click the link
+                document.body.removeChild(a); // Remove the link
+                URL.revokeObjectURL(url); // Release the URL object
+            })
+            .catch(error => {
+                console.error('Error fetching LiDAR data:', error);
+                alert('Error fetching LiDAR data: ' + error.message);
+            });
+        });
+    </script>
 
     <script>
         const canvas = document.getElementById('displayCanvas');
         const ctx = canvas.getContext('2d');
         const statusDot = document.getElementById('statusDot');
+
+        const svgArrows = new Image();
+        svgArrows.src = 'assets/arrows_dark.svg';
         
-        let x = 50;
-        let y = 150;
         let centerX = canvas.width / 2;
         let centerY = canvas.height / 2;
+
+        let scale = 1.5; // pixels per centimeter
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
 
         // Function to start the continuous Lidar fetching loop
         async function startContinuousLidarFetch() {
             while (true) {  // Infinite loop
                 await getLidar();  // Wait for the Lidar data to be fetched and drawn
+                await sleep(10);
             }
         }
 
@@ -73,46 +114,72 @@
 
             //Draw robot
             ctx.fillStyle = 'blue';
-            ctx.fillRect(centerX - 15, centerY - 15, 30, 30);
+            ctx.fillRect(centerX - 15 * scale, centerY - 15 * scale, 30 * scale, 30 * scale);
 
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc(1500, 1000, 10, 0, Math.PI * 2); // x, y, radius, startAngle, endAngle
-            ctx.fill();
-
-            x += 1; // Move the rectangle horizontally
-            if (x > canvas.width) x = 0; // Reset position when it goes off-screen
+            // Draw arrows
+            ctx.drawImage(svgArrows, centerX - 50, centerY - 50, 100, 100);
+            let vector = {"angle" : 15, "x" : 300, "y" : 600};
         }
 
         //takes the lidar data
         function drawLidar(ctx, data){
             draw();
             data["data"].forEach(point => {
-                if (point.valid){
-                    ctx.strokeStyle = "green";
-                    let A = (point.A - 90)/180*Math.PI;
-                    let x = point.R*Math.cos(A);
-                    let y = point.R*Math.sin(A);
-                    drawPoint(ctx, x, y);
-                }
+                ctx.strokeStyle = "red";
+                let A = (point.A + 90) / 180 * Math.PI;
+                let x = point.R * Math.cos(A);
+                let y = point.R * Math.sin(A);
+                drawPoint(ctx, x, y);
             });
+            if (data["detection_debug"]["valid"]){
+                for (let i = 0; i < data["detection_debug"]["beacon_count"]; i++) {
+                    console.log("stroking");
+                    ctx.strokeStyle = "green";
+                    drawVector(ctx, data["detection_debug"]["beacons_rel_pos"][i], 300);
+                    drawCircle(ctx, data["detection_debug"]["beacons_rel_pos"][i], data["detection_debug"]["diameters"][i]/2.0);
+                }
+            }
+            
+            ctx.strokeStyle = 'white';
         }
         
         //draws a point from lidar data
         function drawPoint(ctx, x, y) {
-            let p_x = centerX + x / 10.0;
-            let p_y = centerY + y / 10.0;
+            let p_x = centerX + x / 10.0 * scale;
+            let p_y = centerY + y / 10.0 * scale;
             ctx.beginPath();
             ctx.roundRect(p_x, p_y, 2, 2, 1);
             ctx.stroke();
         }
-        
+        function drawVector(ctx, vector, length) {
+            const radians = vector.angle * (Math.PI / 180);
+            let len_px = length / 20.0 * scale;
+            let p_x = centerX + vector.y / 10.0 * scale;
+            let p_y = centerY + vector.x / 10.0 * scale;
+            let p_x1 = p_x + len_px * Math.sin(radians);
+            let p_y1 = p_y + len_px * Math.cos(radians);
+            let p_x2 = p_x - len_px * Math.sin(radians);
+            let p_y2 = p_y - len_px * Math.cos(radians);
+
+            // Draw the line (vector)
+            ctx.beginPath();
+            ctx.moveTo(p_x1, p_y1); // Start point
+            ctx.lineTo(p_x2, p_y2);       // End point
+            ctx.lineWidth = 2;             // Set line width
+            ctx.stroke();                  // Render the line
+        }
+        function drawCircle(ctx, pos, r){
+            ctx.beginPath();
+            ctx.arc(centerX + pos.y  / 10.0 * scale, centerY + pos.x  / 10.0 * scale, r / 10.0 * scale, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.stroke();
+        }
         // Start the continuous fetching loop
         startContinuousLidarFetch();
     </script>
 
     <!-- Bootstrap JS and dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
 
     <script>
         // Load navbar from external file

@@ -17,7 +17,7 @@ Ce programme est conçu pour permettre au robot d'accomplir différentes tâches
 Avant d'exécuter le programme, assurez-vous d'avoir installé les dépendances suivantes :
 
 ```bash
-sudo apt-get install make gcc g++ libi2c-dev python3-venv libasio-dev nlohmann-json3-dev
+sudo apt-get install make gcc g++ libi2c-dev python3-venv libasio-dev nlohmann-json3-dev gdb gdb-multiarch
 ```
 
 Les dépendances requises pour compiler sur arm (RasbPi)
@@ -84,8 +84,24 @@ Pour nettoyer faire
 ```bash
 make clean-all
 ```
+
+
+## Debugging on a Raspberry Pi with VS Code
+
+Connect your PC to the same Wi-Fi as the Raspberry Pi.
+Press F5 in VS Code to start debugging.
+You can now set breakpoints and use all the debugging tools available in VS Code for remote debugging on the Raspberry Pi.
+
 ## Accessibilité au site (restAPI)
 
 Soyez sur le même internet local que le robot.
 Le programme doit être lancer depis n'importe quel pc.
 Allez sur cette adresse ds un navigateur : http://raspberrypi.local:8080
+
+## Ecran tactile sur le robot
+
+Lancer les commandes pour démmarer chromium sur la page locale du robot
+```bash
+export DISPLAY=:0
+sudo startx /usr/bin/chromium-browser --noerrdialogs --kiosk http:0.0.0.0:8080/robot --incognito --disable-extensions --no-sandbox
+```

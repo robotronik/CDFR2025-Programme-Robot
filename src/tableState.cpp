@@ -3,40 +3,29 @@
 //table_t : etat, cout, tps, color
 
 TableState::TableState(){}
-void TableState::init(Affichage* i_affichage)
+void TableState::init()
 {
-    affichage = i_affichage;
-
-    for(int i = 0; i<6;i++){
-        planteStockFull[i].etat = true; //test panneau solaire = false
-        zoneFull[i].etat = false;
-        JardiniereFull[i].etat = false;
-        planteStockFull[i].cout = 50; //500 si test tous stocks
-        JardiniereFull[i].cout = 75;
-        jardiniereFree[i].etat =false;
-        jardiniereFree[i].cout = 55;
-    }
-
-    planteStockFull[2].cout += 2;
-    planteStockFull[4].cout += 2;
-    planteStockFull[3].cout -= 4;
-    jardiniereFree[2].etat = true;
-    jardiniereFree[3].etat = true;
-    solarPanelTurn.etat = false; //test wait solar etat = true
-    solarPanelTurn.cout = 50;
-
     score = 1;
     FIN = false;
-    init_pos.x = 0; init_pos.y = 0; init_pos.teta = -90;nb = 0;
-    for(int i =0; i < 9; i++){
-        panneauSolaireRotate[i].color = NONE;
-        panneauSolaireRotate[i].etat = false; 
+    pos_opponent.x = 0; pos_opponent.y = 0;
+
+    robot.pos = {0, 0, 0, 0, 0};
+    robot.colorTeam = NONE;
+
+
+    /* data show must go on*/
+    for(int i = 0; i<6;i++){
+        zoneFull[i].etat = false;
     }
-    
-    dx = 0; dy = 0;
-    prev_pos.x = 0; prev_pos.y = 0;prev_pos.teta=0;
-    ennemie.x = 0;ennemie.y = 0; nb =0;
-        
+    for(int i = 0; i<10;i++){
+        stock[i].etat = true;
+        stock[i].cout = 100; //TODO
+        stock[i].color = NONE;
+    }
+    banderole.etat = false;
+
+    robot.columns_count = 0;
+    robot.plank_count = 0;
 }
 
 TableState::~TableState(){
@@ -50,13 +39,11 @@ int TableState::getScore()
 void TableState::setScore(int score)
 {
     this->score = score;
-    affichage->updateScore(this->score);
 }
 
 void TableState::incrementScore(int score)
 {
     this->score += score;
-    affichage->updateScore(this->score);
     LOG_GREEN_INFO("score = ", getScore());
 }
 
@@ -68,18 +55,10 @@ void to_json(json& j, const table_t& t) {
 // Serialize tableState
 void to_json(json& j, const TableState& ts) {
     j = json{
-        {"planteStockFull", ts.planteStockFull},
-        {"JardiniereFull", ts.JardiniereFull},
+        {"stock", ts.stock},
+        {"banderole", ts.banderole},
         {"zoneFull", ts.zoneFull},
-        {"jardiniereFree", ts.jardiniereFree},
-        {"panneauSolaireRotate", ts.panneauSolaireRotate},
-        {"dx", ts.dx},
-        {"dy", ts.dy},
-        {"ennemie", ts.ennemie},
-        {"prev_pos", ts.prev_pos},
-        {"init_pos", ts.init_pos},
-        {"nb", ts.nb},
-        {"solarPanelTurn", ts.solarPanelTurn},
+        {"pos_opponent", ts.pos_opponent},
         {"startTime", ts.startTime},
         {"FIN", ts.FIN},
         {"robot", ts.robot}

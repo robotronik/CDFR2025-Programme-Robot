@@ -22,6 +22,8 @@ int pullpush(Arduino* arduino){
     return bret;
 }
 
+//TODO : Remove
+/*
 int catchPlant(Arduino* arduino){
     static unsigned long startTime;
     static int step = 0;
@@ -54,6 +56,10 @@ int catchPlant(Arduino* arduino){
     }
     return bret;
 }
+*/
+
+//TODO : Remove
+/*
 int catchPlant2(Arduino* arduino){ //catch plant in jardininiere
     static unsigned long startTime;
     static int step = 0;
@@ -86,7 +92,10 @@ int catchPlant2(Arduino* arduino){ //catch plant in jardininiere
     }
     return bret;
 }
+*/
 
+//TODO : Remove
+/*
 int releasePlant(Arduino* arduino){
     static unsigned long startTime;
     static int step = 0;
@@ -128,7 +137,10 @@ int releasePlant(Arduino* arduino){
     }
     return bret;
 }
+*/
 
+//TODO : Remove
+/*
 int FastReleasePlant(Arduino* arduino){
     static unsigned long startTime;
     static int step = 0;
@@ -170,6 +182,7 @@ int FastReleasePlant(Arduino* arduino){
     }
     return bret;
 }
+*/
 
 void blinkLed(Arduino* arduino,int LedNb,int periode){
     static unsigned long startTime = millis();

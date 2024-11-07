@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .main-container {
+            padding: 20px;
+        }
+
+        .number-display {
+            font-size: 8rem;
+            text-align: center;
+            border: 2px solid white;
+            border-radius: 5px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .colored-btn {
+            font-size: 2rem;
+            font-weight: bold;
+            height: 134px;
+        }
+
+        .label-section {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 2rem;
+        }
+
+        .home-icon {
+            font-size: 2rem;
+            width: 52px;
+            height: 52px;
+        }
+        
+        .btn-team-blue-sel {
+            background-color: blue;
+            border-color: blue;
+            color: white;
+        }
+        .btn-team-blue-uns {
+            background-color: none;
+            border-color: blue;
+            color: blue;
+        }
+        .btn-team-yellow-sel {
+            background-color: gold;
+            border-color: gold;
+            color: white;
+        }
+        .btn-team-yellow-uns {
+            background-color: none;
+            border-color: gold;
+            color: gold;
+        }
+
+        .logo {
+            text-align: center;
+        }
+
+        .checklist-btn {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .control-btns {
+            font-size: 2rem;
+            height: 100%;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container main-container">
+        <div class="row mt-2">
+            <div class="col-1">
+                <div class="d-flex flex-column align-items-start" style="gap: 10px;">
+                    <a href="/">
+                        <button class="btn btn-outline-light home-icon p-2" style="width: 60px; height: 60px;">
+                            <img src="assets/house.svg" alt="Home" style="width: 100%; height: 100%; filter: invert(100%); vertical-align:top">
+                        </button>
+                    </a>
+                    <button class="btn btn-outline-light home-icon p-2" style="width: 60px; height: 60px;">
+                        <img src="assets/card-checklist.svg" alt="New" style="width: 100%; height: 100%; filter: invert(100%); vertical-align:top">
+                    </button>
+                </div>
+            </div>
+            <div class="col-10">
+                <!-- Logo -->
+                <div class="logo">
+                    <img src="assets/logowhite.png" alt="LOGO" style="max-width: 100%; height: auto;">
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <!-- Colored buttons, stacked vertically -->
+                <div class="btn-container">
+                    <button id="blue-btn"   class="btn btn-team-blue-uns colored-btn"   onclick="sendColor(1)">BLUE</button>
+                    <button id="yellow-btn" class="btn btn-team-yellow-uns colored-btn" onclick="sendColor(2)">YELLOW</button>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <!-- Control buttons, stacked vertically -->
+                <div class="btn-container">
+                    <button id="strat-btn-1" class="btn btn-outline-light control-btns" onclick="sendStrat(1)">1</button>
+                    <button id="strat-btn-2" class="btn btn-outline-light control-btns" onclick="sendStrat(2)">2</button>
+                    <button id="strat-btn-3" class="btn btn-outline-light control-btns" onclick="sendStrat(3)">3</button>
+                    <button id="strat-btn-4" class="btn btn-outline-light control-btns" onclick="sendStrat(4)">4</button>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <!-- Number display -->
+                <div id="score-label" class="number-display">
+                    123
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col">
+                <!-- Placeholder for label -->
+                <div id="status-label" class="label-section">
+                    Placeholder for a label here
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Function to start the continuous robot data fetching loop
+        async function startContinuousRobotFetch() {
+            while (true) {  // Infinite loop
+                await getRobot();  // Wait for the data to be fetched
+                await sleep(100);
+            }
+        }
+
+        async function getRobot() {
+            try {
+                let response = await fetch('/get_robot');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                let data = await response.json();     
+                
+                const scoreLabel = document.getElementById("score-label");
+                const statusLabel = document.getElementById("status-label");    
+
+
+                let robotStatus = data["status"];
+                if (robotStatus == 0)
+                    statusLabel.innerHTML = "Robot State : Init";
+                else if (robotStatus == 1)
+                    statusLabel.innerHTML = "Robot State : Initialize";
+                else if (robotStatus == 2)
+                    statusLabel.innerHTML = "Robot State : Set Home";
+                else if (robotStatus == 3)
+                    statusLabel.innerHTML = "Robot State : Waiting for Start";
+                else if (robotStatus == 4)
+                    statusLabel.innerHTML = "Robot State : Running";
+                else if (robotStatus == 5)
+                    statusLabel.innerHTML = "Robot State : Fin";
+                else if (robotStatus == 6)
+                    statusLabel.innerHTML = "Robot State : Stopping";
+                else
+                    statusLabel.innerHTML = "Robot State : Undefined";
+                
+                scoreLabel.innerHTML = data["score"];
+
+                toggleColor(data["team"]);
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+            }
+        }
+        // Start the continuous fetching loop
+        startContinuousRobotFetch();
+
+
+        function sendColor(color) {
+            // Send POST request to /set_color with color data
+            fetch('/set_color', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ color: color }) // Convert the color object to a JSON string
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+                toggleColor(color);
+            })
+            .catch((error) => {
+                toggleColor("none");
+                console.error('Error:', error); // Handle errors
+            });
+        }
+        function sendStrat(strat) {
+            // Send POST request to /set_color with color data
+            fetch('/set_strat', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ strat: strat }) // Convert the color object to a JSON string
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+                toggleStrat(strat);
+            })
+            .catch((error) => {
+                toggleStrat(0);
+                console.error('Error:', error); // Handle errors
+            });
+        }
+
+        function toggleColor(color) {
+            const blueBtn = document.getElementById("blue-btn");
+            const yellowBtn = document.getElementById("yellow-btn");
+        
+            if (color == 1) {
+                // Set blue background and reset yellow
+                blueBtn.classList.remove('btn-team-blue-uns');
+                blueBtn.classList.add('btn-team-blue-sel');
+                
+                yellowBtn.classList.remove('btn-team-yellow-sel');
+                yellowBtn.classList.add('btn-team-yellow-uns');
+            } else if (color == 2) {
+                // Set yellow background and reset blue
+                yellowBtn.classList.remove('btn-team-yellow-uns');
+                yellowBtn.classList.add('btn-team-yellow-sel');
+                
+                blueBtn.classList.remove('btn-team-blue-sel');
+                blueBtn.classList.add('btn-team-blue-uns');
+            } else {
+                yellowBtn.classList.remove('btn-team-yellow-sel');
+                yellowBtn.classList.add('btn-team-yellow-uns');
+                
+                blueBtn.classList.remove('btn-team-blue-sel');
+                blueBtn.classList.add('btn-team-blue-uns');
+            }
+        }
+        function toggleStrat(strat) {
+            const strat1Btn = document.getElementById("strat-btn-1");
+            const strat2Btn = document.getElementById("strat-btn-2");
+            const strat3Btn = document.getElementById("strat-btn-3");
+            const strat4Btn = document.getElementById("strat-btn-4");
+
+
+            strat1Btn.classList.remove(strat != 1 ? 'btn-outline-danger' : 'btn-outline-light');
+            strat1Btn.classList.add   (strat == 1 ? 'btn-outline-danger' : 'btn-outline-light');
+            strat2Btn.classList.remove(strat != 2 ? 'btn-outline-danger' : 'btn-outline-light');
+            strat2Btn.classList.add   (strat == 2 ? 'btn-outline-danger' : 'btn-outline-light');
+            strat3Btn.classList.remove(strat != 3 ? 'btn-outline-danger' : 'btn-outline-light');
+            strat3Btn.classList.add   (strat == 3 ? 'btn-outline-danger' : 'btn-outline-light');
+            strat4Btn.classList.remove(strat != 4 ? 'btn-outline-danger' : 'btn-outline-light');
+            strat4Btn.classList.add   (strat == 4 ? 'btn-outline-danger' : 'btn-outline-light');
+        }
+        </script>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

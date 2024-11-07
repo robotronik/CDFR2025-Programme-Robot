@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
     <script>
         // Function to send GET request
         function sendGetRequest() {
@@ -39,13 +39,26 @@
     <div id="navbar-placeholder"></div>
 
     <div class="container text-white">
+        <div class="text-center mt-5">
+                <h1 class="display-4">Robotronik Rest API</h1>
+        </div>
+        
+        <!-- Centered images with flexbox -->
+        <div class="d-flex justify-content-center align-items-center mt-3">
+            <!-- First image (Logo CDR) -->
+            <img src="assets/LogoCDR2025-400x424.png" alt="Logo CDR" class="img-fluid" style="max-width: 200px;">
+            <!-- Spacer between the two images -->
+            <div style="width: 50px;"></div>
+            <!-- Second image (Logo white) -->
+            <img src="assets/logowhite.png" alt="Logo White" class="img-fluid" style="max-width: 500px;">
+        </div>
     
-    <div class="text-center mt-5">
-            <h1 class="display-4">Robotronik Rest API</h1>
+        <div class="mt-4">
+            <div>Welcome! You're now connected on the Rest API of the robot. Here you can view data and send commands.</div>
         </div>
 
         <!-- Button to trigger GET request -->
-        <div class="d-grid gap-2 col-6 mx-auto mt-3">
+        <div class="d-grid gap-2 col-6 mx-auto mt-4">
             <button class="btn btn-primary" onclick="sendGetRequest()">Send GET Request</button>
         </div>
 
@@ -61,7 +74,7 @@
     </div>
 
     <!-- Bootstrap JS and dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
 
     <script>
         // Load navbar from external file
