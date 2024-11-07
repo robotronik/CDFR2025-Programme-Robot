@@ -9,6 +9,7 @@
 
 enum class LogLevel { DEBUG, INFO, WARNING, ERROR, GREENINFO};
 
+constexpr LogLevel CURRENT_LOG_LEVEL = LogLevel::DEBUG;
 
 class ScopeLogger {
 private:
@@ -72,20 +73,9 @@ public:
         free(tempsFormate);
     }
 
-    // std::string getPosition(void){
-    //     int x,y,teta;
-    //     std::ostringstream returnstring;
-    //     if(robot!=NULL && !noLog){
-    //         noLog = true;
-    //         robot->getCoords(x,y,teta);
-    //         noLog = false;
-    //         returnstring << "[" << std::setw(5) << x << " " << std::setw(5) << y << " " << std::setw(4) << teta <<"]";
-    //     }        
-    //     return returnstring.str();
-    // }
-
     template<typename... Args>
     void log(LogLevel level, const std::string& message, Args... args) {
+        if (level < CURRENT_LOG_LEVEL) return;
         std::ostringstream oss;
         appendMessage(oss, message, args...);
 
@@ -129,15 +119,12 @@ private:
     void appendMessage(std::ostringstream& oss) {}  // Base case for recursion
 };
 
-
-
-
 // Macros for easier logging
 #define LOG_DEBUG(message, ...) Logger::getInstance().log(LogLevel::DEBUG, message, ##__VA_ARGS__)
 #define LOG_INFO(message, ...) Logger::getInstance().log(LogLevel::INFO, message, ##__VA_ARGS__)
 #define LOG_GREEN_INFO(message, ...) Logger::getInstance().log(LogLevel::GREENINFO, message, ##__VA_ARGS__)
+#define LOG_STATE(message, ...) Logger::getInstance().log(LogLevel::INFO, message, ##__VA_ARGS__)
 #define LOG_WARNING(message, ...) Logger::getInstance().log(LogLevel::WARNING, message, ##__VA_ARGS__)
 #define LOG_ERROR(message, ...) Logger::getInstance().log(LogLevel::ERROR, message, ##__VA_ARGS__)
 #define LOG_INIT() Logger::getInstance().initLog()
 #define LOG_SCOPE(message) ScopeLogger __logger__(message)
-#define LOG_STATE(message, ...) Logger::getInstance().log(LogLevel::INFO, message, ##__VA_ARGS__)

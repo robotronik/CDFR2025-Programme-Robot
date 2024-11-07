@@ -11,7 +11,7 @@ int deplacementPathFinding(int collide, CmdAsserv* robot, int x, int y){
     // Ludovic Bouchard - Variables non d�f�nies, n�c�ssaire pour compiler...
     CmdAsserv::direction direction;
     CmdAsserv::rotation rotation;
-    int teta;
+    int theta;
     DataPacker sd;
 
     switch (currentState)
@@ -47,7 +47,7 @@ int deplacementPathFinding(int collide, CmdAsserv* robot, int x, int y){
         break;
     case GOTO_TURN :
         if(initStat){ LOG_STATE("GOTO_TURN");
-            robot->set_consigne_angulaire(teta,rotation);
+            robot->set_consigne_angulaire(theta,rotation);
         }
         if(!robot->get_angular_error()){
             nextState = GOTO_INIT;
@@ -167,7 +167,7 @@ int deplacementLinearPoint(int collide, CmdAsserv* robot, int x, int y){
 
 
 
-int deplacementgoToPoint(int collide, CmdAsserv* robot, int x, int y, int teta, CmdAsserv::direction direction,CmdAsserv::rotation rotationLookAt,CmdAsserv::rotation rotation){
+int deplacementgoToPoint(int collide, CmdAsserv* robot, int x, int y, int theta, CmdAsserv::direction direction,CmdAsserv::rotation rotationLookAt,CmdAsserv::rotation rotation){
     LOG_SCOPE("go to");
     int ireturn = 0;
     static bool initStat = true;
@@ -209,7 +209,7 @@ int deplacementgoToPoint(int collide, CmdAsserv* robot, int x, int y, int teta, 
         break;
     case GOTO_TURN :
         if(initStat){ LOG_STATE("GOTO_TURN");
-            robot->set_consigne_angulaire(teta,rotation);
+            robot->set_consigne_angulaire(theta,rotation);
         }
         if(!robot->get_angular_error()){
             nextState = GOTO_INIT;
@@ -288,7 +288,7 @@ int deplacementgoToPointNoTurn(int collide, CmdAsserv* robot, int x, int y, CmdA
 }
 
 /*
-int DeplacementPathFinding(int collide, Asser* robot, int x, int y, int teta, asser_direction_side direction,asser_rotation_side rotationLookAt,asser_rotation_side rotation){ LOG_SCOPE("PATHFINDING");
+int DeplacementPathFinding(int collide, Asser* robot, int x, int y, int theta, asser_direction_side direction,asser_rotation_side rotationLookAt,asser_rotation_side rotation){ LOG_SCOPE("PATHFINDING");
     int ireturn = 0;
     static bool initStat = true;
     static go_to_State_PF_t currentState = GOTO_INIT_PF;
@@ -348,7 +348,7 @@ int DeplacementPathFinding(int collide, Asser* robot, int x, int y, int teta, as
         break;
     case GOTO_TURN_PF :
         if(initStat){ LOG_STATE("GOTO_TURN_PF");
-            robot->angularSetpoint(teta,rotation);
+            robot->angularSetpoint(theta,rotation);
         }
         if(!robot->getError(ANGULAR_ERROR)){
             nextState = GOTO_INIT_PF;

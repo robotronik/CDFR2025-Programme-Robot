@@ -114,34 +114,35 @@ int action::costAction(void){
 }
 
 void action::setCostAction(int num_action, int num_i_action, TableState *itable, int x_start, int y_start){
-    int16_t x_pos,y_pos,theta_pos;
     int distance_action;
+
+    // TODO : Change this to use itable.robot.pos instead
+    int16_t x_pos,y_pos,theta_pos;
     robot->get_coordinates(x_pos,y_pos,theta_pos);
+
     validActionPtr = -1;
-    //ACTION 1 : TAKE PLANT
-    if (num_action == 1 && itable->planteStockFull[num_i_action].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) && itable->startTime+75000 > millis()){
-        distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));  //distance de l'action au robot
-        validActionPtr = itable->planteStockFull[num_i_action].cout - distance_action/100; //distance : 10cm = -1 points
-        LOG_GREEN_INFO("action 1 : ",validActionPtr," / ",num_i_action);
-    }
-    //ACTION 2 : PutInJardinière
-    else if (num_action == 2 && !itable->JardiniereFull[num_i_action].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == JardinierePosition[num_i_action].team && itable->jardiniereFree[num_i_action].etat){
-        distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));
-        validActionPtr = itable->JardiniereFull[num_i_action].cout - distance_action/100;
-        LOG_GREEN_INFO("action 2 : ",validActionPtr," / ",num_i_action, " / ", distance_action);
-    }
-    //ACTION 3 : turn SolarPanel
-    else if (num_action == 3 && !itable->solarPanelTurn.etat){
-        if (itable->startTime+55000 < millis() || DeuxJardiniereFull(itable)){
-        validActionPtr = itable->solarPanelTurn.cout;}
-        else { validActionPtr = itable->solarPanelTurn.cout/2;}
-        LOG_GREEN_INFO("action 3 : ",validActionPtr," / ",num_i_action);
-    }
+    //ACTION 1 : TAKE STOCK
+    //TODO
+    //if (num_action == 1 && itable->planteStockFull[num_i_action].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) && itable->startTime+75000 > millis()){
+    //    distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));  //distance de l'action au robot
+    //    validActionPtr = itable->planteStockFull[num_i_action].cout - distance_action/100; //distance : 10cm = -1 points
+    //    LOG_GREEN_INFO("action 1 : ",validActionPtr," / ",num_i_action);
+    //}
+
+    //ACTION 2 : PUT IN CONSTRUCTION
+    //TODO
+    //else if (num_action == 2 && !itable->JardiniereFull[num_i_action].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == JardinierePosition[num_i_action].team && itable->jardiniereFree[num_i_action].etat){
+    //    distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));
+    //    validActionPtr = itable->JardiniereFull[num_i_action].cout - distance_action/100;
+    //    LOG_GREEN_INFO("action 2 : ",validActionPtr," / ",num_i_action, " / ", distance_action);
+    //}
+
     //ACTION 4 : return to Home
-    else if (num_action == 4 && itable->startTime+85000 < millis()){
+    if (num_action == 4 && itable->startTime+85000 < millis()){
         validActionPtr = 200;
         LOG_GREEN_INFO("action 4 : ",validActionPtr," / ",num_i_action);
     }
+
     /*
     //ACTION 5 : wait until fin
     else if (num_action == 5 && itable->startTime+88000 > millis() && !itable->FIN){
@@ -149,34 +150,6 @@ void action::setCostAction(int num_action, int num_i_action, TableState *itable,
         LOG_GREEN_INFO("action 5 : ",validActionPtr);
     
     }
-    */
-    //ACTION 6 : PushPot
-    else if (num_action == 6 && itable->robot.colorTeam == JardinierePosition[num_i_action].team && !itable->jardiniereFree[num_i_action].etat && (!allStockPlanteUsed(itable) || itable->robot.robotHavePlante) && itable->startTime+75000 > millis()){
-        distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));
-        validActionPtr = itable->jardiniereFree[num_i_action].cout - distance_action/100; 
-        LOG_GREEN_INFO("action 6 : ",validActionPtr," / ",num_i_action);
-    }
-    /*
-    //ACTION 7 : VolZone
-    else if (num_action == 7 && !itable->FIN){
-        distance_action = sqrt(pow(x_start-itable->ennemie.x,2) + pow(y_start - itable->ennemie.y,2));
-        if (distance_action > 500){
-            validActionPtr = 10;
-            LOG_GREEN_INFO("action 7 : ",validActionPtr);
-        }
-    }
-    */
-   /*
-    //ACTION 8 : VolJardiniere
-    else if (num_action == 8 && itable->startTime+80000 > millis()){
-        if (!itable->FIN && itable->robot.colorTeam != JardinierePosition[num_i_action].team){
-        distance_action = sqrt(pow(x_start-itable->ennemie.x,2) + pow(y_start - 200 - itable->ennemie.y,2));
-        if (distance_action > 100){
-            validActionPtr = 15;
-            LOG_GREEN_INFO("action 8 : ",validActionPtr);
-        }
-
-    }}
    */
 }
 
@@ -185,23 +158,23 @@ void action::setRunAction(std::function<int(action*, CmdAsserv*, Arduino*, Table
 }
 
 int action::goToStart(void){
-    if(noTetaStart){
+    if(nothetaStart){
         return deplacementgoToPointNoTurn(table->robot.collide, robot, startPostion.x,startPostion.y, startDirection,startRotation);
     }
     else{
-        return deplacementgoToPoint(table->robot.collide, robot, startPostion.x,startPostion.y, startPostion.teta, startDirection);
+        return deplacementgoToPoint(table->robot.collide, robot, startPostion.x,startPostion.y, startPostion.theta, startDirection);
     }    
 }
 
 
 int action::goToEnd(void){
-    return deplacementgoToPoint(table->robot.collide, robot, endPostion.x, endPostion.y, endPostion.teta, endDirection);
+    return deplacementgoToPoint(table->robot.collide, robot, endPostion.x, endPostion.y, endPostion.theta, endDirection);
 }
 
-void action::setStartPoint(int x, int y, int teta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
+void action::setStartPoint(int x, int y, int theta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
     startPostion.x = x;
     startPostion.y = y;
-    startPostion.teta = teta;
+    startPostion.theta = theta;
     startDirection = Direction;
     startRotation = rotation;
 }
@@ -211,13 +184,13 @@ void action::setStartPoint(int x, int y, CmdAsserv::direction Direction, CmdAsse
     startPostion.y = y;
     startDirection = Direction;
     startRotation = rotation;
-    noTetaStart = true;
+    nothetaStart = true;
 }
 
-void action::setEndPoint(int x, int y, int teta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
+void action::setEndPoint(int x, int y, int theta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
     endPostion.x = x;
     endPostion.y = y;
-    endPostion.teta = teta;
+    endPostion.theta = theta;
     endDirection = Direction;
     endRotation = rotation;
     noEndPoint = false;
