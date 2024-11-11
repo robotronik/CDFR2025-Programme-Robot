@@ -39,6 +39,7 @@ Arduino *arduino;
 main_State_t nextState;
 bool initState;
 actionContainer *actionSystem;
+bool manual_ctrl;
 
 std::thread api_server_thread;
 
@@ -177,6 +178,8 @@ int main(int argc, char *argv[])
             {
                 LOG_ERROR("bStateCapteur2 IS NOT THE RIGHT VALUE (0 or 1)");
             }
+            if (manual_ctrl)
+                nextState = MANUAL;
             break;
         }
         //****************************************************************
@@ -218,34 +221,46 @@ int main(int argc, char *argv[])
 
             // Counts the number of time the magnet sensor
             if (bStateCapteur1 == 0)
-            {
                 countStart++;
-            }
             else
-            {
                 countStart = 0;
-            }
+
             if (countStart == 5)
             {
                 nextState = RUN;
                 arduino->ledOff(1);
                 arduino->ledOff(2);
-                tableStatus.startTime = millis();
-                // actionSystem->initAction(robotI2C, arduino, &(tableStatus));
             }
+            if (manual_ctrl)
+                nextState = MANUAL;
             break;
         }
         //****************************************************************
         case RUN:
         {
-            if (initState)
+            if (initState){
                 LOG_STATE("RUN");
+                tableStatus.startTime = millis();
+                actionSystem->initAction(robotI2C, arduino, &(tableStatus));
+            }
             bool finished = actionSystem->actionContainerRun(robotI2C, &tableStatus);
 
             if (tableStatus.startTime + 90000 < millis() || tableStatus.FIN || finished)
             {
                 nextState = FIN;
             }
+            break;
+        }
+
+
+        //****************************************************************
+        case MANUAL:
+        {
+            if (initState)
+                LOG_STATE("MANUAL");
+
+            if (!manual_ctrl)
+                nextState = FIN;
             break;
         }
 
@@ -357,6 +372,7 @@ int StartSequence()
     currentState = INIT;
     nextState = INIT;
     initState = true;
+    manual_ctrl = false;
 
     actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
 

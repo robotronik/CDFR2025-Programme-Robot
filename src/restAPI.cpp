@@ -57,6 +57,12 @@ void StartAPIServer(){
         return readHtmlFile("html/robot.html");
     });
 
+    // Define a simple route for the control page
+    CROW_ROUTE(app, "/control")
+    ([](){
+        return readHtmlFile("html/control.html");
+    });
+
     // Define a route for a simple GET request that returns the status
     CROW_ROUTE(app, "/get_status")
     ([](){
@@ -206,6 +212,49 @@ void StartAPIServer(){
         return crow::response(response.dump(4));
     });
 
+    // Define a route for a POST request that sets the manual control mode
+    CROW_ROUTE(app, "/set_manual_control_mode").methods(crow::HTTPMethod::POST)([](const crow::request& req){
+        auto req_data = json::parse(req.body);
+        bool req_value = req_data["value"];
+
+        //TODO : Apply the value
+        manual_ctrl = req_value;
+
+        json response;
+        response["message"] = "Successfull";
+        return crow::response(response.dump(4));
+    });
+
+    // Define a route for a POST request that sets the robot position coordinates
+    CROW_ROUTE(app, "/set_coordinates").methods(crow::HTTPMethod::POST)([](const crow::request& req){
+        auto req_data = json::parse(req.body);
+
+        if (currentState != MANUAL){
+            json response;
+            response["message"] = "Cannot change the coordinates when not in MANUAL mode";
+            return crow::response(400, response.dump(4));
+        }
+
+        int req_x_value = tableStatus.robot.pos.x;
+        if (req_data.contains("x"))
+            req_x_value = req_data["x"];
+            
+        int req_y_value = tableStatus.robot.pos.y;
+        if (req_data.contains("y"))
+            req_y_value = req_data["y"];
+
+        int req_theta_value = tableStatus.robot.pos.theta;
+        if (req_data.contains("theta"))
+            req_theta_value = req_data["theta"];
+
+        //TODO : Apply the values
+        robotI2C->set_coordinates(req_x_value, req_y_value, req_theta_value);
+
+        json response;
+        response["message"] = "Successfull";
+        return crow::response(response.dump(4));
+    });
+
     // Route for serving SVG and PNG files
     CROW_ROUTE(app, "/assets/<string>")
     .methods(crow::HTTPMethod::GET)([](const std::string& filename) {
@@ -259,17 +308,6 @@ void StartAPIServer(){
 void StopAPIServer(){
     app.stop();
     LOG_INFO("Stopped API Server");
-}
-
-void TestAPIServer(){
-    // Sets some variable to display them statically
-
-    tableStatus.robot.pos.theta = 15;
-    tableStatus.robot.pos.x = 100;
-    tableStatus.robot.pos.y = 100;
-
-    tableStatus.pos_opponent.x = 300;
-    tableStatus.pos_opponent.y = 300;
 }
 
 void TestAPIServer(){

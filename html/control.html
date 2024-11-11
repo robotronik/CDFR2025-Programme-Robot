@@ -7,171 +7,38 @@
     
     <!-- Bootstrap CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        .main-container {
-            padding: 20px;
-        }
-
-        .number-display {
-            font-size: 8rem;
-            text-align: center;
-            border: 2px solid white;
-            border-radius: 5px;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
-
-        .colored-btn {
-            font-size: 2rem;
-            font-weight: bold;
-            height: 134px;
-        }
-
-        .label-section {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 2rem;
-        }
-
-        .home-icon {
-            font-size: 2rem;
-            width: 52px;
-            height: 52px;
-        }
-        
-        .btn-team-blue-sel {
-            background-color: blue;
-            border-color: blue;
-            color: white;
-        }
-        .btn-team-blue-uns {
-            background-color: none;
-            border-color: blue;
-            color: blue;
-        }
-        .btn-team-yellow-sel {
-            background-color: gold;
-            border-color: gold;
-            color: white;
-        }
-        .btn-team-yellow-uns {
-            background-color: none;
-            border-color: gold;
-            color: gold;
-        }
-
-        .logo {
-            text-align: center;
-        }
-
-        .checklist-btn {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .control-btns {
-            font-size: 2rem;
-            height: 100%;
-        }
-
-        .btn-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-    </style>
 </head>
 <body>
     <div class="container main-container">
-        <div class="row mt-2">
-            <div class="col-1">
-                <div class="d-flex flex-column align-items-start" style="gap: 10px;">
-                    <a href="/">
-                        <button class="btn btn-outline-light home-icon p-2" style="width: 60px; height: 60px;">
-                            <img src="assets/house.svg" alt="Home" style="width: 100%; height: 100%; filter: invert(100%); vertical-align:top">
-                        </button>
-                    </a>
-                    <button class="btn btn-outline-light home-icon p-2" style="width: 60px; height: 60px;">
-                        <img src="assets/card-checklist.svg" alt="New" style="width: 100%; height: 100%; filter: invert(100%); vertical-align:top">
-                    </button>
-                </div>
-            </div>
-            <div class="col-10">
-                <!-- Logo -->
-                <div class="logo">
-                    <img src="assets/logowhite.png" alt="LOGO" style="max-width: 100%; height: auto;">
-                </div>
-            </div>
-        </div>
-        
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <!-- Colored buttons, stacked vertically -->
-                <div class="btn-container">
-                    <button id="blue-btn"   class="btn btn-team-blue-uns colored-btn"   onclick="sendColor(1)">BLUE</button>
-                    <button id="yellow-btn" class="btn btn-team-yellow-uns colored-btn" onclick="sendColor(2)">YELLOW</button>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <!-- Control buttons, stacked vertically -->
-                <div class="btn-container">
-                    <button id="strat-btn-1" class="btn btn-outline-light control-btns" onclick="sendStrat(1)">1</button>
-                    <button id="strat-btn-2" class="btn btn-outline-light control-btns" onclick="sendStrat(2)">2</button>
-                    <button id="strat-btn-3" class="btn btn-outline-light control-btns" onclick="sendStrat(3)">3</button>
-                    <button id="strat-btn-4" class="btn btn-outline-light control-btns" onclick="sendStrat(4)">4</button>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <!-- Number display -->
-                <div id="score-label" class="number-display">
-                    123
-                </div>
-            </div>
-        </div>
+        <button id="btn-control-enable" class="btn btn-outline-light" onclick="sendManualMode(true)">Enable Manual Control</button>
+        <button id="btn-control-disable" class="btn btn-outline-light" onclick="sendManualMode(false)">Disable Manual Control</button>
 
-        <div class="row mt-4">
-            <div class="col">
-                <!-- Placeholder for label -->
-                <div id="status-label" class="label-section">
-                    Placeholder for a label here
-                </div>
-            </div>
+        <div id="status-label" class="label-section">
+            Placeholder for a label here
         </div>
     </div>
 
     <script>
-
-
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        // Function to start the continuous robot data fetching loop
-        async function startContinuousRobotFetch() {
+        // Function to start the continuous control data fetching loop
+        async function startContinuousControlFetch() {
             while (true) {  // Infinite loop
-                await getRobot();  // Wait for the data to be fetched
+                await getStatus();  // Wait for the data to be fetched
                 await sleep(100);
             }
         }
+        const statusLabel = document.getElementById("status-label");
 
-        async function getRobot() {
+        async function getStatus() {
             try {
-                let response = await fetch('/get_robot');
+                let response = await fetch('/get_status');
                 if (!response.ok) {
                     throw new Error('Network response was not ok ' + response.statusText);
                 }
-                let data = await response.json();     
-                
-                const scoreLabel = document.getElementById("score-label");
-                const statusLabel = document.getElementById("status-label");    
-
-
+                let data = await response.json();
                 let robotStatus = data["status"];
                 if (robotStatus == 0)
                     statusLabel.innerHTML = "Robot State : Init";
@@ -191,26 +58,22 @@
                     statusLabel.innerHTML = "Robot State : Manual";
                 else
                     statusLabel.innerHTML = "Robot State : Undefined";
-                
-                scoreLabel.innerHTML = data["score"];
-
-                toggleColor(data["team"]);
             } catch (error) {
                 console.error('Failed to fetch data:', error);
             }
         }
         // Start the continuous fetching loop
-        startContinuousRobotFetch();
+        startContinuousControlFetch();
 
 
-        function sendColor(color) {
+        function sendManualMode(enabled) {
             // Send POST request to /set_color with color data
-            fetch('/set_color', {
+            fetch('/set_manual_control_mode', {
                 method: 'POST', // HTTP method
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
-                body: JSON.stringify({ color: color }) // Convert the color object to a JSON string
+                body: JSON.stringify({ value: enabled }) // Convert the color object to a JSON string
             })
             .then(response => {
                 if (!response.ok) {
@@ -219,10 +82,8 @@
                 return response.json(); // Assuming the response will be JSON
             })
             .then(data => {
-                toggleColor(color);
             })
             .catch((error) => {
-                toggleColor("none");
                 console.error('Error:', error); // Handle errors
             });
         }
