@@ -14,7 +14,6 @@
 #include "main.hpp"
 #include "lidarAnalize.h"
 #include "lidar.h"
-#include "arduino.hpp"
 #include "utils.h"
 #include "arduinoSubFonction.h"
 #include "logger.hpp"

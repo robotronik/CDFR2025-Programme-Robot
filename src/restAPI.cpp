@@ -21,6 +21,8 @@ crow::SimpleApp app;
 void StartAPIServer(){
     LOG_INFO("Starting API Server on port ", API_PORT);
 
+    // ------------------------------- HTML Pages -------------------------------
+
     // Define a simple route for the root endpoint
     CROW_ROUTE(app, "/")
     ([](){
@@ -62,6 +64,8 @@ void StartAPIServer(){
     ([](){
         return readHtmlFile("html/control.html");
     });
+
+    // ------------------------------- GET Routes -------------------------------
 
     // Define a route for a simple GET request that returns the status
     CROW_ROUTE(app, "/get_status")
@@ -136,6 +140,8 @@ void StartAPIServer(){
         // TODO : Strategy number
         return crow::response(response.dump(4));
     });
+
+    // ------------------------------- POST Routes -------------------------------
 
     // Define a route for a POST request that accepts JSON data and responds with a message
     CROW_ROUTE(app, "/post_status").methods(crow::HTTPMethod::POST)([](const crow::request& req){
@@ -247,13 +253,130 @@ void StartAPIServer(){
         if (req_data.contains("theta"))
             req_theta_value = req_data["theta"];
 
-        //TODO : Apply the values
+        //Apply the values
         robotI2C->set_coordinates(req_x_value, req_y_value, req_theta_value);
 
         json response;
         response["message"] = "Successfull";
         return crow::response(response.dump(4));
     });
+
+    // Define a route for a POST request that sets a target position
+    CROW_ROUTE(app, "/set_target_coordinates").methods(crow::HTTPMethod::POST)([](const crow::request& req){
+        auto req_data = json::parse(req.body);
+
+        if (currentState != MANUAL){
+            json response;
+            response["message"] = "Cannot change the coordinates when not in MANUAL mode";
+            return crow::response(400, response.dump(4));
+        }
+
+        int req_x_value = tableStatus.robot.pos.x;
+        if (req_data.contains("x"))
+            req_x_value = req_data["x"];
+            
+        int req_y_value = tableStatus.robot.pos.y;
+        if (req_data.contains("y"))
+            req_y_value = req_data["y"];
+
+        //TODO : Apply the values
+        // Implementer de la logique si on veut seulement aller au point, seulement tourner ou les deux
+        if (req_data.contains("theta")){
+            int req_theta_value = req_data["theta"];
+        }
+        else{
+
+        }
+
+        json response;
+        response["message"] = "Successfull";
+        return crow::response(response.dump(4));
+    });
+
+    // Define a route for a POST request that move by a certain amount in mm
+    CROW_ROUTE(app, "/set_move").methods(crow::HTTPMethod::POST)([](const crow::request& req){
+        auto req_data = json::parse(req.body);
+
+        if (currentState != MANUAL){
+            json response;
+            response["message"] = "Cannot move when not in MANUAL mode";
+            return crow::response(400, response.dump(4));
+        }
+
+        int req_value = req_data["value"];
+
+        //TODO : Apply the value
+
+
+        json response;
+        response["message"] = "Successfull";
+        return crow::response(response.dump(4));
+    });
+
+    // Define a route for a POST request to rotate by a certain amount in degrees
+    CROW_ROUTE(app, "/set_rotate").methods(crow::HTTPMethod::POST)([](const crow::request& req){
+        auto req_data = json::parse(req.body);
+
+        if (currentState != MANUAL){
+            json response;
+            response["message"] = "Cannot rotate when not in MANUAL mode";
+            return crow::response(400, response.dump(4));
+        }
+
+        int req_value = req_data["value"];
+
+        //TODO : Apply the value
+
+
+        json response;
+        response["message"] = "Successfull";
+        return crow::response(response.dump(4));
+    });
+
+    // Define a route for a POST request to rotate a servo to a certain value
+    CROW_ROUTE(app, "/set_servo").methods(crow::HTTPMethod::POST)([](const crow::request& req){
+        auto req_data = json::parse(req.body);
+
+        if (currentState != MANUAL){
+            json response;
+            response["message"] = "Cannot rotate servo when not in MANUAL mode";
+            return crow::response(400, response.dump(4));
+        }
+
+        int req_value = req_data["value"];
+        int req_id = req_data["id"];
+
+        //Apply the value
+        arduino->servoPosition(req_id, req_value);
+
+        json response;
+        response["message"] = "Successfull";
+        return crow::response(response.dump(4));
+    });
+
+    // Define a route for a POST request to rotate a stepper to a certain value
+    CROW_ROUTE(app, "/set_stepper").methods(crow::HTTPMethod::POST)([](const crow::request& req){
+        auto req_data = json::parse(req.body);
+
+        if (currentState != MANUAL){
+            json response;
+            response["message"] = "Cannot rotate stepper when not in MANUAL mode";
+            return crow::response(400, response.dump(4));
+        }
+
+        int req_value = req_data["value"];
+        int req_id = req_data["id"];
+
+        //Apply the value
+        arduino->moveStepper(req_value, req_id);
+
+        json response;
+        response["message"] = "Successfull";
+        return crow::response(response.dump(4));
+    });
+
+
+    // ------------------------------- Routes for serving files -------------------------------
 
     // Route for serving SVG and PNG files
     CROW_ROUTE(app, "/assets/<string>")

@@ -1,6 +1,7 @@
 #pragma once
 #include "fonction.h"
 #include "cmdAsserv.hpp"
+#include "arduino.hpp"
 
 typedef enum {
     INIT,
@@ -22,3 +23,4 @@ extern CmdAsserv *robotI2C;
 extern lidarAnalize_t lidarData[SIZEDATALIDAR];
 extern int lidar_count;
 extern bool manual_ctrl;
+extern Arduino *arduino;

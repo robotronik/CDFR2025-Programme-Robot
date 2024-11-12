@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot</title>
+    <title>Control</title>
     
     <!-- Bootstrap CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -30,16 +30,16 @@
         </div>
         <div class="row mb-3">
             <div class="col">
-                <input type="number" class="form-control" placeholder="x mm">
+                <input id="set-x" type="number" class="form-control" placeholder="x mm">
             </div>
             <div class="col">
-                <input type="number" class="form-control" placeholder="y mm">
+                <input id="set-y" type="number" class="form-control" placeholder="y mm">
             </div>
             <div class="col">
-                <input type="number" class="form-control" placeholder="theta degs">
+                <input id="set-theta" type="number" class="form-control" placeholder="theta degs">
             </div>
             <div class="col">
-                <button type="button" class="btn btn-primary w-100">Set</button>
+                <button type="button" class="btn btn-primary w-100" onclick="sendSetCoordinates()">Set</button>
             </div>
         </div>
         
@@ -48,16 +48,16 @@
         </div>
         <div class="row mb-3">
             <div class="col">
-                <input type="number" class="form-control" placeholder="x mm">
+                <input id="target-x" type="number" class="form-control" placeholder="x mm">
             </div>
             <div class="col">
-                <input type="number" class="form-control" placeholder="y mm">
+                <input id="target-y" type="number" class="form-control" placeholder="y mm">
             </div>
             <div class="col">
-                <input type="number" class="form-control" placeholder="theta degs">
+                <input id="target-theta" type="number" class="form-control" placeholder="theta degs">
             </div>
             <div class="col">
-                <button type="button" class="btn btn-success w-100">Go</button>
+                <button type="button" class="btn btn-success w-100" onclick="sendSetTargetCoordinates()">Go</button>
             </div>
         </div>
 
@@ -66,13 +66,13 @@
         </div>
         <div class="row mb-3">
             <div class="col">
-                <input type="number" class="form-control" placeholder="mm">
+                <input id="move-input" type="number" class="form-control" placeholder="mm">
             </div>
             <div class="col">
-                <button type="button" class="btn btn-success w-100">Go Forwards</button>
+                <button type="button" class="btn btn-success w-100" onclick="sendSetMove(1)">Go Forwards</button>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-success w-100">Go Backwards</button>
+                <button type="button" class="btn btn-success w-100" onclick="sendSetMove(-1)">Go Backwards</button>
             </div>
         </div>
 
@@ -81,13 +81,13 @@
         </div>
         <div class="row mb-3">
             <div class="col">
-                <input type="number" class="form-control" placeholder="degs">
+                <input id="rotate-input" type="number" class="form-control" placeholder="degs">
             </div>
             <div class="col">
-                <button type="button" class="btn btn-success w-100">Turn Left</button>
+                <button type="button" class="btn btn-success w-100" onclick="sendSetMove(1)">Turn Left</button>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-success w-100">Turn Right</button>
+                <button type="button" class="btn btn-success w-100" onclick="sendSetMove(-1)">Turn Right</button>
             </div>
         </div>
 
@@ -96,18 +96,18 @@
         </div>
         <div class="row mb-3">
             <div class="col">
-                <input type="number" class="form-control" placeholder="value">
+                <input id="servo-value" type="number" class="form-control" placeholder="value">
             </div>
             <div class="col">
-                <select class="form-select" aria-label="Servo Number">
-                    <option value="0">Servo (0)</option>
-                    <option value="1">Servo (1)</option>
-                    <option value="2">Servo (2)</option>
-                    <option value="3">Servo (3)</option>
+                <select id="servo-select" class="form-select" aria-label="Servo Number">
+                    <option value=0>Servo (0)</option>
+                    <option value=1>Servo (1)</option>
+                    <option value=2>Servo (2)</option>
+                    <option value=3>Servo (3)</option>
                 </select>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-success w-100">Turn</button>
+                <button type="button" class="btn btn-success w-100" onclick="sendSetServo()">Turn Servo</button>
             </div>
         </div>
 
@@ -116,18 +116,18 @@
         </div>
         <div class="row mb-3">
             <div class="col">
-                <input type="number" class="form-control" placeholder="value">
+                <input id="stepper-value" type="number" class="form-control" placeholder="value">
             </div>
             <div class="col">
-                <select class="form-select" aria-label="Stepper Number">
-                    <option value="0">Stepper (0)</option>
-                    <option value="1">Stepper (1)</option>
-                    <option value="2">Stepper (2)</option>
-                    <option value="3">Stepper (3)</option>
+                <select id="stepper-select" class="form-select" aria-label="Stepper Number">
+                    <option value=0>Stepper (0)</option>
+                    <option value=1>Stepper (1)</option>
+                    <option value=2>Stepper (2)</option>
+                    <option value=3>Stepper (3)</option>
                 </select>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-success w-100">Turn</button>
+                <button type="button" class="btn btn-success w-100" onclick="sendSetStepper()">Turn Stepper</button>
             </div>
         </div>
     </div>
@@ -179,15 +179,13 @@
         // Start the continuous fetching loop
         startContinuousControlFetch();
 
-
         function sendManualMode(enabled) {
-            // Send POST request to /set_color with color data
             fetch('/set_manual_control_mode', {
                 method: 'POST', // HTTP method
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
-                body: JSON.stringify({ value: enabled }) // Convert the color object to a JSON string
+                body: JSON.stringify({ value: enabled })
             })
             .then(response => {
                 if (!response.ok) {
@@ -201,14 +199,19 @@
                 console.error('Error:', error); // Handle errors
             });
         }
-        function sendStrat(strat) {
-            // Send POST request to /set_color with color data
-            fetch('/set_strat', {
+        
+        
+        const set_x_inputfield = document.getElementById("set-x");
+        const set_y_inputfield = document.getElementById("set-y");
+        const set_theta_inputfield = document.getElementById("set-theta");
+
+        function sendSetCoordinates() {
+            fetch('/set_coordinates', {
                 method: 'POST', // HTTP method
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
-                body: JSON.stringify({ strat: strat }) // Convert the color object to a JSON string
+                body: JSON.stringify({ x: set_x_inputfield.value, y: set_y_inputfield.value, theta: set_theta_inputfield.value})
             })
             .then(response => {
                 if (!response.ok) {
@@ -217,57 +220,131 @@
                 return response.json(); // Assuming the response will be JSON
             })
             .then(data => {
-                toggleStrat(strat);
             })
             .catch((error) => {
-                toggleStrat(0);
                 console.error('Error:', error); // Handle errors
             });
         }
 
-        function toggleColor(color) {
-            const blueBtn = document.getElementById("blue-btn");
-            const yellowBtn = document.getElementById("yellow-btn");
+
+        const set_target_x_inputfield = document.getElementById("target-x");
+        const set_target_y_inputfield = document.getElementById("target-y");
+        const set_target_theta_inputfield = document.getElementById("target-theta");
+
+        function sendSetTargetCoordinates() {
+            fetch('/set_target_coordinates', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ x: set_target_x_inputfield.value, y: set_target_y_inputfield.value, theta: set_target_theta_inputfield.value})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
+        }
+
+
+        const set_move_inputfield = document.getElementById("move-input");
+        function sendSetMove(multiplier) {
+            let result = multiplier * set_move_inputfield.value;
+            fetch('/set_move', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ value: result })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
+        }
         
-            if (color == 1) {
-                // Set blue background and reset yellow
-                blueBtn.classList.remove('btn-team-blue-uns');
-                blueBtn.classList.add('btn-team-blue-sel');
-                
-                yellowBtn.classList.remove('btn-team-yellow-sel');
-                yellowBtn.classList.add('btn-team-yellow-uns');
-            } else if (color == 2) {
-                // Set yellow background and reset blue
-                yellowBtn.classList.remove('btn-team-yellow-uns');
-                yellowBtn.classList.add('btn-team-yellow-sel');
-                
-                blueBtn.classList.remove('btn-team-blue-sel');
-                blueBtn.classList.add('btn-team-blue-uns');
-            } else {
-                yellowBtn.classList.remove('btn-team-yellow-sel');
-                yellowBtn.classList.add('btn-team-yellow-uns');
-                
-                blueBtn.classList.remove('btn-team-blue-sel');
-                blueBtn.classList.add('btn-team-blue-uns');
-            }
+        const set_rotate_inputfield = document.getElementById("rotate-input");
+        function sendSetRotate(multiplier) {
+            let result = multiplier * set_rotate_inputfield.value;
+            fetch('/set_rotate', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ value: result })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
         }
-        function toggleStrat(strat) {
-            const strat1Btn = document.getElementById("strat-btn-1");
-            const strat2Btn = document.getElementById("strat-btn-2");
-            const strat3Btn = document.getElementById("strat-btn-3");
-            const strat4Btn = document.getElementById("strat-btn-4");
 
-
-            strat1Btn.classList.remove(strat != 1 ? 'btn-outline-danger' : 'btn-outline-light');
-            strat1Btn.classList.add   (strat == 1 ? 'btn-outline-danger' : 'btn-outline-light');
-            strat2Btn.classList.remove(strat != 2 ? 'btn-outline-danger' : 'btn-outline-light');
-            strat2Btn.classList.add   (strat == 2 ? 'btn-outline-danger' : 'btn-outline-light');
-            strat3Btn.classList.remove(strat != 3 ? 'btn-outline-danger' : 'btn-outline-light');
-            strat3Btn.classList.add   (strat == 3 ? 'btn-outline-danger' : 'btn-outline-light');
-            strat4Btn.classList.remove(strat != 4 ? 'btn-outline-danger' : 'btn-outline-light');
-            strat4Btn.classList.add   (strat == 4 ? 'btn-outline-danger' : 'btn-outline-light');
+        const set_servo_select = document.getElementById("servo-select");
+        const set_servo_value = document.getElementById("servo-value");
+        function sendSetServo() {
+            fetch('/set_servo', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ value: set_servo_value.value, id: set_servo_select.value })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
         }
-        </script>
+
+        const set_stepper_select = document.getElementById("stepper-select");
+        const set_stepper_value = document.getElementById("stepper-value");
+        function sendSetStepper() {
+            fetch('/set_stepper', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ value: set_stepper_value.value, id: set_stepper_select.value })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
+        }
+    </script>
 
     <!-- Bootstrap JS and dependencies -->
     <script src="js/bootstrap.bundle.min.js"></script>
