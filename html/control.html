@@ -9,12 +9,126 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container main-container">
-        <button id="btn-control-enable" class="btn btn-outline-light" onclick="sendManualMode(true)">Enable Manual Control</button>
-        <button id="btn-control-disable" class="btn btn-outline-light" onclick="sendManualMode(false)">Disable Manual Control</button>
+    <!-- Placeholder for the navbar -->
+    <div id="navbar-placeholder"></div>
 
-        <div id="status-label" class="label-section">
+    <div class="container main-container mt-4">
+        <div class="d-flex justify-content-center align-items-center">
+            <h1 class="text-white mb-0">Robot Control</h1>
+            <span class="status-dot ms-3" id="statusDot"></span>
+        </div>
+
+        <button id="btn-control-enable" class="btn btn-primary mt-2" onclick="sendManualMode(true)">Enable Manual Control</button>
+        <button id="btn-control-disable" class="btn btn-primary mt-2" onclick="sendManualMode(false)">Disable Manual Control</button>
+
+        <div id="status-label" class="label-section  mt-2">
             Placeholder for a label here
+        </div>
+
+        <div class="label-section  mt-2">
+            Set the robot's absolute coordinates
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input type="number" class="form-control" placeholder="x mm">
+            </div>
+            <div class="col">
+                <input type="number" class="form-control" placeholder="y mm">
+            </div>
+            <div class="col">
+                <input type="number" class="form-control" placeholder="theta degs">
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-primary w-100">Set</button>
+            </div>
+        </div>
+        
+        <div class="label-section">
+            Move the robot to absolute coordinates
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input type="number" class="form-control" placeholder="x mm">
+            </div>
+            <div class="col">
+                <input type="number" class="form-control" placeholder="y mm">
+            </div>
+            <div class="col">
+                <input type="number" class="form-control" placeholder="theta degs">
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100">Go</button>
+            </div>
+        </div>
+
+        <div class="label-section">
+            Move the robot forwards or backwards
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input type="number" class="form-control" placeholder="mm">
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100">Go Forwards</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100">Go Backwards</button>
+            </div>
+        </div>
+
+        <div class="label-section">
+            Turn the robot by an angle
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input type="number" class="form-control" placeholder="degs">
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100">Turn Left</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100">Turn Right</button>
+            </div>
+        </div>
+
+        <div class="label-section">
+            Turn a Servo to an absolute value
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input type="number" class="form-control" placeholder="value">
+            </div>
+            <div class="col">
+                <select class="form-select" aria-label="Servo Number">
+                    <option value="0">Servo (0)</option>
+                    <option value="1">Servo (1)</option>
+                    <option value="2">Servo (2)</option>
+                    <option value="3">Servo (3)</option>
+                </select>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100">Turn</button>
+            </div>
+        </div>
+
+        <div class="label-section">
+            Turn a Stepper to an absolute value
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input type="number" class="form-control" placeholder="value">
+            </div>
+            <div class="col">
+                <select class="form-select" aria-label="Stepper Number">
+                    <option value="0">Stepper (0)</option>
+                    <option value="1">Stepper (1)</option>
+                    <option value="2">Stepper (2)</option>
+                    <option value="3">Stepper (3)</option>
+                </select>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100">Turn</button>
+            </div>
         </div>
     </div>
 
@@ -157,5 +271,14 @@
 
     <!-- Bootstrap JS and dependencies -->
     <script src="js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Load navbar from external file
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-placeholder').innerHTML = data;
+            });
+    </script>
 </body>
 </html>
