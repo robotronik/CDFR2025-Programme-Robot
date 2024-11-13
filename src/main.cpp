@@ -106,11 +106,11 @@ int main(int argc, char *argv[])
                 arduino->readCapteur(2, bStateCapteur2);
                 if (bStateCapteur2 == 1)
                 {
-                    robotI2C->set_coordinates(-700, 1100, -90);
+                    robotI2C->set_coordinates(-770, 1390, -90);
                 }
                 else
                 {
-                    robotI2C->set_coordinates(-700, -1100, 90); // 90 de base
+                    robotI2C->set_coordinates(-770, -1390, 90); // 90 de base
                 }
             }
 
@@ -163,14 +163,14 @@ int main(int argc, char *argv[])
             {
                 tableStatus.robot.colorTeam = YELLOW;
                 nextState = WAITSTART; // SETHOME pour calibration
-                robotI2C->set_coordinates(-700, 1100, -90);
+                robotI2C->set_coordinates(-770, 1390, -90);
                 LOG_INFO("teams : YELLOW");
             }
             else if (bStateCapteur2 == 0)
             {
                 tableStatus.robot.colorTeam = BLUE;
                 nextState = WAITSTART; // SETHOME pour calibration
-                robotI2C->set_coordinates(-700, -1100, 90);
+                robotI2C->set_coordinates(-770, -1390, 90);
                 LOG_INFO("teams : BLUE");
             }
             else

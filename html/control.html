@@ -84,10 +84,10 @@
                 <input id="rotate-input" type="number" class="form-control" placeholder="degs">
             </div>
             <div class="col">
-                <button type="button" class="btn btn-success w-100" onclick="sendSetMove(1)">Turn Left</button>
+                <button type="button" class="btn btn-success w-100" onclick="sendSetRotate(1)">Turn Left</button>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-success w-100" onclick="sendSetMove(-1)">Turn Right</button>
+                <button type="button" class="btn btn-success w-100" onclick="sendSetRotate(-1)">Turn Right</button>
             </div>
         </div>
 
@@ -211,7 +211,11 @@
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
-                body: JSON.stringify({ x: Number(set_x_inputfield.value), y: Number(set_y_inputfield.value), theta: Number(set_theta_inputfield.value)})
+                body: JSON.stringify({
+                    x: set_x_inputfield.value.trim() !== '' ? Number(set_x_inputfield.value) : undefined,
+                    y: set_y_inputfield.value.trim() !== '' ? Number(set_y_inputfield.value) : undefined,
+                    theta: set_theta_inputfield.value.trim() !== '' ? Number(set_theta_inputfield.value) : undefined
+                })
             })
             .then(response => {
                 if (!response.ok) {
@@ -237,7 +241,11 @@
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
-                body: JSON.stringify({ x: Number(set_target_x_inputfield.value), y: Number(set_target_y_inputfield.value), theta: Number(set_target_theta_inputfield.value)})
+                body: JSON.stringify({
+                    x: set_target_x_inputfield.value.trim() !== '' ? Number(set_target_x_inputfield.value) : undefined,
+                    y: set_target_y_inputfield.value.trim() !== '' ? Number(set_target_y_inputfield.value) : undefined,
+                    theta: set_target_theta_inputfield.value.trim() !== '' ? Number(set_target_theta_inputfield.value) : undefined
+                })
             })
             .then(response => {
                 if (!response.ok) {
