@@ -329,27 +329,13 @@ int StartSequence()
         return -1;
     }
 
+    // Setup the PWM on pin 18
     if (GPIO_SetupPWMMotor() == -1) {
         fprintf(stderr, "Unable to initialize gpio\n");
         return -1;
     }
-    //GPIO_setPWMMotor(25);
-/*
-    // Initialize WiringPi
-    if (wiringPiSetupGpio() == -1) {
-        fprintf(stderr, "Unable to initialize WiringPi\n");
-        return -1;
-    }
-#define LIDAR_PIN 18
-    // Set the LIDAR motor pin to PWM output
-    pinMode(LIDAR_PIN, PWM_OUTPUT);
-    // Set the PWM range (this controls the max value for PWM)
-    pwmSetRange(1024);  // Set PWM range (default range is 1024, but you can adjust as needed)
-    // Set PWM frequency (in Hz)
-    pwmSetClock(192);  // This sets the frequency to 20 kHz (as PWM frequency is 19.2 MHz / clock divisor)
-    // Set the PWM value (this controls the speed, in this case 25)
-    pwmWrite(LIDAR_PIN, 25);
-*/
+    // Set the PWM motor value to 25%
+    GPIO_setPWMMotor(25);
 #endif
 
     signal(SIGTERM, ctrlc);
@@ -534,9 +520,8 @@ void EndSequence()
 
     arduino->moveStepper(0, 1);
 #ifndef DISABLE_LIDAR
-    //pwmWrite(LIDAR_PIN, 0);
-    //GPIO_stopPWMMotor();
-    //GPIO_cleanup();
+    GPIO_stopPWMMotor();
+    GPIO_cleanup();
 #endif
     arduino->servoPosition(4, 180);
     arduino->ledOff(2);

@@ -1,203 +1,272 @@
 /*
-#include <stdio.h>
-#include <stdlib.h>
+    GPIO access on RP1 through PCI BAR1
+    2024 Feb
+    Praktronics
+    GPL3
+    
+
+    run with sudo or as root for permissions to access to /dev/mem
+    this file is self-contained
+
+*/
+
+
 #include <stdint.h>
-#include <unistd.h>
-#include <fcntl.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include <sys/mman.h>
-#include "gpio.h"
+#include <fcntl.h>
+#include <time.h>
 
-#define GPIO_BASE        0xFE200000  // Base address for GPIO registers on Raspberry Pi 4/5 (BCM2835)
-#define BLOCK_SIZE       (4*1024)    // Size of memory block for mapping
+#include "logger.hpp"
 
-// Offsets for GPIO registers
-#define GPIO_FSEL0       0x00  // GPIO Function Select 0
-#define GPIO_SET0        0x1C  // GPIO Pin Output Set 0
-#define GPIO_CLR0        0x28  // GPIO Pin Output Clear 0
-#define GPIO_PUD         0x94  // GPIO Pin Pull-up/down
-#define GPIO_PUDCLK0     0x98  // GPIO Pin Pull-up/down Clock 0
-
-// Offsets for PWM registers
-#define PWM_BASE         0x3F20C000  // Base address for PWM
-#define PWM_CTL          0x00  // PWM Control
-#define PWM_RNG1         0x10  // PWM Range 1
-#define PWM_DAT1         0x14  // PWM Data 1
-
-volatile uint32_t *gpio;
-volatile uint32_t *pwm;
-
-void setup_gpio() {
-    // Set GPIO 18 (pin 12) to output mode
-    gpio[GPIO_FSEL0] = (gpio[GPIO_FSEL0] & ~(7 << 24)) | (1 << 24);  // Set GPIO18 to output (Function 1)
+void delay_ms(int milliseconds)
+{
+    struct timespec ts;
+    ts.tv_sec = milliseconds / 1000;
+    ts.tv_nsec = (milliseconds % 1000) * 1000000L;
+    nanosleep(&ts, NULL);
 }
 
-void setup_pwm() {
-    // Set PWM1 range (for GPIO18)
-    pwm[PWM_RNG1] = 1024;  // Set range (0-1024) for PWM1
+// pci bar info
+// from: https://github.com/G33KatWork/RP1-Reverse-Engineering/blob/master/pcie/hacks.py
+#define RP1_BAR1 0x1f00000000
+#define RP1_BAR1_LEN 0x400000
 
-    // Enable PWM1, with a basic mode (1) and turn it on
-    pwm[PWM_CTL] = (1 << 0) | (1 << 8);
-}
+// offsets from include/dt-bindings/mfd/rp1.h
+// https://github.com/raspberrypi/linux/blob/rpi-6.1.y/include/dt-bindings/mfd/rp1.h
+#define RP1_IO_BANK0_BASE 0x0d0000
+#define RP1_RIO0_BASE 0x0e0000
+#define RP1_PADS_BANK0_BASE 0x0f0000
 
-void set_pwm_duty_cycle(int duty_cycle) {
-    // Set PWM1 duty cycle
-    pwm[PWM_DAT1] = (duty_cycle * 1024) / 100;  // Convert percentage to range (0-1024)
-}
+// the following info is from the RP1 datasheet (draft & incomplete as of 2024-02-18)
+// https://datasheets.raspberrypi.com/rp1/rp1-peripherals.pdf
+#define RP1_ATOM_XOR_OFFSET 0x1000
+#define RP1_ATOM_SET_OFFSET 0x2000
+#define RP1_ATOM_CLR_OFFSET 0x3000
 
-void start_pwm() {
-    // Set PWM signal HIGH (for GPIO18)
-    gpio[GPIO_SET0] = (1 << 18);
-}
+#define PADS_BANK0_VOLTAGE_SELECT_OFFSET 0
+#define PADS_BANK0_GPIO_OFFSET 0x4
 
-void stop_pwm() {
-    // Set PWM signal LOW (for GPIO18)
-    gpio[GPIO_CLR0] = (1 << 18);
-}
+#define RIO_OUT_OFFSET 0x00
+#define RIO_OE_OFFSET 0x04
+#define RIO_NOSYNC_IN_OFFSET 0x08
+#define RIO_SYNC_IN_OFFSET 0x0C
+//                           3         2         1
+//                          10987654321098765432109876543210
+#define CTRL_MASK_FUNCSEL 0b00000000000000000000000000011111
+#define PADS_MASK_OUTPUT  0b00000000000000000000000011000000
 
-int GPIO_SetupPWMMotor(){
-    // Open /dev/mem to access physical memory
-    int mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
-    if (mem_fd < 0) {
-        perror("Error opening /dev/mem");
-        return -1;
+#define CTRL_FUNCSEL_RIO 0x05
+
+
+void *mapgpio(off_t dev_base, off_t dev_size)
+{
+    int fd;
+    void *mapped;
+    
+    printf("sizeof(off_t) %d\n", sizeof(off_t));
+
+    if ((fd = open("/dev/mem", O_RDWR | O_SYNC)) == -1)
+    {
+        printf("Can't open /dev/mem\n");
+        return (void *)0;
     }
 
-    // Map GPIO and PWM registers into memory
-    gpio = (volatile uint32_t*)mmap(NULL, BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, mem_fd, GPIO_BASE);
-    if (gpio == MAP_FAILED) {
-        perror("Error mapping GPIO registers");
-        close(mem_fd);
-        return -1;
+    mapped = mmap(0, dev_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, dev_base);
+    // close(fd);
+
+    printf("base address: %llx, size: %x, mapped: %p\n", dev_base, dev_size, mapped);
+
+    if (mapped == (void *)-1)
+    {
+        printf("Can't map the memory to user space.\n");
+        return (void *)0;
     }
 
-    pwm = (volatile uint32_t*)mmap(NULL, BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, mem_fd, PWM_BASE);
-    if (pwm == MAP_FAILED) {
-        perror("Error mapping PWM registers");
-        munmap((void*)gpio, BLOCK_SIZE);
-        close(mem_fd);
-        return -1;
-    }
+    return mapped;
+}
 
-    // Close /dev/mem after mapping
-    close(mem_fd);
 
-    // Setup GPIO 18 as output and setup PWM
-    setup_gpio();
-    setup_pwm();
+typedef struct
+{
+    uint8_t number;
+    volatile uint32_t *status;
+    volatile uint32_t *ctrl;
+    volatile uint32_t *pad;
+} gpio_pin_t;
+
+typedef struct
+{
+    volatile void *rp1_peripherial_base;
+    volatile void *gpio_base;
+    volatile void *pads_base;
+    volatile uint32_t *rio_out;
+    volatile uint32_t *rio_output_enable;
+    volatile uint32_t *rio_nosync_in;
+
+    gpio_pin_t *pins[27];
+
+} rp1_t;
+
+static rp1_t *rp1;
+
+
+bool create_rp1()
+{
+    rp1_t *r = (rp1_t *)calloc(1, sizeof(rp1_t));
+    if (r == NULL)
+        return false;
+
+    void *base = mapgpio(RP1_BAR1, RP1_BAR1_LEN);
+    if (base == NULL)
+        return false;
+
+    r->rp1_peripherial_base = base;
+    r->gpio_base = base + RP1_IO_BANK0_BASE;
+    r->pads_base = base + RP1_PADS_BANK0_BASE;
+    r->rio_out = (volatile uint32_t *)(base + RP1_RIO0_BASE + RIO_OUT_OFFSET);
+    r->rio_output_enable = (volatile uint32_t *)(base + RP1_RIO0_BASE + RIO_OE_OFFSET);
+    r->rio_nosync_in = (volatile uint32_t *)(base + RP1_RIO0_BASE + RIO_NOSYNC_IN_OFFSET);
+
+    rp1 = r;
+
+    return true;
+}
+
+bool create_pin(uint8_t pinnumber)
+{
+    gpio_pin_t *newpin = (gpio_pin_t*)calloc(1, sizeof(gpio_pin_t));
+    if(newpin == NULL) return false;
+
+    newpin->number = pinnumber;
+
+    // each gpio has a status and control register
+    // adjacent to each other. control = status + 4 (uint8_t)
+    newpin->status = (uint32_t *)(rp1->gpio_base + 8 * pinnumber);
+    newpin->ctrl = (uint32_t *)(rp1->gpio_base + 8 * pinnumber + 4);
+    newpin->pad = (uint32_t *)(rp1->pads_base + PADS_BANK0_GPIO_OFFSET + pinnumber * 4);
+
+    // set the function
+    *(newpin->ctrl + RP1_ATOM_CLR_OFFSET / 4) = CTRL_MASK_FUNCSEL; // first clear the bits
+    *(newpin->ctrl + RP1_ATOM_SET_OFFSET / 4) = CTRL_FUNCSEL_RIO;  // now set the value we need
+
+    rp1->pins[pinnumber] = newpin;
+    printf("pin %d stored in pins array %p\n", pinnumber, rp1->pins[pinnumber]);
+
+    return true;
+}
+
+int pin_enable_output(uint8_t pinnumber)
+{
+
+    LOG_DEBUG("GPIO - Attempting to enable output\n");
+    //LOG_DEBUG("rp1 @ %p\n", rp1);
+    //LOG_DEBUG("pin @ %p\n", rp1->pins[pinnumber]);
+
+    //gpio_pin_t *pin = NULL;
+    //LOG_DEBUG("pin: %p\n", pin);
+
+    //pin = rp1->pins[pinnumber];
+
+    //LOG_DEBUG("pin: %p\n", pin);
+    //LOG_DEBUG("pin pads %p\n", pin->pad);
+    //LOG_DEBUG("oe: %p\n", rp1->rio_output_enable);
+
+    // first enable the pad to output
+    // pads needs to have OD[7] -> 0 (don't disable output)
+    // and                IE[6] -> 0 (don't enable input)
+    // we use atomic access to the bit clearing alias with a mask
+    // divide the offset by 4 since we're doing uint32* math
+
+    volatile uint32_t *writeadd = rp1->pins[pinnumber]->pad + RP1_ATOM_CLR_OFFSET / 4;
+
+    LOG_DEBUG("GPIO - Attempting write for %p at %p\n", rp1->pins[pinnumber]->pad, writeadd);
+
+    *writeadd = PADS_MASK_OUTPUT;
+
+    // now set the RIO output enable using the atomic set alias
+    *(rp1->rio_output_enable + RP1_ATOM_SET_OFFSET / 4) = 1 << rp1->pins[pinnumber]->number;
 
     return 0;
 }
 
-void GPIO_setPWMMotor(int value){
+void pin_on(uint8_t pin)
+{
+    *(rp1->rio_out + RP1_ATOM_SET_OFFSET / 4) = 1 << pin;
+}
+void pin_off(uint8_t pin)
+{
+    *(rp1->rio_out + RP1_ATOM_CLR_OFFSET / 4) = 1 << pin;
+}
+void print_gpio_status(){
+    // let's see if we can dump the iobank registers
+    uint32_t *p;
 
+    int i;
+    for (i = 0; i < 27; i++)
+    {
+
+        p = (uint32_t *)(rp1->gpio_base + i * 8);
+
+        LOG_DEBUG(
+            "gpio %0d: status @ p = %lx, ctrl @ p = %lx\n",
+            i,
+            *p, *(p + 1));
+    }
+}
+
+#define GPIO_MOTOR_PIN 18
+int GPIO_SetupPWMMotor(){
+
+    // create a rp1 device
+    LOG_DEBUG("GPIO - Creating rp1");
+    if (!create_rp1())
+    {
+        LOG_ERROR("GPIO - Unable to create rp1");
+        return 2;
+    }
+    print_gpio_status();
+
+
+    LOG_DEBUG("GPIO - Creating pins");
+
+    if(!create_pin(GPIO_MOTOR_PIN)) {
+        printf("GPIO - Unable to create pin ", GPIO_MOTOR_PIN);
+        return 3;
+    };
+    pin_enable_output(GPIO_MOTOR_PIN);
+
+    // pin_on(GPIO_MOTOR_PIN);
+    // pin_off(GPIO_MOTOR_PIN);
+
+    return 0;
+}
+
+
+void GPIO_setPWMMotor(int value){
+    pin_on(GPIO_MOTOR_PIN);
+
+    // TODO : SEE DOCS ABOUT RP1
     // Set PWM duty cycle to 25%
-    set_pwm_duty_cycle(value);
+    // set_pwm_duty_cycle(value);
 
     // Start PWM signal on GPIO18
-    start_pwm();
-    printf("PWM signal running on GPIO 18 with %d%% duty cycle\n", value);
+    // start_pwm();
+    // printf("PWM signal running on GPIO 18 with %d%% duty cycle\n", value);
 }
 void GPIO_stopPWMMotor(){
+    pin_off(GPIO_MOTOR_PIN);
+
+    // TODO : SEE DOCS ABOUT RP1
     // Stop PWM signal
-    stop_pwm();
+    // stop_pwm();
 }
 
 void GPIO_cleanup(){
+
+    // TODO : SEE DOCS ABOUT RP1
     // Cleanup
-    munmap((void*)gpio, BLOCK_SIZE);
-    munmap((void*)pwm, BLOCK_SIZE);
+    // munmap((void*)rp1, BLOCK_SIZE);
 }
-*/
-
-
-
-
-
-
-// Access from ARM Running Linux
-
-#define BCM2708_PERI_BASE        0xFE000000
-#define GPIO_BASE                (BCM2708_PERI_BASE + 0x200000) /* GPIO controller */
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h>
-
-#define PAGE_SIZE (4*1024)
-#define BLOCK_SIZE (4*1024)
-
-int  mem_fd;
-void *gpio_map;
-
-// I/O access
-volatile unsigned *gpio;
-
-
-// GPIO setup macros. Always use INP_GPIO(x) before using OUT_GPIO(x) or SET_GPIO_ALT(x,y)
-#define INP_GPIO(g) *(gpio+((g)/10)) &= ~(7<<(((g)%10)*3))
-#define OUT_GPIO(g) *(gpio+((g)/10)) |=  (1<<(((g)%10)*3))
-#define SET_GPIO_ALT(g,a) *(gpio+(((g)/10))) |= (((a)<=3?(a)+4:(a)==4?3:2)<<(((g)%10)*3))
-
-#define GPIO_SET *(gpio+7)  // sets   bits which are 1 ignores bits which are 0
-#define GPIO_CLR *(gpio+10) // clears bits which are 1 ignores bits which are 0
-
-#define GET_GPIO(g) (*(gpio+13)&(1<<g)) // 0 if LOW, (1<<g) if HIGH
-
-#define GPIO_PULL *(gpio+37) // Pull up/pull down
-#define GPIO_PULLCLK0 *(gpio+38) // Pull up/pull down clock
-
-void setup_io();
-
-int GPIO_SetupPWMMotor()
-{
-  int g,rep;
-
-  // Set up gpi pointer for direct register access
-  setup_io();
-
-  INP_GPIO(18);
-  OUT_GPIO(18);
-
-  GPIO_SET = 1 << 18;
-    printf("PWM signal running\n");
-  return 0;
-
-} // main
-
-
-//
-// Set up a memory regions to access GPIO
-//
-void setup_io()
-{
-   /* open /dev/mem */
-   if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0) {
-      printf("can't open /dev/mem \n");
-      exit(-1);
-   }
-
-   /* mmap GPIO */
-   gpio_map = mmap(
-      NULL,             //Any adddress in our space will do
-      BLOCK_SIZE,       //Map length
-      PROT_READ|PROT_WRITE,// Enable reading & writting to mapped memory
-      MAP_SHARED,       //Shared with other processes
-      mem_fd,           //File to map
-      GPIO_BASE         //Offset to GPIO peripheral
-   );
-
-   close(mem_fd); //No need to keep mem_fd open after mmap
-
-   if (gpio_map == MAP_FAILED) {
-      printf("mmap error\n");//errno also set!
-      exit(-1);
-   }
-
-   // Always use volatile pointer!
-   gpio = (volatile unsigned *)gpio_map;
-
-
-} // setup_io
