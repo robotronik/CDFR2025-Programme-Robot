@@ -37,7 +37,7 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
         iAsser->get_coordinates(xSave,ySave,thetaSave);
         iAsser->set_max_speed_backward(150);
         iAsser->set_max_speed_forward(150);
-        //startTime = millis()+100;
+        //startTime = _millis()+100;
         nextState = SETPOS_FIRSTFORWARD;
         break;
 
@@ -161,7 +161,7 @@ int turnSolarPannel(TableState* itable, CmdAsserv* iAsser,Arduino* arduino){
     case SOLARPANEL_FORWARD :
         if(initStat) LOG_STATE("SOLARPANEL_FORWARD");
         deplacementreturn = deplacementLinearPoint(itable->robot.collide,iAsser,axeX,table[solarPanelNumber]-offsetRobot1);
-        if (itable->startTime+85000 < millis()){
+        if (itable->startTime+85000 < _millis()){
             nextState = SOLARPANEL_END;
                 }
         if(deplacementreturn>0){

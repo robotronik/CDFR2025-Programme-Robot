@@ -101,7 +101,7 @@ int deplacementLinearPoint(int collide, CmdAsserv* robot, int x, int y){
             if(collide < DISTANCESTOP){
                 LOG_INFO("distance colide : ",collide);
                 nextstep = DEPLACEMENT_WAIT;
-                startTime = millis() + 3000; //TIME waiting
+                startTime = _millis() + 3000; //TIME waiting
             }
             else{
                 nextstep = DEPLACEMENT_MOVE;
@@ -128,14 +128,14 @@ int deplacementLinearPoint(int collide, CmdAsserv* robot, int x, int y){
         if(initStat) LOG_STATE("DEPLACEMENT_STOP");
         robot->get_braking_distance(distance);
         if(distance==0){
-            startTime = millis() + 3000;
+            startTime = _millis() + 3000;
             nextstep = DEPLACEMENT_WAIT;
         }
         break;
 
     case DEPLACEMENT_WAIT:
         if(initStat) LOG_STATE("DEPLACEMENT_WAIT");
-        if(startTime < millis()){
+        if(startTime < _millis()){
             nextstep = DEPLACEMENT_INIT;
             iret = -1; //BAD END
             robot->brake(false);

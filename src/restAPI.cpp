@@ -126,7 +126,7 @@ void StartAPIServer(){
         response["status"] = currentState;
         response["team"] = tableStatus.robot.colorTeam;
         response["score"] = tableStatus.getScore();
-        response["time"] = millis() - tableStatus.startTime;
+        response["time"] = _millis() - tableStatus.startTime;
         // TODO : Strategy number
         return crow::response(response.dump(4));
     });

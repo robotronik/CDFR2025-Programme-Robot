@@ -1,14 +1,13 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -g -O0 -static $(INCLUDE_DIR)
 LDFLAGS = -Lrplidar_sdk/output/Linux/Release
-LDLIBS = pigpio/pigpio.o pigpio/command.o -pthread -li2c -lrt -lpthread -lsl_lidar_sdk 
+LDLIBS = -pthread -li2c -lrt -lpthread -lsl_lidar_sdk 
 
 INCLUDE_DIR = -Iinclude
 INCLUDE_DIR += -Irplidar_sdk/sdk/include
 INCLUDE_DIR += -Irplidar_sdk/sdk/src
-INCLUDE_DIR += -Ipigpio
 INCLUDE_DIR += -I../librairie-commune/include
-
+INCLUDE_DIR += -IWiringPi/wiringPi
 
 BINDIR = bin
 TARGET = $(BINDIR)/programCDFR
@@ -44,7 +43,7 @@ DEPENDS += $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_TEST)/%.d,$(SRC_TEST))
 
 .PHONY: all clean tests clean-all deploy run
 
-all: check $(BINDIR) build_pigpio build_lidarLib $(TARGET) $(TEST_TARGET) copy_html
+all: check $(BINDIR) build_lidarLib $(TARGET) $(TEST_TARGET) copy_html
 	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && ./programCDFR)' pour exécuter le programme."
 
 check:
@@ -104,13 +103,6 @@ build_lidarLib:
 	@echo "--------------------------------- Compilation de lidarLib... ---------------------------------"
 	$(MAKE) -C rplidar_sdk
 
-# Define the pigpio target
-build_pigpio:
-	@echo "--------------------------------- Compilation de pigpio... ---------------------------------"
-	$(MAKE) -C pigpio pigpio.o command.o
-# sudo
-
-
 
 
 # Cross-compiler and flags for Raspberry Pi (ARM architecture)
@@ -119,7 +111,7 @@ ARM_CXX = $(CROSS_COMPILE_PREFIX)-g++
 
 # Raspberry Pi Deployment Info
 PI_USER = robotronik
-PI_HOST = raspberrypi.local
+PI_HOST = 192.168.8.111
 PI_DIR = /home/$(PI_USER)/CDFR2025
 
 # Define the ARM target and object directory for cross-compilation
@@ -178,12 +170,12 @@ $(ARM_TEST_TARGET): $(ARM_OBJ_NO_MAIN) $(ARM_TEST_OBJ) | $(ARMBINDIR)
 	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 # Deploy target
-deploy: check build_arm_lidarLib build_arm_pigpio $(ARM_TARGET) copy_html_arm
+deploy: check build_arm_lidarLib $(ARM_TARGET) copy_html_arm
 	@echo "--------------------------------- Deploiement vers le Raspberry Pi... ---------------------------------" 
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
 
-deploy_tests: check build_arm_lidarLib build_arm_pigpio $(ARM_TEST_TARGET) copy_lidar_arm
+deploy_tests: check build_arm_lidarLib $(ARM_TEST_TARGET) copy_lidar_arm
 	@echo "--------------------------------- Exécution des tests... ---------------------------------"
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
@@ -198,13 +190,6 @@ build_arm_lidarLib:
 	@cd rplidar_sdk && \
 	chmod +x ./cross_compile.sh && \
 	CROSS_COMPILE_PREFIX=$(CROSS_COMPILE_PREFIX) ./cross_compile.sh
-
-# Define the pigpio target
-build_arm_pigpio:
-	@echo "--------------------------------- Compilation de pigpio pour ARM64... ---------------------------------"
-	$(MAKE) CROSS_PREFIX=$(CROSS_COMPILE_PREFIX)- -C pigpio pigpio.o command.o
-#sudo
-
 
 
 
@@ -228,10 +213,5 @@ clean-lidarLib:
 	@echo "--------------------------------- Nettoyage de lidarLib... ---------------------------------"
 	$(MAKE) -C rplidar_sdk clean
 
-# Clean pigpio specifically
-clean-pigpio:
-	@echo "--------------------------------- Nettoyage de pigpio... ---------------------------------"
-	$(MAKE) -C pigpio clean
-
 # Combined clean for all
-clean-all: clean clean-lidarLib clean-pigpio
+clean-all: clean clean-lidarLib
