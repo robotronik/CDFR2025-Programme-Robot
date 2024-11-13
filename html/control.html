@@ -211,7 +211,7 @@
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
-                body: JSON.stringify({ x: set_x_inputfield.value, y: set_y_inputfield.value, theta: set_theta_inputfield.value})
+                body: JSON.stringify({ x: Number(set_x_inputfield.value), y: Number(set_y_inputfield.value), theta: Number(set_theta_inputfield.value)})
             })
             .then(response => {
                 if (!response.ok) {
@@ -237,7 +237,7 @@
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
-                body: JSON.stringify({ x: set_target_x_inputfield.value, y: set_target_y_inputfield.value, theta: set_target_theta_inputfield.value})
+                body: JSON.stringify({ x: Number(set_target_x_inputfield.value), y: Number(set_target_y_inputfield.value), theta: Number(set_target_theta_inputfield.value)})
             })
             .then(response => {
                 if (!response.ok) {
@@ -261,7 +261,7 @@
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
-                body: JSON.stringify({ value: result })
+                body: JSON.stringify({ value: Number(result) })
             })
             .then(response => {
                 if (!response.ok) {
@@ -284,7 +284,7 @@
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
-                body: JSON.stringify({ value: result })
+                body: JSON.stringify({ value: Number(result) })
             })
             .then(response => {
                 if (!response.ok) {
@@ -307,7 +307,7 @@
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
-                body: JSON.stringify({ value: set_servo_value.value, id: set_servo_select.value })
+                body: JSON.stringify({ value: Number(set_servo_value.value), id: Number(set_servo_select.value) })
             })
             .then(response => {
                 if (!response.ok) {
@@ -330,7 +330,7 @@
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
-                body: JSON.stringify({ value: set_stepper_value.value, id: set_stepper_select.value })
+                body: JSON.stringify({ value: Number(set_stepper_value.value), id: Number(set_stepper_select.value) })
             })
             .then(response => {
                 if (!response.ok) {
