@@ -7,6 +7,8 @@
     <!-- Bootstrap CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <script>
+        // Examples How to use the API with JS
+
         // Function to send GET request
         function sendGetRequest() {
             fetch('/get_pos')
@@ -55,21 +57,6 @@
     
         <div class="mt-4">
             <div>Welcome! You're now connected on the Rest API of the robot. Here you can view data and send commands.</div>
-        </div>
-
-        <!-- Button to trigger GET request -->
-        <div class="d-grid gap-2 col-6 mx-auto mt-4">
-            <button class="btn btn-primary" onclick="sendGetRequest()">Send GET Request</button>
-        </div>
-
-        <!-- Dropdown to select action and trigger REST call -->
-        <div class="mt-4">
-            <label for="stateDropdown" class="form-label">Select an action:</label>
-            <select id="stateDropdown" class="form-select" onchange="sendDropdownRequest()">
-                <option value="0">Start</option>
-                <option value="1">Stop</option>
-                <option value="2">Pause</option>
-            </select>
         </div>
     </div>
 
