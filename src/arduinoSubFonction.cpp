@@ -9,9 +9,9 @@ int pullpush(Arduino* arduino){
         LOG_INFO("push pull");
         arduino->servoPosition(1,0);
         step++;
-        startTime = millis()+600;
+        startTime = _millis()+600;
     }
-    else if(step == 1 && startTime < millis()){
+    else if(step == 1 && startTime < _millis()){
         arduino->servoPosition(1,180);
         step++;
     }
@@ -38,19 +38,19 @@ int catchPlant(Arduino* arduino){
     else if(step == 1){
         arduino->moveStepper(ELEVATORPLANT,1);
         step++;
-        startTime = millis()+1800;
+        startTime = _millis()+1800;
     }
-    else if(step == 2 && startTime < millis()){
+    else if(step == 2 && startTime < _millis()){
         arduino->servoPosition(2,CLAMPCLOSE);
         step++;
-        startTime = millis()+DELAYOPENCLOSE;
+        startTime = _millis()+DELAYOPENCLOSE;
     }
-    else if(step == 3 && startTime < millis()){
+    else if(step == 3 && startTime < _millis()){
         arduino->moveStepper(ELEVATORJARDINIERE,1);
         step++;
-        startTime = millis()+200;
+        startTime = _millis()+200;
     }
-    else if(step == 4 && startTime < millis()){
+    else if(step == 4 && startTime < _millis()){
         step = 0;
         bret = true;
     }
@@ -74,19 +74,19 @@ int catchPlant2(Arduino* arduino){ //catch plant in jardininiere
     else if(step == 1){
         arduino->moveStepper(1400,1);
         step++;
-        startTime = millis()+500;
+        startTime = _millis()+500;
     }
-    else if(step == 2 && startTime < millis()){
+    else if(step == 2 && startTime < _millis()){
         arduino->servoPosition(2,CLAMPCLOSE);
         step++;
-        startTime = millis()+DELAYOPENCLOSE;
+        startTime = _millis()+DELAYOPENCLOSE;
     }
-    else if(step == 3 && startTime < millis()){
+    else if(step == 3 && startTime < _millis()){
         arduino->moveStepper(ELEVATORJARDINIERE,1);
         step++;
-        startTime = millis()+1200;
+        startTime = _millis()+1200;
     }
-    else if(step == 4 && startTime < millis()){
+    else if(step == 4 && startTime < _millis()){
         step = 0;
         bret = true;
     }
@@ -105,28 +105,28 @@ int releasePlant(Arduino* arduino){
         LOG_INFO("release plant");
         arduino->moveStepper(2200,1);
         step++;
-        startTime = millis()+1400;
+        startTime = _millis()+1400;
     }
-    else if(step == 1 && startTime < millis()){
+    else if(step == 1 && startTime < _millis()){
         arduino->servoPosition(2,CLAMPOPEN);
         step++;
     }
     else if(step == 2){
         arduino->moveStepper(ELEVATORUP,1);
         step++;
-        startTime = millis()+1300;
+        startTime = _millis()+1300;
     }
-    else if(step == 3 && startTime < millis()){
+    else if(step == 3 && startTime < _millis()){
         arduino->servoPosition(2,CLAMPSLEEP);
         step++;
-        startTime = millis()+200;
+        startTime = _millis()+200;
     }
-    else if(step == 4 && startTime < millis()){
+    else if(step == 4 && startTime < _millis()){
         arduino->servoPosition(2,CLAMPOPEN);
         step++;
-        startTime = millis()+200;
+        startTime = _millis()+200;
     }
-    else if(step == 5 && startTime < millis()){
+    else if(step == 5 && startTime < _millis()){
         arduino->servoPosition(2,CLAMPSLEEP);
         step++;
         
@@ -150,33 +150,33 @@ int FastReleasePlant(Arduino* arduino){
         LOG_INFO("release plant");
         arduino->moveStepper(1600,1);
         step++;
-        startTime = millis()+300;
+        startTime = _millis()+300;
     }
-    else if(step == 1 && startTime < millis()){
+    else if(step == 1 && startTime < _millis()){
         arduino->servoPosition(2,CLAMPOPEN);
         step++;
     }
     else if(step == 2){
         arduino->moveStepper(3000,1);
         step++;
-        startTime = millis()+1000;
+        startTime = _millis()+1000;
     }
-    else if(step == 3 && startTime < millis()){
+    else if(step == 3 && startTime < _millis()){
         arduino->servoPosition(2,CLAMPSLEEP);
         step++;
-        startTime = millis()+100;
+        startTime = _millis()+100;
     }
-    else if(step == 4 && startTime < millis()){
+    else if(step == 4 && startTime < _millis()){
         arduino->servoPosition(2,CLAMPOPEN);
         step++;
-        startTime = millis()+100;
+        startTime = _millis()+100;
     }
-    else if(step == 5 && startTime < millis()){
+    else if(step == 5 && startTime < _millis()){
         arduino->servoPosition(2,CLAMPSLEEP);
         step++;
-        startTime = millis()+100;
+        startTime = _millis()+100;
     }
-    else if(step == 6 && startTime < millis()){
+    else if(step == 6 && startTime < _millis()){
         step = 0;
         bret = true;
     }
@@ -185,18 +185,18 @@ int FastReleasePlant(Arduino* arduino){
 */
 
 void blinkLed(Arduino* arduino,int LedNb,int periode){
-    static unsigned long startTime = millis();
+    static unsigned long startTime = _millis();
     static int step = 0;
 
-    if(step == 0 && startTime < millis()){
+    if(step == 0 && startTime < _millis()){
         arduino->ledOn(LedNb);
         step++;
-        startTime = millis()+periode/2;
+        startTime = _millis()+periode/2;
     }
-    else if(step == 1 && startTime < millis()){
+    else if(step == 1 && startTime < _millis()){
         arduino->ledOff(LedNb);
         step = 0;
-        startTime = millis()+periode/2;
+        startTime = _millis()+periode/2;
     }
     return;
 }

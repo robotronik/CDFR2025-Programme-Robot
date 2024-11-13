@@ -123,7 +123,7 @@ void action::setCostAction(int num_action, int num_i_action, TableState *itable,
     validActionPtr = -1;
     //ACTION 1 : TAKE STOCK
     //TODO
-    //if (num_action == 1 && itable->planteStockFull[num_i_action].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) && itable->startTime+75000 > millis()){
+    //if (num_action == 1 && itable->planteStockFull[num_i_action].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) && itable->startTime+75000 > _millis()){
     //    distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));  //distance de l'action au robot
     //    validActionPtr = itable->planteStockFull[num_i_action].cout - distance_action/100; //distance : 10cm = -1 points
     //    LOG_GREEN_INFO("action 1 : ",validActionPtr," / ",num_i_action);
@@ -138,14 +138,14 @@ void action::setCostAction(int num_action, int num_i_action, TableState *itable,
     //}
 
     //ACTION 4 : return to Home
-    if (num_action == 4 && itable->startTime+85000 < millis()){
+    if (num_action == 4 && itable->startTime+85000 < _millis()){
         validActionPtr = 200;
         LOG_GREEN_INFO("action 4 : ",validActionPtr," / ",num_i_action);
     }
 
     /*
     //ACTION 5 : wait until fin
-    else if (num_action == 5 && itable->startTime+88000 > millis() && !itable->FIN){
+    else if (num_action == 5 && itable->startTime+88000 > _millis() && !itable->FIN){
         validActionPtr = 4;
         LOG_GREEN_INFO("action 5 : ",validActionPtr);
     
@@ -217,5 +217,5 @@ void action::setKeyMoment(unsigned long keyMom){
 }
 
 bool action::actionNeedForce(void){
-    return table->startTime+keyMoment < millis() && keyMomentSet;
+    return table->startTime+keyMoment < _millis() && keyMomentSet;
 }

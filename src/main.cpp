@@ -6,7 +6,6 @@
 #include <time.h>
 #include <cstdlib>
 #include <filesystem>
-#include <pigpio.h>
 #include <thread>
 #include <fstream>
 #include <unistd.h>  // for usleep
@@ -18,6 +17,7 @@
 #include "arduinoSubFonction.h"
 #include "logger.hpp"
 #include "restAPI.hpp"
+#include "gpio.h"
 
 #include "actionContainer.hpp"
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
     while (!ctrl_c_pressed)
     {
         LOG_SCOPE("Main");
-        loopStartTime = millis();
+        loopStartTime = _millis();
 
         // Get Sensor Data
         {
@@ -229,6 +229,8 @@ int main(int argc, char *argv[])
                 nextState = RUN;
                 arduino->ledOff(1);
                 arduino->ledOff(2);
+                tableStatus.startTime = _millis();
+                // actionSystem->initAction(robotI2C, arduino, &(tableStatus));
             }
             if (manual_ctrl)
                 nextState = MANUAL;
@@ -244,7 +246,7 @@ int main(int argc, char *argv[])
             }
             bool finished = actionSystem->actionContainerRun(robotI2C, &tableStatus);
 
-            if (tableStatus.startTime + 90000 < millis() || tableStatus.FIN || finished)
+            if (tableStatus.startTime + 90000 < _millis() || tableStatus.FIN || finished)
             {
                 nextState = FIN;
             }
@@ -303,11 +305,11 @@ int main(int argc, char *argv[])
         }
 
         // Check if state machine is running above loop time
-        if (millis() > loopStartTime + LOOP_TIME_MS){
-            LOG_WARNING("Loop took more than " , LOOP_TIME_MS, "ms to execute (", (millis() - loopStartTime), " ms)");
+        if (_millis() > loopStartTime + LOOP_TIME_MS){
+            LOG_WARNING("Loop took more than " , LOOP_TIME_MS, "ms to execute (", (_millis() - loopStartTime), " ms)");
         }
         //State machine runs at a constant rate
-        while(millis() < loopStartTime + LOOP_TIME_MS){    
+        while(_millis() < loopStartTime + LOOP_TIME_MS){    
             usleep(100);  // sleep for 100 microseconds
         }
     }
@@ -327,15 +329,27 @@ int StartSequence()
         return -1;
     }
 
-    if (gpioInitialise() < 0)
-    {
-        LOG_ERROR("cannot initialize lidar gpio speed");
+    if (GPIO_SetupPWMMotor() == -1) {
+        fprintf(stderr, "Unable to initialize gpio\n");
         return -1;
     }
-    gpioSetPWMfrequency(18, 20000);
-    gpioSetMode(18, PI_OUTPUT);
-    gpioSetPWMrange(18, 100);
-    gpioPWM(18, 25); // lidar speed
+    //GPIO_setPWMMotor(25);
+/*
+    // Initialize WiringPi
+    if (wiringPiSetupGpio() == -1) {
+        fprintf(stderr, "Unable to initialize WiringPi\n");
+        return -1;
+    }
+#define LIDAR_PIN 18
+    // Set the LIDAR motor pin to PWM output
+    pinMode(LIDAR_PIN, PWM_OUTPUT);
+    // Set the PWM range (this controls the max value for PWM)
+    pwmSetRange(1024);  // Set PWM range (default range is 1024, but you can adjust as needed)
+    // Set PWM frequency (in Hz)
+    pwmSetClock(192);  // This sets the frequency to 20 kHz (as PWM frequency is 19.2 MHz / clock divisor)
+    // Set the PWM value (this controls the speed, in this case 25)
+    pwmWrite(LIDAR_PIN, 25);
+*/
 #endif
 
     signal(SIGTERM, ctrlc);
@@ -519,7 +533,11 @@ void EndSequence()
     api_server_thread.join();
 
     arduino->moveStepper(0, 1);
-    gpioPWM(18, 0);
+#ifndef DISABLE_LIDAR
+    //pwmWrite(LIDAR_PIN, 0);
+    //GPIO_stopPWMMotor();
+    //GPIO_cleanup();
+#endif
     arduino->servoPosition(4, 180);
     arduino->ledOff(2);
     arduino->ledOff(1);

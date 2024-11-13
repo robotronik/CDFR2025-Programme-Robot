@@ -3,8 +3,3 @@
 [Submodule "rplidar_sdk"]
     path = rplidar_sdk
     url = git@github.com:Slamtec/rplidar_sdk.git
-
-#pigpio Submodule
-[Submodule "pigpio"]
-	path = pigpio
-	url = git@github.com:joan2937/pigpio.git
