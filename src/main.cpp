@@ -162,14 +162,14 @@ int main(int argc, char *argv[])
             if (bStateCapteur2 == 1)
             {
                 tableStatus.robot.colorTeam = YELLOW;
-                nextState = SETHOME; // SETHOME pour calibration
+                nextState = WAITSTART; // SETHOME pour calibration
                 robotI2C->set_coordinates(-700, 1100, -90);
                 LOG_INFO("teams : YELLOW");
             }
             else if (bStateCapteur2 == 0)
             {
                 tableStatus.robot.colorTeam = BLUE;
-                nextState = SETHOME; // SETHOME pour calibration
+                nextState = WAITSTART; // SETHOME pour calibration
                 robotI2C->set_coordinates(-700, -1100, 90);
                 LOG_INFO("teams : BLUE");
             }
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
         {
             if (initState){
                 LOG_STATE("RUN");
-                tableStatus.startTime = millis();
+                tableStatus.startTime = _millis();
                 actionSystem->initAction(robotI2C, arduino, &(tableStatus));
             }
             bool finished = actionSystem->actionContainerRun(robotI2C, &tableStatus);
