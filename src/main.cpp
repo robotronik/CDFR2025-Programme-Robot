@@ -322,6 +322,10 @@ int StartSequence()
 {
     LOG_INIT();
 
+    signal(SIGTERM, ctrlc);
+    signal(SIGINT, ctrlc);
+    // signal(SIGTSTP, ctrlz);
+
 #ifndef DISABLE_LIDAR
     if (!lidarSetup("/dev/ttyAMA0", 256000))
     {
@@ -334,13 +338,8 @@ int StartSequence()
         fprintf(stderr, "Unable to initialize gpio\n");
         return -1;
     }
-    // Set the PWM motor value to 25%
-    GPIO_setPWMMotor(25);
 #endif
 
-    signal(SIGTERM, ctrlc);
-    signal(SIGINT, ctrlc);
-    // signal(SIGTSTP, ctrlz);
 
     // Start the api server in a separate thread
     api_server_thread = std::thread([&]()
@@ -521,7 +520,6 @@ void EndSequence()
     arduino->moveStepper(0, 1);
 #ifndef DISABLE_LIDAR
     GPIO_stopPWMMotor();
-    GPIO_cleanup();
 #endif
     arduino->servoPosition(4, 180);
     arduino->ledOff(2);

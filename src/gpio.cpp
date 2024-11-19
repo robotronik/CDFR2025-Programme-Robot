@@ -16,8 +16,15 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <sys/mman.h>
+#include <string.h>
 #include <fcntl.h>
 #include <time.h>
+#include <unistd.h>
+#include <signal.h>
+#include <pthread.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
 
 #include "logger.hpp"
 
@@ -153,7 +160,7 @@ bool create_pin(uint8_t pinnumber)
     *(newpin->ctrl + RP1_ATOM_SET_OFFSET / 4) = CTRL_FUNCSEL_RIO;  // now set the value we need
 
     rp1->pins[pinnumber] = newpin;
-    printf("pin %d stored in pins array %p\n", pinnumber, rp1->pins[pinnumber]);
+    LOG_DEBUG("pin ", pinnumber, " stored in pins array ", rp1->pins[pinnumber]);
 
     return true;
 }
@@ -161,7 +168,7 @@ bool create_pin(uint8_t pinnumber)
 int pin_enable_output(uint8_t pinnumber)
 {
 
-    LOG_DEBUG("GPIO - Attempting to enable output\n");
+    LOG_DEBUG("GPIO - Attempting to enable output");
     //LOG_DEBUG("rp1 @ %p\n", rp1);
     //LOG_DEBUG("pin @ %p\n", rp1->pins[pinnumber]);
 
@@ -182,7 +189,7 @@ int pin_enable_output(uint8_t pinnumber)
 
     volatile uint32_t *writeadd = rp1->pins[pinnumber]->pad + RP1_ATOM_CLR_OFFSET / 4;
 
-    LOG_DEBUG("GPIO - Attempting write for %p at %p\n", rp1->pins[pinnumber]->pad, writeadd);
+    LOG_DEBUG("GPIO - Attempting write for ", rp1->pins[pinnumber]->pad, " at ", writeadd);
 
     *writeadd = PADS_MASK_OUTPUT;
 
@@ -207,17 +214,93 @@ void print_gpio_status(){
     int i;
     for (i = 0; i < 27; i++)
     {
-
         p = (uint32_t *)(rp1->gpio_base + i * 8);
-
-        LOG_DEBUG(
-            "gpio %0d: status @ p = %lx, ctrl @ p = %lx\n",
-            i,
-            *p, *(p + 1));
+        LOG_DEBUG("gpio ", i, " status @ p = ", *p, ", ctrl @ p = ", *(p + 1));
     }
 }
 
+
+
 #define GPIO_MOTOR_PIN 18
+
+// PWM frequency and duty cycle (percentage)
+#define PWM_FREQUENCY_HZ 1000   // 1 kHz PWM frequency
+#define PWM_DUTY_CYCLE 20       // 20% duty cycle
+
+// Variables to track PWM state
+static int pwm_state = 0; // 0 for OFF, 1 for ON
+
+// Timer interval in microseconds for PWM frequency
+unsigned long pwm_period_us = 1000000 / PWM_FREQUENCY_HZ;  // in microseconds
+unsigned long pwm_high_time_us = pwm_period_us * PWM_DUTY_CYCLE / 100; // ON time in microseconds
+unsigned long pwm_low_time_us = pwm_period_us - pwm_high_time_us;  // OFF time in microseconds
+
+static timer_t timerid;
+
+static struct itimerspec ts_high = {
+    .it_interval = { .tv_sec = 0, .tv_nsec = 0 } // No periodic interval
+};
+static struct itimerspec ts_low = {
+    .it_interval = { .tv_sec = 0, .tv_nsec = 0 } // No periodic interval
+};
+
+// Timer callback function to toggle PWM
+void timer_handler(int sig, siginfo_t *si, void *uc) {
+    // Toggle the pin state based on the current PWM state
+    if (pwm_state == 0) {
+        // Pin ON: Use high duration
+        pin_on(GPIO_MOTOR_PIN);
+        pwm_state = 1;
+        ts_high.it_value.tv_nsec = pwm_high_time_us * 1000;
+        timer_settime(timerid, 0, &ts_high, NULL);
+    } else {
+        // Pin OFF: Use low duration
+        pin_off(GPIO_MOTOR_PIN);
+        pwm_state = 0;
+        ts_low.it_value.tv_nsec = pwm_low_time_us * 1000;
+        timer_settime(timerid, 0, &ts_low, NULL);
+    }
+}
+
+
+int setup_pwm_timer() {
+    struct sigaction sa;
+    struct sigevent sev;
+
+    // Set up the signal handler for SIGRT_2
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_flags = SA_SIGINFO;
+    sa.sa_sigaction = timer_handler;
+    if (sigaction(SIGRTMIN+2, &sa, NULL) == -1) {
+        LOG_ERROR("sigaction failed");
+        return 1;
+    }
+
+    // Configure timer to use SIGRT_2
+    memset(&sev, 0, sizeof(sev));
+    sev.sigev_notify = SIGEV_SIGNAL;
+    sev.sigev_signo = SIGRTMIN+2;  // Use SIGRT_2 explicitly
+    sev.sigev_value.sival_ptr = &timerid;
+
+    if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
+        LOG_ERROR("timer_create failed");
+        return 2;
+    }
+
+    // Set the initial timer to trigger 
+    ts_high.it_value.tv_nsec = pwm_high_time_us * 1000;
+    ts_low.it_value.tv_nsec = pwm_low_time_us * 1000;
+    if (timer_settime(timerid, 0, &ts_low, NULL) == -1) {
+        LOG_ERROR("GPIO PWM - timer_settime failed");
+        return 3;
+    }
+
+    LOG_DEBUG("GPIO PWM - High ", pwm_high_time_us, "us, Low ", pwm_low_time_us, "us");
+    return 0;
+}
+
+
+
 int GPIO_SetupPWMMotor(){
 
     // create a rp1 device
@@ -227,13 +310,14 @@ int GPIO_SetupPWMMotor(){
         LOG_ERROR("GPIO - Unable to create rp1");
         return 2;
     }
-    print_gpio_status();
+    // Optionnal
+    // print_gpio_status();
 
 
     LOG_DEBUG("GPIO - Creating pins");
 
     if(!create_pin(GPIO_MOTOR_PIN)) {
-        printf("GPIO - Unable to create pin ", GPIO_MOTOR_PIN);
+        LOG_ERROR("GPIO - Unable to create pin ", GPIO_MOTOR_PIN);
         return 3;
     };
     pin_enable_output(GPIO_MOTOR_PIN);
@@ -241,32 +325,21 @@ int GPIO_SetupPWMMotor(){
     // pin_on(GPIO_MOTOR_PIN);
     // pin_off(GPIO_MOTOR_PIN);
 
-    return 0;
+    return setup_pwm_timer();
 }
 
 
-void GPIO_setPWMMotor(int value){
-    pin_on(GPIO_MOTOR_PIN);
-
-    // TODO : SEE DOCS ABOUT RP1
-    // Set PWM duty cycle to 25%
-    // set_pwm_duty_cycle(value);
-
-    // Start PWM signal on GPIO18
-    // start_pwm();
-    // printf("PWM signal running on GPIO 18 with %d%% duty cycle\n", value);
-}
 void GPIO_stopPWMMotor(){
+
+    // Disable the timer (stop PWM generation)
+    if (timer_delete(timerid) == -1) {
+        LOG_ERROR("GPIO PWM - timer_delete failed");
+        return;
+    }
+
     pin_off(GPIO_MOTOR_PIN);
 
     // TODO : SEE DOCS ABOUT RP1
     // Stop PWM signal
     // stop_pwm();
-}
-
-void GPIO_cleanup(){
-
-    // TODO : SEE DOCS ABOUT RP1
-    // Cleanup
-    // munmap((void*)rp1, BLOCK_SIZE);
 }
