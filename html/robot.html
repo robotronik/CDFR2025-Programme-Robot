@@ -42,14 +42,13 @@
             width: 52px;
             height: 52px;
         }
-        
         .btn-team-blue-sel {
             background-color: blue;
             border-color: blue;
             color: white;
         }
         .btn-team-blue-uns {
-            background-color: none;
+            background-color: transparent;
             border-color: blue;
             color: blue;
         }
@@ -59,10 +58,40 @@
             color: white;
         }
         .btn-team-yellow-uns {
-            background-color: none;
+            background-color: transparent;
             border-color: gold;
             color: gold;
         }
+
+        /* Disable hover animations, should be reworked but idk how to do css */
+        .btn-team-blue-sel:hover {
+            background-color: blue;
+            border-color: blue;
+            color: white;
+        }
+        .btn-team-blue-uns:hover {
+            background-color: transparent;
+            border-color: blue;
+            color: blue;
+        }
+        .btn-team-yellow-sel:hover {
+            background-color: gold;
+            border-color: gold;
+            color: white;
+        }
+        .btn-team-yellow-uns:hover {
+            background-color: transparent;
+            border-color: gold;
+            color: gold;
+        }
+
+        /* Disable hover styling globally */
+        .btn:hover {
+            background-color: inherit !important;
+            color: inherit !important;
+            text-decoration: none !important;
+            transform: none !important;
+        }  
 
         .logo {
             text-align: center;
@@ -187,6 +216,8 @@
                     statusLabel.innerHTML = "Robot State : Fin";
                 else if (robotStatus == 6)
                     statusLabel.innerHTML = "Robot State : Stopping";
+                else if (robotStatus == 7)
+                    statusLabel.innerHTML = "Robot State : Manual";
                 else
                     statusLabel.innerHTML = "Robot State : Undefined";
                 

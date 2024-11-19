@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Placeholder for the navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <div class="container main-container mt-4">
+        <div class="d-flex justify-content-center align-items-center">
+            <h1 class="text-white mb-0">Robot Control</h1>
+            <span class="status-dot ms-3" id="statusDot"></span>
+        </div>
+
+        <button id="btn-control-enable" class="btn btn-primary mt-2" onclick="sendManualMode(true)">Enable Manual Control</button>
+        <button id="btn-control-disable" class="btn btn-primary mt-2" onclick="sendManualMode(false)">Disable Manual Control</button>
+
+        <div id="status-label" class="label-section  mt-2">
+            Placeholder for a label here
+        </div>
+
+        <div class="label-section  mt-2">
+            Set the robot's absolute coordinates
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input id="set-x" type="number" class="form-control" placeholder="x mm">
+            </div>
+            <div class="col">
+                <input id="set-y" type="number" class="form-control" placeholder="y mm">
+            </div>
+            <div class="col">
+                <input id="set-theta" type="number" class="form-control" placeholder="theta degs">
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-primary w-100" onclick="sendSetCoordinates()">Set</button>
+            </div>
+        </div>
+        
+        <div class="label-section">
+            Move the robot to absolute coordinates
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input id="target-x" type="number" class="form-control" placeholder="x mm">
+            </div>
+            <div class="col">
+                <input id="target-y" type="number" class="form-control" placeholder="y mm">
+            </div>
+            <div class="col">
+                <input id="target-theta" type="number" class="form-control" placeholder="theta degs">
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100" onclick="sendSetTargetCoordinates()">Go</button>
+            </div>
+        </div>
+
+        <div class="label-section">
+            Move the robot forwards or backwards
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input id="move-input" type="number" class="form-control" placeholder="mm">
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100" onclick="sendSetMove(1)">Go Forwards</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100" onclick="sendSetMove(-1)">Go Backwards</button>
+            </div>
+        </div>
+
+        <div class="label-section">
+            Turn the robot by an angle
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input id="rotate-input" type="number" class="form-control" placeholder="degs">
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100" onclick="sendSetRotate(1)">Turn Left</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100" onclick="sendSetRotate(-1)">Turn Right</button>
+            </div>
+        </div>
+
+        <div class="label-section">
+            Turn a Servo to an absolute value
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input id="servo-value" type="number" class="form-control" placeholder="value">
+            </div>
+            <div class="col">
+                <select id="servo-select" class="form-select" aria-label="Servo Number">
+                    <option value=0>Servo (0)</option>
+                    <option value=1>Servo (1)</option>
+                    <option value=2>Servo (2)</option>
+                    <option value=3>Servo (3)</option>
+                </select>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100" onclick="sendSetServo()">Turn Servo</button>
+            </div>
+        </div>
+
+        <div class="label-section">
+            Turn a Stepper to an absolute value
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <input id="stepper-value" type="number" class="form-control" placeholder="value">
+            </div>
+            <div class="col">
+                <select id="stepper-select" class="form-select" aria-label="Stepper Number">
+                    <option value=0>Stepper (0)</option>
+                    <option value=1>Stepper (1)</option>
+                    <option value=2>Stepper (2)</option>
+                    <option value=3>Stepper (3)</option>
+                </select>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100" onclick="sendSetStepper()">Turn Stepper</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Function to start the continuous control data fetching loop
+        async function startContinuousControlFetch() {
+            while (true) {  // Infinite loop
+                await getStatus();  // Wait for the data to be fetched
+                await sleep(100);
+            }
+        }
+        const statusLabel = document.getElementById("status-label");
+
+        async function getStatus() {
+            try {
+                let response = await fetch('/get_status');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                let data = await response.json();
+                let robotStatus = data["status"];
+                if (robotStatus == 0)
+                    statusLabel.innerHTML = "Robot State : Init";
+                else if (robotStatus == 1)
+                    statusLabel.innerHTML = "Robot State : Initialize";
+                else if (robotStatus == 2)
+                    statusLabel.innerHTML = "Robot State : Set Home";
+                else if (robotStatus == 3)
+                    statusLabel.innerHTML = "Robot State : Waiting for Start";
+                else if (robotStatus == 4)
+                    statusLabel.innerHTML = "Robot State : Running";
+                else if (robotStatus == 5)
+                    statusLabel.innerHTML = "Robot State : Fin";
+                else if (robotStatus == 6)
+                    statusLabel.innerHTML = "Robot State : Stopping";
+                else if (robotStatus == 7)
+                    statusLabel.innerHTML = "Robot State : Manual";
+                else
+                    statusLabel.innerHTML = "Robot State : Undefined";
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+            }
+        }
+        // Start the continuous fetching loop
+        startContinuousControlFetch();
+
+        function sendManualMode(enabled) {
+            fetch('/set_manual_control_mode', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ value: enabled })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
+        }
+        
+        
+        const set_x_inputfield = document.getElementById("set-x");
+        const set_y_inputfield = document.getElementById("set-y");
+        const set_theta_inputfield = document.getElementById("set-theta");
+
+        function sendSetCoordinates() {
+            fetch('/set_coordinates', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({
+                    x: set_x_inputfield.value.trim() !== '' ? Number(set_x_inputfield.value) : undefined,
+                    y: set_y_inputfield.value.trim() !== '' ? Number(set_y_inputfield.value) : undefined,
+                    theta: set_theta_inputfield.value.trim() !== '' ? Number(set_theta_inputfield.value) : undefined
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
+        }
+
+
+        const set_target_x_inputfield = document.getElementById("target-x");
+        const set_target_y_inputfield = document.getElementById("target-y");
+        const set_target_theta_inputfield = document.getElementById("target-theta");
+
+        function sendSetTargetCoordinates() {
+            fetch('/set_target_coordinates', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({
+                    x: set_target_x_inputfield.value.trim() !== '' ? Number(set_target_x_inputfield.value) : undefined,
+                    y: set_target_y_inputfield.value.trim() !== '' ? Number(set_target_y_inputfield.value) : undefined,
+                    theta: set_target_theta_inputfield.value.trim() !== '' ? Number(set_target_theta_inputfield.value) : undefined
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
+        }
+
+
+        const set_move_inputfield = document.getElementById("move-input");
+        function sendSetMove(multiplier) {
+            let result = multiplier * set_move_inputfield.value;
+            fetch('/set_move', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ value: Number(result) })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
+        }
+        
+        const set_rotate_inputfield = document.getElementById("rotate-input");
+        function sendSetRotate(multiplier) {
+            let result = multiplier * set_rotate_inputfield.value;
+            fetch('/set_rotate', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ value: Number(result) })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
+        }
+
+        const set_servo_select = document.getElementById("servo-select");
+        const set_servo_value = document.getElementById("servo-value");
+        function sendSetServo() {
+            fetch('/set_servo', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ value: Number(set_servo_value.value), id: Number(set_servo_select.value) })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
+        }
+
+        const set_stepper_select = document.getElementById("stepper-select");
+        const set_stepper_value = document.getElementById("stepper-value");
+        function sendSetStepper() {
+            fetch('/set_stepper', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ value: Number(set_stepper_value.value), id: Number(set_stepper_select.value) })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
+        }
+    </script>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Load navbar from external file
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-placeholder').innerHTML = data;
+            });
+    </script>
+</body>
+</html>

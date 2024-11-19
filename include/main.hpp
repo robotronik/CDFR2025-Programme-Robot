@@ -1,6 +1,7 @@
 #pragma once
 #include "fonction.h"
 #include "cmdAsserv.hpp"
+#include "arduino.hpp"
 
 typedef enum {
     INIT,
@@ -9,7 +10,8 @@ typedef enum {
     WAITSTART,
     RUN,
     FIN,
-    STOP
+    STOP,
+    MANUAL
 } main_State_t;
 
 
@@ -20,3 +22,5 @@ extern TableState tableStatus;
 extern CmdAsserv *robotI2C;
 extern lidarAnalize_t lidarData[SIZEDATALIDAR];
 extern int lidar_count;
+extern bool manual_ctrl;
+extern Arduino *arduino;

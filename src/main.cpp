@@ -13,7 +13,6 @@
 #include "main.hpp"
 #include "lidarAnalize.h"
 #include "lidar.h"
-#include "arduino.hpp"
 #include "utils.h"
 #include "arduinoSubFonction.h"
 #include "logger.hpp"
@@ -39,6 +38,7 @@ Arduino *arduino;
 main_State_t nextState;
 bool initState;
 actionContainer *actionSystem;
+bool manual_ctrl;
 
 std::thread api_server_thread;
 
@@ -106,11 +106,11 @@ int main(int argc, char *argv[])
                 arduino->readCapteur(2, bStateCapteur2);
                 if (bStateCapteur2 == 1)
                 {
-                    robotI2C->set_coordinates(-700, 1100, -90);
+                    robotI2C->set_coordinates(-770, 1390, -90);
                 }
                 else
                 {
-                    robotI2C->set_coordinates(-700, -1100, 90); // 90 de base
+                    robotI2C->set_coordinates(-770, -1390, 90); // 90 de base
                 }
             }
 
@@ -162,21 +162,23 @@ int main(int argc, char *argv[])
             if (bStateCapteur2 == 1)
             {
                 tableStatus.robot.colorTeam = YELLOW;
-                nextState = SETHOME; // SETHOME pour calibration
-                robotI2C->set_coordinates(-700, 1100, -90);
+                nextState = WAITSTART; // SETHOME pour calibration
+                robotI2C->set_coordinates(-770, 1390, -90);
                 LOG_INFO("teams : YELLOW");
             }
             else if (bStateCapteur2 == 0)
             {
                 tableStatus.robot.colorTeam = BLUE;
-                nextState = SETHOME; // SETHOME pour calibration
-                robotI2C->set_coordinates(-700, -1100, 90);
+                nextState = WAITSTART; // SETHOME pour calibration
+                robotI2C->set_coordinates(-770, -1390, 90);
                 LOG_INFO("teams : BLUE");
             }
             else
             {
                 LOG_ERROR("bStateCapteur2 IS NOT THE RIGHT VALUE (0 or 1)");
             }
+            if (manual_ctrl)
+                nextState = MANUAL;
             break;
         }
         //****************************************************************
@@ -218,13 +220,10 @@ int main(int argc, char *argv[])
 
             // Counts the number of time the magnet sensor
             if (bStateCapteur1 == 0)
-            {
                 countStart++;
-            }
             else
-            {
                 countStart = 0;
-            }
+
             if (countStart == 5)
             {
                 nextState = RUN;
@@ -233,19 +232,36 @@ int main(int argc, char *argv[])
                 tableStatus.startTime = _millis();
                 // actionSystem->initAction(robotI2C, arduino, &(tableStatus));
             }
+            if (manual_ctrl)
+                nextState = MANUAL;
             break;
         }
         //****************************************************************
         case RUN:
         {
-            if (initState)
+            if (initState){
                 LOG_STATE("RUN");
+                tableStatus.startTime = _millis();
+                actionSystem->initAction(robotI2C, arduino, &(tableStatus));
+            }
             bool finished = actionSystem->actionContainerRun(robotI2C, &tableStatus);
 
             if (tableStatus.startTime + 90000 < _millis() || tableStatus.FIN || finished)
             {
                 nextState = FIN;
             }
+            break;
+        }
+
+
+        //****************************************************************
+        case MANUAL:
+        {
+            if (initState)
+                LOG_STATE("MANUAL");
+
+            if (!manual_ctrl)
+                nextState = FIN;
             break;
         }
 
@@ -369,6 +385,7 @@ int StartSequence()
     currentState = INIT;
     nextState = INIT;
     initState = true;
+    manual_ctrl = false;
 
     actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
 
