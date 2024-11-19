@@ -223,84 +223,6 @@ void print_gpio_status(){
 
 #define GPIO_MOTOR_PIN 18
 
-// PWM frequency and duty cycle (percentage)
-#define PWM_FREQUENCY_HZ 20000   // 20 kHz PWM frequency
-#define PWM_DUTY_CYCLE 25       // 20% duty cycle
-
-// Variables to track PWM state
-static int pwm_state = 0; // 0 for OFF, 1 for ON
-
-// Timer interval in microseconds for PWM frequency
-unsigned long pwm_period_us = 1000000 / PWM_FREQUENCY_HZ;  // in microseconds
-unsigned long pwm_high_time_us = pwm_period_us * PWM_DUTY_CYCLE / 100; // ON time in microseconds
-unsigned long pwm_low_time_us = pwm_period_us - pwm_high_time_us;  // OFF time in microseconds
-
-static timer_t timerid;
-
-static struct itimerspec ts_high = {
-    .it_interval = { .tv_sec = 0, .tv_nsec = 0 } // No periodic interval
-};
-static struct itimerspec ts_low = {
-    .it_interval = { .tv_sec = 0, .tv_nsec = 0 } // No periodic interval
-};
-
-// Timer callback function to toggle PWM
-void timer_thread_callback(union sigval sv) {
-    // Toggle the pin state based on the current PWM state
-    if (pwm_state == 0) {
-        ts_high.it_value.tv_nsec = pwm_high_time_us * 1000;
-        ts_high.it_value.tv_sec = 0;
-        timer_settime(timerid, 0, &ts_high, NULL);
-        // Pin ON: Use high duration
-        pin_on(GPIO_MOTOR_PIN);
-        pwm_state = 1;
-    } else {
-        ts_low.it_value.tv_nsec = pwm_low_time_us * 1000;
-        ts_low.it_value.tv_sec = 0;
-        timer_settime(timerid, 0, &ts_low, NULL);
-        // Pin OFF: Use low duration
-        pin_off(GPIO_MOTOR_PIN);
-        pwm_state = 0;
-    }
-}
-
-
-int setup_pwm_timer() {
-    struct sigevent sev;
-    struct itimerspec ts;
-
-    // Configure the timer to use a thread for notifications
-    sev.sigev_notify = SIGEV_THREAD;
-    sev.sigev_value.sival_ptr = &timerid;
-    sev.sigev_notify_function = timer_thread_callback;
-    sev.sigev_notify_attributes = NULL;  // Use default thread attributes
-
-    // Create a timer using CLOCK_MONOTONIC for high precision
-    if (timer_create(CLOCK_MONOTONIC, &sev, &timerid) == -1) {
-        perror("timer_create failed");
-        return -1;
-    }
-
-    // Set the initial timer to trigger 
-    ts_high.it_value.tv_nsec = pwm_high_time_us * 1000;
-    ts_high.it_value.tv_sec = 0;
-    ts_low.it_value.tv_nsec = pwm_low_time_us * 1000;
-    ts_low.it_value.tv_sec = 0;
-    ts_high.it_interval.tv_sec = 0;  // No periodic interval
-    ts_high.it_interval.tv_nsec = 0;
-    ts_low.it_interval.tv_sec = 0;  // No periodic interval
-    ts_low.it_interval.tv_nsec = 0;
-    if (timer_settime(timerid, 0, &ts_low, NULL) == -1) {
-        LOG_ERROR("GPIO PWM - timer_settime failed");
-        return 3;
-    }
-
-    LOG_DEBUG("GPIO PWM - High ", pwm_high_time_us, "us, Low ", pwm_low_time_us, "us");
-    return 0;
-}
-
-
-
 int GPIO_SetupPWMMotor(){
 
     // create a rp1 device
@@ -322,21 +244,16 @@ int GPIO_SetupPWMMotor(){
     };
     pin_enable_output(GPIO_MOTOR_PIN);
 
-    // pin_on(GPIO_MOTOR_PIN);
+    pin_on(GPIO_MOTOR_PIN);
     // pin_off(GPIO_MOTOR_PIN);
 
-    return setup_pwm_timer();
+    //TODO : CANT DO A SOFTWARE PWM BECAUSE TIMING NS IS SHIT
+    // PROBABLY USE RP1 HARDWARE OR LIBS
+    return 0;
 }
 
 
 void GPIO_stopPWMMotor(){
-
-    // Disable the timer (stop PWM generation)
-    if (timer_delete(timerid) == -1) {
-        LOG_ERROR("GPIO PWM - timer_delete failed");
-        return;
-    }
-
     pin_off(GPIO_MOTOR_PIN);
 
     // TODO : SEE DOCS ABOUT RP1
