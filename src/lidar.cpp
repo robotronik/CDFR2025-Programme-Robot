@@ -68,7 +68,7 @@ bool lidarSetup(const char* serialPort ,int baudrate){
     printf("Supported Scan Modes:\n");
     for (const auto &mode : scanModes) {
         printf("Mode ID: %u\n", mode.id);
-        printf("Mode Name: %c\n", mode.scan_mode);
+        printf("Mode Name: %s\n", mode.scan_mode);
         printf("Time per Sample: %f µs\n", mode.us_per_sample);
         printf("Max Distance: %f m\n", mode.max_distance);
         printf("Answer Type: %d\n\n", (int)mode.ans_type);
