@@ -224,8 +224,8 @@ void print_gpio_status(){
 #define GPIO_MOTOR_PIN 18
 
 // PWM frequency and duty cycle (percentage)
-#define PWM_FREQUENCY_HZ 1000   // 1 kHz PWM frequency
-#define PWM_DUTY_CYCLE 20       // 20% duty cycle
+#define PWM_FREQUENCY_HZ 20000   // 20 kHz PWM frequency
+#define PWM_DUTY_CYCLE 25       // 20% duty cycle
 
 // Variables to track PWM state
 static int pwm_state = 0; // 0 for OFF, 1 for ON
@@ -245,51 +245,51 @@ static struct itimerspec ts_low = {
 };
 
 // Timer callback function to toggle PWM
-void timer_handler(int sig, siginfo_t *si, void *uc) {
+void timer_thread_callback(union sigval sv) {
     // Toggle the pin state based on the current PWM state
     if (pwm_state == 0) {
+        ts_high.it_value.tv_nsec = pwm_high_time_us * 1000;
+        ts_high.it_value.tv_sec = 0;
+        timer_settime(timerid, 0, &ts_high, NULL);
         // Pin ON: Use high duration
         pin_on(GPIO_MOTOR_PIN);
         pwm_state = 1;
-        ts_high.it_value.tv_nsec = pwm_high_time_us * 1000;
-        timer_settime(timerid, 0, &ts_high, NULL);
     } else {
+        ts_low.it_value.tv_nsec = pwm_low_time_us * 1000;
+        ts_low.it_value.tv_sec = 0;
+        timer_settime(timerid, 0, &ts_low, NULL);
         // Pin OFF: Use low duration
         pin_off(GPIO_MOTOR_PIN);
         pwm_state = 0;
-        ts_low.it_value.tv_nsec = pwm_low_time_us * 1000;
-        timer_settime(timerid, 0, &ts_low, NULL);
     }
 }
 
 
 int setup_pwm_timer() {
-    struct sigaction sa;
     struct sigevent sev;
+    struct itimerspec ts;
 
-    // Set up the signal handler for SIGRT_2
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_flags = SA_SIGINFO;
-    sa.sa_sigaction = timer_handler;
-    if (sigaction(SIGRTMIN+2, &sa, NULL) == -1) {
-        LOG_ERROR("sigaction failed");
-        return 1;
-    }
-
-    // Configure timer to use SIGRT_2
-    memset(&sev, 0, sizeof(sev));
-    sev.sigev_notify = SIGEV_SIGNAL;
-    sev.sigev_signo = SIGRTMIN+2;  // Use SIGRT_2 explicitly
+    // Configure the timer to use a thread for notifications
+    sev.sigev_notify = SIGEV_THREAD;
     sev.sigev_value.sival_ptr = &timerid;
+    sev.sigev_notify_function = timer_thread_callback;
+    sev.sigev_notify_attributes = NULL;  // Use default thread attributes
 
-    if (timer_create(CLOCK_REALTIME, &sev, &timerid) == -1) {
-        LOG_ERROR("timer_create failed");
-        return 2;
+    // Create a timer using CLOCK_MONOTONIC for high precision
+    if (timer_create(CLOCK_MONOTONIC, &sev, &timerid) == -1) {
+        perror("timer_create failed");
+        return -1;
     }
 
     // Set the initial timer to trigger 
     ts_high.it_value.tv_nsec = pwm_high_time_us * 1000;
+    ts_high.it_value.tv_sec = 0;
     ts_low.it_value.tv_nsec = pwm_low_time_us * 1000;
+    ts_low.it_value.tv_sec = 0;
+    ts_high.it_interval.tv_sec = 0;  // No periodic interval
+    ts_high.it_interval.tv_nsec = 0;
+    ts_low.it_interval.tv_sec = 0;  // No periodic interval
+    ts_low.it_interval.tv_nsec = 0;
     if (timer_settime(timerid, 0, &ts_low, NULL) == -1) {
         LOG_ERROR("GPIO PWM - timer_settime failed");
         return 3;
