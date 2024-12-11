@@ -32,12 +32,11 @@ static highway_obstruction_object obs_obj_opponent =
 //Internal Prototypes
 double distance(highway_point a, highway_point b);
 double point_to_segment_distance(highway_point p, highway_point v, highway_point w);
-bool is_point_in_rectangle(highway_point p, highway_point rect[4]);
-bool does_circle_touch_rectangle(highway_obstruction_object circle, highway_point rect[4]);
+bool is_point_in_rectangle(highway_point p, highway_line * line);
+bool does_circle_touch_highway(highway_obstruction_object circle, highway_line * line);
 void get_available_highways(bool av_highways_arr[]);
-bool any_obstacle_on_highway(highway_point highway_rect[]);
-void calculate_highway_rect(highway_line * line, highway_point highway_rect[]);
-bool obstacle_on_highway(highway_obstruction_object* obs, highway_point highway_rect[]);
+bool any_obstacle_on_highway(highway_line * line);
+bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line);
 
 
 
@@ -71,10 +70,10 @@ double calculate_angle(highway_point A, highway_point B, highway_point C) {
 //takes in point indexes
 int additionnal_turn_cost(int start, int middle, int end){
     //Lets say that turning costs 500mm + 1mm/deg
-    double angle = calculate_angle(points[start], points[middle], points[end]);
-    if (angle < 5f)
-        return 0
-    return ((int)(angle) + 500);
+    double angle = abs(calculate_angle(points[start], points[middle], points[end]));
+    if (angle > 175)
+        return 0;
+    return ((int)(180 - angle) + 500);
 }
 
 // Function to find the shortest path using Dijkstra's algorithm
@@ -210,59 +209,34 @@ bool unit_tests(){
 
 // Fills the bool array, true if highway is available
 void get_available_highways(bool av_highways_arr[]){
-    for(int line_i = 0; line_i < HIGHWAY_LINES_COUNT; line_i++){
-        highway_point highway_rect[4];
-        calculate_highway_rect(lines + line_i, highway_rect);
-        av_highways_arr[line_i] = !any_obstacle_on_highway(highway_rect);
+    for(int i = 0; i < HIGHWAY_LINES_COUNT; i++){
+        av_highways_arr[i] = !any_obstacle_on_highway(lines + i);
     }
 }
 
-bool any_obstacle_on_highway(highway_point highway_rect[]){
+// Pointer to a line
+bool any_obstacle_on_highway(highway_line * line){
     bool on_highway;
     for(int stock_i = 0; stock_i < 1; stock_i++){
-        on_highway = obstacle_on_highway(obs_obj_stocks + stock_i, highway_rect);
+        on_highway = obstacle_on_highway(obs_obj_stocks + stock_i, line);
         if (on_highway){
             return true;
         }
     }
-    on_highway = obstacle_on_highway(&obs_obj_opponent, highway_rect);
+    on_highway = obstacle_on_highway(&obs_obj_opponent, line);
     if (on_highway){
         return true;
     }
 }
 
-// Calculates a rectangle from a pointer to a line
-void calculate_highway_rect(highway_line * line, highway_point highway_rect[]){
-    highway_point A = points[line->a];
-    highway_point B = points[line->b];
-
-    // Calculate rectangle corners based on line and width
-    double half_width = ROBOT_WIDTH / 2.0;
-
-    highway_point rect[4];
-
-    double dx = B.y - A.y;
-    double dy = A.x - B.x;
-    double length = sqrt(dx * dx + dy * dy);
-    dx = (dx / length) * half_width;
-    dy = (dy / length) * half_width;
-
-    highway_rect[0] = (highway_point){A.x + dx, A.y + dy};
-    highway_rect[1] = (highway_point){A.x - dx, A.y - dy};
-    highway_rect[2] = (highway_point){B.x - dx, B.y - dy};
-    highway_rect[3] = (highway_point){B.x + dx, B.y + dy};
-}
-
-//takes a pointer to an obstruction object
-// TODO : Do the opposite, calculate the circle as a bigger radius and compare that to the highway
-bool obstacle_on_highway(highway_obstruction_object* obs, highway_point highway_rect[]){
+// takes a pointer to an obstruction object and a line
+bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line){
     if (!obs->present)
         return false;
     switch (obs->type)
     {
     case Circle
-        // Check if the circle is inside the rectangle
-        if (does_circle_touch_rectangle(obs, highway_rect)) {
+        if (does_circle_touch_highway(obs, line)) {
             printf("The circle is inside the rectangle.\n");
             return true;
         } else {
@@ -302,33 +276,10 @@ double point_to_segment_distance(highway_point p, highway_point v, highway_point
     return distance(p, projection);
 }
 
-// Function to check if a point is inside a rectangle
-bool is_point_in_rectangle(highway_point p, highway_point rect[4]) {
-    double cross1 = (rect[1].x - rect[0].x) * (p.y - rect[0].y) - (rect[1].y - rect[0].y) * (p.x - rect[0].x);
-    double cross2 = (rect[2].x - rect[1].x) * (p.y - rect[1].y) - (rect[2].y - rect[1].y) * (p.x - rect[1].x);
-    double cross3 = (rect[3].x - rect[2].x) * (p.y - rect[2].y) - (rect[3].y - rect[2].y) * (p.x - rect[2].x);
-    double cross4 = (rect[0].x - rect[3].x) * (p.y - rect[3].y) - (rect[0].y - rect[3].y) * (p.x - rect[3].x);
-
-    return (cross1 <= 0 && cross2 <= 0 && cross3 <= 0 && cross4 <= 0) ||
-           (cross1 >= 0 && cross2 >= 0 && cross3 >= 0 && cross4 >= 0);
-}
-
 // Function to check if a circular highway_obstruction_object touches or overlaps a rectangle
-bool does_circle_touch_rectangle(highway_obstruction_object circle, highway_point rect[4]) {
-    // Check if the circle's center is inside the rectangle
-    if (is_point_in_rectangle(circle.pos, rect)) {
+bool does_circle_touch_highway(highway_obstruction_object circle, highway_line * line) {
+    if (point_to_segment_distance(circle.pos, line->a, line->b) <= circle.size + ROBOT_WIDTH / 2) {
         return true;
     }
-
-    // Check if the circle touches any of the rectangle's edges
-    for (int i = 0; i < 4; i++) {
-        highway_point v = rect[i];
-        highway_point w = rect[(i + 1) % 4];
-
-        if (point_to_segment_distance(circle.pos, v, w) <= circle.size) {
-            return true;
-        }
-    }
-
-    return false; // The circle does not touch or overlap the rectangle
+    return false; // The circle does not overlap the highway
 }
