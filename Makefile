@@ -6,7 +6,8 @@ LDLIBS = -pthread -li2c -lrt -lpthread -lsl_lidar_sdk
 INCLUDE_DIR = -Iinclude
 INCLUDE_DIR += -Irplidar_sdk/sdk/include
 INCLUDE_DIR += -Irplidar_sdk/sdk/src
-INCLUDE_DIR += -I../librairie-commune/include
+INCLUDE_DIR += -I../librairie-commune/common/include
+INCLUDE_DIR += -I../librairie-commune/master/include
 INCLUDE_DIR += -IWiringPi/wiringPi
 
 BINDIR = bin
@@ -14,7 +15,7 @@ TARGET = $(BINDIR)/programCDFR
 TEST_TARGET = $(BINDIR)/tests
 
 SRCDIR = src
-SRCDIR_LIBCOM = ../librairie-commune/src
+SRCDIR_LIBCOM = ../librairie-commune/master/src
 SRCDIR_TEST = tests
 
 OBJDIR = obj
