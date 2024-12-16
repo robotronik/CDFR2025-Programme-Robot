@@ -45,7 +45,7 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
     case SETPOS_FIRSTFORWARD :
         if(initStat) LOG_STATE("SETPOS_FIRSTFORWARD");
         
-        if(navigationGoToNoTurn(xSave,ySave+yBack)>0){
+        if(navigationGoToNoTurn(xSave,ySave+yBack) == NAV_DONE){
             nextState = SETPOS_FIRSTBACKWARD;
             iAsser->set_coordinates(xSave,yStart,thetaStart);
         }
@@ -53,14 +53,14 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
 
     case SETPOS_FIRSTBACKWARD :
         if(initStat) LOG_STATE("SETPOS_FIRSTBACKWARD");    
-        if(navigationGoTo(xSave,y,-180, CmdAsserv::MOVE_BACKWARD)>0){
+        if(navigationGoTo(xSave,y,-180, CmdAsserv::MOVE_BACKWARD) == NAV_DONE){
             nextState = SETPOS_SECONDBACKWARD;
         }
         break;
 
     case SETPOS_SECONDBACKWARD :
         if(initStat) LOG_STATE("SETPOS_SECONDBACKWARD");
-        if(navigationGoToNoTurn(xSave+xSecond,y)>0){
+        if(navigationGoToNoTurn(xSave+xSecond,y) == NAV_DONE){
             iAsser->set_coordinates(xStart, y,-180);
             nextState = SETPOS_SECONDFORWARD;
         }
@@ -68,7 +68,7 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
 
     case SETPOS_SECONDFORWARD :
         if(initStat) LOG_STATE("SETPOS_SECONDFORWAsetMaxTorqueRD");
-        if(navigationGoTo(x,y,-180,CmdAsserv::MOVE_BACKWARD,CmdAsserv::SHORTEST)>0){
+        if(navigationGoTo(x,y,-180,CmdAsserv::MOVE_BACKWARD) == NAV_DONE){
             nextState = SETPOS_INIT;
             iAsser->set_max_speed_backward(MAX_SPEED);
             iAsser->set_max_speed_forward(MAX_SPEED);
@@ -449,30 +449,8 @@ void resetActionneur(CmdAsserv* iAsser, Arduino* arduino){
 int returnToHome(TableState* itable,CmdAsserv* iAsser){
     int home_x = 700;
     int home_y = itable->robot.colorTeam == YELLOW ? 1200 : -1200;
-    iAsser -> go_to_point(home_x, home_y); //TODO : With new navigation.cpp for opponent avoidance
-    bool breturn = iAsser -> get_moving_is_done();
-
-    /*
-    //Ludo
-    static int step = 0;
-    if(step == 0){
-        iAsser->consigne_angulaire(700,itable->robot.colorTeam == YELLOW ? 1200 : -1200);
-        step++;   
-    }
-    else if(step == 1 && !iAsser->get_linear_error()){
-        iAsser->set_consigne_lineaire(700,itable->robot.colorTeam == YELLOW ? 1200 : -1200);
-        step++;
-    }
-    else if(step == 2){
-        if(!iAsser->get_linear_error()){
-            step++;
-        }        
-    }
-    else if(step == 3){
-        breturn = true;
-    }
-    */
-
+    nav_return_t res = navigationGoTo(home_x, home_y);
+    bool breturn = res == NAV_DONE;
     return breturn; 
 }
 
