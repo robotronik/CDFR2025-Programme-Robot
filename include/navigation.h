@@ -8,21 +8,6 @@
 
 #define NAV_MAX_STALL_TIME_MS 5000
 
-typedef enum {
-    NAV_INIT,
-    NAV_WAITFIRSTMOVE,
-    NAV_MOVE,
-    NAV_STOP,
-    NAV_WAIT
-} deplcement_State_t;
-
-typedef enum {
-    GOTO_INIT,
-    GOTO_LOOKAT,
-    GOTO_MOVE,
-    GOTO_TURN,
-} go_to_State_t;
-
 // Navigation return type
 typedef enum {
     NAV_IN_PROCESS,
