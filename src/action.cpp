@@ -8,7 +8,7 @@ action::action(std::string name, CmdAsserv* irobot, Arduino* iarduino, TableStat
     actionName = name;
 
     noEndPoint = true;
-    currentState = FSMACTION_INIT;
+    currentState = FSM_ACTION_INIT;
     initStat = true;
     actionEnable = true;
 }
@@ -21,23 +21,23 @@ int action::runAction(void){
     LOG_SCOPE("Action");
     int ireturn = 0;
     fsmAction_t nextState = currentState;
-    int navigationreturn;
+    nav_return_t navRet;
 
     switch (currentState)
     {
-    case FSMACTION_INIT :
-        if(initStat) LOG_STATE("FSMACTION_INIT");
-        nextState = FSMACTION_MOVESTART;
+    case FSM_ACTION_INIT :
+        if(initStat) LOG_STATE("FSM_ACTION_INIT");
+        nextState = FSM_ACTION_MOVESTART;
         break;
 
-    case FSMACTION_MOVESTART :
-        if(initStat) LOG_STATE("FSMACTION_MOVESTART");
-        navigationreturn = goToStart();
-        if(navigationreturn>0){
-            nextState = FSMACTION_ACTION;
+    case FSM_ACTION_MOVESTART :
+        if(initStat) LOG_STATE("FSM_ACTION_MOVESTART");
+        navRet = goToStart();
+        if(navRet>0){
+            nextState = FSM_ACTION_ACTION;
         }
-        else if(navigationreturn<0){
-            nextState = FSMACTION_INIT;
+        else if(navRet<0){
+            nextState = FSM_ACTION_INIT;
             actionEnable = false;
             if(badEndPtr){
                 badEndPtr(table);
@@ -47,23 +47,23 @@ int action::runAction(void){
         break;
 
 
-    case FSMACTION_ACTION :
-        if(initStat) LOG_STATE("FSMACTION_ACTION");
-        navigationreturn = runActionPtr(this,robot,arduino,table);
-        if(navigationreturn>0){
+    case FSM_ACTION_ACTION :
+        if(initStat) LOG_STATE("FSM_ACTION_ACTION");
+        navRet = runActionPtr(this,robot,arduino,table);
+        if(navRet>0){
             if(noEndPoint){
-                nextState = FSMACTION_INIT;
+                nextState = FSM_ACTION_INIT;
                 ireturn = 1;
             }
             else{
-                nextState = FSMACTION_MOVEEND;
+                nextState = FSM_ACTION_MOVEEND;
             }
             if(goodEndPtr){
                 goodEndPtr(table,robot);
             }
         }
-        else if(navigationreturn<0){
-            nextState = FSMACTION_INIT;
+        else if(navRet<0){
+            nextState = FSM_ACTION_INIT;
             actionEnable = false;
             if(badEndPtr){
                 badEndPtr(table);
@@ -73,15 +73,15 @@ int action::runAction(void){
         break;
 
 
-    case FSMACTION_MOVEEND :
-        if(initStat) LOG_STATE("FSMACTION_MOVEEND");
-        navigationreturn = goToEnd();
-        if(navigationreturn>0){
-            nextState = FSMACTION_INIT;
+    case FSM_ACTION_MOVEEND :
+        if(initStat) LOG_STATE("FSM_ACTION_MOVEEND");
+        navRet = goToEnd();
+        if(navRet>0){
+            nextState = FSM_ACTION_INIT;
             ireturn = 1;
         }
-        else if(navigationreturn<0){
-            nextState = FSMACTION_INIT;
+        else if(navRet<0){
+            nextState = FSM_ACTION_INIT;
             actionEnable = false;
             if(badEndPtr){
                 badEndPtr(table);
@@ -93,7 +93,7 @@ int action::runAction(void){
     
     default:
         if(initStat) LOG_STATE("default");
-        nextState = FSMACTION_INIT;
+        nextState = FSM_ACTION_INIT;
         break;
     }
 
@@ -157,7 +157,7 @@ void action::setRunAction(std::function<int(action*, CmdAsserv*, Arduino*, Table
     runActionPtr = ptr;
 }
 
-int action::goToStart(void){
+nav_return_t action::goToStart(void){
     if(nothetaStart){
         return navigationGoToNoTurn(startPostion.x,startPostion.y, startDirection,startRotation);
     }
@@ -167,7 +167,7 @@ int action::goToStart(void){
 }
 
 
-int action::goToEnd(void){
+nav_return_t action::goToEnd(void){
     return navigationGoTo(endPostion.x, endPostion.y, endPostion.theta, endDirection);
 }
 

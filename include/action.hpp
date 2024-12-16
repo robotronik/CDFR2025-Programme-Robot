@@ -20,10 +20,10 @@ private:
 
 
     typedef enum{
-        FSMACTION_INIT,
-        FSMACTION_MOVESTART,
-        FSMACTION_ACTION,
-        FSMACTION_MOVEEND
+        FSM_ACTION_INIT,
+        FSM_ACTION_MOVESTART,
+        FSM_ACTION_ACTION,
+        FSM_ACTION_MOVEEND
     }fsmAction_t;
 
 private:
@@ -45,7 +45,7 @@ private:
     CmdAsserv::Direction endDirection;
     CmdAsserv::Rotation endRotation;
 
-    fsmAction_t currentState = FSMACTION_INIT;
+    fsmAction_t currentState = FSM_ACTION_INIT;
     bool initStat = true;
 
     std::string actionName;
@@ -78,6 +78,6 @@ public:
     }
 
 private:
-    int goToStart(void);
-    int goToEnd(void);
+    nav_return_t goToStart(void);
+    nav_return_t goToEnd(void);
 };
