@@ -2,7 +2,7 @@
 #define MYFUNCTION_H
 
 #include "structs.hpp"
-#include "deplacement.h"
+#include "navigation.h"
 #include "arduinoSubFonction.h"
 #include "tableState.hpp"
 #include "lidarAnalize.h"

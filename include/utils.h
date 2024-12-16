@@ -23,7 +23,7 @@ typedef enum
     ARRIERE,
     ROTATION,
     ARRET
-}type_deplacement_t;
+}type_navigation_t;
 
 inline unsigned long _millis() {
     struct timespec ts;

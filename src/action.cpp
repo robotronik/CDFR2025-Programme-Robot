@@ -21,7 +21,7 @@ int action::runAction(void){
     LOG_SCOPE("Action");
     int ireturn = 0;
     fsmAction_t nextState = currentState;
-    int deplacementreturn;
+    int navigationreturn;
 
     switch (currentState)
     {
@@ -32,11 +32,11 @@ int action::runAction(void){
 
     case FSMACTION_MOVESTART :
         if(initStat) LOG_STATE("FSMACTION_MOVESTART");
-        deplacementreturn = goToStart();
-        if(deplacementreturn>0){
+        navigationreturn = goToStart();
+        if(navigationreturn>0){
             nextState = FSMACTION_ACTION;
         }
-        else if(deplacementreturn<0){
+        else if(navigationreturn<0){
             nextState = FSMACTION_INIT;
             actionEnable = false;
             if(badEndPtr){
@@ -49,8 +49,8 @@ int action::runAction(void){
 
     case FSMACTION_ACTION :
         if(initStat) LOG_STATE("FSMACTION_ACTION");
-        deplacementreturn = runActionPtr(this,robot,arduino,table);
-        if(deplacementreturn>0){
+        navigationreturn = runActionPtr(this,robot,arduino,table);
+        if(navigationreturn>0){
             if(noEndPoint){
                 nextState = FSMACTION_INIT;
                 ireturn = 1;
@@ -62,7 +62,7 @@ int action::runAction(void){
                 goodEndPtr(table,robot);
             }
         }
-        else if(deplacementreturn<0){
+        else if(navigationreturn<0){
             nextState = FSMACTION_INIT;
             actionEnable = false;
             if(badEndPtr){
@@ -75,12 +75,12 @@ int action::runAction(void){
 
     case FSMACTION_MOVEEND :
         if(initStat) LOG_STATE("FSMACTION_MOVEEND");
-        deplacementreturn = goToEnd();
-        if(deplacementreturn>0){
+        navigationreturn = goToEnd();
+        if(navigationreturn>0){
             nextState = FSMACTION_INIT;
             ireturn = 1;
         }
-        else if(deplacementreturn<0){
+        else if(navigationreturn<0){
             nextState = FSMACTION_INIT;
             actionEnable = false;
             if(badEndPtr){
@@ -159,19 +159,19 @@ void action::setRunAction(std::function<int(action*, CmdAsserv*, Arduino*, Table
 
 int action::goToStart(void){
     if(nothetaStart){
-        return deplacementgoToPointNoTurn(table->robot.collide, robot, startPostion.x,startPostion.y, startDirection,startRotation);
+        return navigationGoToNoTurn(startPostion.x,startPostion.y, startDirection,startRotation);
     }
     else{
-        return deplacementgoToPoint(table->robot.collide, robot, startPostion.x,startPostion.y, startPostion.theta, startDirection);
+        return navigationGoTo(startPostion.x,startPostion.y, startPostion.theta, startDirection);
     }    
 }
 
 
 int action::goToEnd(void){
-    return deplacementgoToPoint(table->robot.collide, robot, endPostion.x, endPostion.y, endPostion.theta, endDirection);
+    return navigationGoTo(endPostion.x, endPostion.y, endPostion.theta, endDirection);
 }
 
-void action::setStartPoint(int x, int y, int theta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
+void action::setStartPoint(int x, int y, int theta, CmdAsserv::Direction Direction, CmdAsserv::Rotation rotation){
     startPostion.x = x;
     startPostion.y = y;
     startPostion.theta = theta;
@@ -179,7 +179,7 @@ void action::setStartPoint(int x, int y, int theta, CmdAsserv::direction Directi
     startRotation = rotation;
 }
 
-void action::setStartPoint(int x, int y, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
+void action::setStartPoint(int x, int y, CmdAsserv::Direction Direction, CmdAsserv::Rotation rotation){
     startPostion.x = x;
     startPostion.y = y;
     startDirection = Direction;
@@ -187,7 +187,7 @@ void action::setStartPoint(int x, int y, CmdAsserv::direction Direction, CmdAsse
     nothetaStart = true;
 }
 
-void action::setEndPoint(int x, int y, int theta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation){
+void action::setEndPoint(int x, int y, int theta, CmdAsserv::Direction Direction, CmdAsserv::Rotation rotation){
     endPostion.x = x;
     endPostion.y = y;
     endPostion.theta = theta;
