@@ -288,7 +288,7 @@ void StartAPIServer(){
         }
         else{
             LOG_INFO("Manual ctrl : Requested set_target_coordinates, x=", req_x_value, " y=", req_y_value);
-            robotI2C->set_consigne_lineaire(req_x_value,req_y_value);
+            robotI2C->go_to_point(req_x_value,req_y_value);
         }
 
         json response;
@@ -314,7 +314,7 @@ void StartAPIServer(){
         LOG_INFO("Manual ctrl : Requested set_move, value=", req_value);
 
         //TODO : Apply the value
-        robotI2C->set_consigne_lineaire(newXvalue,newYvalue);
+        robotI2C->go_to_point(newXvalue,newYvalue);
 
 
         json response;

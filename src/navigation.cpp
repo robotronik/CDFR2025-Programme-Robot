@@ -11,7 +11,7 @@ void initNavigation(CmdAsserv* robot_p, TableState* table_p){
     is_robot_stalled = false;
 }
 
-nav_return_t navigationGoTo(int x, int y, int theta, CmdAsserv::Direction direction,CmdAsserv::Rotation rotationLookAt,CmdAsserv::Rotation rotation){
+nav_return_t navigationGoTo(int x, int y, int theta, Direction direction,Rotation rotationLookAt,Rotation rotation){
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
     if (is_robot_stalled){
@@ -24,7 +24,7 @@ nav_return_t navigationGoTo(int x, int y, int theta, CmdAsserv::Direction direct
     return ireturn;
 }
 
-nav_return_t navigationGoToNoTurn(int x, int y, CmdAsserv::Direction direction,CmdAsserv::Rotation rotationLookAt){
+nav_return_t navigationGoToNoTurn(int x, int y, Direction direction,Rotation rotationLookAt){
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
     if (is_robot_stalled){
@@ -32,7 +32,7 @@ nav_return_t navigationGoToNoTurn(int x, int y, CmdAsserv::Direction direction,C
         return ireturn;
     }
 
-    robot->go_to_point(x,y, direction, rotationLookAt);
+    robot->go_to_point(x,y, rotationLookAt, direction);
     ireturn = robot->get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
     return ireturn;
 }
@@ -44,13 +44,13 @@ void navigationOpponentDetection(){
     bool isEndangered = false;
     switch (robot->get_direction_side())
     {
-    case CmdAsserv::FORWARD:
-        isEndangered = robot->get_braking_distance() > lidar.collideDistanceFORWARD();
+    case Direction::FORWARD:
+        isEndangered = robot->get_braking_distance() > 69; // TODO find some value... > lidar.collideDistanceFORWARD();
         break;        
-    case CmdAsserv::BACKWARD:
-        isEndangered = robot->get_braking_distance() > lidar.collideDistanceBACKWARD();
+    case Direction::BACKWARD:
+        isEndangered = robot->get_braking_distance() > 69;// > lidar.collideDistanceBACKWARD();
         break;    
-    case CmdAsserv::NONE:
+    case Direction::NONE:
         isEndangered = false;
         break;
     default:
@@ -58,12 +58,12 @@ void navigationOpponentDetection(){
     }
 
     if(isEndangered && !is_robot_stalled){
-        robot.pause();
+        robot->pause();
         is_robot_stalled = true;
         robot_stall_start_time = _millis();
     }
     else if(is_robot_stalled){
-        robot.resume();
+        robot->resume();
         is_robot_stalled = false;
     }
 }

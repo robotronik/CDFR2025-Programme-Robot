@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
                 robotI2C->set_motor_state(true);
                 robotI2C->set_brake_state(false);
                 robotI2C->set_linear_max_speed(MAX_SPEED);
-                while(robot.get_command_buffer_size() != 0); //wait end of all action above
+                while(robotI2C->get_command_buffer_size() != 0); //wait end of all action above
             }
             int bStateCapteur2 = 0;
             arduino->readCapteur(2, bStateCapteur2);
@@ -447,8 +447,7 @@ void GetLidar()
             count_pos = 0;
         count_pos++;
 
-        int16_t braking_distance;
-        robotI2C->get_braking_distance(braking_distance);
+        int16_t braking_distance = robotI2C->get_braking_distance();
         tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
     }
 }

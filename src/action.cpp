@@ -49,7 +49,7 @@ int action::runAction(void){
 
     case FSM_ACTION_ACTION :
         if(initStat) LOG_STATE("FSM_ACTION_ACTION");
-        navRet = runActionPtr(this,robot,arduino,table);
+        navRet = (nav_return_t)runActionPtr(this,robot,arduino,table);
         if(navRet>0){
             if(noEndPoint){
                 nextState = FSM_ACTION_INIT;
@@ -171,7 +171,7 @@ nav_return_t action::goToEnd(void){
     return navigationGoTo(endPostion.x, endPostion.y, endPostion.theta, endDirection);
 }
 
-void action::setStartPoint(int x, int y, int theta, CmdAsserv::Direction Direction, CmdAsserv::Rotation rotation){
+void action::setStartPoint(int x, int y, int theta, Direction Direction, Rotation rotation){
     startPostion.x = x;
     startPostion.y = y;
     startPostion.theta = theta;
@@ -179,7 +179,7 @@ void action::setStartPoint(int x, int y, int theta, CmdAsserv::Direction Directi
     startRotation = rotation;
 }
 
-void action::setStartPoint(int x, int y, CmdAsserv::Direction Direction, CmdAsserv::Rotation rotation){
+void action::setStartPoint(int x, int y, Direction Direction, Rotation rotation){
     startPostion.x = x;
     startPostion.y = y;
     startDirection = Direction;
@@ -187,7 +187,7 @@ void action::setStartPoint(int x, int y, CmdAsserv::Direction Direction, CmdAsse
     nothetaStart = true;
 }
 
-void action::setEndPoint(int x, int y, int theta, CmdAsserv::Direction Direction, CmdAsserv::Rotation rotation){
+void action::setEndPoint(int x, int y, int theta, Direction Direction, Rotation rotation){
     endPostion.x = x;
     endPostion.y = y;
     endPostion.theta = theta;

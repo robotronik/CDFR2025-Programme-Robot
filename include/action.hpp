@@ -37,13 +37,13 @@ private:
     std::function<void(TableState*)> badEndPtr;
 
     position_t startPostion;
-    CmdAsserv::Direction startDirection;
-    CmdAsserv::Rotation startRotation;
+    Direction startDirection;
+    Rotation startRotation;
 
     bool noEndPoint = true;
     position_t endPostion;
-    CmdAsserv::Direction endDirection;
-    CmdAsserv::Rotation endRotation;
+    Direction endDirection;
+    Rotation endRotation;
 
     fsmAction_t currentState = FSM_ACTION_INIT;
     bool initStat = true;
@@ -59,9 +59,9 @@ public:
     action(std::string name, CmdAsserv* irobot, Arduino* iarduino, TableState* itable);
     int runAction(void);
     void setRunAction(std::function<int(action*, CmdAsserv*, Arduino*, TableState*)> ptr);
-    void setStartPoint(int x, int y, int theta, CmdAsserv::Direction Direction, CmdAsserv::Rotation rotation);
-    void setStartPoint(int x, int y, CmdAsserv::Direction Direction, CmdAsserv::Rotation rotation);
-    void setEndPoint(int x, int y, int theta, CmdAsserv::Direction Direction, CmdAsserv::Rotation rotation);
+    void setStartPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
+    void setStartPoint(int x, int y, Direction Direction, Rotation rotation);
+    void setEndPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
     int costAction(void);
     void goodEnd(std::function<void(TableState*, CmdAsserv*)> ptr);
     void badEnd(std::function<void(TableState*)> ptr);

@@ -35,8 +35,7 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
     case SETPOS_INIT :
         if(initStat) LOG_STATE("SETPOS_INIT");
         iAsser->get_coordinates(xSave,ySave,thetaSave);
-        iAsser->set_max_speed_backward(150);
-        iAsser->set_max_speed_forward(150);
+        iAsser->set_linear_max_speed(150);
         //startTime = _millis()+100;
         nextState = SETPOS_FIRSTFORWARD;
         break;
@@ -53,7 +52,7 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
 
     case SETPOS_FIRSTBACKWARD :
         if(initStat) LOG_STATE("SETPOS_FIRSTBACKWARD");    
-        if(navigationGoTo(xSave,y,-180, CmdAsserv::MOVE_BACKWARD) == NAV_DONE){
+        if(navigationGoTo(xSave,y,-180, Direction::BACKWARD) == NAV_DONE){
             nextState = SETPOS_SECONDBACKWARD;
         }
         break;
@@ -68,10 +67,9 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
 
     case SETPOS_SECONDFORWARD :
         if(initStat) LOG_STATE("SETPOS_SECONDFORWAsetMaxTorqueRD");
-        if(navigationGoTo(x,y,-180,CmdAsserv::MOVE_BACKWARD) == NAV_DONE){
+        if(navigationGoTo(x,y,-180,Direction::BACKWARD) == NAV_DONE){
             nextState = SETPOS_INIT;
-            iAsser->set_max_speed_backward(MAX_SPEED);
-            iAsser->set_max_speed_forward(MAX_SPEED);
+            iAsser->set_linear_max_speed(MAX_SPEED);
             ireturn = 1;
         }
         break;
@@ -355,7 +353,7 @@ int jardinierePutPlant(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,in
     case PUTPLANT_GOBORDER :
         if(initStat) LOG_STATE("PUTPLANT_GOBORDER");
         
-        navigationreturn = navigationGoTo(x,y,theta,CmdAsserv::FORWARD,CmdAsserv::SHORTEST);
+        navigationreturn = navigationGoTo(x,y,theta,Direction::FORWARD,Rotation::SHORTEST);
         
         if(navigationreturn > 0){
             iAsser->stop();
@@ -449,7 +447,7 @@ void resetActionneur(CmdAsserv* iAsser, Arduino* arduino){
 int returnToHome(TableState* itable,CmdAsserv* iAsser){
     int home_x = 700;
     int home_y = itable->robot.colorTeam == YELLOW ? 1200 : -1200;
-    nav_return_t res = navigationGoTo(home_x, home_y);
+    nav_return_t res = navigationGoToNoTurn(home_x, home_y);
     bool breturn = res == NAV_DONE;
     return breturn; 
 }
@@ -509,7 +507,7 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
     case VOLPLANT_GOBORDER :
         if(initStat) LOG_STATE("VOLPLANT_GOBORDER");
         
-        navigationreturn = navigationGoTo(x,y,theta,CmdAsserv::FORWARD,CmdAsserv::SHORTEST);
+        navigationreturn = navigationGoTo(x,y,theta,Direction::FORWARD,Rotation::SHORTEST);
         
         if(navigationreturn > 0){
             iAsser->stop();
@@ -537,7 +535,7 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
     //-------------------------------------------------------------------
     case VOLPLANT_BACKWARD :
         if (initStat) LOG_STATE("VOLPLANT_BACKWARD");
-        navigationreturn = navigationGoTo(x,y-200,theta,CmdAsserv::MOVE_BACKWARD,CmdAsserv::SHORTEST);
+        navigationreturn = navigationGoTo(x,y-200,theta,CmdAsserv::MOVE_BACKWARD,Rotation::SHORTEST);
         if(navigationreturn>0){
             arduino->moveStepper(1600,1);
             nextState = VOLPLANT_ZONEFIN;
@@ -552,7 +550,7 @@ int VolPlante(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
     //-------------------------------------------------------------------
     case VOLPLANT_ZONEFIN :
         if (initStat) LOG_STATE("VOLPLANT_ZONEFIN");
-        navigationreturn = navigationGoTo(-200,1250,0,CmdAsserv::FORWARD,CmdAsserv::SHORTEST);
+        navigationreturn = navigationGoTo(-200,1250,0,Direction::FORWARD,Rotation::SHORTEST);
         if(navigationreturn>0){
             nextState = VOLPLANT_FIN;
         }
