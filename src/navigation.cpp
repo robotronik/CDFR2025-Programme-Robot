@@ -15,9 +15,8 @@ void initNavigation(CmdAsserv* robot_p, TableState* table_p){
     is_robot_stalled = false;
 }
 
-nav_return_t navigationGoTo(int x, int y, int theta, Direction direction,Rotation rotationLookAt,Rotation rotation){
+nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotation rotationLookAt, Rotation rotation){
     std::size_t hashValue = createHash(x, y, theta, direction, rotationLookAt, rotation);
-
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
     if (is_robot_stalled){
@@ -33,7 +32,7 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction,Rotatio
     return ireturn;
 }
 
-nav_return_t navigationGoToNoTurn(int x, int y, Direction direction,Rotation rotationLookAt){
+nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation rotationLookAt){
     std::size_t hashValue = createHash(x, y, 0, direction, rotationLookAt, (Rotation)0);
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
