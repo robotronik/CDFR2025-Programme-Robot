@@ -32,4 +32,3 @@
 #define SPEED_STOCK 8000
 
 const int rayon[3] = {200,200,250};
-const int table[9] = {1225,1000,775,225,0,-225,-775,-1000,-1225};

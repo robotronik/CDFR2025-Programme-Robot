@@ -48,7 +48,7 @@ void to_json(json& j, const lidarAnalize_t& p);
 typedef struct {
     position_t pos;
     int cout;
-    type_deplacement_t type;
+    type_navigation_t type;
     int parent,id;
 }instruction_t;
 

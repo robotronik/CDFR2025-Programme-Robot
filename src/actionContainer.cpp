@@ -29,7 +29,7 @@ actionContainer::actionContainer( CmdAsserv* irobot, Arduino* iarduino, TableSta
 void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableState* itable){
     
 // ACTION 1 : CHERCHER DU STOCK
-    takeStock0->setStartPoint(0,0,CmdAsserv::MOVE_FORWARD,CmdAsserv::ROTATION_DIRECT); //replace 0,0 by coords of Stock[0]
+    takeStock0->setStartPoint(0,0,Direction::FORWARD,Rotation::SHORTEST); //replace 0,0 by coords of Stock[0]
     takeStock0->setRunAction([&](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
         //return takePlant2(iAsser,iarduino,itable,plantPosition[0].x - MARGESTOCKPLANTX,plantPosition[0].y - MARGESTOCKPLANTY,plantPosition[0].x + MARGESTOCKPLANTX/DIVIDE,plantPosition[0].y + MARGESTOCKPLANTY/DIVIDE,0);
         return takeStock(iAsser,iarduino,itable,0,0,0,0,0);
@@ -44,8 +44,8 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
 
      
 // ACTION 2 PUT IN CONSTRUCTION ZONE 
-    putInConstruction0->setStartPoint(0, 0, 90, CmdAsserv::MOVE_FORWARD, CmdAsserv::ROTATION_DIRECT);
-    putInConstruction0->setEndPoint(0, 0, 90, CmdAsserv::MOVE_BACKWARD, CmdAsserv::ROTATION_DIRECT);
+    putInConstruction0->setStartPoint(0, 0, 90, Direction::FORWARD, Rotation::SHORTEST);
+    putInConstruction0->setEndPoint(0, 0, 90, Direction::BACKWARD, Rotation::SHORTEST);
     putInConstruction0->setRunAction([](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
         return construct(itable, iAsser, iarduino, 0, 0, 90);
     });
@@ -62,7 +62,7 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
 
 // ACTION 3
 //    turnSolarPanelAction->setKeyMoment(65000);
-//    turnSolarPanelAction->setStartPoint(810,(itable->robot.colorTeam == YELLOW ? 1100 : -1100),(itable->robot.colorTeam == YELLOW ? -90 : 90), CmdAsserv::MOVE_FORWARD, CmdAsserv::ROTATION_DIRECT);
+//    turnSolarPanelAction->setStartPoint(810,(itable->robot.colorTeam == YELLOW ? 1100 : -1100),(itable->robot.colorTeam == YELLOW ? -90 : 90), Direction::FORWARD, Rotation::SHORTEST);
 //    turnSolarPanelAction->setRunAction([](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
 //        return turnSolarPannel(itable, iAsser, iarduino);
 //    });
@@ -74,7 +74,7 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
 
 
         // ACTION 4
-    returnToHomeAction->setStartPoint(700,(itable->robot.colorTeam == YELLOW ? 1200 : -1200), CmdAsserv::MOVE_FORWARD, CmdAsserv::ROTATION_DIRECT);
+    returnToHomeAction->setStartPoint(700,(itable->robot.colorTeam == YELLOW ? 1200 : -1200), Direction::FORWARD, Rotation::SHORTEST);
     returnToHomeAction->setRunAction([](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
         int iret = 0;
         //if(FastReleasePlant(iarduino))
@@ -89,7 +89,7 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
     listeAction.push_back(returnToHomeAction);
 
     //ACTION 5
-    waitFin->setStartPoint(700,0,(itable->robot.colorTeam == YELLOW ? -90 : 90),CmdAsserv::MOVE_FORWARD,CmdAsserv::ROTATION_DIRECT);
+    waitFin->setStartPoint(700,0,(itable->robot.colorTeam == YELLOW ? -90 : 90),Direction::FORWARD,Rotation::SHORTEST);
     waitFin->setRunAction([](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable){
         while (itable->startTime+88000 > _millis()){
             sleep(0.25);
