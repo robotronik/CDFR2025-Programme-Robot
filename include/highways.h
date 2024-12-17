@@ -34,8 +34,8 @@ typedef struct
 
 
 // obstruction defs
-extern static highway_obstruction_object obs_obj_stocks[];
-extern static highway_obstruction_object obs_obj_opponent;
+extern highway_obstruction_object obs_obj_stocks[];
+extern highway_obstruction_object obs_obj_opponent;
 
 
 void init_highways();

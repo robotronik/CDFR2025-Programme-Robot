@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <math.h>
+#include "logger.hpp"
 
 #define HIGHWAY_POINTS_COUNT 3
 #define HIGHWAY_LINES_COUNT 2
@@ -22,11 +23,11 @@ static int highway_cost[HIGHWAY_LINES_COUNT];
 
 
 //These are all of the objects
-static highway_obstruction_object obs_obj_stocks[]{
+highway_obstruction_object obs_obj_stocks[]{
     {{-500, 0}, true, 100, 100, highway_obstruction_object_type::Rectangle}
 };
-static highway_obstruction_object obs_obj_opponent = 
-    {{500, 0}, false, 200, 0, highway_obstruction_object_type::Circle};
+highway_obstruction_object obs_obj_opponent = 
+    {{500, 0}, true, 200, 0, highway_obstruction_object_type::Circle};
 
 
 //Internal Prototypes
@@ -131,7 +132,7 @@ bool dijkstra(int source, int destination, bool available_highways[], highway_po
 
     for (int i = path_length - 1; i >= 0; i--) {
         printf("%d%s", path[i], (i > 0) ? " -> " : "\n");
-        result[i] = path[ path_length - 1 - i ];
+        result[i] = points[path[ path_length - 1 - i ]];
     }
     return path_length;
 }
@@ -163,7 +164,7 @@ int find_fastest_path(highway_point start, highway_point target, highway_point r
     int min_start = INF, min_target = INF;
     for(int i = 0; i < HIGHWAY_POINTS_COUNT; i++){
         int dist_start = distance(start, points[i]);
-        int dist_target = disttance(target, points[i]);
+        int dist_target = distance(target, points[i]);
         if (dist_start < min_start){
             min_start = dist_start;
             A = i;
@@ -182,14 +183,20 @@ int find_fastest_path(highway_point start, highway_point target, highway_point r
 
 
 bool unit_tests(){
+
+obs_obj_stocks[0] = 
+    {{-500, 0}, true, 100, 100, highway_obstruction_object_type::Rectangle};
+obs_obj_opponent = 
+    {{500, 0}, true, 200, 0, highway_obstruction_object_type::Circle};
+
     highway_point result[HIGHWAY_POINTS_COUNT+1];
     int res = find_fastest_path({-1100, 0}, {1100, 0}, result);
     if (res == 0){
         // No path found, obstacle was blocking
-        printf("test success");
+        LOG_DEBUG("yeee");
     }
     else{
-        printf("test fail");
+        LOG_DEBUG("huh");
         return false;
     }
 
@@ -197,10 +204,10 @@ bool unit_tests(){
     res = find_fastest_path({1100, 0}, {-1100, 0}, result);
     if (res != 0){
         // path found
-        printf("test success");
+        LOG_DEBUG("yeee");
     }
     else{
-        printf("test fail");
+        LOG_DEBUG("huh");
         return false;
     }
     return true;
@@ -227,6 +234,7 @@ bool any_obstacle_on_highway(highway_line * line){
     if (on_highway){
         return true;
     }
+    return false;
 }
 
 // takes a pointer to an obstruction object and a line
@@ -235,8 +243,8 @@ bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line){
         return false;
     switch (obs->type)
     {
-    case Circle
-        if (does_circle_touch_highway(obs, line)) {
+    case highway_obstruction_object_type::Circle:
+        if (does_circle_touch_highway(*obs, line)) {
             printf("The circle is inside the rectangle.\n");
             return true;
         } else {
@@ -246,7 +254,7 @@ bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line){
         break;
     
     default:
-        printf("Not yet implemented obstacle type");
+        printf("Not yet implemented obstacle type\n");
         return false;
         break;
     }
@@ -278,7 +286,7 @@ double point_to_segment_distance(highway_point p, highway_point v, highway_point
 
 // Function to check if a circular highway_obstruction_object touches or overlaps a rectangle
 bool does_circle_touch_highway(highway_obstruction_object circle, highway_line * line) {
-    if (point_to_segment_distance(circle.pos, line->a, line->b) <= circle.size + ROBOT_WIDTH / 2) {
+    if (point_to_segment_distance(circle.pos, points[line->a], points[line->b]) <= circle.size + ROBOT_WIDTH / 2) {
         return true;
     }
     return false; // The circle does not overlap the highway
