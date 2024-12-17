@@ -2,7 +2,7 @@
 
 #include <functional>
 #include <string>
-#include "deplacement.h"
+#include "navigation.h"
 #include "arduinoSubFonction.h"
 #include "fonction.h"
 #include "tableState.hpp"
@@ -20,10 +20,10 @@ private:
 
 
     typedef enum{
-        FSMACTION_INIT,
-        FSMACTION_MOVESTART,
-        FSMACTION_ACTION,
-        FSMACTION_MOVEEND
+        FSM_ACTION_INIT,
+        FSM_ACTION_MOVESTART,
+        FSM_ACTION_ACTION,
+        FSM_ACTION_MOVEEND
     }fsmAction_t;
 
 private:
@@ -37,15 +37,15 @@ private:
     std::function<void(TableState*)> badEndPtr;
 
     position_t startPostion;
-    CmdAsserv::direction startDirection;
-    CmdAsserv::rotation startRotation;
+    Direction startDirection;
+    Rotation startRotation;
 
     bool noEndPoint = true;
     position_t endPostion;
-    CmdAsserv::direction endDirection;
-    CmdAsserv::rotation endRotation;
+    Direction endDirection;
+    Rotation endRotation;
 
-    fsmAction_t currentState = FSMACTION_INIT;
+    fsmAction_t currentState = FSM_ACTION_INIT;
     bool initStat = true;
 
     std::string actionName;
@@ -59,9 +59,9 @@ public:
     action(std::string name, CmdAsserv* irobot, Arduino* iarduino, TableState* itable);
     int runAction(void);
     void setRunAction(std::function<int(action*, CmdAsserv*, Arduino*, TableState*)> ptr);
-    void setStartPoint(int x, int y, int theta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation);
-    void setStartPoint(int x, int y, CmdAsserv::direction Direction, CmdAsserv::rotation rotation);
-    void setEndPoint(int x, int y, int theta, CmdAsserv::direction Direction, CmdAsserv::rotation rotation);
+    void setStartPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
+    void setStartPoint(int x, int y, Direction Direction, Rotation rotation);
+    void setEndPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
     int costAction(void);
     void goodEnd(std::function<void(TableState*, CmdAsserv*)> ptr);
     void badEnd(std::function<void(TableState*)> ptr);
@@ -78,6 +78,6 @@ public:
     }
 
 private:
-    int goToStart(void);
-    int goToEnd(void);
+    nav_return_t goToStart(void);
+    nav_return_t goToEnd(void);
 };

@@ -284,11 +284,11 @@ void StartAPIServer(){
         if (req_data.contains("theta")){
             int req_theta_value = req_data["theta"];
             LOG_INFO("Manual ctrl : Requested set_target_coordinates, x=", req_x_value, " y=", req_y_value, " theta=", req_theta_value);
-            robotI2C->set_consigne_angulaire(req_theta_value, 0);
+            robotI2C->consigne_angulaire(req_theta_value, 1);
         }
         else{
             LOG_INFO("Manual ctrl : Requested set_target_coordinates, x=", req_x_value, " y=", req_y_value);
-            robotI2C->set_consigne_lineaire(req_x_value,req_y_value);
+            robotI2C->go_to_point(req_x_value,req_y_value);
         }
 
         json response;
@@ -314,7 +314,7 @@ void StartAPIServer(){
         LOG_INFO("Manual ctrl : Requested set_move, value=", req_value);
 
         //TODO : Apply the value
-        robotI2C->set_consigne_lineaire(newXvalue,newYvalue);
+        robotI2C->go_to_point(newXvalue,newYvalue);
 
 
         json response;
@@ -335,7 +335,7 @@ void StartAPIServer(){
         int req_value = req_data["value"];
 
         //TODO : Apply the value
-        robotI2C->set_consigne_angulaire(tableStatus.robot.pos.theta + req_value, 0);
+        robotI2C->consigne_angulaire(tableStatus.robot.pos.theta + req_value, 1);
 
         LOG_INFO("Manual ctrl : Requested set_rotate, value=", req_value);
 

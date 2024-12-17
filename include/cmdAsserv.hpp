@@ -11,6 +11,7 @@ extern "C" {
 #include <cstdint>
 #include <iostream>
 #include "asservissement_interface.h"
+#include "type.h"
 
 
 class CmdAsserv : public asservissement_interface

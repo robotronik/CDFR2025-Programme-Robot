@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
             {
 #ifndef DISABLE_LIDAR
                 GetLidarV2();
+                navigationOpponentDetection();
 #endif
             }
         }
@@ -144,8 +145,6 @@ int main(int argc, char *argv[])
             {
                 LOG_STATE("INITIALIZE");
                 arduino->servoPosition(4, 100);
-                robotI2C->enable_motor();
-                robotI2C->brake(false);
                 arduino->enableStepper(1);
                 /*
                 TODO : Put it back if needed
@@ -153,9 +152,10 @@ int main(int argc, char *argv[])
                 arduino->servoPosition(2,CLAMPSLEEP);
                 arduino->moveStepper(ELEVATORUP,1);
                 */
-                robotI2C->set_max_speed_forward(MAX_SPEED);
-                robotI2C->set_max_speed_backward(MAX_SPEED);
-                sleep(1);
+                robotI2C->set_motor_state(true);
+                robotI2C->set_brake_state(false);
+                robotI2C->set_linear_max_speed(MAX_SPEED);
+                while(robotI2C->get_command_buffer_size() != 0); //wait end of all action above
             }
             int bStateCapteur2 = 0;
             arduino->readCapteur(2, bStateCapteur2);
@@ -279,8 +279,8 @@ int main(int argc, char *argv[])
                 arduino->servoPosition(2,CLAMPSTOP);
                 */
                 arduino->disableStepper(1);
-                robotI2C->disable_motor();
-                robotI2C->brake(true);
+                robotI2C->set_motor_state(false);
+                robotI2C->set_brake_state(false);
                 nextState = STOP;
             }
             break;
@@ -365,6 +365,8 @@ int StartSequence()
     robotI2C = new CmdAsserv(I2C_ASSER_ADDR);
     // LOG_SETROBOT(robotI2C);
 
+    initNavigation(robotI2C, &tableStatus);
+
     arduino = new Arduino(I2C_ARDUINO_ADDR);
 
     currentState = INIT;
@@ -445,8 +447,7 @@ void GetLidar()
             count_pos = 0;
         count_pos++;
 
-        int16_t braking_distance;
-        robotI2C->get_braking_distance(braking_distance);
+        int16_t braking_distance = robotI2C->get_braking_distance();
         tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
     }
 }
@@ -460,7 +461,6 @@ void GetLidarV2()
 
     static position_t pos_opponent_filtered = {0, 0, 0, 0, 0};
     static bool first_reading = true;
-    static int count_pos = 0;
 
     if (getlidarData(lidarData, lidar_count))
     {
@@ -499,13 +499,10 @@ void GetLidarV2()
             opponentInAction(&tableStatus, &pos_opponent_filtered);
         }
 
-        if (count_pos == 10)
-            count_pos = 0;
-        count_pos++;
-
-        int16_t braking_distance;
-        robotI2C->get_braking_distance(braking_distance);
-        tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
+        // TODO : Remove ?
+        // int16_t braking_distance;
+        // robotI2C->get_braking_distance(braking_distance);
+        // tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
     }
 }
 
@@ -531,11 +528,11 @@ void EndSequence()
     arduino->servoPosition(2,CLAMPSTOP);
     */
     arduino->moveStepper(0, 1);
-    robotI2C->disable_motor();
-    robotI2C->brake(false);
+    robotI2C->set_motor_state(false);
+    robotI2C->set_brake_state(false);
     robotI2C->stop();
     lidarStop();
-    sleep(2);
+    sleep(1);
     arduino->disableStepper(1);
     LOG_DEBUG("PROCESS KILL");
 }
