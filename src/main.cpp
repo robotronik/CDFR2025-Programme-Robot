@@ -22,6 +22,7 @@
 
 // #define DISABLE_LIDAR
 // #define TEST_API_ONLY
+// #define DISABLE_LIDAR_BEACONS
 
 main_State_t currentState;
 TableState tableStatus;
@@ -77,7 +78,7 @@ int main(int argc, char *argv[])
         {
             int16_t x, y, theta;
             robotI2C->get_coordinates(x, y, theta);
-            tableStatus.robot.pos = {x, y, 0, theta, 0};
+            tableStatus.robot.pos = {x, y, theta};
             // LOG_GREEN_INFO("X = ", x," Y = ", y, " theta = ", theta);
 
             if (currentState != FIN)
@@ -366,18 +367,6 @@ int StartSequence()
 
     actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
 
-    // arduino->enableStepper(1);
-    // arduino->servoPosition(1,180);
-    // arduino->servoPosition(2,0);
-    // arduino->moveStepper(2200,1);
-    // while(!ctrl_c_pressed);
-    // ctrl_c_pressed = false;
-    // while(!catchPlant(arduino));
-    // while(!ctrl_c_pressed);
-    // ctrl_c_pressed = false;
-    // while(!releasePlant(arduino));
-    // while(!ctrl_c_pressed);
-
     // std::string colorTest = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
     // std::filesystem::path exe_pathTest = std::filesystem::canonical(std::filesystem::path(argv[0])).parent_path();
     // std::filesystem::path python_script_pathTest = exe_pathTest / "../startPAMI.py";
@@ -391,7 +380,7 @@ int StartSequence()
 void GetLidar()
 {
     // Averages the position of the opponent over a few scans
-    static position_t pos_opponent_avg_sum = {0, 0, 0, 0, 0};
+    static position_t pos_opponent_avg_sum = {0, 0, 0};
     static int pos_opponent_avg_count = 0, count_pos = 0;
 
     if (getlidarData(lidarData, lidar_count))
@@ -449,7 +438,7 @@ void GetLidarV2()
     // Smoothing factor (0 < alpha < 1)
     const float alpha = 0.5f; // Adjust this value for more or less smoothing on the opponent robot posititon
 
-    static position_t pos_opponent_filtered = {0, 0, 0, 0, 0};
+    static position_t pos_opponent_filtered = {0, 0, 0};
     static bool first_reading = true;
 
     if (getlidarData(lidarData, lidar_count))
@@ -457,13 +446,16 @@ void GetLidarV2()
         position_t position;
         colorTeam_t color;
         // TODO : Add offset to lidar robot pos
+#ifndef DISABLE_LIDAR_BEACONS
         if (position_robot_beacons(lidarData, lidar_count, &position, tableStatus.robot.colorTeam, &color)){
             LOG_GREEN_INFO("Successfully found the robot's position using beacons");
             LOG_GREEN_INFO("X = ", position.x," Y = ", position.y, " theta = ", position.theta);
+            // TODO, apply that new position to the tableStatus robot pos and the asserv
         }
         else{
             position = tableStatus.robot.pos;
         }
+#endif
         convertAngularToAxial(lidarData, lidar_count, &position, 50);
         
         position_t pos_opponent;
@@ -488,11 +480,6 @@ void GetLidarV2()
 
             opponentInAction(&tableStatus, &pos_opponent_filtered);
         }
-
-        // TODO : Remove ?
-        // int16_t braking_distance;
-        // robotI2C->get_braking_distance(braking_distance);
-        // tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
     }
 }
 
@@ -512,11 +499,6 @@ void EndSequence()
     arduino->ledOff(2);
     arduino->ledOff(1);
     arduino->servoPosition(1, 180);
-
-    /*
-    TODO : Put it back if needed
-    arduino->servoPosition(2,CLAMPSTOP);
-    */
     arduino->moveStepper(0, 1);
     robotI2C->set_motor_state(false);
     robotI2C->set_brake_state(false);
@@ -538,6 +520,7 @@ bool isWifiConnected()
         {
             if (line.find("wlan0") != std::string::npos)
             {
+                LOG_GREEN_INFO("We are connected to a wifi : ", line.find("wlan0"));
                 // Si la ligne contient "wlan0", cela indique que l'interface Wi-Fi est présente
                 return true;
             }
@@ -545,10 +528,7 @@ bool isWifiConnected()
         file.close();
     }
     else
-    {
-        std::cerr << "Erreur : Impossible d'ouvrir le fichier /proc/net/wireless." << std::endl;
-    }
-
+        LOG_ERROR("Erreur : Impossible d'ouvrir le fichier /proc/net/wireless.");
     return false;
 }
 

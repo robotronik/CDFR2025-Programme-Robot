@@ -9,9 +9,7 @@ typedef struct
 {
     int  x;
     int  y;
-    int  dist;
     int  theta;
-    int  time;
 }position_t; 
 
 //Define serialization for position_t

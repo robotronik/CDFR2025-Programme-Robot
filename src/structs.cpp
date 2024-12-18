@@ -5,9 +5,7 @@ void to_json(json& j, const position_t& p) {
     j = json{
         {"x", p.x},
         {"y", p.y},
-        {"dist", p.dist},
-        {"theta", p.theta},
-        {"time", p.time}
+        {"theta", p.theta}
     };
 }
 

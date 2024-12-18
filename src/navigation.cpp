@@ -72,6 +72,8 @@ void navigationOpponentDetection(){
     }
     return; // TODO TODO REMOVE WHEN YOU HAVE LIDAR
 
+    //TODO : Maybe call Collide ?
+
     if(isEndangered && !is_robot_stalled){
         robot->pause();
         is_robot_stalled = true;
