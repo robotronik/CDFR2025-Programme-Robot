@@ -2,16 +2,6 @@
 #include "structs.hpp"
 #define SIZEDATALIDAR 15000
 
-//#define DELAYUPDOWN 1000 //TODO
-//#define DELAYOPENCLOSE 500
-
-//#define ELEVATORUP 4000
-
-//#define CLAMPCLOSE 0
-//#define CLAMPOPEN 180
-//#define CLAMPSLEEP 15
-//#define CLAMPSTOP 20
-
 #define I2C_ASSER_ADDR 42
 #define I2C_ARDUINO_ADDR 100
 #define I2C_SSD1306_ADDR 16

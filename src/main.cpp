@@ -14,7 +14,6 @@
 #include "lidarAnalize.h"
 #include "lidar.h"
 #include "utils.h"
-#include "arduinoSubFonction.h"
 #include "logger.hpp"
 #include "restAPI.hpp"
 #include "gpio.h"
@@ -30,9 +29,6 @@ CmdAsserv *robotI2C;
 lidarAnalize_t lidarData[SIZEDATALIDAR];
 int lidar_count = 0;
 
-// TODO : Gone
-//Affichage *affichage;
-//SSD1306 display(0x3C);
 Arduino *arduino;
 
 main_State_t nextState;
@@ -146,12 +142,6 @@ int main(int argc, char *argv[])
                 LOG_STATE("INITIALIZE");
                 arduino->servoPosition(4, 100);
                 arduino->enableStepper(1);
-                /*
-                TODO : Put it back if needed
-                arduino->servoPosition(1,180);
-                arduino->servoPosition(2,CLAMPSLEEP);
-                arduino->moveStepper(ELEVATORUP,1);
-                */
                 robotI2C->set_motor_state(true);
                 robotI2C->set_brake_state(false);
                 robotI2C->set_linear_max_speed(MAX_SPEED);

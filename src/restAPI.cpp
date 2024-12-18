@@ -223,7 +223,7 @@ void StartAPIServer(){
         auto req_data = json::parse(req.body);
         bool req_value = req_data["value"];
 
-        //TODO : Apply the value
+        //Apply the value
         manual_ctrl = req_value;
 
         json response;
@@ -279,12 +279,12 @@ void StartAPIServer(){
         if (req_data.contains("y"))
             req_y_value = req_data["y"];
 
-        //TODO : Apply the values
-        // Implementer de la logique si on veut seulement aller au point, seulement tourner ou les deux
+        // Apply the values
         if (req_data.contains("theta")){
             int req_theta_value = req_data["theta"];
             LOG_INFO("Manual ctrl : Requested set_target_coordinates, x=", req_x_value, " y=", req_y_value, " theta=", req_theta_value);
-            robotI2C->consigne_angulaire(req_theta_value, 1);
+            robotI2C->go_to_point(req_x_value,req_y_value);
+            robotI2C->consigne_angulaire(req_theta_value, Rotation::SHORTEST);
         }
         else{
             LOG_INFO("Manual ctrl : Requested set_target_coordinates, x=", req_x_value, " y=", req_y_value);
@@ -313,7 +313,7 @@ void StartAPIServer(){
 
         LOG_INFO("Manual ctrl : Requested set_move, value=", req_value);
 
-        //TODO : Apply the value
+        // Apply the value
         robotI2C->go_to_point(newXvalue,newYvalue);
 
 
@@ -334,8 +334,8 @@ void StartAPIServer(){
 
         int req_value = req_data["value"];
 
-        //TODO : Apply the value
-        robotI2C->consigne_angulaire(tableStatus.robot.pos.theta + req_value, 1);
+        // Apply the value
+        robotI2C->consigne_angulaire(tableStatus.robot.pos.theta + req_value, Rotation::SHORTEST);
 
         LOG_INFO("Manual ctrl : Requested set_rotate, value=", req_value);
 
