@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     if (StartSequence() != 0)
         return -1;
 
-    // Private counters
+    // Private counter
     int sensorCount = 0;
     unsigned long loopStartTime;
     while (!ctrl_c_pressed)
@@ -120,13 +120,9 @@ int main(int argc, char *argv[])
             blinkLed(arduino, 1, 500);
 
             if (bStateCapteur3 == 1 && bStateCapteur1 == 1)
-            {
                 sensorCount++;
-            }
             else
-            {
                 sensorCount = 0;
-            }
             if (sensorCount == 5)
             {
                 nextState = INITIALIZE;
@@ -423,8 +419,8 @@ void GetLidar()
             count_pos = 0;
         count_pos++;
 
-        int16_t braking_distance = robotI2C->get_braking_distance();
-        tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
+        //int16_t braking_distance = robotI2C->get_braking_distance();
+        //tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
     }
 }
 void GetLidarV2()
