@@ -381,13 +381,11 @@ bool does_circle_touch_highway(highway_obstruction_object circle, highway_line *
 }
 // Function to check if a square highway_obstruction_object touches or overlaps a rectangle
 bool does_square_touch_highway(highway_obstruction_object square, highway_line * line) {
-    return doesSegmentIntersectRectangle(points[line->a].x, points[line->a].y, 
-                                        points[line->b].x, points[line->b].y, 
+    return doesSegmentIntersectRectangle(points[line->a], points[line->b], 
                                         square->pos.x, square->pos.y, square->size * 2 + ROBOT_WIDTH, square->size * 2 + ROBOT_WIDTH);
 }
 // Function to check if a rectangle highway_obstruction_object touches or overlaps a rectangle
 bool does_rectangle_touch_highway(highway_obstruction_object rectangle, highway_line * line) {
-    return doesSegmentIntersectRectangle(points[line->a].x, points[line->a].y, 
-                                    points[line->b].x, points[line->b].y, 
+    return doesSegmentIntersectRectangle(points[line->a], points[line->b], 
                                     rectangle->pos.x, rectangle->pos.y, rectangle->size * 2 + ROBOT_WIDTH, rectangle->size2 * 2 + ROBOT_WIDTH);
 }
