@@ -235,9 +235,9 @@ int main(int argc, char *argv[])
             if (initState){
                 LOG_STATE("RUN");
                 tableStatus.startTime = _millis();
-                actionSystem.initAction(robotI2C, arduino, &(tableStatus));
+                actionSystem.initAction(&robotI2C, &arduino, &(tableStatus));
             }
-            bool finished = actionSystem.actionContainerRun(robotI2C, &tableStatus);
+            bool finished = actionSystem.actionContainerRun(&robotI2C, &tableStatus);
 
             if (_millis() > tableStatus.startTime + 90000 || tableStatus.FIN || finished)
             {

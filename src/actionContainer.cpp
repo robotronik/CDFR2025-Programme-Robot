@@ -35,7 +35,7 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
     takeStock0->setStartPoint(0,0,Direction::FORWARD,Rotation::SHORTEST); //replace 0,0 by coords of Stock[0]
     takeStock0->setRunAction([&](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
         //return takePlant2(iAsser,iarduino,itable,plantPosition[0].x - MARGESTOCKPLANTX,plantPosition[0].y - MARGESTOCKPLANTY,plantPosition[0].x + MARGESTOCKPLANTX/DIVIDE,plantPosition[0].y + MARGESTOCKPLANTY/DIVIDE,0);
-        return takeStock(iAsser,iarduino,itable,0,0,0,0,0);
+        return takeStock(0,0,0,0,0);
     });
     takeStock0->goodEnd([](TableState*itable,CmdAsserv*irobot){
         //itable->robot.robotHavePlante = true;
@@ -50,7 +50,7 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
     putInConstruction0->setStartPoint(0, 0, 90, Direction::FORWARD, Rotation::SHORTEST);
     putInConstruction0->setEndPoint(0, 0, 90, Direction::BACKWARD, Rotation::SHORTEST);
     putInConstruction0->setRunAction([](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
-        return construct(itable, iAsser, iarduino, 0, 0, 90);
+        return construct(0, 0, 90);
     });
     putInConstruction0->goodEnd([](TableState*itable,CmdAsserv*irobot){
         //int16_t x,y,theta;
