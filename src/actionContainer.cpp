@@ -110,11 +110,11 @@ int actionContainer::actionContainerRun(CmdAsserv * robot,TableState* itable){
         iRet = -100;
     }
     else if(iActionReturn!=0){
-        resetActionneur(robot,arduino);
+        resetActionneur();
         initAction(robot, arduino, table);
     }
     // else if(forceNextAction()){
-    //     resetActionneur(robot,arduino);
+    //     resetActionneur();
     //     iChoosNextReturn = choosNextAction();
     // }
 

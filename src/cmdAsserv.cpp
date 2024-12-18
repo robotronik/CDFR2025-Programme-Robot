@@ -19,9 +19,7 @@ CmdAsserv::CmdAsserv(int slave_address){
     }
 }
 
-CmdAsserv::~CmdAsserv()
-{
-}
+CmdAsserv::~CmdAsserv(){}
 
 void CmdAsserv::I2cSendData (uint8_t command, uint8_t* data, int length){
     if(length != 0){

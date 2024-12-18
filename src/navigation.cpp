@@ -1,20 +1,13 @@
 #include "navigation.h"
+#include "main.hpp"
 #include <functional> // For std::hash
 
-static CmdAsserv* robot;
-static TableState* table;
 static bool is_robot_stalled;
 static unsigned long robot_stall_start_time;
 typedef std::size_t nav_hash;
 static nav_hash currentInstructionHash;
 
 nav_hash createHash(int x, int y, int theta, Direction direction, Rotation rotationLookAt, Rotation rotation);
-
-void initNavigation(CmdAsserv* robot_p, TableState* table_p){
-    robot = robot_p;
-    table = table_p;
-    is_robot_stalled = false;
-}
 
 nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotation rotationLookAt, Rotation rotation){
     nav_hash hashValue = createHash(x, y, theta, direction, rotationLookAt, rotation);
@@ -25,11 +18,11 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
         return ireturn;
     }
     if (hashValue != currentInstructionHash){
-        robot->stop();
-        robot->go_to_point(x,y, theta, rotationLookAt, direction, rotation);
+        robotI2C.stop();
+        robotI2C.go_to_point(x,y, theta, rotationLookAt, direction, rotation);
         currentInstructionHash = hashValue;
     }
-    ireturn = robot->get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
+    ireturn = robotI2C.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
     return ireturn;
 }
 
@@ -43,11 +36,11 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
     }
 
     if (hashValue != currentInstructionHash){
-        robot->stop();
-        robot->go_to_point(x,y, rotationLookAt, direction);
+        robotI2C.stop();
+        robotI2C.go_to_point(x,y, rotationLookAt, direction);
         currentInstructionHash = hashValue;
     }
-    ireturn = robot->get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
+    ireturn = robotI2C.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
     return ireturn;
 }
 
@@ -56,13 +49,13 @@ void navigationOpponentDetection(){
     // Called from main, start of main fsm
 
     bool isEndangered = false;
-    switch (robot->get_direction_side())
+    switch (robotI2C.get_direction_side())
     {
     case Direction::FORWARD:
-        isEndangered = robot->get_braking_distance() > 69; // TODO find some value... > lidar.collideDistanceFORWARD();
+        isEndangered = robotI2C.get_braking_distance() > 69; // TODO find some value... > lidar.collideDistanceFORWARD();
         break;        
     case Direction::BACKWARD:
-        isEndangered = robot->get_braking_distance() > 69;// > lidar.collideDistanceBACKWARD();
+        isEndangered = robotI2C.get_braking_distance() > 69;// > lidar.collideDistanceBACKWARD();
         break;    
     case Direction::NONE:
         isEndangered = false;
@@ -75,12 +68,12 @@ void navigationOpponentDetection(){
     //TODO : Maybe call Collide ?
 
     if(isEndangered && !is_robot_stalled){
-        robot->pause();
+        robotI2C.pause();
         is_robot_stalled = true;
         robot_stall_start_time = _millis();
     }
     else if(is_robot_stalled){
-        robot->resume();
+        robotI2C.resume();
         is_robot_stalled = false;
     }
 }

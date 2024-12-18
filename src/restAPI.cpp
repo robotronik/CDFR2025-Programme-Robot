@@ -254,7 +254,7 @@ void StartAPIServer(){
             req_theta_value = req_data["theta"];
 
         //Apply the values
-        robotI2C->set_coordinates(req_x_value, req_y_value, req_theta_value);
+        robotI2C.set_coordinates(req_x_value, req_y_value, req_theta_value);
 
         json response;
         response["message"] = "Successfull";
@@ -283,12 +283,12 @@ void StartAPIServer(){
         if (req_data.contains("theta")){
             int req_theta_value = req_data["theta"];
             LOG_INFO("Manual ctrl : Requested set_target_coordinates, x=", req_x_value, " y=", req_y_value, " theta=", req_theta_value);
-            robotI2C->go_to_point(req_x_value,req_y_value);
-            robotI2C->consigne_angulaire(req_theta_value, Rotation::SHORTEST);
+            robotI2C.go_to_point(req_x_value,req_y_value);
+            robotI2C.consigne_angulaire(req_theta_value, Rotation::SHORTEST);
         }
         else{
             LOG_INFO("Manual ctrl : Requested set_target_coordinates, x=", req_x_value, " y=", req_y_value);
-            robotI2C->go_to_point(req_x_value,req_y_value);
+            robotI2C.go_to_point(req_x_value,req_y_value);
         }
 
         json response;
@@ -314,7 +314,7 @@ void StartAPIServer(){
         LOG_INFO("Manual ctrl : Requested set_move, value=", req_value);
 
         // Apply the value
-        robotI2C->go_to_point(newXvalue,newYvalue);
+        robotI2C.go_to_point(newXvalue,newYvalue);
 
 
         json response;
@@ -335,7 +335,7 @@ void StartAPIServer(){
         int req_value = req_data["value"];
 
         // Apply the value
-        robotI2C->consigne_angulaire(tableStatus.robot.pos.theta + req_value, Rotation::SHORTEST);
+        robotI2C.consigne_angulaire(tableStatus.robot.pos.theta + req_value, Rotation::SHORTEST);
 
         LOG_INFO("Manual ctrl : Requested set_rotate, value=", req_value);
 
@@ -358,7 +358,7 @@ void StartAPIServer(){
         int req_id = req_data["id"];
 
         //Apply the value
-        arduino->servoPosition(req_id, req_value);
+        arduino.servoPosition(req_id, req_value);
 
         json response;
         response["message"] = "Successfull";
@@ -379,7 +379,7 @@ void StartAPIServer(){
         int req_id = req_data["id"];
 
         //Apply the value
-        arduino->moveStepper(req_value, req_id);
+        arduino.moveStepper(req_value, req_id);
 
         json response;
         response["message"] = "Successfull";

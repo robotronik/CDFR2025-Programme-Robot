@@ -16,7 +16,6 @@ typedef enum {
     NAV_ERROR,  // If locked for too long, for example
 } nav_return_t;
 
-void initNavigation(CmdAsserv* robot, TableState* table);
 nav_return_t navigationGoTo(int x, int y, int theta, Direction direction = Direction::FORWARD,Rotation rotationLookAt = Rotation::SHORTEST, Rotation rotation = Rotation::SHORTEST);
 nav_return_t navigationGoToNoTurn(int x, int y, Direction direction = Direction::FORWARD,Rotation rotationLookAt = Rotation::SHORTEST);
 void navigationOpponentDetection();

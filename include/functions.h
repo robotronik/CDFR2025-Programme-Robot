@@ -24,15 +24,15 @@ typedef enum {
 } fsminitPos_t;
 
 
-int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta);
-int returnToHome(TableState* itable,CmdAsserv* iAsser);
-void resetActionneur(CmdAsserv* iAsser, Arduino* arduino);
-void opponentInAction(TableState* itable, position_t* position);
+int initPosition2(int x, int y,int theta);
+int returnToHome();
+void resetActionneur();
+void opponentInAction(position_t* position);
 
 //TODO : New functions
-int takeStock(CmdAsserv* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone);
-int construct(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int theta);
+int takeStock(int xStart,int yStart, int xEnd, int yEnd, int num_zone);
+int construct(int x,int y,int theta);
 
-void blinkLed(Arduino* arduino,int LedNb,int periode);
+void blinkLed(int LedNb,int periode);
 
 #endif // MYFUNCTION_H

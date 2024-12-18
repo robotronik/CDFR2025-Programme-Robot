@@ -1,6 +1,7 @@
 #include "functions.h"
+#include "main.hpp"
 
-int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
+int initPosition2(int x, int y,int theta){
     LOG_SCOPE("initPositon2");
     int ireturn = 0;
     static bool initStat = true;
@@ -34,8 +35,8 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
     {
     case SETPOS_INIT :
         if(initStat) LOG_STATE("SETPOS_INIT");
-        iAsser->get_coordinates(xSave,ySave,thetaSave);
-        iAsser->set_linear_max_speed(150);
+        robotI2C.get_coordinates(xSave,ySave,thetaSave);
+        robotI2C.set_linear_max_speed(150);
         //startTime = _millis()+100;
         nextState = SETPOS_FIRSTFORWARD;
         break;
@@ -46,7 +47,7 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
         
         if(navigationGoToNoTurn(xSave,ySave+yBack) == NAV_DONE){
             nextState = SETPOS_FIRSTBACKWARD;
-            iAsser->set_coordinates(xSave,yStart,thetaStart);
+            robotI2C.set_coordinates(xSave,yStart,thetaStart);
         }
         break;
 
@@ -60,7 +61,7 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
     case SETPOS_SECONDBACKWARD :
         if(initStat) LOG_STATE("SETPOS_SECONDBACKWARD");
         if(navigationGoToNoTurn(xSave+xSecond,y) == NAV_DONE){
-            iAsser->set_coordinates(xStart, y,-180);
+            robotI2C.set_coordinates(xStart, y,-180);
             nextState = SETPOS_SECONDFORWARD;
         }
         break;
@@ -69,7 +70,7 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
         if(initStat) LOG_STATE("SETPOS_SECONDFORWAsetMaxTorqueRD");
         if(navigationGoTo(x,y,-180,Direction::BACKWARD) == NAV_DONE){
             nextState = SETPOS_INIT;
-            iAsser->set_linear_max_speed(MAX_SPEED);
+            robotI2C.set_linear_max_speed(MAX_SPEED);
             ireturn = 1;
         }
         break;
@@ -89,10 +90,10 @@ int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
 }
 
 //TODO : Functions to fill in
-int takeStock( CmdAsserv* iAsser,Arduino* arduino,TableState*itable,int xStart,int yStart, int xEnd, int yEnd, int num_zone){
+int takeStock(int xStart,int yStart, int xEnd, int yEnd, int num_zone){
     return 0;
 }
-int construct(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y,int theta){
+int construct(int x,int y,int theta){
     return 0;
 }
 
@@ -100,35 +101,35 @@ int construct(TableState* itable, CmdAsserv* iAsser,Arduino* arduino,int x,int y
 
 
 
-void resetActionneur(CmdAsserv* iAsser, Arduino* arduino){
-    arduino->servoPosition(1,180);
+void resetActionneur(){
+    arduino.servoPosition(1,180);
     //TODO
-    //arduino->servoPosition(2,CLAMPSLEEP);
-    //arduino->moveStepper(ELEVATORJARDINIERE,1);
+    //arduino.servoPosition(2,CLAMPSLEEP);
+    //arduino.moveStepper(ELEVATORJARDINIERE,1);
     
 }
 
-
-int returnToHome(TableState* itable,CmdAsserv* iAsser){
+// TODO : Remove ? Not even used..
+int returnToHome(){
     int home_x = 700;
-    int home_y = itable->robot.colorTeam == YELLOW ? 1200 : -1200;
+    int home_y = tableStatus.robot.colorTeam == YELLOW ? 1200 : -1200;
     nav_return_t res = navigationGoToNoTurn(home_x, home_y);
     bool breturn = res == NAV_DONE;
     return breturn; 
 }
 
 
-void blinkLed(Arduino* arduino,int LedNb,int periode){
+void blinkLed(int LedNb,int periode){
     static unsigned long startTime = _millis();
     static int step = 0;
 
     if(step == 0 && startTime < _millis()){
-        arduino->ledOn(LedNb);
+        arduino.ledOn(LedNb);
         step++;
         startTime = _millis()+periode/2;
     }
     else if(step == 1 && startTime < _millis()){
-        arduino->ledOff(LedNb);
+        arduino.ledOff(LedNb);
         step = 0;
         startTime = _millis()+periode/2;
     }
@@ -136,7 +137,7 @@ void blinkLed(Arduino* arduino,int LedNb,int periode){
 }
 
 
-void opponentInAction(TableState* itable, position_t* position){
+void opponentInAction(position_t* position){
     //TODO : Fill this in again
     /*
 
@@ -144,7 +145,7 @@ void opponentInAction(TableState* itable, position_t* position){
     for (int i = 0; i < 6; i++){
         distance = sqrt(pow(plantPosition[i].x - position->x,2) + pow(plantPosition[i].y - position->y,2));
         if (distance < rayon[0]) {
-            itable->planteStockFull[i].etat = false;
+            tableStatus.planteStockFull[i].etat = false;
             LOG_GREEN_INFO("opponent IN ACTION PLANT :", i, " / x = ", position->x , " / y = ", position->y);
         }
     }
@@ -152,13 +153,13 @@ void opponentInAction(TableState* itable, position_t* position){
         distance = sqrt(pow(table[i] - position->y,2) + pow(900 - position->x,2));
         if (distance < rayon[1]) {
             LOG_GREEN_INFO("opponent IN ACTION SOLAR PANEL:", i, " / x = ", position->x , " / y = ", position->y);
-            itable->panneauSolaireRotate[i].etat = true;
+            tableStatus.panneauSolaireRotate[i].etat = true;
             }
     }
     for (int i = 0; i < 6; i++){
         distance = sqrt(pow(JardinierePosition[i].x - position->x,2) + pow(JardinierePosition[i].y - position->y,2));
-        if (distance < rayon[2] && itable->robot.colorTeam != itable->JardiniereFull[i].color){
-            itable->JardiniereFull[i].etat == true;
+        if (distance < rayon[2] && tableStatus.robot.colorTeam != tableStatus.JardiniereFull[i].color){
+            tableStatus.JardiniereFull[i].etat == true;
             LOG_GREEN_INFO("opponent IN ACTION JARDINIERE :", i, " / x = ", position->x , " / y = ", position->y);
         }
     }
