@@ -1,4 +1,4 @@
-#include "fonction.h"
+#include "functions.h"
 
 int initPosition2(TableState* itable, CmdAsserv* iAsser,int x, int y,int theta){
     LOG_SCOPE("initPositon2");

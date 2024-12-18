@@ -3,7 +3,7 @@
 #include <functional>
 #include <string>
 #include "navigation.h"
-#include "fonction.h"
+#include "functions.h"
 #include "tableState.hpp"
 #include "constante.h"
 

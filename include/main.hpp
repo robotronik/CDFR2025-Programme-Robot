@@ -1,5 +1,5 @@
 #pragma once
-#include "fonction.h"
+#include "functions.h"
 #include "cmdAsserv.hpp"
 #include "arduino.hpp"
 

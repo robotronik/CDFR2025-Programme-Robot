@@ -1,7 +1,7 @@
 #pragma once
 
 #include "action.hpp"
-#include "fonction.h"
+#include "functions.h"
 #include <vector>
 #include "logger.hpp"
 #include "constante.h"
