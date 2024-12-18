@@ -1,6 +1,7 @@
 #include "actionContainer.hpp"
 
-actionContainer::actionContainer( CmdAsserv* irobot, Arduino* iarduino, TableState* itable){
+actionContainer::actionContainer(){}
+void actionContainer::init(CmdAsserv* irobot, Arduino* iarduino, TableState* itable){
     robot = irobot;
     arduino = iarduino;
     table = itable;
@@ -25,7 +26,9 @@ actionContainer::actionContainer( CmdAsserv* irobot, Arduino* iarduino, TableSta
 
     waitFin = new action("waitFin",irobot,iarduino,itable);
     returnToHomeAction = new action("returnToHomeAction",irobot,iarduino,itable);
+
 }
+
 void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableState* itable){
     
 // ACTION 1 : CHERCHER DU STOCK

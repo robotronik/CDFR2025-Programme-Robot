@@ -27,6 +27,8 @@
 
 
 TableState tableStatus;
+
+// Initiation of i2c devices
 CmdAsserv robotI2C(I2C_ASSER_ADDR);
 Arduino arduino(I2C_ARDUINO_ADDR);
 
@@ -233,9 +235,9 @@ int main(int argc, char *argv[])
             if (initState){
                 LOG_STATE("RUN");
                 tableStatus.startTime = _millis();
-                actionSystem->initAction(robotI2C, arduino, &(tableStatus));
+                actionSystem.initAction(robotI2C, arduino, &(tableStatus));
             }
-            bool finished = actionSystem->actionContainerRun(robotI2C, &tableStatus);
+            bool finished = actionSystem.actionContainerRun(robotI2C, &tableStatus);
 
             if (_millis() > tableStatus.startTime + 90000 || tableStatus.FIN || finished)
             {
@@ -355,7 +357,7 @@ int StartSequence()
     initState = true;
     manual_ctrl = false;
 
-    actionSystem = new actionContainer(robotI2C, arduino, &tableStatus);
+    actionSystem.init(&robotI2C, &arduino, &tableStatus);
 
     // std::string colorTest = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
     // std::filesystem::path exe_pathTest = std::filesystem::canonical(std::filesystem::path(argv[0])).parent_path();

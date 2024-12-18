@@ -15,11 +15,17 @@ CmdAsserv::CmdAsserv(int slave_address){
 
     if (ioctl(i2cFile, I2C_SLAVE, slave_address) < 0) {
         std::cout << "ioctl failed\n";
+        close(i2cFile); // Clean up before throwing
         exit(1);
-    }
+    }        
 }
 
-CmdAsserv::~CmdAsserv(){}
+CmdAsserv::~CmdAsserv(){
+    if (i2cFile >= 0) {
+        close(i2cFile);
+        std::cout << "I2C file closed successfully\n";
+    }
+}
 
 void CmdAsserv::I2cSendData (uint8_t command, uint8_t* data, int length){
     if(length != 0){
