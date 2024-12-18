@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
         return -1;
 
     // Private counters
-    int countStart = 0, countSetHome = 0;
+    int sensorCount = 0;
     unsigned long loopStartTime;
     while (!ctrl_c_pressed)
     {
@@ -110,6 +110,7 @@ int main(int argc, char *argv[])
                 {
                     robotI2C->set_coordinates(-770, -1390, 90); // 90 de base
                 }
+                sensorCount = 0;
             }
 
             int bStateCapteur3, bStateCapteur1;
@@ -120,13 +121,13 @@ int main(int argc, char *argv[])
 
             if (bStateCapteur3 == 1 && bStateCapteur1 == 1)
             {
-                countSetHome++;
+                sensorCount++;
             }
             else
             {
-                countSetHome = 0;
+                sensorCount = 0;
             }
-            if (countSetHome == 5)
+            if (sensorCount == 5)
             {
                 nextState = INITIALIZE;
                 arduino->ledOff(2);
@@ -196,8 +197,10 @@ int main(int argc, char *argv[])
         }
         case WAITSTART:
         {
-            if (initState)
-                LOG_STATE("WAITSTART");
+            if (initState){
+                LOG_STATE("WAITSTART");                
+                sensorCount = 0;
+            }
             int bStateCapteur1;
             arduino->readCapteur(1, bStateCapteur1);
             if (tableStatus.robot.colorTeam == YELLOW)
@@ -211,17 +214,16 @@ int main(int argc, char *argv[])
 
             // Counts the number of time the magnet sensor
             if (bStateCapteur1 == 0)
-                countStart++;
+                sensorCount++;
             else
-                countStart = 0;
+                sensorCount = 0;
 
-            if (countStart == 5)
+            if (sensorCount == 5)
             {
                 nextState = RUN;
                 arduino->ledOff(1);
                 arduino->ledOff(2);
                 tableStatus.startTime = _millis();
-                // actionSystem->initAction(robotI2C, arduino, &(tableStatus));
             }
             if (manual_ctrl)
                 nextState = MANUAL;
@@ -237,7 +239,7 @@ int main(int argc, char *argv[])
             }
             bool finished = actionSystem->actionContainerRun(robotI2C, &tableStatus);
 
-            if (tableStatus.startTime + 90000 < _millis() || tableStatus.FIN || finished)
+            if (_millis() > tableStatus.startTime + 90000 || tableStatus.FIN || finished)
             {
                 nextState = FIN;
             }
@@ -264,11 +266,6 @@ int main(int argc, char *argv[])
                 LOG_STATE("FIN");
                 arduino->servoPosition(4, 180);
                 arduino->servoPosition(1, 180);
-
-                /*
-                TODO : Put it back if needed
-                arduino->servoPosition(2,CLAMPSTOP);
-                */
                 arduino->disableStepper(1);
                 robotI2C->set_motor_state(false);
                 robotI2C->set_brake_state(false);
@@ -485,7 +482,6 @@ void GetLidarV2()
 
 void EndSequence()
 {
-
     LOG_DEBUG("Stopping");
 
     StopAPIServer();
