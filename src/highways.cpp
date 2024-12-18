@@ -24,7 +24,7 @@ static int highway_cost[HIGHWAY_LINES_COUNT];
 
 //These are all of the objects
 highway_obstruction_object obs_obj_stocks[]{
-    {{-500, 0}, true, 100, 100, highway_obstruction_object_type::Rectangle}
+    {{-500, 600}, false, 100, 100, highway_obstruction_object_type::Rectangle}
 };
 highway_obstruction_object obs_obj_opponent = 
     {{500, 0}, true, 200, 0, highway_obstruction_object_type::Circle};
@@ -187,7 +187,7 @@ int find_fastest_path(highway_point start, highway_point target, highway_point r
 bool unit_tests(){
 
 obs_obj_stocks[0] = 
-    {{-500, 0}, true, 100, 100, highway_obstruction_object_type::Rectangle};
+    {{-500, -600}, true, 100, 100, highway_obstruction_object_type::Rectangle};
 obs_obj_opponent = 
     {{500, 0}, true, 200, 0, highway_obstruction_object_type::Circle};
 
@@ -382,10 +382,10 @@ bool does_circle_touch_highway(highway_obstruction_object circle, highway_line *
 // Function to check if a square highway_obstruction_object touches or overlaps a rectangle
 bool does_square_touch_highway(highway_obstruction_object square, highway_line * line) {
     return doesSegmentIntersectRectangle(points[line->a], points[line->b], 
-                                        square->pos.x, square->pos.y, square->size * 2 + ROBOT_WIDTH, square->size * 2 + ROBOT_WIDTH);
+                                        square.pos.x, square.pos.y, square.size * 2 + ROBOT_WIDTH, square.size * 2 + ROBOT_WIDTH);
 }
 // Function to check if a rectangle highway_obstruction_object touches or overlaps a rectangle
 bool does_rectangle_touch_highway(highway_obstruction_object rectangle, highway_line * line) {
     return doesSegmentIntersectRectangle(points[line->a], points[line->b], 
-                                    rectangle->pos.x, rectangle->pos.y, rectangle->size * 2 + ROBOT_WIDTH, rectangle->size2 * 2 + ROBOT_WIDTH);
+                                    rectangle.pos.x, rectangle.pos.y, rectangle.size * 2 + ROBOT_WIDTH, rectangle.size2 * 2 + ROBOT_WIDTH);
 }
