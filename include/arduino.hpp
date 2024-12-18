@@ -9,7 +9,7 @@ class Arduino : public I2CDevice {
     using I2CDevice::I2CDevice;
    
    public:
-    Arduino();
+    Arduino(int slave_address);
     int servoPosition(int servoNb, int position);
     int readCapteur(int capteurNumber, int &state);
     int moveStepper(int absPosition, int stepperNb);
