@@ -35,6 +35,8 @@ double distance(highway_point a, highway_point b);
 double point_to_segment_distance(highway_point p, highway_point v, highway_point w);
 bool is_point_in_rectangle(highway_point p, highway_line * line);
 bool does_circle_touch_highway(highway_obstruction_object circle, highway_line * line);
+bool does_square_touch_highway(highway_obstruction_object square, highway_line * line);
+bool does_rectangle_touch_highway(highway_obstruction_object rectangle, highway_line * line);
 void get_available_highways(bool av_highways_arr[]);
 bool any_obstacle_on_highway(highway_line * line);
 bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line);
@@ -252,6 +254,24 @@ bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line){
             return false;
         }
         break;
+    case highway_obstruction_object_type::Rectangle:
+        if (does_rectangle_touch_highway(*obs, line)) {
+            printf("The rectangle is inside the rectangle.\n");
+            return true;
+        } else {
+            printf("The rectangle is NOT inside the rectangle.\n");
+            return false;
+        }
+        break;
+    case highway_obstruction_object_type::Square:
+        if (does_square_touch_highway(*obs, line)) {
+            printf("The square is inside the rectangle.\n");
+            return true;
+        } else {
+            printf("The square is NOT inside the rectangle.\n");
+            return false;
+        }
+        break;
     
     default:
         printf("Not yet implemented obstacle type\n");
@@ -284,10 +304,90 @@ double point_to_segment_distance(highway_point p, highway_point v, highway_point
     return distance(p, projection);
 }
 
+// A utility function to get the maximum of two numbers
+float max(float a, float b) { return a > b ? a : b; }
+
+// A utility function to get the minimum of two numbers
+float min(float a, float b) { return a < b ? a : b; }
+
+// Function to check if two ranges [a1, a2] and [b1, b2] overlap
+int isRangeOverlap(float a1, float a2, float b1, float b2) {
+    return max(a1, a2) >= min(b1, b2) && min(a1, a2) <= max(b1, b2);
+}
+
+// Function to check if a point (px, py) lies inside the rectangle
+int isPointInsideRectangle(float px, float py, float cx, float cy, float w, float h) {
+    float left = cx - w / 2, right = cx + w / 2;
+    float bottom = cy - h / 2, top = cy + h / 2;
+    return (px >= left && px <= right && py >= bottom && py <= top);
+}
+
+// Function to compute orientation of ordered triplet (p, q, r)
+// Returns 0 if collinear, 1 if clockwise, 2 if counterclockwise
+int orientation(float px, float py, float qx, float qy, float rx, float ry) {
+    float val = (qy - py) * (rx - qx) - (qx - px) * (ry - qy);
+    if (val == 0) return 0; // Collinear
+    return (val > 0) ? 1 : 2; // Clockwise or Counterclockwise
+}
+
+// Function to check if two segments (p1,q1) and (p2,q2) intersect
+int doSegmentsIntersect(float p1x, float p1y, float q1x, float q1y,
+                        float p2x, float p2y, float q2x, float q2y) {
+    int o1 = orientation(p1x, p1y, q1x, q1y, p2x, p2y);
+    int o2 = orientation(p1x, p1y, q1x, q1y, q2x, q2y);
+    int o3 = orientation(p2x, p2y, q2x, q2y, p1x, p1y);
+    int o4 = orientation(p2x, p2y, q2x, q2y, q1x, q1y);
+
+    // General case
+    if (o1 != o2 && o3 != o4) return 1;
+
+    return 0; // Segments do not intersect
+}
+
+// Function to check if segment AB intersects with rectangle
+bool doesSegmentIntersectRectangle(highway_point P1, highway_point P2,
+                                  float cx, float cy, float w, float h) {
+    // Rectangle corners
+    float left = cx - w / 2, right = cx + w / 2;
+    float bottom = cy - h / 2, top = cy + h / 2;
+
+    // Check if either point A or B is inside the rectangle
+    if (isPointInsideRectangle(P1.x, P1.y, cx, cy, w, h) ||
+        isPointInsideRectangle(P2.x, P2.y, cx, cy, w, h)) {
+        return true; // Segment starts or ends inside the rectangle
+    }
+
+    // Rectangle edges
+    float rx1 = left, ry1 = bottom, rx2 = right, ry2 = bottom; // Bottom edge
+    float rx3 = right, ry3 = bottom, rx4 = right, ry4 = top;   // Right edge
+    float rx5 = right, ry5 = top, rx6 = left, ry6 = top;       // Top edge
+    float rx7 = left, ry7 = top, rx8 = left, ry8 = bottom;     // Left edge
+
+    // Check for intersection with each rectangle edge
+    if (doSegmentsIntersect(P1.x, P1.y, P2.x, P2.y, rx1, ry1, rx2, ry2)) return true;
+    if (doSegmentsIntersect(P1.x, P1.y, P2.x, P2.y, rx3, ry3, rx4, ry4)) return true;
+    if (doSegmentsIntersect(P1.x, P1.y, P2.x, P2.y, rx5, ry5, rx6, ry6)) return true;
+    if (doSegmentsIntersect(P1.x, P1.y, P2.x, P2.y, rx7, ry7, rx8, ry8)) return true;
+
+    return false; // No intersection
+}
+
 // Function to check if a circular highway_obstruction_object touches or overlaps a rectangle
 bool does_circle_touch_highway(highway_obstruction_object circle, highway_line * line) {
     if (point_to_segment_distance(circle.pos, points[line->a], points[line->b]) <= circle.size + ROBOT_WIDTH / 2) {
         return true;
     }
     return false; // The circle does not overlap the highway
+}
+// Function to check if a square highway_obstruction_object touches or overlaps a rectangle
+bool does_square_touch_highway(highway_obstruction_object square, highway_line * line) {
+    return doesSegmentIntersectRectangle(points[line->a].x, points[line->a].y, 
+                                        points[line->b].x, points[line->b].y, 
+                                        square->pos.x, square->pos.y, square->size * 2 + ROBOT_WIDTH, square->size * 2 + ROBOT_WIDTH);
+}
+// Function to check if a rectangle highway_obstruction_object touches or overlaps a rectangle
+bool does_rectangle_touch_highway(highway_obstruction_object rectangle, highway_line * line) {
+    return doesSegmentIntersectRectangle(points[line->a].x, points[line->a].y, 
+                                    points[line->b].x, points[line->b].y, 
+                                    rectangle->pos.x, rectangle->pos.y, rectangle->size * 2 + ROBOT_WIDTH, rectangle->size2 * 2 + ROBOT_WIDTH);
 }

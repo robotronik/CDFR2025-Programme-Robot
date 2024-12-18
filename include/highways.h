@@ -28,7 +28,7 @@ typedef struct
 {
     highway_point pos;
     bool present;
-    int size, size2; //Size2 only use in the rectangle. Describes the radius in mm
+    int size, size2; //Size2 only use in the rectangle for height (y). Describes the radius in mm
     highway_obstruction_object_type type;
 } highway_obstruction_object;
 
