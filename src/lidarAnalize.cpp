@@ -48,23 +48,6 @@ bool position_opponent(lidarAnalize_t* data, int count, position_t robot_pos, po
 }
 
 
-//TODO : These can go
-void printLidarAxial(lidarAnalize_t* data, int count){
-    for(int i = 0; i< count; i++){
-        const char* charMessage = "          ";
-        if(data[i].onTable){
-            charMessage = "non Table ";
-        }
-        printf("%s theta : %lf \t x : %d \ty : %d\n",charMessage,data[i].angle,data[i].x,data[i].y);
-    }
-}
-
-void printAngular(lidarAnalize_t* data, int count){
-    for(int i = 0; i< count; i++){
-        printf("theta: %03.2f \tDist: %08.2f\n",data[i].angle,data[i].dist);
-    }
-}
-
 void maxDistance(lidarAnalize_t* data, int count,int& maxX, int maxY){
     maxX = 0;
     maxY = 0;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "action.hpp"
-#include "fonction.h"
+#include "functions.h"
 #include <vector>
 #include "logger.hpp"
 #include "constante.h"
@@ -40,7 +40,8 @@ private:
     std::vector<action*> listeAction;
 
 public:
-    actionContainer( CmdAsserv* irobot, Arduino* iarduino, TableState* itable);
+    actionContainer();
+    void init(CmdAsserv* irobot, Arduino* iarduino, TableState* itable);
     void initAction( CmdAsserv* irobot, Arduino* iarduino, TableState* itable);
     bool forceNextAction(void);
     int actionContainerRun(CmdAsserv* robotI2C,TableState* itable);

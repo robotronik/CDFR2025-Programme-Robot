@@ -11,8 +11,8 @@ bool run_lidar_beacons_test(std::string testName, std::string data_file_name, po
 int loadLidarJson(std::string filename, lidarAnalize_t* lidarData);
 
 bool test_lidar_opponent() {
-    position_t robot_pos = {0, 0, 0, 0, 0};
-    position_t expected_opponent_pos = {0, 0, 0, 0, 0};
+    position_t robot_pos = {0, 0, 0};
+    position_t expected_opponent_pos = {0, 0, 0};
     // Test 1
     {
         robot_pos.x = 0;
@@ -77,7 +77,7 @@ bool test_lidar_beacons() {
     //return true;
 
 
-    position_t expected_robot_pos = {0, 0, 0, 0, 0};
+    position_t expected_robot_pos = {0, 0, 0};
     // Test 1
     {
         expected_robot_pos.x = 0;

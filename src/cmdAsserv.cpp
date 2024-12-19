@@ -1,5 +1,13 @@
 #include "cmdAsserv.hpp"
 
+extern "C" {
+#include <i2c/smbus.h>
+#include <linux/i2c-dev.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+}
+#include <iostream>
 
 CmdAsserv::CmdAsserv(int slave_address){
     int adapter_nr = 1; /* probably dynamically determined */
@@ -15,12 +23,16 @@ CmdAsserv::CmdAsserv(int slave_address){
 
     if (ioctl(i2cFile, I2C_SLAVE, slave_address) < 0) {
         std::cout << "ioctl failed\n";
+        close(i2cFile); // Clean up before throwing
         exit(1);
-    }
+    }        
 }
 
-CmdAsserv::~CmdAsserv()
-{
+CmdAsserv::~CmdAsserv(){
+    if (i2cFile >= 0) {
+        close(i2cFile);
+        std::cout << "I2C file closed successfully\n";
+    }
 }
 
 void CmdAsserv::I2cSendData (uint8_t command, uint8_t* data, int length){

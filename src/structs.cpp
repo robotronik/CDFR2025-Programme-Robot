@@ -1,13 +1,12 @@
 #include "structs.hpp"
+#include <math.h>
 
 //Define serialization for position_t
 void to_json(json& j, const position_t& p) {
     j = json{
         {"x", p.x},
         {"y", p.y},
-        {"dist", p.dist},
-        {"theta", p.theta},
-        {"time", p.time}
+        {"theta", p.theta}
     };
 }
 
@@ -38,7 +37,6 @@ void to_json(json& j, const robot_t& p) {
         {"pos", p.pos},
         {"vit_x", p.vit_x},
         {"vit_y", p.vit_y},
-        {"collide", p.collide},
         {"columns_count", p.columns_count},
         {"plank_count", p.plank_count}
     };

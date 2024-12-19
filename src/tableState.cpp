@@ -9,7 +9,7 @@ void TableState::init()
     FIN = false;
     pos_opponent.x = 0; pos_opponent.y = 0;
 
-    robot.pos = {0, 0, 0, 0, 0};
+    robot.pos = {0, 0, 0};
     robot.colorTeam = NONE;
 
 

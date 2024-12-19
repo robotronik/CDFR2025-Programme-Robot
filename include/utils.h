@@ -10,21 +10,6 @@ typedef enum {
     YELLOW
 } colorTeam_t;
 
-typedef struct 
-{
-    int   x;
-    int   y;
-    colorTeam_t team;
-}cartesian_position_t;
-
-typedef enum
-{
-    DROIT,
-    ARRIERE,
-    ROTATION,
-    ARRET
-}type_navigation_t;
-
 inline unsigned long _millis() {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts); // Utilisation de CLOCK_MONOTONIC pour éviter les changements d'horloge

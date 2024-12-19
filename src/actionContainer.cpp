@@ -1,6 +1,7 @@
 #include "actionContainer.hpp"
 
-actionContainer::actionContainer( CmdAsserv* irobot, Arduino* iarduino, TableState* itable){
+actionContainer::actionContainer(){}
+void actionContainer::init(CmdAsserv* irobot, Arduino* iarduino, TableState* itable){
     robot = irobot;
     arduino = iarduino;
     table = itable;
@@ -25,14 +26,16 @@ actionContainer::actionContainer( CmdAsserv* irobot, Arduino* iarduino, TableSta
 
     waitFin = new action("waitFin",irobot,iarduino,itable);
     returnToHomeAction = new action("returnToHomeAction",irobot,iarduino,itable);
+
 }
+
 void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableState* itable){
     
 // ACTION 1 : CHERCHER DU STOCK
     takeStock0->setStartPoint(0,0,Direction::FORWARD,Rotation::SHORTEST); //replace 0,0 by coords of Stock[0]
     takeStock0->setRunAction([&](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
         //return takePlant2(iAsser,iarduino,itable,plantPosition[0].x - MARGESTOCKPLANTX,plantPosition[0].y - MARGESTOCKPLANTY,plantPosition[0].x + MARGESTOCKPLANTX/DIVIDE,plantPosition[0].y + MARGESTOCKPLANTY/DIVIDE,0);
-        return takeStock(iAsser,iarduino,itable,0,0,0,0,0);
+        return takeStock(0,0,0,0,0);
     });
     takeStock0->goodEnd([](TableState*itable,CmdAsserv*irobot){
         //itable->robot.robotHavePlante = true;
@@ -47,7 +50,7 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
     putInConstruction0->setStartPoint(0, 0, 90, Direction::FORWARD, Rotation::SHORTEST);
     putInConstruction0->setEndPoint(0, 0, 90, Direction::BACKWARD, Rotation::SHORTEST);
     putInConstruction0->setRunAction([](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
-        return construct(itable, iAsser, iarduino, 0, 0, 90);
+        return construct(0, 0, 90);
     });
     putInConstruction0->goodEnd([](TableState*itable,CmdAsserv*irobot){
         //int16_t x,y,theta;
@@ -110,11 +113,11 @@ int actionContainer::actionContainerRun(CmdAsserv * robot,TableState* itable){
         iRet = -100;
     }
     else if(iActionReturn!=0){
-        resetActionneur(robot,arduino);
+        resetActionneur();
         initAction(robot, arduino, table);
     }
     // else if(forceNextAction()){
-    //     resetActionneur(robot,arduino);
+    //     resetActionneur();
     //     iChoosNextReturn = choosNextAction();
     // }
 

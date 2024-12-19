@@ -29,10 +29,6 @@ bool collideBackward(lidarAnalize_t* data, int count);
 
 int collide(lidarAnalize_t* data, int count ,int distanceStop);
 
-void printLidarAxial(lidarAnalize_t* data, int count);
-
-void printAngular(lidarAnalize_t* data, int count);
-
 double distance_2_pts(double d1,double deg1, double d2, double deg2);
 
 void supprimerElement(element_decord**& array, int& rows, int index);
