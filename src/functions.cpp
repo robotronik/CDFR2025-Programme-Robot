@@ -141,32 +141,23 @@ void blinkLed(int LedNb,int periode){
     return;
 }
 
+// Function to check if a point (px, py) lies inside the rectangle
+bool isPointInsideRectangle(float px, float py, float cx, float cy, float w, float h) {
+    float left = cx - w / 2, right = cx + w / 2;
+    float bottom = cy - h / 2, top = cy + h / 2;
+    return (px >= left && px <= right && py >= bottom && py <= top);
+}
 
 void opponentInAction(position_t* position){
-    //TODO : Fill this in again
-    /*
-
-    double distance;
-    for (int i = 0; i < 6; i++){
-        distance = sqrt(pow(plantPosition[i].x - position->x,2) + pow(plantPosition[i].y - position->y,2));
-        if (distance < rayon[0]) {
-            tableStatus.planteStockFull[i].etat = false;
-            LOG_GREEN_INFO("opponent IN ACTION PLANT :", i, " / x = ", position->x , " / y = ", position->y);
+    const int OPPONENT_ROBOT_RADIUS = 200; //200mm
+    for (int i = 0; i < STOCK_COUNT; i++){
+        if (tableStatus.stock[i].etat == false)
+            continue;
+        position_t stock_pos = STOCK_POSITION_ARRAY[i];
+        if (isPointInsideRectangle(position->x, position->y, stock_pos.x, stock_pos.y, OPPONENT_ROBOT_RADIUS * 2 + 300, OPPONENT_ROBOT_RADIUS * 2)){
+            tableStatus.stock[i].etat = false;
+            LOG_GREEN_INFO("opponent has taken stock #", i, " / x = ", position->x , " / y = ", position->y);
+            break;
         }
     }
-    for (int i=3; i<6; i++){
-        distance = sqrt(pow(table[i] - position->y,2) + pow(900 - position->x,2));
-        if (distance < rayon[1]) {
-            LOG_GREEN_INFO("opponent IN ACTION SOLAR PANEL:", i, " / x = ", position->x , " / y = ", position->y);
-            tableStatus.panneauSolaireRotate[i].etat = true;
-            }
-    }
-    for (int i = 0; i < 6; i++){
-        distance = sqrt(pow(JardinierePosition[i].x - position->x,2) + pow(JardinierePosition[i].y - position->y,2));
-        if (distance < rayon[2] && tableStatus.robot.colorTeam != tableStatus.JardiniereFull[i].color){
-            tableStatus.JardiniereFull[i].etat == true;
-            LOG_GREEN_INFO("opponent IN ACTION JARDINIERE :", i, " / x = ", position->x , " / y = ", position->y);
-        }
-    }
-    */
 }

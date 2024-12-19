@@ -1,4 +1,5 @@
 #pragma once
+#include "structs.hpp"
 #define SIZEDATALIDAR 15000
 
 #define I2C_ASSER_ADDR 42
@@ -21,3 +22,5 @@
 #define SPEED_STOCK 8000
 
 const int rayon[3] = {200,200,250};
+const position_t STOCK_POSITION_ARRAY = {(100, 100, 0), (200, 200, 0)}; // TODO : Fill this in correctly
+const int STOCK_COUNT = 2; // and this
