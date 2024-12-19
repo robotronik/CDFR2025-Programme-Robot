@@ -154,7 +154,9 @@ void opponentInAction(position_t* position){
         if (tableStatus.stock[i].etat == false)
             continue;
         position_t stock_pos = STOCK_POSITION_ARRAY[i];
-        if (isPointInsideRectangle(position->x, position->y, stock_pos.x, stock_pos.y, OPPONENT_ROBOT_RADIUS * 2 + 300, OPPONENT_ROBOT_RADIUS * 2)){
+        int w = stock_pos.theta == 0 ? 300 : 0;
+        int h = stock_pos.theta == 90 ? 300 : 0;
+        if (isPointInsideRectangle(position->x, position->y, stock_pos.x, stock_pos.y, OPPONENT_ROBOT_RADIUS * 2 + w, OPPONENT_ROBOT_RADIUS * 2 + h)){
             tableStatus.stock[i].etat = false;
             LOG_GREEN_INFO("opponent has taken stock #", i, " / x = ", position->x , " / y = ", position->y);
             break;
