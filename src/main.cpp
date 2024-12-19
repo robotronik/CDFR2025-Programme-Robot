@@ -366,6 +366,7 @@ int StartSequence()
     // LOG_SETROBOT(robotI2C);
 
     initNavigation(robotI2C, &tableStatus);
+    init_highways();
 
     arduino = new Arduino(I2C_ARDUINO_ADDR);
 

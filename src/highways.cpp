@@ -12,6 +12,7 @@ static highway_point points[] = {
     {0,0},       //1   
     {1000, 0}     //2    
 };
+
 static highway_line lines[] = {
     {0,1},
     {1,2}
@@ -29,6 +30,47 @@ highway_obstruction_object obs_obj_stocks[]{
 highway_obstruction_object obs_obj_opponent = 
     {{500, 0}, true, 200, 0, highway_obstruction_object_type::Circle};
 
+void to_json(json& j, const highway_point& p){
+    j = json{
+        {"x", p.x},
+        {"y", p.y},
+    };
+}
+void to_json(json& j, const highway_line& p){
+    j = json{
+        {"a", p.a},
+        {"b", p.b},
+    };
+}
+void to_json(json& j, const highway_obstruction_object& p){
+    j = json{
+        {"pos", p.pos},
+        {"present", p.present},
+        {"size", p.present},
+        {"size2", p.present},
+        {"type", p.type},
+    };
+}
+
+void highway_segments_json(json& j){
+    j = json::array();
+    highway_point * a;
+    highway_point * b;
+    bool avail_highw[HIGHWAY_LINES_COUNT];
+    get_available_highways(avail_highw);
+    for (int i = 0; i < HIGHWAY_LINES_COUNT; i++){
+        a = points + lines[i].a;
+        b = points + lines[i].b;
+        j.push_back({{"ax", a->x}, {"ay", a->y}, {"bx", b->x}, {"bx", b->y}, {"available", avail_highw[i] ? "true" : "false"}});
+    }
+}
+void highway_obstacles_json(json& j){
+    j = json::array();
+    for(int stock_i = 0; stock_i < 1; stock_i++){
+        j.push_back(obs_obj_stocks[stock_i]);
+    }
+    j.push_back(obs_obj_opponent);
+}
 
 //Internal Prototypes
 double distance(highway_point a, highway_point b);
@@ -40,8 +82,6 @@ bool does_rectangle_touch_highway(highway_obstruction_object rectangle, highway_
 void get_available_highways(bool av_highways_arr[]);
 bool any_obstacle_on_highway(highway_line * line);
 bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line);
-
-
 
 // Function to calculate the angle ABC in degrees
 double calculate_angle(highway_point A, highway_point B, highway_point C) {
@@ -225,18 +265,10 @@ void get_available_highways(bool av_highways_arr[]){
 
 // Pointer to a line
 bool any_obstacle_on_highway(highway_line * line){
-    bool on_highway;
     for(int stock_i = 0; stock_i < 1; stock_i++){
-        on_highway = obstacle_on_highway(obs_obj_stocks + stock_i, line);
-        if (on_highway){
-            return true;
-        }
+        if (obstacle_on_highway(obs_obj_stocks + stock_i, line)) return true;
     }
-    on_highway = obstacle_on_highway(&obs_obj_opponent, line);
-    if (on_highway){
-        return true;
-    }
-    return false;
+    return (obstacle_on_highway(&obs_obj_opponent, line));
 }
 
 // takes a pointer to an obstruction object and a line

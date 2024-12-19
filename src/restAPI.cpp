@@ -110,6 +110,13 @@ void StartAPIServer(){
         }
         response["lidar"] = limitedAbsoluteLidarData;
 
+        json highway_segments;
+        highway_segments_json(highway_segments);
+        response["highway-segments"] = highway_segments;
+        json highway_obstacles;
+        highway_obstacles_json(highway_obstacles);
+        response["highway-obstacles"] = highway_obstacles;
+
         return crow::response(response.dump());
     });
 
