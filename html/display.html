@@ -162,6 +162,17 @@
             data["lidar"].forEach(point => {
                 drawPoint(ctx, point.y, point.x);
             });
+            
+            data["highway-segments"].forEach(seg => {
+                ctx.lineWidth = 4;
+                if (seg.available)
+                    ctx.strokeStyle = 'green';
+                else
+                    ctx.strokeStyle = 'red';
+                drawSegment(ctx, seg.ay, seg.ax, seg.by, seg.bx);
+            });
+
+            //TODO draw the obstacles
 
             //Draws an arrow
             drawArrow(ctx, 100, 200, 10);
@@ -209,6 +220,14 @@
                 ctx.lineTo(rotatedPoints[i].x, rotatedPoints[i].y);
             }
             ctx.closePath();
+            ctx.stroke();
+        }
+        
+        //Screen coords, relative to center
+        function drawSegment(ctx, ax, ay, bx, by) {
+            ctx.beginPath();
+            ctx.lineTo(centerX + ax, centerY + ay);
+            ctx.lineTo(centerX + bx, centerX + by);
             ctx.stroke();
         }
         function drawArrow(ctx, x, y, angleDeg) {
