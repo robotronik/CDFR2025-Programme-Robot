@@ -2,12 +2,6 @@
 #define MYFUNCTION_H
 
 #include "structs.hpp"
-#include "navigation.h"
-#include "tableState.hpp"
-#include "lidarAnalize.h"
-#include "lidar.h"
-#include "constante.h"
-#include <math.h>
 
 typedef enum {
     INTIY_INIT,

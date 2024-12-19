@@ -1,6 +1,7 @@
+#include <functional> // For std::hash
 #include "navigation.h"
 #include "main.hpp"
-#include <functional> // For std::hash
+#include "constante.h" // DISTANCESTOP and DISTANCESTART
 
 static bool is_robot_stalled;
 static unsigned long robot_stall_start_time;

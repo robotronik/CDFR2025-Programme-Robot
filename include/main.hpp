@@ -1,7 +1,9 @@
 #pragma once
-#include "functions.h"
 #include "cmdAsserv.hpp"
 #include "arduino.hpp"
+#include "tableState.hpp"
+#include "structs.hpp"
+#include "constante.h"
 
 typedef enum {
     INIT,

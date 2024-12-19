@@ -1,10 +1,9 @@
 #pragma once
-#include "structs.hpp"
 #define SIZEDATALIDAR 15000
 
 #define I2C_ASSER_ADDR 42
 #define I2C_ARDUINO_ADDR 100
-#define I2C_SSD1306_ADDR 16
+#define I2C_SSD1306_ADDR 16 //TODO Remove
 
 #define LOOP_TIME_MS 10
 

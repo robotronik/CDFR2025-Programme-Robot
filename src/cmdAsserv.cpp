@@ -1,5 +1,13 @@
 #include "cmdAsserv.hpp"
 
+extern "C" {
+#include <i2c/smbus.h>
+#include <linux/i2c-dev.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+}
+#include <iostream>
 
 CmdAsserv::CmdAsserv(int slave_address){
     int adapter_nr = 1; /* probably dynamically determined */

@@ -1,5 +1,10 @@
 #include "functions.h"
 #include "main.hpp"
+#include "navigation.h"
+#include "lidarAnalize.h"
+#include "lidar.h"
+#include "constante.h"
+#include <math.h>
 
 int initPosition2(int x, int y,int theta){
     LOG_SCOPE("initPositon2");

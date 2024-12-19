@@ -1,7 +1,5 @@
 #pragma once
 #include "utils.h"
-#include <math.h>
-#include "constante.h"
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 

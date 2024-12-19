@@ -1,4 +1,5 @@
 #include "structs.hpp"
+#include <math.h>
 
 //Define serialization for position_t
 void to_json(json& j, const position_t& p) {

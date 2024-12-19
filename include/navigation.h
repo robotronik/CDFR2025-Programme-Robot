@@ -1,10 +1,6 @@
 #pragma once
 
 #include "cmdAsserv.hpp"
-#include "structs.hpp"
-#include "arduino.hpp"
-#include "tableState.hpp"
-#include "constante.h"
 
 #define NAV_MAX_STALL_TIME_MS 5000
 

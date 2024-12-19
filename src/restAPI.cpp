@@ -8,10 +8,11 @@
 #include "tableState.hpp"
 #include "lidarAnalize.h" //for static variable
 
+#include "crow.hpp"
+#include "nlohmann/json.hpp" // For handling JSON
+using json = nlohmann::json;
 
 #define API_PORT 8080
-
-using json = nlohmann::json;
 
 crow::response readHtmlFile(const std::string& path);
 std::string getContentType(const std::string& path);
