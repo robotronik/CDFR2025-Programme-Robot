@@ -225,12 +225,6 @@ int find_fastest_path(highway_point start, highway_point target, highway_point r
 
 
 bool unit_tests(){
-
-obs_obj_stocks[0] = 
-    {{-500, -600}, true, 100, 100, highway_obstruction_object_type::Rectangle};
-obs_obj_opponent = 
-    {{500, 0}, true, 200, 0, highway_obstruction_object_type::Circle};
-
     highway_point result[HIGHWAY_POINTS_COUNT+1];
     int res = find_fastest_path({-1100, 0}, {1100, 0}, result);
     if (res == 0){

@@ -23,8 +23,11 @@ int runAllTests() {
     if(testLogger())
         numPassed++;
 
+    std::cout << "Running highway tests" << std::endl;
+    numTests++;
     init_highways();
-    unit_tests();
+    if (unit_tests())
+        numPassed++;
 
     //Runs the lidar tests
     std::cout << "Running lidar tests" << std::endl;
