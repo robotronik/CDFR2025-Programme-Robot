@@ -14,7 +14,7 @@ static int currentPathLenght = 0;
 
 nav_hash createHash(int x, int y, int theta, Direction direction, Rotation rotationLookAt, Rotation rotation);
 
-nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotation rotationLookAt, Rotation rotation, bool useHighways = false){
+nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotation rotationLookAt, Rotation rotation, bool useHighways){
     nav_hash hashValue = createHash(x, y, theta, direction, rotationLookAt, rotation);
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
@@ -56,7 +56,7 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
     return ireturn;
 }
 
-nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation rotationLookAt, bool useHighways = false){
+nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation rotationLookAt, bool useHighways){
     nav_hash hashValue = createHash(x, y, 0, direction, rotationLookAt, (Rotation)0);
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)

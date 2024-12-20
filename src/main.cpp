@@ -18,6 +18,7 @@
 #include "logger.hpp"
 #include "restAPI.hpp"
 #include "gpio.h"
+#include "highways.h"
 
 #include "actionContainer.hpp"
 

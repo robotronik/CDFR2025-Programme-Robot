@@ -1,5 +1,8 @@
 #include <iostream>
 #include "highways.h"
+#include "tableState.hpp"
+#include "cmdAsserv.hpp"
+#include "arduino.hpp"
 
 bool testLogger();
 bool test_lidar_opponent();

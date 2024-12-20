@@ -1,6 +1,8 @@
 #pragma once
 
 #include "cmdAsserv.hpp"
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 #define NAV_MAX_STALL_TIME_MS 5000
 

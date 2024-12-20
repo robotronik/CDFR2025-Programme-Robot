@@ -15,6 +15,17 @@ static int graph[HIGHWAY_POINTS_COUNT][HIGHWAY_POINTS_COUNT]; // indexes of high
 static int highway_cost[HIGHWAY_LINES_COUNT];
 
 
+//Internal Prototypes
+double distance(highway_point a, highway_point b);
+double point_to_segment_distance(highway_point p, highway_point v, highway_point w);
+bool is_point_in_rectangle(highway_point p, highway_line * line);
+bool does_circle_touch_highway(highway_obstruction_object circle, highway_line * line);
+bool does_square_touch_highway(highway_obstruction_object square, highway_line * line);
+bool does_rectangle_touch_highway(highway_obstruction_object rectangle, highway_line * line);
+void get_available_highways(bool av_highways_arr[]);
+bool any_obstacle_on_highway(highway_line * line);
+bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line);
+
 //These are all of the objects
 highway_obstruction_object obs_obj_stocks[]{
     {{-500, 600}, false, 100, 100, highway_obstruction_object_type::Rectangle}
@@ -63,17 +74,6 @@ void highway_obstacles_json(json& j){
     }
     j.push_back(obs_obj_opponent);
 }
-
-//Internal Prototypes
-double distance(highway_point a, highway_point b);
-double point_to_segment_distance(highway_point p, highway_point v, highway_point w);
-bool is_point_in_rectangle(highway_point p, highway_line * line);
-bool does_circle_touch_highway(highway_obstruction_object circle, highway_line * line);
-bool does_square_touch_highway(highway_obstruction_object square, highway_line * line);
-bool does_rectangle_touch_highway(highway_obstruction_object rectangle, highway_line * line);
-void get_available_highways(bool av_highways_arr[]);
-bool any_obstacle_on_highway(highway_line * line);
-bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line);
 
 // Function to calculate the angle ABC in degrees
 double calculate_angle(highway_point A, highway_point B, highway_point C) {
