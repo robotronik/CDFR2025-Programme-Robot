@@ -18,9 +18,13 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
     nav_hash hashValue = createHash(x, y, theta, direction, rotationLookAt, rotation);
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
-    if (is_robot_stalled){
+    if (is_robot_stalled && !useHighways){
         ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_PAUSED : NAV_ERROR;
         return ireturn;
+    }
+    else if (is_robot_stalled && useHighways){
+        LOG_WARNING("Robot is stalled, but using highways to recalculate path");
+        currentInstructionHash = 0; // Reset the hash to recalculate the path
     }
     if (hashValue != currentInstructionHash){
         if (useHighways){
@@ -46,7 +50,9 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
             currentInstructionHash = hashValue;
         }
     }
-    ireturn = robotI2C.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
+    else{
+        ireturn = robotI2C.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
+    }
     return ireturn;
 }
 
@@ -54,9 +60,13 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
     nav_hash hashValue = createHash(x, y, 0, direction, rotationLookAt, (Rotation)0);
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
-    if (is_robot_stalled){
+    if (is_robot_stalled && !useHighways){
         ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_PAUSED : NAV_ERROR;
         return ireturn;
+    }
+    else if (is_robot_stalled && useHighways){
+        LOG_WARNING("Robot is stalled, but using highways to recalculate path");
+        currentInstructionHash = 0; // Reset the hash to recalculate the path
     }
 
     if (hashValue != currentInstructionHash){
@@ -83,7 +93,9 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
             currentInstructionHash = hashValue;
         }
     }
-    ireturn = robotI2C.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
+    else{
+        ireturn = robotI2C.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
+    }
     return ireturn;
 }
 
