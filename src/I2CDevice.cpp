@@ -14,6 +14,7 @@ I2CDevice::I2CDevice(int slave_address){
 
     if (ioctl(i2cFile, I2C_SLAVE, slave_address) < 0) {
         std::cout << "ioctl failed\n";
+        close(i2cFile);
         exit(1);
     }
 }
