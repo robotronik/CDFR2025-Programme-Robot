@@ -351,7 +351,7 @@ int StartSequence()
     tableStatus.init();
 
     // LOG_SETROBOT(robotI2C);
-
+    init_highways();
     currentState = INIT;
     nextState = INIT;
     initState = true;

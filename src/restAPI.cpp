@@ -7,6 +7,8 @@
 #include "main.hpp" //for static variables
 #include "tableState.hpp"
 #include "lidarAnalize.h" //for static variable
+#include "navigation.h"
+#include "highways.h"
 
 #include "crow.hpp"
 #include "nlohmann/json.hpp" // For handling JSON
@@ -110,6 +112,16 @@ void StartAPIServer(){
             limitedAbsoluteLidarData.push_back({{"x", lidarData[i].x}, {"y", lidarData[i].y}});
         }
         response["lidar"] = limitedAbsoluteLidarData;
+
+        json highway_segments;
+        highway_segments_json(highway_segments);
+        response["highway-segments"] = highway_segments;
+        json highway_obstacles;
+        highway_obstacles_json(highway_obstacles);
+        response["highway-obstacles"] = highway_obstacles;
+        json current_navigation_path;
+        navigation_path_json(current_navigation_path);
+        response["navigation-path"] = current_navigation_path;
 
         return crow::response(response.dump());
     });
