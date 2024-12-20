@@ -1,5 +1,6 @@
 #include <functional> // For std::hash
 #include "navigation.h"
+#include "highways.h"
 #include "main.hpp"
 #include "constante.h" // DISTANCESTOP and DISTANCESTART
 
@@ -8,9 +9,12 @@ static unsigned long robot_stall_start_time;
 typedef std::size_t nav_hash;
 static nav_hash currentInstructionHash;
 
+static highway_point currentPath[512];
+static int currentPathLenght = 0;
+
 nav_hash createHash(int x, int y, int theta, Direction direction, Rotation rotationLookAt, Rotation rotation);
 
-nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotation rotationLookAt, Rotation rotation){
+nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotation rotationLookAt, Rotation rotation, bool useHighways = false){
     nav_hash hashValue = createHash(x, y, theta, direction, rotationLookAt, rotation);
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
@@ -19,15 +23,33 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
         return ireturn;
     }
     if (hashValue != currentInstructionHash){
-        robotI2C.stop();
-        robotI2C.go_to_point(x,y, theta, rotationLookAt, direction, rotation);
-        currentInstructionHash = hashValue;
+        if (useHighways){
+            highway_point start = {tableStatus.robot.pos.x, tableStatus.robot.pos.y};
+            highway_point target = {x,y};
+            currentPathLenght = find_fastest_path(start, target, currentPath);
+            if (currentPathLenght == 0){ //Error
+                LOG_ERROR("Could not find path to target");
+                return NAV_ERROR;
+            }else{
+                robotI2C.stop();
+                for (int i = 0; i < currentPathLenght; i++){
+                    robotI2C.go_to_point(currentPath[i].x,currentPath[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
+                }
+                robotI2C.consigne_angulaire(theta, rotation);
+            }
+        }else{
+            robotI2C.stop();
+            robotI2C.go_to_point(x,y, theta, rotationLookAt, direction, rotation);
+            currentPath[0] = {x,y};
+            currentPathLenght = 1;
+            currentInstructionHash = hashValue;
+        }
     }
     ireturn = robotI2C.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
     return ireturn;
 }
 
-nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation rotationLookAt){
+nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation rotationLookAt, bool useHighways = false){
     nav_hash hashValue = createHash(x, y, 0, direction, rotationLookAt, (Rotation)0);
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
@@ -37,12 +59,38 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
     }
 
     if (hashValue != currentInstructionHash){
-        robotI2C.stop();
-        robotI2C.go_to_point(x,y, rotationLookAt, direction);
-        currentInstructionHash = hashValue;
+        if (useHighways){
+            highway_point start = {tableStatus.robot.pos.x, tableStatus.robot.pos.y};
+            highway_point target = {x,y};
+            currentPathLenght = find_fastest_path(start, target, currentPath);
+            if (currentPathLenght == 0){ //Error
+                LOG_ERROR("Could not find path to target");
+                return NAV_ERROR;
+            }else{
+                robotI2C.stop();
+                for (int i = 0; i < currentPathLenght; i++){
+                    robotI2C.go_to_point(currentPath[i].x,currentPath[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
+                }
+            }
+        }
+        else{
+            robotI2C.stop();
+            robotI2C.go_to_point(x,y, rotationLookAt, direction);
+            currentPath[0] = {x,y};
+            currentPathLenght = 1;
+            currentInstructionHash = hashValue;
+        }
     }
     ireturn = robotI2C.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
     return ireturn;
+}
+
+void navigation_path_json(json& j){
+    j = json::array();
+    j.push_back({{"x", tableStatus.robot.pos.x}, {"y", tableStatus.robot.pos.y}});
+    for (int i = 0; i < currentPathLenght; i++){
+        j.push_back({{"x", currentPath[i].x}, {"y", currentPath[i].y}});
+    }
 }
 
 void navigationOpponentDetection(){

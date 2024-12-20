@@ -171,6 +171,14 @@
                     ctx.strokeStyle = 'red';
                 drawSegment(ctx, seg.ay, seg.ax, seg.by, seg.bx);
             });
+            // Draw the current robot's path
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = 'blue';
+            ctx.beginPath();
+            data["navigation-path"].forEach(point => {
+                ctx.lineTo(point.y + centerX, point.x + centerY);
+            });
+            ctx.stroke();       
 
             //TODO draw the obstacles
 
@@ -227,7 +235,7 @@
         function drawSegment(ctx, ax, ay, bx, by) {
             ctx.beginPath();
             ctx.lineTo(centerX + ax, centerY + ay);
-            ctx.lineTo(centerX + bx, centerX + by);
+            ctx.lineTo(centerX + bx, centerY + by);
             ctx.stroke();
         }
         function drawArrow(ctx, x, y, angleDeg) {
