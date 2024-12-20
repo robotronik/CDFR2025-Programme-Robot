@@ -6,6 +6,7 @@
 #include "functions.h"
 #include "tableState.hpp"
 #include "constante.h"
+#include "arduino.hpp"
 
 class action;
 
