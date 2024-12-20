@@ -127,7 +127,7 @@ void navigationOpponentDetection(){
     }
 }
 
-
+// Function to calculate the hash of the navigation instruction
 nav_hash createHash(int x, int y, int theta, Direction direction, Rotation rotationLookAt, Rotation rotation) {
     // Combine all values simply by adding their hashes
     return std::hash<int>{}(x) ^
