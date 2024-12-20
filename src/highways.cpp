@@ -221,10 +221,10 @@ bool unit_tests(){
     int res = find_fastest_path({-1100, 0}, {1100, 0}, result);
     if (res == 0){
         // No path found, obstacle was blocking
-        LOG_DEBUG("yeee");
+        LOG_DEBUG("Test 1 passed");
     }
     else{
-        LOG_DEBUG("huh");
+        LOG_DEBUG("Test 1 failed");
         return false;
     }
 
@@ -232,10 +232,10 @@ bool unit_tests(){
     res = find_fastest_path({1100, 0}, {-1100, 0}, result);
     if (res != 0){
         // path found
-        LOG_DEBUG("yeee");
+        LOG_DEBUG("Test 2 passed");
     }
     else{
-        LOG_DEBUG("huh");
+        LOG_DEBUG("Test 2 failed");
         return false;
     }
     return true;
