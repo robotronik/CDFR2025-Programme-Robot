@@ -121,7 +121,7 @@ void navigationOpponentDetection(){
         is_robot_stalled = true;
         robot_stall_start_time = _millis();
     }
-    else if(is_robot_stalled){
+    else if(!isEndangered && is_robot_stalled){
         robotI2C.resume();
         is_robot_stalled = false;
     }
