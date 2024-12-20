@@ -2,19 +2,9 @@
 #include "structs.hpp"
 #define SIZEDATALIDAR 15000
 
-//#define DELAYUPDOWN 1000 //TODO
-//#define DELAYOPENCLOSE 500
-
-//#define ELEVATORUP 4000
-
-//#define CLAMPCLOSE 0
-//#define CLAMPOPEN 180
-//#define CLAMPSLEEP 15
-//#define CLAMPSTOP 20
-
 #define I2C_ASSER_ADDR 42
 #define I2C_ARDUINO_ADDR 100
-#define I2C_SSD1306_ADDR 16
+#define I2C_SSD1306_ADDR 16 //TODO Remove
 
 #define LOOP_TIME_MS 10
 
@@ -32,3 +22,6 @@
 #define SPEED_STOCK 8000
 
 const int rayon[3] = {200,200,250};
+const position_t STOCK_POSITION_ARRAY = {(100, 100, 0), (200, 200, 90)}; // TODO : Fill this in correctly
+// Angle is either 0 for horizontal stock of 90 for vertical
+const int STOCK_COUNT = 2; // and this
