@@ -49,8 +49,8 @@ void to_json(json& j, const highway_obstruction_object& p){
     j = json{
         {"pos", p.pos},
         {"present", p.present},
-        {"size", p.present},
-        {"size2", p.present},
+        {"size", p.size},
+        {"size2", p.size2},
         {"type", p.type},
     };
 }
@@ -64,7 +64,7 @@ void highway_segments_json(json& j){
     for (int i = 0; i < HIGHWAY_LINES_COUNT; i++){
         a = points + lines[i].a;
         b = points + lines[i].b;
-        j.push_back({{"ax", a->x}, {"ay", a->y}, {"bx", b->x}, {"bx", b->y}, {"available", avail_highw[i] ? "true" : "false"}});
+        j.push_back({{"ax", a->x}, {"ay", a->y}, {"bx", b->x}, {"by", b->y}, {"available", avail_highw[i] ? "true" : "false"}});
     }
 }
 void highway_obstacles_json(json& j){

@@ -22,8 +22,8 @@
 
 #include "actionContainer.hpp"
 
-// #define DISABLE_LIDAR
-// #define TEST_API_ONLY
+#define DISABLE_LIDAR
+#define TEST_API_ONLY
 // #define DISABLE_LIDAR_BEACONS
 
 
@@ -329,13 +329,15 @@ int StartSequence()
     }
 #endif
 
+    tableStatus.init();
+    init_highways();
 
     // Start the api server in a separate thread
     api_server_thread = std::thread([&]()
                                     { StartAPIServer(); });
 
 #ifdef TEST_API_ONLY
-    tableStatus.init(affichage);
+    tableStatus.init();
     TestAPIServer();
     // Wait for program termination
     while(!ctrl_c_pressed){
@@ -349,10 +351,8 @@ int StartSequence()
     return -1;
 #endif
 
-    tableStatus.init();
 
     // LOG_SETROBOT(robotI2C);
-    init_highways();
     currentState = INIT;
     nextState = INIT;
     initState = true;
