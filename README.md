@@ -27,7 +27,7 @@ sudo apt-get install g++-aarch64-linux-gnu
 sudo dpkg --add-architecture arm64
 sudo apt-get update
 sudo apt remove libi2c-dev
-wget http://ports.ubuntu.com/pool/universe/i/i2c-tools/libi2c-dev_4.3-4_arm64.deb
+wget http://old-releases.ubuntu.com/ubuntu/pool/universe/i/i2c-tools/libi2c-dev_4.3-4_arm64.deb
 sudo dpkg --force architecture --force-depends --install ./libi2c-dev_4.3-4_arm64.deb
 ```
 
