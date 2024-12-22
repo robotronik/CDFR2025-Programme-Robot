@@ -28,10 +28,10 @@ bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line);
 
 //These are all of the objects
 highway_obstruction_object obs_obj_stocks[]{
-    {{-500, 600}, false, 100, 100, highway_obstruction_object_type::Rectangle}
+    {{-500, 600}, true, 100, 400, highway_obstruction_object_type::Rectangle}
 };
 highway_obstruction_object obs_obj_opponent = 
-    {{500, 0}, true, 200, 0, highway_obstruction_object_type::Circle};
+    {{500, 0}, true, 150, 0, highway_obstruction_object_type::Circle};
 
 void to_json(json& j, const highway_point& p){
     j = json{
@@ -264,33 +264,11 @@ bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line){
     switch (obs->type)
     {
     case highway_obstruction_object_type::Circle:
-        if (does_circle_touch_highway(*obs, line)) {
-            printf("The circle is inside the rectangle.\n");
-            return true;
-        } else {
-            printf("The circle is NOT inside the rectangle.\n");
-            return false;
-        }
-        break;
+        return (does_circle_touch_highway(*obs, line));
     case highway_obstruction_object_type::Rectangle:
-        if (does_rectangle_touch_highway(*obs, line)) {
-            printf("The rectangle is inside the rectangle.\n");
-            return true;
-        } else {
-            printf("The rectangle is NOT inside the rectangle.\n");
-            return false;
-        }
-        break;
+        return (does_rectangle_touch_highway(*obs, line));
     case highway_obstruction_object_type::Square:
-        if (does_square_touch_highway(*obs, line)) {
-            printf("The square is inside the rectangle.\n");
-            return true;
-        } else {
-            printf("The square is NOT inside the rectangle.\n");
-            return false;
-        }
-        break;
-    
+        return (does_square_touch_highway(*obs, line));    
     default:
         printf("Not yet implemented obstacle type\n");
         return false;

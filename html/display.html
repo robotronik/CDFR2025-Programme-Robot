@@ -190,19 +190,19 @@
                     ctx.strokeStyle = 'gray';
                 if (obj.type == 0) // Circle
                 {
-                    ctx.beginPath(); ctx.arc(centerX + obj.pos.y, centerY + obj.pos.x, obj.size, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(centerX + obj.pos.y, centerY + obj.pos.x, obj.size, 0, Math.PI * 2); ctx.stroke();
                 }else if (obj.type == 1) // Square
                 {
-                    drawSegment(ctx, obj.pos.y - obj.size, obj.pos.x - obj.size, obj.pos.y + obj.size, obj.pos.x - obj.size); // Top
-                    drawSegment(ctx, obj.pos.y - obj.size, obj.pos.x + obj.size, obj.pos.y + obj.size, obj.pos.x + obj.size); // Bottom
-                    drawSegment(ctx, obj.pos.y - obj.size, obj.pos.x + obj.size, obj.pos.y - obj.size, obj.pos.x - obj.size); // Left
-                    drawSegment(ctx, obj.pos.y + obj.size, obj.pos.x + obj.size, obj.pos.y + obj.size, obj.pos.x - obj.size); // Right
+                    drawSegment(ctx, obj.pos.y - obj.size/2, obj.pos.x - obj.size/2, obj.pos.y + obj.size/2, obj.pos.x - obj.size/2); // Top
+                    drawSegment(ctx, obj.pos.y - obj.size/2, obj.pos.x + obj.size/2, obj.pos.y + obj.size/2, obj.pos.x + obj.size/2); // Bottom
+                    drawSegment(ctx, obj.pos.y - obj.size/2, obj.pos.x + obj.size/2, obj.pos.y - obj.size/2, obj.pos.x - obj.size/2); // Left
+                    drawSegment(ctx, obj.pos.y + obj.size/2, obj.pos.x + obj.size/2, obj.pos.y + obj.size/2, obj.pos.x - obj.size/2); // Right
                 }
                 else{ // Rectangle
-                    drawSegment(ctx, obj.pos.y - obj.size2, obj.pos.x - obj.size, obj.pos.y + obj.size2, obj.pos.x - obj.size); // Top
-                    drawSegment(ctx, obj.pos.y - obj.size2, obj.pos.x + obj.size, obj.pos.y + obj.size2, obj.pos.x + obj.size); // Bottom
-                    drawSegment(ctx, obj.pos.y - obj.size2, obj.pos.x + obj.size, obj.pos.y - obj.size2, obj.pos.x - obj.size); // Left
-                    drawSegment(ctx, obj.pos.y + obj.size2, obj.pos.x + obj.size, obj.pos.y + obj.size2, obj.pos.x - obj.size); // Right
+                    drawSegment(ctx, obj.pos.y - obj.size2/2, obj.pos.x - obj.size/2, obj.pos.y + obj.size2/2, obj.pos.x - obj.size/2); // Top
+                    drawSegment(ctx, obj.pos.y - obj.size2/2, obj.pos.x + obj.size/2, obj.pos.y + obj.size2/2, obj.pos.x + obj.size/2); // Bottom
+                    drawSegment(ctx, obj.pos.y - obj.size2/2, obj.pos.x + obj.size/2, obj.pos.y - obj.size2/2, obj.pos.x - obj.size/2); // Left
+                    drawSegment(ctx, obj.pos.y + obj.size2/2, obj.pos.x + obj.size/2, obj.pos.y + obj.size2/2, obj.pos.x - obj.size/2); // Right
                 }
             });
 
