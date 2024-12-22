@@ -167,7 +167,7 @@
             
             data["highway-segments"].forEach(seg => {
                 ctx.lineWidth = 4;
-                if (seg.available)
+                if (seg.available == "true")
                     ctx.strokeStyle = 'green';
                 else
                     ctx.strokeStyle = 'red';
