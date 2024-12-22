@@ -22,16 +22,22 @@
 
 #include "actionContainer.hpp"
 
-// #define DISABLE_LIDAR
-// #define TEST_API_ONLY
-// #define DISABLE_LIDAR_BEACONS
+#define DISABLE_LIDAR
+#define TEST_API_ONLY
+#define DISABLE_LIDAR_BEACONS
+#define EMULATE_I2C
 
 
 TableState tableStatus;
 
 // Initiation of i2c devices
+#ifndef EMULATE_I2C
 CmdAsserv robotI2C(I2C_ASSER_ADDR);
 Arduino arduino(I2C_ARDUINO_ADDR);
+#else
+CmdAsserv robotI2C(-1);
+Arduino arduino(-1);
+#endif
 
 lidarAnalize_t lidarData[SIZEDATALIDAR];
 int lidar_count = 0;
@@ -330,12 +336,16 @@ int StartSequence()
 #endif
 
 
+    tableStatus.init();
+
+    // LOG_SETROBOT(robotI2C);
+    init_highways();
+
     // Start the api server in a separate thread
     api_server_thread = std::thread([&]()
                                     { StartAPIServer(); });
 
 #ifdef TEST_API_ONLY
-    tableStatus.init(affichage);
     TestAPIServer();
     // Wait for program termination
     while(!ctrl_c_pressed){
@@ -349,10 +359,6 @@ int StartSequence()
     return -1;
 #endif
 
-    tableStatus.init();
-
-    // LOG_SETROBOT(robotI2C);
-    init_highways();
     currentState = INIT;
     nextState = INIT;
     initState = true;

@@ -133,6 +133,8 @@
             //ctx.drawImage(svgGrid, topLeftX, topLeftY, 3000, 2000);
 
             // Draw robot
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = 'white';
             drawSquare(ctx, data["table"]["robot"]["pos"]["y"], 
                             data["table"]["robot"]["pos"]["x"], 
                             250, 
@@ -180,7 +182,29 @@
             });
             ctx.stroke();       
 
-            //TODO draw the obstacles
+            data["highway-obstacles"].forEach(obj => {
+                ctx.lineWidth = 4;
+                if (obj.present)
+                    ctx.strokeStyle = 'purple';
+                else
+                    ctx.strokeStyle = 'gray';
+                if (obj.type == 0) // Circle
+                {
+                    ctx.beginPath(); ctx.arc(centerX + obj.pos.y, centerY + obj.pos.x, obj.size, 0, Math.PI * 2); ctx.fill();
+                }else if (obj.type == 1) // Square
+                {
+                    drawSegment(ctx, obj.pos.y - obj.size, obj.pos.x - obj.size, obj.pos.y + obj.size, obj.pos.x - obj.size); // Top
+                    drawSegment(ctx, obj.pos.y - obj.size, obj.pos.x + obj.size, obj.pos.y + obj.size, obj.pos.x + obj.size); // Bottom
+                    drawSegment(ctx, obj.pos.y - obj.size, obj.pos.x + obj.size, obj.pos.y - obj.size, obj.pos.x - obj.size); // Left
+                    drawSegment(ctx, obj.pos.y + obj.size, obj.pos.x + obj.size, obj.pos.y + obj.size, obj.pos.x - obj.size); // Right
+                }
+                else{ // Rectangle
+                    drawSegment(ctx, obj.pos.y - obj.size2, obj.pos.x - obj.size, obj.pos.y + obj.size2, obj.pos.x - obj.size); // Top
+                    drawSegment(ctx, obj.pos.y - obj.size2, obj.pos.x + obj.size, obj.pos.y + obj.size2, obj.pos.x + obj.size); // Bottom
+                    drawSegment(ctx, obj.pos.y - obj.size2, obj.pos.x + obj.size, obj.pos.y - obj.size2, obj.pos.x - obj.size); // Left
+                    drawSegment(ctx, obj.pos.y + obj.size2, obj.pos.x + obj.size, obj.pos.y + obj.size2, obj.pos.x - obj.size); // Right
+                }
+            });
 
             //Draws an arrow
             drawArrow(ctx, 100, 200, 10);
@@ -219,8 +243,6 @@
                 };
             });
 
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = 'white';
             // Set line width
             // Draw the rotated square
             ctx.beginPath();
