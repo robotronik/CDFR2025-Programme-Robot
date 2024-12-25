@@ -74,6 +74,7 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
             highway_point start = {tableStatus.robot.pos.x, tableStatus.robot.pos.y};
             highway_point target = {x,y};
             currentPathLenght = find_fastest_path(start, target, currentPath);
+            LOG_GREEN_INFO("Path length : ", currentPathLenght);
             if (currentPathLenght == 0){ //Error
                 LOG_ERROR("Could not find path to target");
                 return NAV_ERROR;

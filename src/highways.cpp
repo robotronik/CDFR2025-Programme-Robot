@@ -113,7 +113,7 @@ int additionnal_turn_cost(int start, int middle, int end){
 
 // Function to find the shortest path using Dijkstra's algorithm
 // Returns the number of points in result[]. If error, returns 0
-bool dijkstra(int source, int destination, bool available_highways[], highway_point result[]) {
+int dijkstra(int source, int destination, bool available_highways[], highway_point result[]) {
     int dist[HIGHWAY_POINTS_COUNT], visited[HIGHWAY_POINTS_COUNT];
     int prev[HIGHWAY_POINTS_COUNT];
 
@@ -207,6 +207,11 @@ int find_fastest_path(highway_point start, highway_point target, highway_point r
             min_target = dist_target;
             B = i;
         }
+    }
+    // if the distance from start to target is less than min_target, then we can go directly to the target
+    if (distance(start, target) < 1.5 * min_target){
+        result[0] = target;
+        return 1;
     }
     int res = dijkstra(A, B, av_highways_arr, result);
     if (res == 0)
