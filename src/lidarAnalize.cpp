@@ -1,4 +1,5 @@
 #include "lidarAnalize.h"
+#include "constante.h" // DEG_TO_RAD
 #include <math.h>
 
 

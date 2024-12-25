@@ -22,6 +22,6 @@
 #define SPEED_STOCK 8000
 
 const int rayon[3] = {200,200,250};
-const position_t STOCK_POSITION_ARRAY = {(100, 100, 0), (200, 200, 90)}; // TODO : Fill this in correctly
+const position_t STOCK_POSITION_ARRAY[] = {{100, 100, 0}, {200, 200, 90}}; // TODO : Fill this in correctly
 // Angle is either 0 for horizontal stock of 90 for vertical
 const int STOCK_COUNT = 2; // and this
