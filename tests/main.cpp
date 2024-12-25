@@ -1,13 +1,14 @@
 #include <iostream>
+#include "highways.h"
+#include "tableState.hpp"
+#include "cmdAsserv.hpp"
+#include "arduino.hpp"
 
-bool testDrawPixel();
 bool testLogger();
 bool test_lidar_opponent();
 bool test_lidar_beacons();
 
 int runAllTests();
-
-#define UNIT_TESTS_ONLY
 
 int main() {
     return runAllTests();
@@ -25,13 +26,11 @@ int runAllTests() {
     if(testLogger())
         numPassed++;
 
-#ifndef UNIT_TESTS_ONLY
-    //Runs the display tests
-    std::cout << "Running display tests" << std::endl;
+    std::cout << "Running highway tests" << std::endl;
     numTests++;
-    if(testDrawPixel())
+    init_highways();
+    if (unit_tests())
         numPassed++;
-#endif
 
     //Runs the lidar tests
     std::cout << "Running lidar tests" << std::endl;
@@ -41,6 +40,7 @@ int runAllTests() {
     numTests++;
     if(test_lidar_beacons())
         numPassed++;
+
 
     std::cout << numPassed << "/" << numTests << " tests passed" << std::endl;
     return (numTests == numPassed) ? 0 : 1;

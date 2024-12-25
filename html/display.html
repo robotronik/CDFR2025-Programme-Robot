@@ -133,6 +133,8 @@
             //ctx.drawImage(svgGrid, topLeftX, topLeftY, 3000, 2000);
 
             // Draw robot
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = 'white';
             drawSquare(ctx, data["table"]["robot"]["pos"]["y"], 
                             data["table"]["robot"]["pos"]["x"], 
                             250, 
@@ -161,6 +163,47 @@
             ctx.strokeStyle = 'green';
             data["lidar"].forEach(point => {
                 drawPoint(ctx, point.y, point.x);
+            });
+            
+            data["highway-segments"].forEach(seg => {
+                ctx.lineWidth = 4;
+                if (seg.available == "true")
+                    ctx.strokeStyle = 'green';
+                else
+                    ctx.strokeStyle = 'red';
+                drawSegment(ctx, seg.ay, seg.ax, seg.by, seg.bx);
+            });
+            // Draw the current robot's path
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = 'blue';
+            ctx.beginPath();
+            data["navigation-path"].forEach(point => {
+                ctx.lineTo(point.y + centerX, point.x + centerY);
+            });
+            ctx.stroke();       
+
+            data["highway-obstacles"].forEach(obj => {
+                ctx.lineWidth = 4;
+                if (obj.present)
+                    ctx.strokeStyle = 'purple';
+                else
+                    ctx.strokeStyle = 'gray';
+                if (obj.type == 0) // Circle
+                {
+                    ctx.beginPath(); ctx.arc(centerX + obj.pos.y, centerY + obj.pos.x, obj.size, 0, Math.PI * 2); ctx.stroke();
+                }else if (obj.type == 1) // Square
+                {
+                    drawSegment(ctx, obj.pos.y - obj.size/2, obj.pos.x - obj.size/2, obj.pos.y + obj.size/2, obj.pos.x - obj.size/2); // Top
+                    drawSegment(ctx, obj.pos.y - obj.size/2, obj.pos.x + obj.size/2, obj.pos.y + obj.size/2, obj.pos.x + obj.size/2); // Bottom
+                    drawSegment(ctx, obj.pos.y - obj.size/2, obj.pos.x + obj.size/2, obj.pos.y - obj.size/2, obj.pos.x - obj.size/2); // Left
+                    drawSegment(ctx, obj.pos.y + obj.size/2, obj.pos.x + obj.size/2, obj.pos.y + obj.size/2, obj.pos.x - obj.size/2); // Right
+                }
+                else{ // Rectangle
+                    drawSegment(ctx, obj.pos.y - obj.size2/2, obj.pos.x - obj.size/2, obj.pos.y + obj.size2/2, obj.pos.x - obj.size/2); // Top
+                    drawSegment(ctx, obj.pos.y - obj.size2/2, obj.pos.x + obj.size/2, obj.pos.y + obj.size2/2, obj.pos.x + obj.size/2); // Bottom
+                    drawSegment(ctx, obj.pos.y - obj.size2/2, obj.pos.x + obj.size/2, obj.pos.y - obj.size2/2, obj.pos.x - obj.size/2); // Left
+                    drawSegment(ctx, obj.pos.y + obj.size2/2, obj.pos.x + obj.size/2, obj.pos.y + obj.size2/2, obj.pos.x - obj.size/2); // Right
+                }
             });
 
             //Draws an arrow
@@ -200,8 +243,6 @@
                 };
             });
 
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = 'white';
             // Set line width
             // Draw the rotated square
             ctx.beginPath();
@@ -209,6 +250,14 @@
                 ctx.lineTo(rotatedPoints[i].x, rotatedPoints[i].y);
             }
             ctx.closePath();
+            ctx.stroke();
+        }
+        
+        //Screen coords, relative to center
+        function drawSegment(ctx, ax, ay, bx, by) {
+            ctx.beginPath();
+            ctx.lineTo(centerX + ax, centerY + ay);
+            ctx.lineTo(centerX + bx, centerY + by);
             ctx.stroke();
         }
         function drawArrow(ctx, x, y, angleDeg) {
