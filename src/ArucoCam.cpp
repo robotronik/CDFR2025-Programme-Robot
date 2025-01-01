@@ -5,13 +5,22 @@
 #include <curl/curl.h>
 #include "ArucoCam.hpp"
 #include "logger.hpp"
+#include "nlohmann/json.hpp" // For handling JSON
+using json = nlohmann::json;
 
 #define PORT_OFFSET 5000
 
+// Callback to write the response data into a string
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response);
+
+pid_t startPythonProgram(const std::string &scriptPath);
+void stopPythonProgram(pid_t pid);
+
 ArucoCam::ArucoCam(int cam_number) {
-    pid = startPythonProgram("detect_aruco.py api-port " + std::to_string(PORT_OFFSET + cam_number) + " cam " + std::to_string(cam_number));
+    id = cam_number;
+    pid = startPythonProgram("detect_aruco.py api-port " + std::to_string(PORT_OFFSET + id) + " cam " + std::to_string(id));
     if (pid == -1) {
-        LOG_ERROR("Failed to start ArucoCam ", cam_number);
+        LOG_ERROR("Failed to start ArucoCam ", id);
     }
 }
 ArucoCam::~ArucoCam(){
@@ -20,24 +29,14 @@ ArucoCam::~ArucoCam(){
 bool ArucoCam::getPos(){
     // Calls /position rest api endpoint of the ArucoCam API
     // Returns true if the call was successful, false otherwise
-}
-// Callback to write the response data into a string
-size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response) {
-    size_t totalSize = size * nmemb;
-    if (response) {
-        response->append(static_cast<char*>(contents), totalSize);
-    }
-    return totalSize;
-}
 
-bool callPositionAPI() {
-    const std::string url = "http://localhost:5000/position";
+    const std::string url = "http://localhost:" + std::to_string(PORT_OFFSET + id) + "/position";
     std::string responseBody;
 
     // Initialize a CURL handle
     CURL* curl = curl_easy_init();
     if (!curl) {
-        std::cerr << "Failed to initialize CURL" << std::endl;
+        LOG_ERROR("aruco cam ", id, " - Failed to initialize CURL");
         return false;
     }
 
@@ -50,7 +49,7 @@ bool callPositionAPI() {
     // Perform the request
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK) {
-        std::cerr << "CURL error: " << curl_easy_strerror(res) << std::endl;
+        LOG_ERROR("aruco cam ", id, " - CURL error: ", curl_easy_strerror(res));
         curl_easy_cleanup(curl);
         return false;
     }
@@ -66,15 +65,16 @@ bool callPositionAPI() {
     if (response_code == 200) {
         try {
             // Parse JSON response
-            nlohmann::json jsonResponse = nlohmann::json::parse(responseBody);
+            json jsonResponse = json::parse(responseBody);
             std::cout << "API Response: " << jsonResponse.dump(4) << std::endl;
+            LOG_GREEN_INFO("aruco cam ", id, " - API Response: ", jsonResponse.dump(4));
             return true;
-        } catch (const nlohmann::json::parse_error& e) {
-            std::cerr << "JSON parse error: " << e.what() << std::endl;
+        } catch (const json::parse_error& e) {
+            LOG_ERROR("aruco cam ", id, " - JSON parse error: ", e.what());
             return false;
         }
     } else {
-        std::cerr << "HTTP error: " << response_code << std::endl;
+        LOG_ERROR("aruco cam ", id, " - HTTP error: ", response_code);
         return false;
     }
 }
@@ -83,12 +83,12 @@ pid_t startPythonProgram(const std::string &scriptPath) {
     pid_t pid = fork();
 
     if (pid == -1) {
-        std::cerr << "Failed to fork process" << std::endl;
+        LOG_ERROR("startPythonProgram - Failed to fork process");
         return -1;
     } else if (pid == 0) {
         // Child process: Execute the Python program
         execlp("python3", "python3", scriptPath.c_str(), nullptr);
-        std::cerr << "Failed to execute Python script" << std::endl;
+        LOG_ERROR("startPythonProgram - Failed to execute Python script");
         _exit(1); // Ensure child process exits
     }
 
@@ -98,13 +98,21 @@ pid_t startPythonProgram(const std::string &scriptPath) {
 
 void stopPythonProgram(pid_t pid) {
     if (pid <= 0) {
-        std::cerr << "Invalid PID" << std::endl;
+        LOG_ERROR("stopPythonProgram - Invalid PID");
         return;
     }
 
     if (kill(pid, SIGTERM) == -1) {
-        std::cerr << "Failed to terminate process with PID: " << pid << std::endl;
+        LOG_ERROR("stopPythonProgram - Failed to terminate process with PID ", pid);
     } else {
-        std::cout << "Process with PID " << pid << " terminated" << std::endl;
+        LOG_INFO("Process with PID ", pid, " terminated");
     }
+}
+
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response) {
+    size_t totalSize = size * nmemb;
+    if (response) {
+        response->append(static_cast<char*>(contents), totalSize);
+    }
+    return totalSize;
 }
