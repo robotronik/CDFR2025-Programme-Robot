@@ -30,7 +30,7 @@ SRC_LIB_COM = $(wildcard $(SRCDIR_LIBCOM)/*.cpp)
 OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.o,$(SRC))
 OBJ += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM)) 
 
-SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp $(SRCDIR)/restAPI.cpp, $(SRC))
+SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp $(SRCDIR)/restAPI.cpp $(SRCDIR)/navigation.cpp $(SRCDIR)/functions.cpp $(SRCDIR)/actionContainer.cpp $(SRCDIR)/action.cpp, $(SRC))
 SRC_TEST = $(wildcard $(SRCDIR_TEST)/*.cpp)
 OBJ_NO_MAIN = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.o,$(SRC_NO_MAIN))
 OBJ_NO_MAIN += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM)) 
@@ -58,12 +58,12 @@ check:
 $(TARGET): $(OBJ) | $(BINDIR)
 	@echo "--------------------------------- Compilation du programme principal... ---------------------------------"
 	@echo " APP  $@"
-	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/x86_64-linux-gnu
 
 $(TEST_TARGET): $(OBJ_NO_MAIN) $(TEST_OBJ) | $(BINDIR)
 	@echo "--------------------------------- Compilation des tests... ---------------------------------"
 	@echo " APP  $@"
-	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/x86_64-linux-gnu
 
 -include $(DEPENDS)
 
@@ -95,9 +95,9 @@ $(BINDIR):
 	@echo " DIR  $@"
 	@mkdir -p $@
 
-tests: $(TEST_TARGET)
+tests: $(TEST_TARGET) copy_lidar
 	@echo "--------------------------------- Exécution des tests... ---------------------------------"
-	./$(TEST_TARGET)
+	cd $(BINDIR) && ./tests
 
 # Define the lidarLib target
 build_lidarLib:
@@ -164,11 +164,11 @@ $(ARMBINDIR):
 # Cross-compile and link for Raspberry Pi
 $(ARM_TARGET): $(ARM_OBJ) | $(ARMBINDIR)
 	@echo "--------------------------------- Compilation du programme principal... ---------------------------------"
-	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
 
 $(ARM_TEST_TARGET): $(ARM_OBJ_NO_MAIN) $(ARM_TEST_OBJ) | $(ARMBINDIR)
 	@echo "--------------------------------- Compilation des tests... ---------------------------------"
-	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
 
 # Deploy target
 deploy: check build_arm_lidarLib $(ARM_TARGET) copy_html_arm
@@ -200,6 +200,9 @@ copy_html: | $(BINDIR)
 # Rule to copy the HTML directory to the arm bin
 copy_html_arm: | $(ARMBINDIR)
 	cp -r html $(ARMBINDIR)
+# Rule to copy the lidar json directory to the bin
+copy_lidar: | $(BINDIR)
+	cp -r tests/lidar $(BINDIR)
 # Rule to copy the lidar json directory to the arm bin
 copy_lidar_arm: | $(ARMBINDIR)
 	cp -r tests/lidar $(ARMBINDIR)
