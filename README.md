@@ -17,7 +17,7 @@ Ce programme est conçu pour permettre au robot d'accomplir différentes tâches
 Avant d'exécuter le programme, assurez-vous d'avoir installé les dépendances suivantes :
 
 ```bash
-sudo apt-get install make gcc g++ libi2c-dev python3-venv libasio-dev nlohmann-json3-dev gdb gdb-multiarch
+sudo apt-get install make gcc g++ libi2c-dev python3-venv libasio-dev nlohmann-json3-dev libcurl4-openssl-dev gdb gdb-multiarch 
 ```
 
 Les dépendances requises pour compiler sur arm (RasbPi)
