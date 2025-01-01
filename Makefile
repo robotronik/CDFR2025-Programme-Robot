@@ -58,12 +58,12 @@ check:
 $(TARGET): $(OBJ) | $(BINDIR)
 	@echo "--------------------------------- Compilation du programme principal... ---------------------------------"
 	@echo " APP  $@"
-	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/x86_64-linux-gnu
 
 $(TEST_TARGET): $(OBJ_NO_MAIN) $(TEST_OBJ) | $(BINDIR)
 	@echo "--------------------------------- Compilation des tests... ---------------------------------"
 	@echo " APP  $@"
-	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/x86_64-linux-gnu
 
 -include $(DEPENDS)
 
@@ -164,11 +164,11 @@ $(ARMBINDIR):
 # Cross-compile and link for Raspberry Pi
 $(ARM_TARGET): $(ARM_OBJ) | $(ARMBINDIR)
 	@echo "--------------------------------- Compilation du programme principal... ---------------------------------"
-	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
 
 $(ARM_TEST_TARGET): $(ARM_OBJ_NO_MAIN) $(ARM_TEST_OBJ) | $(ARMBINDIR)
 	@echo "--------------------------------- Compilation des tests... ---------------------------------"
-	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
 
 # Deploy target
 deploy: check build_arm_lidarLib $(ARM_TARGET) copy_html_arm
