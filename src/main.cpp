@@ -18,19 +18,26 @@
 #include "logger.hpp"
 #include "restAPI.hpp"
 #include "gpio.h"
+#include "highways.h"
 
 #include "actionContainer.hpp"
 
 // #define DISABLE_LIDAR
 // #define TEST_API_ONLY
 // #define DISABLE_LIDAR_BEACONS
+// #define EMULATE_I2C
 
 
 TableState tableStatus;
 
 // Initiation of i2c devices
+#ifndef EMULATE_I2C
 CmdAsserv robotI2C(I2C_ASSER_ADDR);
 Arduino arduino(I2C_ARDUINO_ADDR);
+#else
+CmdAsserv robotI2C(-1);
+Arduino arduino(-1);
+#endif
 
 lidarAnalize_t lidarData[SIZEDATALIDAR];
 int lidar_count = 0;
@@ -329,28 +336,49 @@ int StartSequence()
 #endif
 
 
+    tableStatus.init();
+
+    // LOG_SETROBOT(robotI2C);
+    init_highways();
+
     // Start the api server in a separate thread
     api_server_thread = std::thread([&]()
                                     { StartAPIServer(); });
 
 #ifdef TEST_API_ONLY
-    tableStatus.init(affichage);
     TestAPIServer();
     // Wait for program termination
+    int i = 0;
     while(!ctrl_c_pressed){
         sleep(0.1);
 #ifndef DISABLE_LIDAR
         getlidarData(lidarData, lidar_count);
 #endif
+        if (i % 10000 == 0){
+            // randomly change the position of highway obstacles
+            for (int i = 0; i < 1; i++){
+                obs_obj_stocks[i].pos.x = rand() % 1500 - 750;
+                obs_obj_stocks[i].pos.y = rand() % 2200 - 1100;
+            }
+            // and the pos of the opponent obstacle
+            obs_obj_opponent.pos.x = rand() % 1500 - 750;
+            obs_obj_opponent.pos.y = rand() % 2200 - 1100;
+            tableStatus.pos_opponent.x = obs_obj_opponent.pos.x;
+            tableStatus.pos_opponent.y = obs_obj_opponent.pos.y;
+
+            // randomly change the position of the robot
+            tableStatus.robot.pos.x = rand() % 1500 - 750;
+            tableStatus.robot.pos.y = rand() % 2200 - 1100;
+
+            // goto a random position
+            navigationGoTo(rand() % 1500 - 750, rand() % 2200 - 1100, 0, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, true);
+        }
+        i++;
     }
     StopAPIServer();
     api_server_thread.join();
     return -1;
 #endif
-
-    tableStatus.init();
-
-    // LOG_SETROBOT(robotI2C);
 
     currentState = INIT;
     nextState = INIT;

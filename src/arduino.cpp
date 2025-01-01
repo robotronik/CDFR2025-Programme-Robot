@@ -8,6 +8,7 @@ int Arduino::servoPosition(int servoNb, int position) {
     uint8_t message[2];
     int values[] = {position};
 
+    if (i2cFile == -1) return 0; // Emulation
     generateBytes(values, length, message);
     if(i2c_smbus_write_i2c_block_data(i2cFile, (uint8_t) servoNb, length, message)){
         LOG_ERROR("couldn't write servo postion");
@@ -19,6 +20,7 @@ int Arduino::readCapteur(int capteurNumber, int &state){
     uint8_t buffer[2] = {0,0};
     int command = 100 + (capteurNumber -1);
 
+    if (i2cFile == -1) return 0; // Emulation
     i2c_smbus_write_byte(i2cFile, command);
     int bytesRead = read(i2cFile, buffer, 2);
 
@@ -37,6 +39,7 @@ int Arduino::readCapteur(int capteurNumber, int &state){
 
 int Arduino::enableStepper(int stepperNb) {
     LOG_INFO("enable Stepper");
+    if (i2cFile == -1) return 0; // Emulation
     if(i2c_smbus_write_byte(i2cFile, (stepperNb-1)*2 + 21)){
         LOG_ERROR("couldn't enable Stepper");
     }
@@ -45,6 +48,7 @@ int Arduino::enableStepper(int stepperNb) {
 
 int Arduino::disableStepper(int stepperNb) {
     LOG_INFO("disable Stepper");
+    if (i2cFile == -1) return 0; // Emulation
     if(i2c_smbus_write_byte(i2cFile,(stepperNb-1)*2 + 22)){
         LOG_ERROR("couldn't disable Stepper");
     }
@@ -52,6 +56,7 @@ int Arduino::disableStepper(int stepperNb) {
 }
 
 int Arduino::ledOn(int LedNb) {
+    if (i2cFile == -1) return 0; // Emulation
     if(i2c_smbus_write_byte(i2cFile, (LedNb-1)*2 + 31)){
         LOG_ERROR("couldn't turn on the led");
     }
@@ -59,6 +64,7 @@ int Arduino::ledOn(int LedNb) {
 }
 
 int Arduino::ledOff(int LedNb) {
+    if (i2cFile == -1) return 0; // Emulation
     if(i2c_smbus_write_byte(i2cFile, (LedNb-1)*2 + 32)){
         LOG_ERROR("couldn't turn off the led");
     }
@@ -71,6 +77,7 @@ int Arduino::moveStepper(int absPosition, int stepperNb) {
     uint8_t message[2];
     int values[] = {absPosition};
 
+    if (i2cFile == -1) return 0; // Emulation
     generateBytes(values, length, message);
     if(i2c_smbus_write_i2c_block_data(i2cFile, (uint8_t)(10+stepperNb), length, message)){
         LOG_ERROR("couldn't move Stepper");

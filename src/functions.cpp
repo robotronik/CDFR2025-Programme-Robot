@@ -142,7 +142,7 @@ void blinkLed(int LedNb,int periode){
 }
 
 // Function to check if a point (px, py) lies inside the rectangle
-bool isPointInsideRectangle(float px, float py, float cx, float cy, float w, float h) {
+bool m_isPointInsideRectangle(float px, float py, float cx, float cy, float w, float h) {
     float left = cx - w / 2, right = cx + w / 2;
     float bottom = cy - h / 2, top = cy + h / 2;
     return (px >= left && px <= right && py >= bottom && py <= top);
@@ -156,7 +156,7 @@ void opponentInAction(position_t* position){
         position_t stock_pos = STOCK_POSITION_ARRAY[i];
         int w = stock_pos.theta == 0 ? 300 : 0;
         int h = stock_pos.theta == 90 ? 300 : 0;
-        if (isPointInsideRectangle(position->x, position->y, stock_pos.x, stock_pos.y, OPPONENT_ROBOT_RADIUS * 2 + w, OPPONENT_ROBOT_RADIUS * 2 + h)){
+        if (m_isPointInsideRectangle(position->x, position->y, stock_pos.x, stock_pos.y, OPPONENT_ROBOT_RADIUS * 2 + w, OPPONENT_ROBOT_RADIUS * 2 + h)){
             tableStatus.stock[i].etat = false;
             LOG_GREEN_INFO("opponent has taken stock #", i, " / x = ", position->x , " / y = ", position->y);
             break;

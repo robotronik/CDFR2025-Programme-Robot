@@ -30,7 +30,7 @@ SRC_LIB_COM = $(wildcard $(SRCDIR_LIBCOM)/*.cpp)
 OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.o,$(SRC))
 OBJ += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM)) 
 
-SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp $(SRCDIR)/restAPI.cpp, $(SRC))
+SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp $(SRCDIR)/restAPI.cpp $(SRCDIR)/navigation.cpp $(SRCDIR)/functions.cpp $(SRCDIR)/actionContainer.cpp $(SRCDIR)/action.cpp, $(SRC))
 SRC_TEST = $(wildcard $(SRCDIR_TEST)/*.cpp)
 OBJ_NO_MAIN = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.o,$(SRC_NO_MAIN))
 OBJ_NO_MAIN += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM)) 
@@ -95,9 +95,9 @@ $(BINDIR):
 	@echo " DIR  $@"
 	@mkdir -p $@
 
-tests: $(TEST_TARGET)
+tests: $(TEST_TARGET) copy_lidar
 	@echo "--------------------------------- Exécution des tests... ---------------------------------"
-	./$(TEST_TARGET)
+	cd $(BINDIR) && ./tests
 
 # Define the lidarLib target
 build_lidarLib:
@@ -200,6 +200,9 @@ copy_html: | $(BINDIR)
 # Rule to copy the HTML directory to the arm bin
 copy_html_arm: | $(ARMBINDIR)
 	cp -r html $(ARMBINDIR)
+# Rule to copy the lidar json directory to the bin
+copy_lidar: | $(BINDIR)
+	cp -r tests/lidar $(BINDIR)
 # Rule to copy the lidar json directory to the arm bin
 copy_lidar_arm: | $(ARMBINDIR)
 	cp -r tests/lidar $(ARMBINDIR)
