@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -g -O0 -static $(INCLUDE_DIR)
 LDFLAGS = -Lrplidar_sdk/output/Linux/Release
-LDLIBS = -pthread -li2c -lrt -lpthread -lsl_lidar_sdk -lcurl -lssl -lcrypto
+LDLIBS = -pthread -li2c -lrt -lpthread -lsl_lidar_sdk
 
 INCLUDE_DIR = -Iinclude
 INCLUDE_DIR += -Irplidar_sdk/sdk/include

@@ -19,13 +19,15 @@
 #include "restAPI.hpp"
 #include "gpio.h"
 #include "highways.h"
+#include "ArucoCam.hpp"
 
 #include "actionContainer.hpp"
 
-// #define DISABLE_LIDAR
-// #define TEST_API_ONLY
+#define DISABLE_LIDAR
+#define TEST_API_ONLY
 // #define DISABLE_LIDAR_BEACONS
-// #define EMULATE_I2C
+#define EMULATE_I2C
+// #define EMULATE_CAM
 
 
 TableState tableStatus;
@@ -37,6 +39,12 @@ Arduino arduino(I2C_ARDUINO_ADDR);
 #else
 CmdAsserv robotI2C(-1);
 Arduino arduino(-1);
+#endif
+
+#ifndef EMULATE_CAM
+ArucoCam arucoCam1(0, "data/cam0.yml");
+#else
+ArucoCam arucoCam1(-1, "data/cam0.yml");
 #endif
 
 lidarAnalize_t lidarData[SIZEDATALIDAR];
@@ -354,6 +362,9 @@ int StartSequence()
 #ifndef DISABLE_LIDAR
         getlidarData(lidarData, lidar_count);
 #endif
+        if (i % 1000 == 0){
+            arucoCam1.getPos();
+        }
         if (i % 10000 == 0){
             // randomly change the position of highway obstacles
             for (int i = 0; i < 1; i++){
