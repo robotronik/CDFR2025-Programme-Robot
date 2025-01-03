@@ -99,6 +99,7 @@ Allez sur cette adresse ds un navigateur : http://raspberrypi.local:8080
 Lancer les commandes pour démmarer chromium sur la page locale du robot
 ```bash
 sudo apt-get install xorg openbox chromium-browser
+sudo apt install xorg openbox -y
 export DISPLAY=:0
 sudo startx /usr/bin/chromium-browser --noerrdialogs --kiosk http:0.0.0.0:8080/robot --incognito --disable-extensions --no-sandbox
 ```
