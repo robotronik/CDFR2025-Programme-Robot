@@ -355,7 +355,9 @@ int StartSequence()
 
 #ifdef TEST_API_ONLY
     TestAPIServer();
+    sleep(4);
     // Wait for program termination
+    LOG_DEBUG("Starting main debug loop");
     int i = 0;
     while(!ctrl_c_pressed){
         sleep(0.1);
