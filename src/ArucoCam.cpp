@@ -69,7 +69,6 @@ bool ArucoCam::getPos(){
         LOG_ERROR("aruco cam ", id, " - HTTP error: ", res->status);
         return false;
     }
-    }
 }
 
 pid_t startPythonProgram(const std::string &scriptPath, const std::string &args) {
