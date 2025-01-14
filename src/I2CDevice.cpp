@@ -7,7 +7,7 @@ I2CDevice::I2CDevice(int slave_address){
     if (slave_address == -1) // I2C Emulation
     {
         std::cout << "Emulating I2C\n";
-        i2cFile == -1;
+        i2cFile = -1;
     }
     else{
         snprintf(filename, 19, "/dev/i2c-%d", adapter_nr);

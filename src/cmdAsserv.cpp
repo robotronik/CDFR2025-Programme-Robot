@@ -16,7 +16,7 @@ CmdAsserv::CmdAsserv(int slave_address){
     if (slave_address == -1) // I2C Emulation
     {
         std::cout << "Emulating I2C\n";
-        i2cFile == -1;
+        i2cFile = -1;
     }
     else{
         snprintf(filename, 19, "/dev/i2c-%d", adapter_nr);
@@ -58,6 +58,12 @@ void CmdAsserv::I2cReceiveData (uint8_t command, uint8_t* data, int length){
     if (i2cFile >= 0){
         i2c_smbus_write_byte(i2cFile, command);
         read(i2cFile, data, length);
+    }
+    else{
+        // Emulate I2C by return data full of 0x00
+        for (int i = 0; i < length; i++){
+            data[i] = 0x00;
+        }
     }
 }
 
