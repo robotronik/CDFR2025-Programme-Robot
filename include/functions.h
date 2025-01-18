@@ -23,9 +23,13 @@ int returnToHome();
 void resetActionneur();
 void opponentInAction(position_t* position);
 
-//TODO : New functions
+//TODO : New functions (State machines)
 int takeStock(int xStart,int yStart, int xEnd, int yEnd, int num_zone);
 int construct(int x,int y,int theta);
+
+//TODO : New functions (Utils)
+bool movePlatformLifts(bool inside);
+bool movePlatformElevator(bool upper);
 
 void blinkLed(int LedNb,int periode);
 

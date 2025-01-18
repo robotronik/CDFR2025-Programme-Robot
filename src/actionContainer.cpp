@@ -57,7 +57,7 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
         //itable->robot.robotHavePlante = false;
         //itable->JardiniereFull[0].etat = true;
         //irobot->get_coordinates(x,y,theta);
-        //irobot->set_coordinates(x,- 1500 + ROBOT_Y_OFFSET ,90);
+        //irobot->set_coordinates(x,- 1500 + 130 ,90);
         //itable->incrementScore(PLANTE_JARDINIERE);
     });
     putInConstruction0->setCostAction(2,0,itable,0,0);

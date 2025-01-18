@@ -18,8 +18,8 @@ int initPosition2(int x, int y,int theta){
 
     int thetaStart = -90;
     int xSecond = 210;
-    int xStart = 1000 - ROBOT_Y_OFFSET;
-    int yStart = 1500 - ROBOT_Y_OFFSET;
+    int xStart = 1000 - 130; //ROBOT_Y_OFFSET
+    int yStart = 1500 - 130; //ROBOT_Y_OFFSET
     int yBack = 310;
     if(y<0){
         thetaStart = 90;
@@ -102,6 +102,58 @@ int construct(int x,int y,int theta){
     return 0;
 }
 
+// function to take platforms from a stock
+bool takeStockPlatforms(){
+    static int state = 0;
+    switch (state)
+    {
+    case 0:
+        if (movePlatformLifts(true)){ // Move the platforms inside
+            state ++;
+        }
+        break;
+    case 1:
+        if (movePlatformElevator(false)){ // Move the elevator down
+            state ++;
+        }
+        break;
+    case 2:
+        if (movePlatformLifts(false)){ // Move the platforms outside
+            state ++;
+        }        
+        break;
+    case 3:
+        if (movePlatformElevator(true)){ // Move the elevator up
+            state = 0;
+            return true;
+        }
+        break;
+    }
+    return false;
+}
+
+// This shit is clean af
+bool movePlatformLifts(bool inside){
+    static unsigned long startTime = _millis();
+    static bool previousInside = !inside;
+    if (previousInside != inside){
+        startTime = _millis(); // Reset the timer
+        previousInside = inside;
+        arduino.servoPosition(PLATFORMS_LIFT_LEFT_SERVO_NUM, inside ? 0 : 180); // TODO : Check if this is correct
+        arduino.servoPosition(PLATFORMS_LIFT_RIGHT_SERVO_NUM, inside ? 180 : 0);
+    }
+    return (_millis() > startTime + 1000); // delay
+}
+
+bool movePlatformElevator(bool upper){
+    static bool previousUpper = !upper;
+    int target = upper ? 20000 : 0;
+    if (previousUpper != upper){
+        previousUpper = upper;
+        arduino.moveStepper(target, PLATFORMS_ELEVATOR_STEPPER_NUM); // TODO : Check if this is correct
+    }
+    return (arduino.getStepper(PLATFORMS_ELEVATOR_STEPPER_NUM) == target); // TODO : Add within a certain margin
+}
 
 
 
@@ -119,8 +171,7 @@ int returnToHome(){
     int home_x = 700;
     int home_y = tableStatus.robot.colorTeam == YELLOW ? 1200 : -1200;
     nav_return_t res = navigationGoToNoTurn(home_x, home_y);
-    bool breturn = res == NAV_DONE;
-    return breturn; 
+    return res == NAV_DONE;
 }
 
 
@@ -148,7 +199,7 @@ bool m_isPointInsideRectangle(float px, float py, float cx, float cy, float w, f
     return (px >= left && px <= right && py >= bottom && py <= top);
 }
 
-void opponentInAction(position_t* position){
+void opponentInAction(position_t* position){ //TODO : Check if this is correct
     const int OPPONENT_ROBOT_RADIUS = 200; //200mm
     for (int i = 0; i < STOCK_COUNT; i++){
         if (tableStatus.stock[i].etat == false)
