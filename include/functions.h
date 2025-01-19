@@ -26,10 +26,13 @@ void opponentInAction(position_t* position);
 //TODO : New functions (State machines)
 int takeStock(int xStart,int yStart, int xEnd, int yEnd, int num_zone);
 int construct(int x,int y,int theta);
+bool takeStockPlatforms();
+bool constructSingleTribune();
 
 //TODO : New functions (Utils)
 bool movePlatformLifts(bool inside);
-bool movePlatformElevator(bool upper);
+bool movePlatformElevator(int level);
+bool moveTribunePusher(bool outside);
 
 void blinkLed(int LedNb,int periode);
 

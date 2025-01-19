@@ -112,7 +112,7 @@ Defenies dans constante.h
 - Stepper 2 - Elevateur à étages
 - Stepper 3 - Rail du bas
 - Stepper 4 - Rail du haut
-- Servo 1 - Push étage
+- Servo 1 - Push étage tribune
 - Servo 2 - Souleveur à planches gauche
 - Servo 3 - Souleveur à planches droite
 - Servo 4 - Pinces

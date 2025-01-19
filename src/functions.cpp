@@ -102,28 +102,48 @@ int construct(int x,int y,int theta){
     return 0;
 }
 
+// function to construct a single tribune by placing a single platform and pushing the tribune
+bool constructSingleTribune(){
+    static int state = 1;
+    switch (state)
+    {
+    case 1:
+        if (movePlatformLifts(true))
+            state ++;
+        break;
+    case 2:
+        if (movePlatformElevator(1))
+            state ++;
+        break;
+    case 3:
+        if (movePlatformLifts(false) && moveTribunePusher(true)){
+            state = 1;
+            return true;
+        }
+        break;
+    }
+    return false;
+}
+
 // function to take platforms from a stock
 bool takeStockPlatforms(){
     static int state = 0;
     switch (state)
     {
     case 0:
-        if (movePlatformLifts(true)){ // Move the platforms inside
+        if (movePlatformLifts(true)) // Move the platforms inside
             state ++;
-        }
         break;
     case 1:
-        if (movePlatformElevator(false)){ // Move the elevator down
+        if (movePlatformElevator(0)) // Move the elevator down
             state ++;
-        }
         break;
     case 2:
-        if (movePlatformLifts(false)){ // Move the platforms outside
+        if (movePlatformLifts(false)) // Move the platforms outside
             state ++;
-        }        
         break;
     case 3:
-        if (movePlatformElevator(true)){ // Move the elevator up
+        if (movePlatformElevator(2)){ // Move the elevator up
             state = 0;
             return true;
         }
@@ -145,16 +165,38 @@ bool movePlatformLifts(bool inside){
     return (_millis() > startTime + 1000); // delay
 }
 
-bool movePlatformElevator(bool upper){
-    static bool previousUpper = !upper;
-    int target = upper ? 20000 : 0;
-    if (previousUpper != upper){
-        previousUpper = upper;
+// Moves the platforms elevator to a predefined level
+// 0:lowest, 1:middle, 2:highest
+bool movePlatformElevator(int level){
+    static int previousLevel = -1;
+
+    int target = 0;
+    switch (level)
+    {
+    case 0:
+        target = 0; break;
+    case 1:
+        target = 10000; break;
+    case 2:
+        target = 20000; break;
+    }
+    if (previousLevel != level){
+        previousLevel = level;
         arduino.moveStepper(target, PLATFORMS_ELEVATOR_STEPPER_NUM); // TODO : Check if this is correct
     }
     return (arduino.getStepper(PLATFORMS_ELEVATOR_STEPPER_NUM) == target); // TODO : Add within a certain margin
 }
 
+bool moveTribunePusher(bool outside){
+    static unsigned long startTime = _millis();
+    static bool previousOutside = !outside;
+    if (previousOutside != outside){
+        startTime = _millis(); // Reset the timer
+        previousOutside = outside;
+        arduino.servoPosition(TRIBUNES_PUSH_SERVO_NUM, outside ? 0 : 180); // TODO : Check if this is correct
+    }
+    return (_millis() > startTime + 2000); // delay
+}
 
 
 
