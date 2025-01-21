@@ -38,7 +38,7 @@ int Arduino::readCapteur(int capteurNumber, int &state){
 }
 
 int Arduino::enableStepper(int stepperNb) {
-    LOG_INFO("enable Stepper");
+    LOG_INFO("enable Stepper #", stepperNb);
     if (i2cFile == -1) return 0; // Emulation
     if(i2c_smbus_write_byte(i2cFile, (stepperNb-1)*2 + 21)){
         LOG_ERROR("couldn't enable Stepper");
@@ -47,7 +47,7 @@ int Arduino::enableStepper(int stepperNb) {
 }
 
 int Arduino::disableStepper(int stepperNb) {
-    LOG_INFO("disable Stepper");
+    LOG_INFO("disable Stepper #", stepperNb);
     if (i2cFile == -1) return 0; // Emulation
     if(i2c_smbus_write_byte(i2cFile,(stepperNb-1)*2 + 22)){
         LOG_ERROR("couldn't disable Stepper");
