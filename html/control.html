@@ -132,6 +132,18 @@
                 <button type="button" class="btn btn-success w-100" onclick="sendSetStepper()">Turn Stepper</button>
             </div>
         </div>
+
+        <div class="label-section">
+            Activate a predefined action sequence
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <button type="button" class="btn btn-success w-100" onclick="sendAction('takeStockPlatforms')">Take Stock Platforms</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100" onclick="sendAction('constructSingleTribune')">Construct Single Tribune</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -341,6 +353,27 @@
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
                 body: JSON.stringify({ value: Number(set_stepper_value.value), id: Number(set_stepper_select.value) })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
+        }
+
+        function sendAction(action) {
+            fetch('/test_action', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                },
+                body: JSON.stringify({ value: action })
             })
             .then(response => {
                 if (!response.ok) {

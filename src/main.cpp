@@ -154,8 +154,8 @@ int main(int argc, char *argv[])
                 arduino.enableStepper(1);
                 robotI2C.set_motor_state(true);
                 robotI2C.set_brake_state(false);
-                robotI2C.set_linear_max_speed(MAX_SPEED);
-                while(robotI2C.get_command_buffer_size() != 0); //wait end of all action above
+                //robotI2C.set_linear_max_speed(MAX_SPEED);
+                //while(robotI2C.get_command_buffer_size() != 0); //wait end of all action above
             }
             int bStateCapteur2 = 0;
             arduino.readCapteur(2, bStateCapteur2);
@@ -261,6 +261,10 @@ int main(int argc, char *argv[])
             if (initState)
                 LOG_STATE("MANUAL");
             
+            
+            manual_currentFunc = takeStockPlatforms;
+
+
             manual_currentFunc = takeStockPlatforms;
 
             // Execute the function as long as it returns false
@@ -393,6 +397,7 @@ int StartSequence()
     nextState = INIT;
     initState = true;
     manual_ctrl = false;
+    manual_currentFunc = NULL;
 
     actionSystem.init(&robotI2C, &arduino, &tableStatus);
 

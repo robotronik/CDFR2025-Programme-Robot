@@ -9,6 +9,7 @@
 #include "lidarAnalize.h" //for static variable
 #include "navigation.h"
 #include "highways.h"
+#include "functions.h" //for state machine functions
 
 #include "crow.hpp"
 #include "nlohmann/json.hpp" // For handling JSON
@@ -393,6 +394,32 @@ void StartAPIServer(){
 
         //Apply the value
         arduino.moveStepper(req_value, req_id);
+
+        json response;
+        response["message"] = "Successfull";
+        return crow::response(response.dump(4));
+    });
+
+    // Define a route for a PORT request to test action functions
+    CROW_ROUTE(app, "/test_action").methods(crow::HTTPMethod::POST)([](const crow::request& req){
+        auto req_data = json::parse(req.body);
+
+        if (currentState != MANUAL){
+            json response;
+            response["message"] = "Cannot test actions when not in MANUAL mode";
+            return crow::response(400, response.dump(4));
+        }
+
+        std::string req_value = req_data["value"];
+
+        // Apply the value
+        if      (req_value == "takeStockPlatforms")     manual_currentFunc = takeStockPlatforms;
+        else if (req_value == "constructSingleTribune") manual_currentFunc = constructSingleTribune;
+        else {
+            json response;
+            response["message"] = "Invalid action requested";
+            return crow::response(400, response.dump(4));
+        }
 
         json response;
         response["message"] = "Successfull";
