@@ -376,7 +376,7 @@ void StartAPIServer(){
         int req_id = req_data["id"];
 
         //Apply the value
-        arduino.servoPosition(req_id, req_value);
+        arduino.moveServo(req_id, req_value);
 
         json response;
         response["message"] = "Successfull";

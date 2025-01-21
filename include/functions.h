@@ -3,25 +3,9 @@
 
 #include "structs.hpp"
 
-typedef enum {
-    INTIY_INIT,
-    INTIY_BACKWARD,
-} fsminitY_t;
-
-typedef enum {
-    SETPOS_INIT,
-    SETPOS_WAITINIT,
-    SETPOS_FIRSTBACKWARD,
-    SETPOS_FIRSTFORWARD,
-    SETPOS_SECONDBACKWARD,
-    SETPOS_SECONDFORWARD
-} fsminitPos_t;
-
-
-int initPosition2(int x, int y,int theta);
 int returnToHome();
-void resetActionneur(); // Called at the boot and stop
-void enableActionneur(); // Called when the robot is ready to move
+void resetActionneur(); // Called when the robot is ready to move
+void disableActionneur();
 void opponentInAction(position_t* position);
 
 //TODO : New functions (State machines)
@@ -35,6 +19,8 @@ bool movePlatformLifts(bool inside);
 bool movePlatformElevator(int level);
 bool moveTribunePusher(bool outside);
 
-void blinkLed(int LedNb,int periode);
+void blinkLed(int LED_ID,int periode);
+
+colorTeam_t readColorSensorSwitch();
 
 #endif // MYFUNCTION_H

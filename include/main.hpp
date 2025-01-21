@@ -6,14 +6,13 @@
 #include "constante.h"
 
 typedef enum {
-    INIT,
-    INITIALIZE,
-    SETHOME,
-    WAITSTART,
-    RUN,
-    FIN,
-    STOP,
-    MANUAL
+    INIT = 0,
+    INITIALIZE = 1,
+    WAITSTART = 3,
+    RUN = 4,
+    FIN = 5,
+    STOP = 6,
+    MANUAL = 7
 } main_State_t;
 
 

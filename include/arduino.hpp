@@ -10,11 +10,15 @@ class Arduino : public I2CDevice {
    
    public:
     Arduino(int slave_address);
-    int servoPosition(int servoNb, int position);
-    int readCapteur(int capteurNumber, int &state);
-    int moveStepper(int absPosition, int stepperNb);
-    int enableStepper(int stepperNb);
-    int disableStepper(int stepperNb);
-    int ledOn(int LedNb);
-    int ledOff(int LedNb);
+
+    // Functions return true if successfully executed
+    void moveServo(int ServoID, int8_t position);
+    bool readSensor(int SensorID, bool& value);
+    void moveStepper(int32_t absPosition, int StepperID);
+    void setStepper(int32_t absPosition, int StepperID);
+    bool getStepper(int32_t& absPosition, int StepperID);
+    void enableStepper(int StepperID);
+    void disableStepper(int StepperID);
+    void ledOn(int LED_ID);
+    void ledOff(int LED_ID);
 };
