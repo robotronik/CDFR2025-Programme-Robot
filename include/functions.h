@@ -20,7 +20,8 @@ typedef enum {
 
 int initPosition2(int x, int y,int theta);
 int returnToHome();
-void resetActionneur();
+void resetActionneur(); // Called at the boot and stop
+void enableActionneur(); // Called when the robot is ready to move
 void opponentInAction(position_t* position);
 
 //TODO : New functions

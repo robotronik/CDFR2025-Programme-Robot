@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
             {
                 LOG_STATE("INIT");
                 int bStateCapteur2 = 0;
+                resetActionneur();
 
                 arduino.readCapteur(2, bStateCapteur2);
                 if (bStateCapteur2 == 1)
@@ -119,7 +120,7 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-                    robotI2C.set_coordinates(-770, -1390, 90); // 90 de base
+                    robotI2C.set_coordinates(-770, -1390, 90);
                 }
                 sensorCount = 0;
             }
@@ -149,8 +150,8 @@ int main(int argc, char *argv[])
             if (initState)
             {
                 LOG_STATE("INITIALIZE");
-                arduino.servoPosition(4, 100);
-                arduino.enableStepper(1);
+                enableActionneur();
+                robotI2C.go_to_point(tableStatus.robot.pos.x, tableStatus.robot.pos.y);
                 robotI2C.set_motor_state(true);
                 robotI2C.set_brake_state(true); //TODO should be false
                 //robotI2C.set_linear_max_speed(MAX_SPEED);
@@ -520,14 +521,10 @@ void EndSequence()
     lidarStop();
 #endif
 
-    // Stop the robot 
-    arduino.moveStepper(0, 1);
-    arduino.servoPosition(4, 180);
+
     arduino.ledOff(2);
     arduino.ledOff(1);
-    arduino.servoPosition(1, 180);
-    arduino.moveStepper(0, 1);
-    arduino.disableStepper(1);
+    resetActionneur();
 
     robotI2C.set_motor_state(false);
     robotI2C.set_brake_state(false);

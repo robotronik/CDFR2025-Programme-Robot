@@ -107,11 +107,33 @@ int construct(int x,int y,int theta){
 
 
 void resetActionneur(){
-    arduino.servoPosition(1,180);
-    //TODO
-    //arduino.servoPosition(2,CLAMPSLEEP);
-    //arduino.moveStepper(ELEVATORJARDINIERE,1);
-    
+    // Stop the robot 
+    // TODO
+    arduino.moveStepper(0, 1);
+    arduino.moveStepper(0, 2);
+    arduino.moveStepper(0, 3);
+    arduino.moveStepper(0, 4);
+    arduino.servoPosition(1, 90);
+    arduino.servoPosition(2, 90);
+    arduino.servoPosition(3, 90);
+    arduino.servoPosition(4, 90);
+    arduino.servoPosition(5, 90);
+    arduino.servoPosition(6, 90);
+    arduino.disableStepper(1);
+    arduino.disableStepper(2);
+    arduino.disableStepper(3);
+    arduino.disableStepper(4);
+}
+
+void enableActionneur(){
+    arduino.enableStepper(1);
+    arduino.enableStepper(2);
+    arduino.enableStepper(3);
+    arduino.enableStepper(4);
+    //arduino.setStepper(1, 0);
+    //arduino.setStepper(2, 0);
+    //arduino.setStepper(3, 0);
+    //arduino.setStepper(4, 0);
 }
 
 // TODO : Remove ? Not even used..
