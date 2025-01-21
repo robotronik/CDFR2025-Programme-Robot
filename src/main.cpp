@@ -153,8 +153,9 @@ int main(int argc, char *argv[])
                 arduino.servoPosition(4, 100);
                 arduino.enableStepper(1);
                 robotI2C.set_motor_state(true);
-                robotI2C.set_brake_state(false);
+                robotI2C.set_brake_state(true); //TODO should be false
                 //robotI2C.set_linear_max_speed(MAX_SPEED);
+                //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
                 //while(robotI2C.get_command_buffer_size() != 0); //wait end of all action above
             }
             int bStateCapteur2 = 0;
@@ -407,6 +408,8 @@ int StartSequence()
     // std::string commandTest = "python3 " + python_script_pathTest.string() + " " +  colorTest;
     // std::thread python_threadTest(executePythonScript,commandTest);
 
+    robotI2C.set_coordinates(0,0,0);
+
     LOG_INFO("Init sequence done");
     return 0;
 }
@@ -520,26 +523,31 @@ void GetLidarV2()
 void EndSequence()
 {
     LOG_DEBUG("Stopping");
-
+    
+    // Stop the API server
     StopAPIServer();
     api_server_thread.join();
 
-    arduino.moveStepper(0, 1);
+    // Stop the lidar
 #ifndef DISABLE_LIDAR
     GPIO_stopPWMMotor();
+    lidarStop();
 #endif
+
+    // Stop the robot 
+    arduino.moveStepper(0, 1);
     arduino.servoPosition(4, 180);
     arduino.ledOff(2);
     arduino.ledOff(1);
     arduino.servoPosition(1, 180);
     arduino.moveStepper(0, 1);
+    arduino.disableStepper(1);
+
     robotI2C.set_motor_state(false);
     robotI2C.set_brake_state(false);
-    robotI2C.stop();
-    lidarStop();
-    sleep(1);
-    arduino.disableStepper(1);
-    LOG_DEBUG("PROCESS KILL");
+    //robotI2C.stop();
+
+    LOG_DEBUG("Stopped");
 }
 
 bool isWifiConnected()
