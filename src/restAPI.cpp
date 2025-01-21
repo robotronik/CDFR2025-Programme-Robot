@@ -122,6 +122,10 @@ void StartAPIServer(){
         json current_navigation_path;
         navigation_path_json(current_navigation_path);
         response["navigation-path"] = current_navigation_path;
+        
+        int16_t t_x, t_y, t_a;
+        robotI2C.get_current_target(t_x, t_y, t_a);
+        response["target_pos"] = (position_t){t_x, t_y, t_a};
 
         return crow::response(response.dump());
     });
