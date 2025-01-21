@@ -2,6 +2,7 @@
 
 Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
 
+// [0;180]
 int Arduino::servoPosition(int servoNb, int position) {
     LOG_INFO("servo ",servoNb," postion : ",position);
     int length = 2;  // Nb of bytes to send
