@@ -29,3 +29,5 @@ extern lidarAnalize_t lidarData[SIZEDATALIDAR];
 extern int lidar_count;
 
 extern bool manual_ctrl;
+// Declare a function pointer
+extern bool (*manual_currentFunc)();

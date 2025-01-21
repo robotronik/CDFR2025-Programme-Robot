@@ -47,6 +47,7 @@ main_State_t nextState;
 bool initState;
 actionContainer actionSystem;
 bool manual_ctrl;
+bool (*manual_currentFunc)(); //Pointer to a function to execute of type bool func(void)
 
 std::thread api_server_thread;
 
@@ -259,7 +260,15 @@ int main(int argc, char *argv[])
         {
             if (initState)
                 LOG_STATE("MANUAL");
+            
+            manual_currentFunc = takeStockPlatforms;
 
+            // Execute the function as long as it returns false
+            if (manual_currentFunc != NULL && manual_currentFunc != nullptr){
+                if (manual_currentFunc()){
+                    manual_currentFunc = NULL;
+                }
+            }
             if (!manual_ctrl)
                 nextState = FIN;
             break;
