@@ -223,12 +223,6 @@ int main(int argc, char *argv[])
         {
             if (initState)
                 LOG_STATE("MANUAL");
-            
-            
-            manual_currentFunc = takeStockPlatforms;
-
-
-            manual_currentFunc = takeStockPlatforms;
 
             // Execute the function as long as it returns false
             if (manual_currentFunc != NULL && manual_currentFunc != nullptr){

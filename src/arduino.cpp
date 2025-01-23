@@ -21,8 +21,8 @@ Arduino::~Arduino(){
 #define CMD_GET_STEPPER 0x09
 
 // [0;180]
-void Arduino::moveServo(int ServoID, int8_t position) {
-    LOG_INFO("Arduino - Move servo #", ServoID, " to ", position);
+void Arduino::moveServo(int ServoID, uint8_t position) {
+    LOG_INFO("Arduino - Move servo #", ServoID, " to ", (int)(position));
     if (i2cFile == -1) return; // Emulation
     if (position < 0 || position > 180) {
         LOG_ERROR("Arduino - Servo position out of range");

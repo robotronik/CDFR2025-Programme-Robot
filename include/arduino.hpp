@@ -12,7 +12,7 @@ class Arduino : public I2CDevice {
     ~Arduino();
 
     // Functions return true if successfully executed
-    void moveServo(int ServoID, int8_t position);
+    void moveServo(int ServoID, uint8_t position);
     bool readSensor(int SensorID, bool& value);
     void moveStepper(int32_t absPosition, int StepperID);
     void setStepper(int32_t absPosition, int StepperID);
