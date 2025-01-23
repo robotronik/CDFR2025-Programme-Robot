@@ -24,6 +24,10 @@ Arduino::~Arduino(){
 void Arduino::moveServo(int ServoID, int8_t position) {
     LOG_INFO("Arduino - Move servo #", ServoID, " to ", position);
     if (i2cFile == -1) return; // Emulation
+    if (position < 0 || position > 180) {
+        LOG_ERROR("Arduino - Servo position out of range");
+        return;
+    }
     uint8_t message [2];
     uint8_t *ptr = message;
     WriteInt8(&ptr, ServoID);
