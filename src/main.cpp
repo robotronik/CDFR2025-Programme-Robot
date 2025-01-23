@@ -32,10 +32,10 @@ TableState tableStatus;
 
 // Initiation of i2c devices
 #ifndef EMULATE_I2C
-CmdAsserv robotI2C(I2C_ASSER_ADDR);
+Asserv robotI2C(I2C_ASSER_ADDR);
 Arduino arduino(I2C_ARDUINO_ADDR);
 #else
-CmdAsserv robotI2C(-1);
+Asserv robotI2C(-1);
 Arduino arduino(-1);
 #endif
 

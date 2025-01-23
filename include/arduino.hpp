@@ -3,13 +3,13 @@
 #include <cstdint>
 #include <iostream>
 #include "I2CDevice.hpp"
-#include "logger.hpp"
 
 class Arduino : public I2CDevice {
     using I2CDevice::I2CDevice;
    
    public:
     Arduino(int slave_address);
+    ~Arduino();
 
     // Functions return true if successfully executed
     void moveServo(int ServoID, int8_t position);

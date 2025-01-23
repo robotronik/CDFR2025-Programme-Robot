@@ -26,6 +26,13 @@ I2CDevice::I2CDevice(int slave_address){
     }
 }
 
+I2CDevice::~I2CDevice(){
+    if (i2cFile >= 0) {
+        close(i2cFile);
+        std::cout << "I2C file closed successfully\n";
+    }
+}
+
 // Takes in input an array of ints to convert to an array of uint8_t LSB first then MSB (Little Endian)
 void I2CDevice::generateBytes(int *values, size_t length, uint8_t *result) {
     for (size_t i = 0; i < (length/2); i++) {
@@ -45,5 +52,30 @@ void I2CDevice::bytesToWords(uint8_t *byteBuffer, int16_t *wordBuffer, size_t by
         resultMSB = byteBuffer[2*i];
         resultLSB = byteBuffer[2*i + 1];
         wordBuffer[i] = (int16_t) (resultMSB >> 8 | resultLSB);
+    }
+}
+
+void I2CDevice::I2cSendData (uint8_t command, uint8_t* data, int length){
+    if (i2cFile >= 0){
+        if(length != 0){
+            i2c_smbus_write_i2c_block_data(i2cFile, command, length, data);
+        }
+        else{
+            i2c_smbus_write_byte(i2cFile, command);
+        }
+    }
+}
+
+
+void I2CDevice::I2cReceiveData (uint8_t command, uint8_t* data, int length){
+    if (i2cFile >= 0){
+        i2c_smbus_write_byte(i2cFile, command);
+        read(i2cFile, data, length);
+    }
+    else{
+        // Emulate I2C by return data full of 0x00
+        for (int i = 0; i < length; i++){
+            data[i] = 0x00;
+        }
     }
 }

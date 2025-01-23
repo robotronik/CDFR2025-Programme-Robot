@@ -10,7 +10,7 @@
 
 class action;
 
-typedef int (*FuncRunPtr)(action*, CmdAsserv*, Arduino*, TableState*);
+typedef int (*FuncRunPtr)(action*, Asserv*, Arduino*, TableState*);
 typedef int (*FuncValidPtr)(TableState*);
 
 
@@ -27,13 +27,13 @@ private:
     }fsmAction_t;
 
 private:
-    CmdAsserv* robot;
+    Asserv* robot;
     Arduino* arduino;
     TableState* table;
 
-    std::function<int(action*, CmdAsserv*, Arduino*, TableState*)> runActionPtr;
+    std::function<int(action*, Asserv*, Arduino*, TableState*)> runActionPtr;
     int validActionPtr;
-    std::function<void(TableState*,CmdAsserv *)> goodEndPtr;
+    std::function<void(TableState*,Asserv *)> goodEndPtr;
     std::function<void(TableState*)> badEndPtr;
 
     position_t startPostion;
@@ -56,14 +56,14 @@ private:
     bool nothetaStart = false;
 
 public:
-    action(std::string name, CmdAsserv* irobot, Arduino* iarduino, TableState* itable);
+    action(std::string name, Asserv* irobot, Arduino* iarduino, TableState* itable);
     int runAction(void);
-    void setRunAction(std::function<int(action*, CmdAsserv*, Arduino*, TableState*)> ptr);
+    void setRunAction(std::function<int(action*, Asserv*, Arduino*, TableState*)> ptr);
     void setStartPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
     void setStartPoint(int x, int y, Direction Direction, Rotation rotation);
     void setEndPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
     int costAction(void);
-    void goodEnd(std::function<void(TableState*, CmdAsserv*)> ptr);
+    void goodEnd(std::function<void(TableState*, Asserv*)> ptr);
     void badEnd(std::function<void(TableState*)> ptr);
     void setCostAction(int num_action, int num_i_action, TableState *itable, int x_start, int y_start);
     void resetActionEnable(void);

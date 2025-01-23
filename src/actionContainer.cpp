@@ -1,7 +1,7 @@
 #include "actionContainer.hpp"
 
 actionContainer::actionContainer(){}
-void actionContainer::init(CmdAsserv* irobot, Arduino* iarduino, TableState* itable){
+void actionContainer::init(Asserv* irobot, Arduino* iarduino, TableState* itable){
     robot = irobot;
     arduino = iarduino;
     table = itable;
@@ -29,15 +29,15 @@ void actionContainer::init(CmdAsserv* irobot, Arduino* iarduino, TableState* ita
 
 }
 
-void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableState* itable){
+void actionContainer::initAction( Asserv* irobot, Arduino* iarduino, TableState* itable){
     
 // ACTION 1 : CHERCHER DU STOCK
     takeStock0->setStartPoint(0,0,Direction::FORWARD,Rotation::SHORTEST); //replace 0,0 by coords of Stock[0]
-    takeStock0->setRunAction([&](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
+    takeStock0->setRunAction([&](action* iaction, Asserv* iAsser, Arduino* iarduino, TableState*itable) {
         //return takePlant2(iAsser,iarduino,itable,plantPosition[0].x - MARGESTOCKPLANTX,plantPosition[0].y - MARGESTOCKPLANTY,plantPosition[0].x + MARGESTOCKPLANTX/DIVIDE,plantPosition[0].y + MARGESTOCKPLANTY/DIVIDE,0);
         return takeStock(0,0,0,0,0);
     });
-    takeStock0->goodEnd([](TableState*itable,CmdAsserv*irobot){
+    takeStock0->goodEnd([](TableState*itable,Asserv*irobot){
         //itable->robot.robotHavePlante = true;
         //itable->planteStockFull[0].etat = false;
     });
@@ -49,10 +49,10 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
 // ACTION 2 PUT IN CONSTRUCTION ZONE 
     putInConstruction0->setStartPoint(0, 0, 90, Direction::FORWARD, Rotation::SHORTEST);
     putInConstruction0->setEndPoint(0, 0, 90, Direction::BACKWARD, Rotation::SHORTEST);
-    putInConstruction0->setRunAction([](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
+    putInConstruction0->setRunAction([](action* iaction, Asserv* iAsser, Arduino* iarduino, TableState*itable) {
         return construct(0, 0, 90);
     });
-    putInConstruction0->goodEnd([](TableState*itable,CmdAsserv*irobot){
+    putInConstruction0->goodEnd([](TableState*itable,Asserv*irobot){
         //int16_t x,y,theta;
         //itable->robot.robotHavePlante = false;
         //itable->JardiniereFull[0].etat = true;
@@ -66,10 +66,10 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
 // ACTION 3
 //    turnSolarPanelAction->setKeyMoment(65000);
 //    turnSolarPanelAction->setStartPoint(810,(itable->robot.colorTeam == YELLOW ? 1100 : -1100),(itable->robot.colorTeam == YELLOW ? -90 : 90), Direction::FORWARD, Rotation::SHORTEST);
-//    turnSolarPanelAction->setRunAction([](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
+//    turnSolarPanelAction->setRunAction([](action* iaction, Asserv* iAsser, Arduino* iarduino, TableState*itable) {
 //        return turnSolarPannel(itable, iAsser, iarduino);
 //    });
-//    turnSolarPanelAction->goodEnd([](TableState*itable,CmdAsserv*irobot){
+//    turnSolarPanelAction->goodEnd([](TableState*itable,Asserv*irobot){
 //        itable->solarPanelTurn.etat = true;
 //    });
 //    turnSolarPanelAction->setCostAction(3,0,itable,0,0);
@@ -78,14 +78,14 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
 
         // ACTION 4
     returnToHomeAction->setStartPoint(700,(itable->robot.colorTeam == YELLOW ? 1200 : -1200), Direction::FORWARD, Rotation::SHORTEST);
-    returnToHomeAction->setRunAction([](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable) {
+    returnToHomeAction->setRunAction([](action* iaction, Asserv* iAsser, Arduino* iarduino, TableState*itable) {
         int iret = 0;
         //if(FastReleasePlant(iarduino))
         //    iret = -100;
         return iret;
     });
     returnToHomeAction->setKeyMoment(85000);
-    returnToHomeAction->goodEnd([](TableState*itable,CmdAsserv*irobot){
+    returnToHomeAction->goodEnd([](TableState*itable,Asserv*irobot){
         itable->incrementScore(RETURN_HOME);
     });
     returnToHomeAction->setCostAction(4,0,itable,0,0);
@@ -93,7 +93,7 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
 
     //ACTION 5
     waitFin->setStartPoint(700,0,(itable->robot.colorTeam == YELLOW ? -90 : 90),Direction::FORWARD,Rotation::SHORTEST);
-    waitFin->setRunAction([](action* iaction, CmdAsserv* iAsser, Arduino* iarduino, TableState*itable){
+    waitFin->setRunAction([](action* iaction, Asserv* iAsser, Arduino* iarduino, TableState*itable){
         while (itable->startTime+88000 > _millis()){
             sleep(0.25);
         }
@@ -106,7 +106,7 @@ void actionContainer::initAction( CmdAsserv* irobot, Arduino* iarduino, TableSta
     choosNextAction();
 }
 
-int actionContainer::actionContainerRun(CmdAsserv * robot,TableState* itable){
+int actionContainer::actionContainerRun(Asserv * robot,TableState* itable){
     int iActionReturn, iChoosNextReturn = 0, iRet = 0;
     iActionReturn = currentAction->runAction();
     if(iActionReturn == -100){

@@ -1,5 +1,5 @@
 #pragma once
-#include "cmdAsserv.hpp"
+#include "Asserv.hpp"
 #include "arduino.hpp"
 #include "tableState.hpp"
 #include "structs.hpp"
@@ -21,7 +21,7 @@ extern main_State_t currentState;
 extern main_State_t nextState;
 
 extern TableState tableStatus;
-extern CmdAsserv robotI2C;
+extern Asserv robotI2C;
 extern Arduino arduino;
 
 extern lidarAnalize_t lidarData[SIZEDATALIDAR];

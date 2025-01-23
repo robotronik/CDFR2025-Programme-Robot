@@ -1,6 +1,14 @@
 #include "arduino.hpp"
+#include "logger.hpp"
 
 Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
+
+Arduino::~Arduino(){
+    if (i2cFile >= 0) {
+        close(i2cFile);
+        std::cout << "I2C file closed successfully\n";
+    }
+}
 
 // [0;180]
 void Arduino::moveServo(int ServoID, int8_t position) {

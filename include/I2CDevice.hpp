@@ -21,7 +21,7 @@ extern "C" {
  */
 
 class I2CDevice {
-   protected:
+protected:
     int i2cFile;
     /**
      * Generate a buffer of bytes from an array of integers
@@ -39,6 +39,12 @@ class I2CDevice {
      */
     void bytesToWords(uint8_t *byteBuffer, int16_t *wordBuffer, size_t byteLength);
 
-   protected:
+public:
+
+    void I2cSendData (uint8_t command, uint8_t* data, int length);
+    void I2cReceiveData (uint8_t command, uint8_t* data, int length);
+
+protected:
     I2CDevice(int slave_address);
+    ~I2CDevice();
 };

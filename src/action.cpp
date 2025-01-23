@@ -1,7 +1,7 @@
 #include "action.hpp"
 
 
-action::action(std::string name, CmdAsserv* irobot, Arduino* iarduino, TableState* itable){
+action::action(std::string name, Asserv* irobot, Arduino* iarduino, TableState* itable){
     robot = irobot;
     arduino = iarduino;
     table = itable;
@@ -153,7 +153,7 @@ void action::setCostAction(int num_action, int num_i_action, TableState *itable,
    */
 }
 
-void action::setRunAction(std::function<int(action*, CmdAsserv*, Arduino*, TableState*)> ptr){
+void action::setRunAction(std::function<int(action*, Asserv*, Arduino*, TableState*)> ptr){
     runActionPtr = ptr;
 }
 
@@ -200,7 +200,7 @@ std::string action::getName(void){
     return actionName;
 }
 
-void action::goodEnd(std::function<void(TableState*,CmdAsserv*)> ptr){
+void action::goodEnd(std::function<void(TableState*,Asserv*)> ptr){
     goodEndPtr = ptr;
 }
 void action::badEnd(std::function<void(TableState*)> ptr){
