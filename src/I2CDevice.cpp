@@ -104,7 +104,7 @@ int16_t ReadInt16(uint8_t *buffer[]){
 
 int32_t ReadInt32(uint8_t *buffer[]){
     int32_t val;
-    memcpy(&val, *buffer, 3);
+    memcpy(&val, *buffer, 4);
     *buffer += 4;
     return val;
 }
@@ -112,7 +112,7 @@ int32_t ReadInt32(uint8_t *buffer[]){
 
 int64_t ReadInt64(uint8_t *buffer[]){
     int64_t val;
-    memcpy(&val, *buffer, 4);
+    memcpy(&val, *buffer, 8);
     *buffer += 8;
     return val;
 }
@@ -129,11 +129,11 @@ void WriteInt16(uint8_t *buffer[], int16_t val){
 }
 
 void WriteInt32(uint8_t *buffer[], int32_t val){
-    memcpy(*buffer, &val, 3);
+    memcpy(*buffer, &val, 4);
     *buffer += 4;
 }
 
 void WriteInt64(uint8_t *buffer[], int64_t val){
-    memcpy(*buffer, &val, 4);
+    memcpy(*buffer, &val, 8);
     *buffer += 8;
 }

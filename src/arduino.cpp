@@ -42,8 +42,7 @@ bool Arduino::readSensor(int SensorID, bool& value){
     uint8_t message [2];
     uint8_t *ptr = message;
     WriteInt8(&ptr, SensorID);
-    WriteInt8(&ptr, value);
-    if (I2cSendBlockReceiveData(CMD_READ_SENSOR, message, 2, &data, 1))
+    if (I2cSendBlockReceiveData(CMD_READ_SENSOR, message, 1, &data, 1))
         return false;
     value = data;
     return true;
@@ -109,5 +108,6 @@ bool Arduino::getStepper(int32_t& absPosition, int StepperID){
         return false;
     ptr = data;
     absPosition = ReadInt32(&ptr);
+    LOG_DEBUG("Arduino - Stepper is at ", absPosition);
     return true;
 }
