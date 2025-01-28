@@ -3,13 +3,6 @@
 
 Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
 
-Arduino::~Arduino(){
-    if (i2cFile >= 0) {
-        close(i2cFile);
-        std::cout << "I2C file closed successfully\n";
-    }
-}
-
 #define CMD_MOVE_SERVO 0x01
 #define CMD_READ_SENSOR 0x02
 #define CMD_ENABLE_STEPPER 0x03
@@ -19,6 +12,7 @@ Arduino::~Arduino(){
 #define CMD_MOVE_STEPPER 0x07
 #define CMD_SET_STEPPER 0x08
 #define CMD_GET_STEPPER 0x09
+
 
 // [0;180]
 void Arduino::moveServo(int ServoID, uint8_t position) {
@@ -39,7 +33,7 @@ void Arduino::moveServo(int ServoID, uint8_t position) {
 bool Arduino::readSensor(int SensorID, bool& value){
     if (i2cFile == -1) return false; // Emulation
     uint8_t data;
-    uint8_t message [2];
+    uint8_t message[1];
     uint8_t *ptr = message;
     WriteInt8(&ptr, SensorID);
     if (I2cSendBlockReceiveData(CMD_READ_SENSOR, message, 1, &data, 1))

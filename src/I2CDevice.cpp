@@ -1,4 +1,5 @@
 #include "I2CDevice.hpp"
+#include <stdio.h>
 #include <string.h> // Include for memcpy
 
 I2CDevice::I2CDevice(int slave_address){

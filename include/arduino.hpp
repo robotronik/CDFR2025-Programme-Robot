@@ -9,7 +9,6 @@ class Arduino : public I2CDevice {
    
    public:
     Arduino(int slave_address);
-    ~Arduino();
 
     // Functions return true if successfully executed
     void moveServo(int ServoID, uint8_t position);
