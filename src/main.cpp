@@ -17,7 +17,6 @@
 #include "utils/utils.h"
 #include "utils/logger.hpp"
 #include "restAPI/restAPI.hpp"
-#include "gpio.h"
 #include "navigation/highways.h"
 
 #include "actions/actionContainer.hpp"
@@ -301,12 +300,6 @@ int StartSequence()
         LOG_ERROR("cannot find the lidar");
         return -1;
     }
-
-    // Setup the PWM on pin 18
-    if (GPIO_SetupPWMMotor() == -1) {
-        fprintf(stderr, "Unable to initialize gpio\n");
-        return -1;
-    }
 #endif
 
 
@@ -490,7 +483,6 @@ void EndSequence()
 
     // Stop the lidar
 #ifndef DISABLE_LIDAR
-    GPIO_stopPWMMotor();
     lidarStop();
 #endif
 
