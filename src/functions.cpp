@@ -4,95 +4,8 @@
 #include "lidarAnalize.h"
 #include "lidar.h"
 #include "constante.h"
+#include "arduino.hpp"
 #include <math.h>
-
-int initPosition2(int x, int y,int theta){
-    LOG_SCOPE("initPositon2");
-    int ireturn = 0;
-    static bool initStat = true;
-    static fsminitPos_t currentState = SETPOS_INIT;
-    fsminitPos_t nextState = currentState;
-    int16_t xSave,ySave,thetaSave;
-    //static unsigned long startTime;
-    //static int step = -1;
-
-    int thetaStart = -90;
-    int xSecond = 210;
-    int xStart = 1000 - ROBOT_Y_OFFSET;
-    int yStart = 1500 - ROBOT_Y_OFFSET;
-    int yBack = 310;
-    if(y<0){
-        thetaStart = 90;
-    }
-     if(y<0){
-        yBack = -yBack;
-    }
-    if(y<0){
-        yStart = -yStart;
-    }
-    if(x<0){
-        xSecond = -xSecond;
-        xStart = -xStart;
-    }
-
-    
-    switch (currentState)
-    {
-    case SETPOS_INIT :
-        if(initStat) LOG_STATE("SETPOS_INIT");
-        robotI2C.get_coordinates(xSave,ySave,thetaSave);
-        robotI2C.set_linear_max_speed(150);
-        //startTime = _millis()+100;
-        nextState = SETPOS_FIRSTFORWARD;
-        break;
-
-
-    case SETPOS_FIRSTFORWARD :
-        if(initStat) LOG_STATE("SETPOS_FIRSTFORWARD");
-        
-        if(navigationGoToNoTurn(xSave,ySave+yBack) == NAV_DONE){
-            nextState = SETPOS_FIRSTBACKWARD;
-            robotI2C.set_coordinates(xSave,yStart,thetaStart);
-        }
-        break;
-
-    case SETPOS_FIRSTBACKWARD :
-        if(initStat) LOG_STATE("SETPOS_FIRSTBACKWARD");    
-        if(navigationGoTo(xSave,y,-180, Direction::BACKWARD) == NAV_DONE){
-            nextState = SETPOS_SECONDBACKWARD;
-        }
-        break;
-
-    case SETPOS_SECONDBACKWARD :
-        if(initStat) LOG_STATE("SETPOS_SECONDBACKWARD");
-        if(navigationGoToNoTurn(xSave+xSecond,y) == NAV_DONE){
-            robotI2C.set_coordinates(xStart, y,-180);
-            nextState = SETPOS_SECONDFORWARD;
-        }
-        break;
-
-    case SETPOS_SECONDFORWARD :
-        if(initStat) LOG_STATE("SETPOS_SECONDFORWAsetMaxTorqueRD");
-        if(navigationGoTo(x,y,-180,Direction::BACKWARD) == NAV_DONE){
-            nextState = SETPOS_INIT;
-            robotI2C.set_linear_max_speed(MAX_SPEED);
-            ireturn = 1;
-        }
-        break;
-        
-    default:
-        if(initStat) LOG_STATE("default");
-        nextState = SETPOS_INIT;
-        break;
-    }
-
-    initStat = false;
-    if(nextState != currentState){
-        initStat = true;
-    }
-    currentState = nextState;
-    return ireturn;
-}
 
 //TODO : Functions to fill in
 int takeStock(int xStart,int yStart, int xEnd, int yEnd, int num_zone){
@@ -102,16 +15,144 @@ int construct(int x,int y,int theta){
     return 0;
 }
 
+// function to construct a single tribune by placing a single platform and pushing the tribune
+bool constructSingleTribune(){
+    static int state = 1;
+    bool res1, res2;
+    switch (state)
+    {
+    case 1:
+        if (movePlatformLifts(true))
+            state ++;
+        break;
+    case 2:
+        if (movePlatformElevator(1))
+            state ++;
+        break;
+    case 3:
+        res1 = movePlatformLifts(false);
+        res2 = moveTribunePusher(true);
+        if (res1 && res2){
+            state++;
+        }
+        break;
+    case 4:
+        res1 = movePlatformLifts(true);
+        res2 = moveTribunePusher(false);
+        if (res1 && res2){
+            state = 1;
+            return true;
+        }
+        break;
+    }
+    return false;
+}
 
+// function to take platforms from a stock
+bool takeStockPlatforms(){
+    static int state = 0;
+    switch (state)
+    {
+    case 0:
+        if (movePlatformLifts(true)) // Move the platforms inside
+            state ++;
+        break;
+    case 1:
+        if (movePlatformElevator(0)) // Move the elevator down
+            state ++;
+        break;
+    case 2:
+        if (movePlatformLifts(false)) // Move the platforms outside
+            state ++;
+        break;
+    case 3:
+        if (movePlatformElevator(2)){ // Move the elevator up
+            state = 0;
+            return true;
+        }
+        break;
+    }
+    return false;
+}
+
+// This shit is clean af
+bool movePlatformLifts(bool inside){
+    static unsigned long startTime = _millis();
+    static bool previousInside = !inside;
+    if (previousInside != inside){
+        startTime = _millis(); // Reset the timer
+        previousInside = inside;
+        arduino.moveServo(PLATFORMS_LIFT_LEFT_SERVO_NUM, inside ? 90 : 0); // TODO : Check if this is correct
+        arduino.moveServo(PLATFORMS_LIFT_RIGHT_SERVO_NUM, inside ? 0 : 90);
+    }
+    return (_millis() > startTime + 1000); // delay
+}
+
+// Moves the platforms elevator to a predefined level
+// 0:lowest, 1:middle, 2:highest
+bool movePlatformElevator(int level){
+    static int previousLevel = -1;
+
+    int target = 0;
+    switch (level)
+    {
+    case 0:
+        target = 0; break;
+    case 1:
+        target = 1000; break;
+    case 2:
+        target = 12000; break;
+    }
+    if (previousLevel != level){
+        previousLevel = level;
+        arduino.moveStepper(target, PLATFORMS_ELEVATOR_STEPPER_NUM); // TODO : Check if this is correct
+    }
+    int32_t currentValue;
+    if (!arduino.getStepper(currentValue, PLATFORMS_ELEVATOR_STEPPER_NUM)) return true;
+    return (currentValue == target);
+}
+
+// Moves the tribune elevator to a predefined level
+bool moveTribuneElevator(bool high){
+    static bool previousHigh = !high;
+
+    int target = high ? 2000 : 0;
+    if (previousHigh != high){
+        previousHigh = high;
+        arduino.moveStepper(target, TRIBUNES_ELEVATOR_STEPPER_NUM); // TODO : Check if this is correct
+    }
+    int32_t currentValue;
+    if (!arduino.getStepper(currentValue, TRIBUNES_ELEVATOR_STEPPER_NUM)) return true;
+    return (currentValue == target);
+}
+
+bool moveTribunePusher(bool outside){
+    static unsigned long startTime = _millis();
+    static bool previousOutside = !outside;
+    if (previousOutside != outside){
+        startTime = _millis(); // Reset the timer
+        previousOutside = outside;
+        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, outside ? 120 : 20); // TODO : Check if this is correct
+    }
+    return (_millis() > startTime + 2000); // delay
+}
 
 
 
 void resetActionneur(){
-    arduino.servoPosition(1,180);
-    //TODO
-    //arduino.servoPosition(2,CLAMPSLEEP);
-    //arduino.moveStepper(ELEVATORJARDINIERE,1);
-    
+    for (int i = 0; i < 4; i++){
+        arduino.enableStepper(i);
+    }
+    movePlatformLifts(true);
+    movePlatformElevator(0);
+    moveTribunePusher(false);
+    moveTribuneElevator(false);
+}
+void disableActionneur(){
+    arduino.disableStepper(1);
+    arduino.disableStepper(2);
+    arduino.disableStepper(3);
+    arduino.disableStepper(4);
 }
 
 // TODO : Remove ? Not even used..
@@ -119,22 +160,21 @@ int returnToHome(){
     int home_x = 700;
     int home_y = tableStatus.robot.colorTeam == YELLOW ? 1200 : -1200;
     nav_return_t res = navigationGoToNoTurn(home_x, home_y);
-    bool breturn = res == NAV_DONE;
-    return breturn; 
+    return res == NAV_DONE;
 }
 
 
-void blinkLed(int LedNb,int periode){
+void blinkLed(int LED_ID,int periode){
     static unsigned long startTime = _millis();
     static int step = 0;
 
     if(step == 0 && startTime < _millis()){
-        arduino.ledOn(LedNb);
+        arduino.ledOn(LED_ID);
         step++;
         startTime = _millis()+periode/2;
     }
     else if(step == 1 && startTime < _millis()){
-        arduino.ledOff(LedNb);
+        arduino.ledOff(LED_ID);
         step = 0;
         startTime = _millis()+periode/2;
     }
@@ -148,7 +188,7 @@ bool m_isPointInsideRectangle(float px, float py, float cx, float cy, float w, f
     return (px >= left && px <= right && py >= bottom && py <= top);
 }
 
-void opponentInAction(position_t* position){
+void opponentInAction(position_t* position){ //TODO : Check if this is correct
     const int OPPONENT_ROBOT_RADIUS = 200; //200mm
     for (int i = 0; i < STOCK_COUNT; i++){
         if (tableStatus.stock[i].etat == false)
@@ -162,4 +202,10 @@ void opponentInAction(position_t* position){
             break;
         }
     }
+}
+
+colorTeam_t readColorSensorSwitch(){
+    bool sensor = 0;
+    if (!arduino.readSensor(2, sensor)) return NONE;
+    return sensor ? YELLOW : BLUE;
 }

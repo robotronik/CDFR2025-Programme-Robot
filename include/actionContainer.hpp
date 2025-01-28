@@ -33,7 +33,7 @@ private:
     action* returnToHomeAction;
     action* currentAction;
 
-    CmdAsserv* robot;
+    Asserv* robot;
     Arduino* arduino;
     TableState* table;
 
@@ -41,10 +41,10 @@ private:
 
 public:
     actionContainer();
-    void init(CmdAsserv* irobot, Arduino* iarduino, TableState* itable);
-    void initAction( CmdAsserv* irobot, Arduino* iarduino, TableState* itable);
+    void init(Asserv* irobot, Arduino* iarduino, TableState* itable);
+    void initAction( Asserv* irobot, Arduino* iarduino, TableState* itable);
     bool forceNextAction(void);
-    int actionContainerRun(CmdAsserv* robotI2C,TableState* itable);
+    int actionContainerRun(Asserv* robotI2C,TableState* itable);
     void resetAllAction(void);
     ~actionContainer();
 private : 

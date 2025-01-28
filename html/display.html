@@ -89,8 +89,6 @@
                     stateLabel.innerHTML = "Robot State : Init";
                 else if (robotStatus == 1)
                     stateLabel.innerHTML = "Robot State : Initialize";
-                else if (robotStatus == 2)
-                    stateLabel.innerHTML = "Robot State : Set Home";
                 else if (robotStatus == 3)
                     stateLabel.innerHTML = "Robot State : Waiting for Start";
                 else if (robotStatus == 4)
@@ -139,6 +137,9 @@
                             data["table"]["robot"]["pos"]["x"], 
                             250, 
                             data["table"]["robot"]["pos"]["theta"]);
+
+            //Draws an arrow of the target position
+            drawArrow(ctx, data["target_pos"]["y"], data["target_pos"]["x"], data["target_pos"]["theta"]);
 
             // Draw opponent
             ctx.strokeStyle = 'white';
@@ -205,9 +206,6 @@
                     drawSegment(ctx, obj.pos.y + obj.size2/2, obj.pos.x + obj.size/2, obj.pos.y + obj.size2/2, obj.pos.x - obj.size/2); // Right
                 }
             });
-
-            //Draws an arrow
-            drawArrow(ctx, 100, 200, 10);
             
             // Draw point in the center
             ctx.fillStyle = 'red';
