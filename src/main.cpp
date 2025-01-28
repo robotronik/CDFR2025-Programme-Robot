@@ -111,6 +111,10 @@ int main(int argc, char *argv[])
             if (initState)
             {
                 LOG_STATE("INIT");
+
+                arduino.setStepper(0, 1);
+                arduino.setStepper(0, 2);
+                arduino.setStepper(0, 3);
                 resetActionneur();
                 sensorCount = 0;
             }

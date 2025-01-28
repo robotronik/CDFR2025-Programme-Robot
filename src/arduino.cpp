@@ -15,8 +15,8 @@ Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
 
 
 // [0;180]
-void Arduino::moveServo(int ServoID, uint8_t position) {
-    LOG_INFO("Arduino - Move servo #", ServoID, " to ", (int)(position));
+void Arduino::moveServo(int ServoID, int position) {
+    LOG_INFO("Arduino - Move servo #", ServoID, " to ", position);
     if (i2cFile == -1) return; // Emulation
     if (position < 0 || position > 180) {
         LOG_ERROR("Arduino - Servo position out of range");
@@ -24,9 +24,9 @@ void Arduino::moveServo(int ServoID, uint8_t position) {
     }
     uint8_t message [2];
     uint8_t *ptr = message;
-    WriteInt8(&ptr, ServoID);
-    WriteInt8(&ptr, position); // These could be simplified but for reading clarity
-    if (I2cSendData(CMD_MOVE_SERVO, (uint8_t*)&ServoID, 1))
+    WriteUInt8(&ptr, ServoID);
+    WriteUInt8(&ptr, position); // These could be simplified but for reading clarity
+    if (I2cSendData(CMD_MOVE_SERVO, message, 2))
         LOG_ERROR("Arduino - Couldn't move servo");
 }
 
@@ -35,7 +35,7 @@ bool Arduino::readSensor(int SensorID, bool& value){
     uint8_t data;
     uint8_t message[1];
     uint8_t *ptr = message;
-    WriteInt8(&ptr, SensorID);
+    WriteUInt8(&ptr, SensorID);
     if (I2cSendBlockReceiveData(CMD_READ_SENSOR, message, 1, &data, 1))
         return false;
     value = data;
@@ -73,7 +73,7 @@ void Arduino::moveStepper(int32_t absPosition, int StepperID) {
     if (i2cFile == -1) return; // Emulation
     uint8_t message [5];
     uint8_t *ptr = message;
-    WriteInt8(&ptr, StepperID);
+    WriteUInt8(&ptr, StepperID);
     WriteInt32(&ptr, absPosition);
     if (I2cSendData(CMD_MOVE_STEPPER, message, 5))
         LOG_ERROR("Arduino - Couldn't move Stepper");
@@ -85,7 +85,7 @@ void Arduino::setStepper(int32_t absPosition, int StepperID){
     if (i2cFile == -1) return; // Emulation
     uint8_t message [5];
     uint8_t *ptr = message;
-    WriteInt8(&ptr, StepperID);
+    WriteUInt8(&ptr, StepperID);
     WriteInt32(&ptr, absPosition);
     if (I2cSendData(CMD_SET_STEPPER, message, 5))
         LOG_ERROR("Arduino - Couldn't set Stepper");
@@ -95,12 +95,9 @@ bool Arduino::getStepper(int32_t& absPosition, int StepperID){
     LOG_INFO("Arduino - Get Stepper #", StepperID);
     if (i2cFile == -1) return false; // Emulation
     uint8_t data[4];
-    uint8_t message [1];
-    uint8_t *ptr = message;
-    WriteInt8(&ptr, StepperID);
-    if (I2cSendBlockReceiveData(CMD_GET_STEPPER, message, 1, data, 4))
+    if (I2cSendBlockReceiveData(CMD_GET_STEPPER, (uint8_t*)&StepperID, 1, data, 4))
         return false;
-    ptr = data;
+    uint8_t* ptr = data;
     absPosition = ReadInt32(&ptr);
     LOG_DEBUG("Arduino - Stepper is at ", absPosition);
     return true;

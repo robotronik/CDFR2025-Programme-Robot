@@ -18,6 +18,7 @@ int construct(int x,int y,int theta){
 // function to construct a single tribune by placing a single platform and pushing the tribune
 bool constructSingleTribune(){
     static int state = 1;
+    bool res1, res2;
     switch (state)
     {
     case 1:
@@ -29,7 +30,16 @@ bool constructSingleTribune(){
             state ++;
         break;
     case 3:
-        if (movePlatformLifts(false) && moveTribunePusher(true)){
+        res1 = movePlatformLifts(false);
+        res2 = moveTribunePusher(true);
+        if (res1 && res2){
+            state++;
+        }
+        break;
+    case 4:
+        res1 = movePlatformLifts(true);
+        res2 = moveTribunePusher(false);
+        if (res1 && res2){
             state = 1;
             return true;
         }
@@ -72,8 +82,8 @@ bool movePlatformLifts(bool inside){
     if (previousInside != inside){
         startTime = _millis(); // Reset the timer
         previousInside = inside;
-        arduino.moveServo(PLATFORMS_LIFT_LEFT_SERVO_NUM, inside ? 0 : 180); // TODO : Check if this is correct
-        arduino.moveServo(PLATFORMS_LIFT_RIGHT_SERVO_NUM, inside ? 180 : 0);
+        arduino.moveServo(PLATFORMS_LIFT_LEFT_SERVO_NUM, inside ? 90 : 0); // TODO : Check if this is correct
+        arduino.moveServo(PLATFORMS_LIFT_RIGHT_SERVO_NUM, inside ? 0 : 90);
     }
     return (_millis() > startTime + 1000); // delay
 }
@@ -89,9 +99,9 @@ bool movePlatformElevator(int level){
     case 0:
         target = 0; break;
     case 1:
-        target = 10000; break;
+        target = 1000; break;
     case 2:
-        target = 20000; break;
+        target = 12000; break;
     }
     if (previousLevel != level){
         previousLevel = level;
@@ -108,7 +118,7 @@ bool moveTribunePusher(bool outside){
     if (previousOutside != outside){
         startTime = _millis(); // Reset the timer
         previousOutside = outside;
-        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, outside ? 0 : 180); // TODO : Check if this is correct
+        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, outside ? 120 : 20); // TODO : Check if this is correct
     }
     return (_millis() > startTime + 2000); // delay
 }
@@ -116,11 +126,9 @@ bool moveTribunePusher(bool outside){
 
 
 void resetActionneur(){
-    arduino.enableStepper(1);
-    arduino.enableStepper(2);
-    arduino.enableStepper(3);
-    arduino.enableStepper(4);
-
+    for (int i = 0; i < 4; i++){
+        arduino.enableStepper(i);
+    }
     movePlatformLifts(true);
     movePlatformElevator(0);
     moveTribunePusher(false);
