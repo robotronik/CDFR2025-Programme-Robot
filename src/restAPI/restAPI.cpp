@@ -1,17 +1,17 @@
-#include "restAPI.hpp"
+#include "restAPI/restAPI.hpp"
 #include <fstream>
 #include <sstream>
 #include <string>
 
-#include "logger.hpp"
+#include "utils/logger.hpp"
 #include "main.hpp" //for static variables
-#include "tableState.hpp"
-#include "lidarAnalize.h" //for static variable
-#include "navigation.h"
-#include "highways.h"
-#include "functions.h" //for state machine functions
+#include "defs/tableState.hpp"
+#include "lidar/lidarAnalize.h" //for static variable
+#include "navigation/navigation.h"
+#include "navigation/highways.h"
+#include "actions/functions.h" //for state machine functions
 
-#include "crow.hpp"
+#include "restAPI/crow.hpp"
 #include "nlohmann/json.hpp" // For handling JSON
 using json = nlohmann::json;
 

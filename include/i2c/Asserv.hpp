@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include "asservissement_interface.h"
-#include "I2CDevice.hpp"
+#include "i2c/I2CDevice.hpp"
 
 class Asserv : public asservissement_interface, public I2CDevice {
     using I2CDevice::I2CDevice;

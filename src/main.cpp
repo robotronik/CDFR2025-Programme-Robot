@@ -11,16 +11,16 @@
 #include <unistd.h>  // for usleep
 
 #include "main.hpp"
-#include "functions.h"
-#include "lidarAnalize.h"
-#include "lidar.h"
-#include "utils.h"
-#include "logger.hpp"
-#include "restAPI.hpp"
+#include "actions/functions.h"
+#include "lidar/lidarAnalize.h"
+#include "lidar/lidar.h"
+#include "utils/utils.h"
+#include "utils/logger.hpp"
+#include "restAPI/restAPI.hpp"
 #include "gpio.h"
-#include "highways.h"
+#include "navigation/highways.h"
 
-#include "actionContainer.hpp"
+#include "actions/actionContainer.hpp"
 
 // #define DISABLE_LIDAR
 // #define TEST_API_ONLY

@@ -1,8 +1,8 @@
 #include <functional> // For std::hash
-#include "navigation.h"
-#include "highways.h"
+#include "navigation/navigation.h"
+#include "navigation/highways.h"
 #include "main.hpp"
-#include "constante.h" // DISTANCESTOP and DISTANCESTART
+#include "defs/constante.h" // DISTANCESTOP and DISTANCESTART
 
 static bool is_robot_stalled;
 static unsigned long robot_stall_start_time;

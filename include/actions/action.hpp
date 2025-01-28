@@ -2,11 +2,11 @@
 
 #include <functional>
 #include <string>
-#include "navigation.h"
-#include "functions.h"
-#include "tableState.hpp"
-#include "constante.h"
-#include "arduino.hpp"
+#include "navigation/navigation.h"
+#include "actions/functions.h"
+#include "defs/tableState.hpp"
+#include "defs/constante.h"
+#include "i2c/arduino.hpp"
 
 class action;
 

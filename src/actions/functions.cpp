@@ -1,10 +1,10 @@
-#include "functions.h"
+#include "actions/functions.h"
 #include "main.hpp"
-#include "navigation.h"
-#include "lidarAnalize.h"
-#include "lidar.h"
-#include "constante.h"
-#include "arduino.hpp"
+#include "navigation/navigation.h"
+#include "lidar/lidarAnalize.h"
+#include "lidar/lidar.h"
+#include "defs/constante.h"
+#include "i2c/arduino.hpp"
 #include <math.h>
 
 //TODO : Functions to fill in

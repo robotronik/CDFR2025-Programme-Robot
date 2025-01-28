@@ -1,4 +1,4 @@
-#include "tableState.hpp"
+#include "defs/tableState.hpp"
 
 //table_t : etat, cout, tps, color
 

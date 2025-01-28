@@ -24,13 +24,15 @@ OBJDIR_LIBCOM = $(OBJDIR)/lib_com_obj
 OBJDIR_TEST = $(OBJDIR)/test_obj
 
 
-SRC = $(wildcard $(SRCDIR)/*.cpp)
-SRC_LIB_COM = $(wildcard $(SRCDIR_LIBCOM)/*.cpp)
+# Recursively find .cpp files in SRCDIR and SRCDIR_LIBCOM
+SRC = $(shell find $(SRCDIR) -name "*.cpp")
+SRC_LIB_COM = $(shell find $(SRCDIR_LIBCOM) -name "*.cpp")
 
+# Generate corresponding object files
 OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.o,$(SRC))
-OBJ += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM)) 
+OBJ += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM))
 
-SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp $(SRCDIR)/restAPI.cpp $(SRCDIR)/navigation.cpp $(SRCDIR)/functions.cpp $(SRCDIR)/actionContainer.cpp $(SRCDIR)/action.cpp, $(SRC))
+SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp $(SRCDIR)/restAPI/restAPI.cpp $(SRCDIR)/navigation/navigation.cpp $(SRCDIR)/actions/functions.cpp $(SRCDIR)/actions/actionContainer.cpp $(SRCDIR)/actions/action.cpp, $(SRC))
 SRC_TEST = $(wildcard $(SRCDIR_TEST)/*.cpp)
 OBJ_NO_MAIN = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.o,$(SRC_NO_MAIN))
 OBJ_NO_MAIN += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM)) 
@@ -69,13 +71,16 @@ $(TEST_TARGET): $(OBJ_NO_MAIN) $(TEST_OBJ) | $(BINDIR)
 
 $(OBJDIR_MAIN)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR_MAIN)
 	@echo " CXX  $@"
+	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
 $(OBJDIR_LIBCOM)/%.o: $(SRCDIR_LIBCOM)/%.cpp | $(OBJDIR_LIBCOM)
+	@mkdir -p $(dir $@)
 	@echo " CXX  $@"
 	@$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
 $(OBJDIR_TEST)/%.o: $(SRCDIR_TEST)/%.cpp | $(OBJDIR_TEST)
+	@mkdir -p $(dir $@)
 	@echo " CXX  $@"
 	@$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
@@ -134,6 +139,7 @@ ARM_TEST_OBJ = $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_ARM_TEST)/%.o,$(SRC_TEST
 
 # Compile all object files for ARM
 $(OBJDIR_ARM)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR_ARM)
+	@mkdir -p $(dir $@)
 	@echo " ARM_CXX  $@"
 	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 $(OBJDIR_ARM):
@@ -141,6 +147,7 @@ $(OBJDIR_ARM):
 	@mkdir -p $@
 
 $(OBJDIR_ARM_LIBCOM)/%.o: $(SRCDIR_LIBCOM)/%.cpp | $(OBJDIR_ARM_LIBCOM)
+	@mkdir -p $(dir $@)
 	@echo " ARM_CXX  $@"
 	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 $(OBJDIR_ARM_LIBCOM):
@@ -149,6 +156,7 @@ $(OBJDIR_ARM_LIBCOM):
 
 # Compile all test object files for ARM
 $(OBJDIR_ARM_TEST)/%.o: $(SRCDIR_TEST)/%.cpp | $(OBJDIR_ARM_TEST)
+	@mkdir -p $(dir $@)
 	@echo " ARM_CXX  $@"
 	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 $(OBJDIR_ARM_TEST):

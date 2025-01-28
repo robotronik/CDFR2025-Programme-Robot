@@ -1,4 +1,4 @@
-#include "structs.hpp"
+#include "defs/structs.hpp"
 #include <math.h>
 
 //Define serialization for position_t

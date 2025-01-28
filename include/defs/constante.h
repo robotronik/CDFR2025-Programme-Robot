@@ -1,5 +1,5 @@
 #pragma once
-#include "structs.hpp"
+#include "defs/structs.hpp"
 #define SIZEDATALIDAR 15000
 
 #define I2C_ASSER_ADDR 42

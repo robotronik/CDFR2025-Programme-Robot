@@ -1,4 +1,4 @@
-#include "I2CDevice.hpp"
+#include "i2c/I2CDevice.hpp"
 #include <stdio.h>
 #include <string.h> // Include for memcpy
 

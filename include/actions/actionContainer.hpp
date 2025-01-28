@@ -1,12 +1,12 @@
 #pragma once
 
-#include "action.hpp"
-#include "functions.h"
+#include "actions/action.hpp"
+#include "actions/functions.h"
 #include <vector>
-#include "logger.hpp"
-#include "constante.h"
-#include "lidarAnalize.h"
-#include "lidar.h"
+#include "utils/logger.hpp"
+#include "defs/constante.h"
+#include "lidar/lidarAnalize.h"
+#include "lidar/lidar.h"
 
 class actionContainer
 {

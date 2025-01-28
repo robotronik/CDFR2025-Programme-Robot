@@ -1,4 +1,4 @@
-#include "lidar.h"
+#include "lidar/lidar.h"
 #include <vector>
 
 static bool checkSLAMTECLIDARHealth(ILidarDriver * drv);

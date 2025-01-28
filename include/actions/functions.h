@@ -1,7 +1,7 @@
 #ifndef MYFUNCTION_H
 #define MYFUNCTION_H
 
-#include "structs.hpp"
+#include "defs/structs.hpp"
 
 int returnToHome();
 void resetActionneur(); // Called when the robot is ready to move

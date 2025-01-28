@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <iostream>
-#include "I2CDevice.hpp"
+#include "i2c/I2CDevice.hpp"
 
 class Arduino : public I2CDevice {
     using I2CDevice::I2CDevice;

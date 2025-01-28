@@ -1,6 +1,6 @@
 #pragma once
-#include "structs.hpp"
-#include "logger.hpp"
+#include "defs/structs.hpp"
+#include "utils/logger.hpp"
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 

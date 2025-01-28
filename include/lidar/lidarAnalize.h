@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "structs.hpp"
+#include "defs/structs.hpp"
 #include "math.h"
-#include "logger.hpp"
+#include "utils/logger.hpp"
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
