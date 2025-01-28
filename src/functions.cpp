@@ -109,7 +109,21 @@ bool movePlatformElevator(int level){
     }
     int32_t currentValue;
     if (!arduino.getStepper(currentValue, PLATFORMS_ELEVATOR_STEPPER_NUM)) return true;
-    return (currentValue == target);  // TODO : Add within a certain margin
+    return (currentValue == target);
+}
+
+// Moves the tribune elevator to a predefined level
+bool moveTribuneElevator(bool high){
+    static bool previousHigh = !high;
+
+    int target = high ? 2000 : 0;
+    if (previousHigh != high){
+        previousHigh = high;
+        arduino.moveStepper(target, TRIBUNES_ELEVATOR_STEPPER_NUM); // TODO : Check if this is correct
+    }
+    int32_t currentValue;
+    if (!arduino.getStepper(currentValue, TRIBUNES_ELEVATOR_STEPPER_NUM)) return true;
+    return (currentValue == target);
 }
 
 bool moveTribunePusher(bool outside){
@@ -132,6 +146,7 @@ void resetActionneur(){
     movePlatformLifts(true);
     movePlatformElevator(0);
     moveTribunePusher(false);
+    moveTribuneElevator(false);
 }
 void disableActionneur(){
     arduino.disableStepper(1);

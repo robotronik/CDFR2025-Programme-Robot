@@ -18,6 +18,7 @@ bool constructSingleTribune();
 bool movePlatformLifts(bool inside);
 bool movePlatformElevator(int level);
 bool moveTribunePusher(bool outside);
+bool moveTribuneElevator(bool high);
 
 void blinkLed(int LED_ID,int periode);
 
