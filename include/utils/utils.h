@@ -3,6 +3,8 @@
 
 #include <time.h>
 #include <cstdlib>
+#include <string>
+#include <fstream>
 
 typedef enum {
     NONE,
