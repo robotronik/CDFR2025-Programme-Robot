@@ -109,7 +109,7 @@ void Lidar::lidarDelete(){
 }
 
 
-bool Lidar::getlidarData(lidarAnalize_t data[], int& countdata){
+bool Lidar::getlidarData(){
     sl_lidar_response_measurement_node_hq_t nodes[8192];
     size_t   count = _countof(nodes);
     sl_result op_result;
@@ -119,14 +119,14 @@ bool Lidar::getlidarData(lidarAnalize_t data[], int& countdata){
     if (SL_IS_OK(op_result)) {
         drv->ascendScanData(nodes, count);
         int pos;
-        countdata = 0;
+        count = 0;
         for (pos = 0; pos < (int)count; ++pos) {
             bool valid = (nodes[pos].quality >> SL_LIDAR_RESP_MEASUREMENT_QUALITY_SHIFT) != 0;
             if (valid){
-                data[countdata].onTable = 0;
-                data[countdata].dist = nodes[pos].dist_mm_q2/4.0f;
-                data[countdata].angle = (nodes[pos].angle_z_q14 * 90.f) / 16384.f;
-                countdata++;
+                data[count].onTable = 0;
+                data[count].dist = nodes[pos].dist_mm_q2/4.0f;
+                data[count].angle = (nodes[pos].angle_z_q14 * 90.f) / 16384.f;
+                count++;
             }
         }
     }

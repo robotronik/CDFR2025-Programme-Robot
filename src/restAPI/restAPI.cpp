@@ -108,9 +108,9 @@ void StartAPIServer(){
         
         json limitedAbsoluteLidarData = json::array();
 
-        // Add the first lidar_count elements to the new array
-        for (int i = 0; i < lidar_count; ++i) {
-            limitedAbsoluteLidarData.push_back({{"x", lidarData[i].x}, {"y", lidarData[i].y}});
+        // Add the first lidar.count elements to the new array
+        for (int i = 0; i < lidar.count; ++i) {
+            limitedAbsoluteLidarData.push_back({{"x", lidar.data[i].x}, {"y", lidar.data[i].y}});
         }
         response["lidar"] = limitedAbsoluteLidarData;
 
@@ -139,8 +139,8 @@ void StartAPIServer(){
         json limitedLidarData = json::array();
 
         // Add the first lidar_count elements to the new array
-        for (int i = 0; i < lidar_count; ++i) {
-            limitedLidarData.push_back(lidarData[i]);
+        for (int i = 0; i < lidar.count; ++i) {
+            limitedLidarData.push_back(lidar.data[i]);
         }
         response["data"] = limitedLidarData;
         response["detection_debug"] = beacon_detection;

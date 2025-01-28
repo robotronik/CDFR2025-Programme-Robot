@@ -4,6 +4,7 @@
 #include "defs/tableState.hpp"
 #include "defs/structs.hpp"
 #include "defs/constante.h"
+#include "lidar/Lidar.hpp"
 
 typedef enum {
     INIT = 0,
@@ -23,9 +24,7 @@ extern main_State_t nextState;
 extern TableState tableStatus;
 extern Asserv robotI2C;
 extern Arduino arduino;
-
-extern lidarAnalize_t lidarData[SIZEDATALIDAR];
-extern int lidar_count;
+extern Lidar lidar;
 
 extern bool manual_ctrl;
 // Declare a function pointer

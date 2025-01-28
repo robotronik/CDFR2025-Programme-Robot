@@ -2,18 +2,12 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <string.h>
-#include <iostream>
-#include <time.h>
-#include <cstdlib>
-#include <filesystem>
 #include <thread>
-#include <fstream>
 #include <unistd.h>  // for usleep
 
 #include "main.hpp"
 #include "actions/functions.h"
 #include "lidar/lidarAnalize.h"
-#include "lidar/Lidar.hpp"
 #include "utils/utils.h"
 #include "utils/logger.hpp"
 #include "restAPI/restAPI.hpp"
@@ -39,9 +33,6 @@ Arduino arduino(-1);
 #endif
 
 Lidar lidar;
-
-lidarAnalize_t lidarData[SIZEDATALIDAR];
-int lidar_count = 0;
 
 main_State_t currentState;
 main_State_t nextState;
@@ -375,14 +366,14 @@ void GetLidar()
     static position_t pos_opponent_avg_sum = {0, 0, 0};
     static int pos_opponent_avg_count = 0, count_pos = 0;
 
-    if (lidar.getlidarData(lidarData, lidar_count))
+    if (lidar.getlidarData())
     {
         position_t position = tableStatus.robot.pos;
         position_t pos_opponent = position;
-        convertAngularToAxial(lidarData, lidar_count, &position, -100);
-        //init_position_balise(lidarData, lidar_count, &position);
-        convertAngularToAxial(lidarData, lidar_count, &position, 50);
-        if (position_opponent(lidarData, lidar_count, position, &pos_opponent)){
+        convertAngularToAxial(lidar.data, lidar.count, &position, -100);
+        //init_position_balise(lidar.data, lidar_count, &position);
+        convertAngularToAxial(lidar.data, lidar.count, &position, 50);
+        if (position_opponent(lidar.data, lidar.count, position, &pos_opponent)){
             pos_opponent_avg_sum.x += pos_opponent.x;
             pos_opponent_avg_sum.y += pos_opponent.y;
             pos_opponent_avg_count++;
@@ -433,13 +424,13 @@ void GetLidarV2()
     static position_t pos_opponent_filtered = {0, 0, 0};
     static bool first_reading = true;
 
-    if (lidar.getlidarData(lidarData, lidar_count))
+    if (lidar.getlidarData())
     {
         position_t position;
         colorTeam_t color;
         // TODO : Add offset to lidar robot pos
 #ifndef DISABLE_LIDAR_BEACONS
-        if (position_robot_beacons(lidarData, lidar_count, &position, tableStatus.robot.colorTeam, &color)){
+        if (position_robot_beacons(lidar.data, lidar.count, &position, tableStatus.robot.colorTeam, &color)){
             LOG_GREEN_INFO("Successfully found the robot's position using beacons");
             LOG_GREEN_INFO("X = ", position.x," Y = ", position.y, " theta = ", position.theta);
             // TODO, apply that new position to the tableStatus robot pos and the asserv
@@ -448,10 +439,10 @@ void GetLidarV2()
             position = tableStatus.robot.pos;
         }
 #endif
-        convertAngularToAxial(lidarData, lidar_count, &position, 50);
+        convertAngularToAxial(lidar.data, lidar.count, &position, 50);
         
         position_t pos_opponent;
-        if (position_opponentV2(lidarData, lidar_count, position, &pos_opponent)){
+        if (position_opponentV2(lidar.data, lidar.count, position, &pos_opponent)){
             // If it's the first reading, initialize the filtered position
             if (first_reading)
             {

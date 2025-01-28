@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <rplidar.h>
 #include "defs/structs.hpp"
+#include "defs/constante.h"
 
 #define _countof(_Array) (int)(sizeof(_Array) / sizeof(_Array[0]))
 
@@ -13,9 +14,12 @@ public:
     Lidar();
     ~Lidar();
 
+    lidarAnalize_t data[SIZEDATALIDAR];
+    int count;
+
     bool setup(const char* serialPort, int baudrate);
 
-    bool getlidarData(lidarAnalize_t* data, int& count);
+    bool getlidarData();
 
     void lidarStop(void);
     void lidarDelete();
