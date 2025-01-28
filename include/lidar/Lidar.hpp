@@ -8,6 +8,20 @@
 
 using namespace sl;
 
+class Lidar {
+public:
+    Lidar();
+    ~Lidar();
+
+    bool setup(const char* serialPort, int baudrate);
+
+    bool getlidarData(lidarAnalize_t* data, int& count);
+
+    void lidarStop(void);
+    void lidarDelete();
+private:
+    ILidarDriver* drv;
+};
 
 static inline void delay(sl_word_size_t ms){
     while (ms>=1000){
@@ -17,10 +31,3 @@ static inline void delay(sl_word_size_t ms){
     if (ms!=0)
         usleep(ms*1000);
 }
-
-
-bool lidarSetup(const char* serialPort ,int baudrate);
-
-bool getlidarData(lidarAnalize_t* data, int& count);
-
-void lidarStop(void);

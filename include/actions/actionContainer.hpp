@@ -6,7 +6,7 @@
 #include "utils/logger.hpp"
 #include "defs/constante.h"
 #include "lidar/lidarAnalize.h"
-#include "lidar/lidar.h"
+#include "lidar/Lidar.hpp"
 
 class actionContainer
 {

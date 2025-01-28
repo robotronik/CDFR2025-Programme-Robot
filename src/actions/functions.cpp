@@ -2,7 +2,7 @@
 #include "main.hpp"
 #include "navigation/navigation.h"
 #include "lidar/lidarAnalize.h"
-#include "lidar/lidar.h"
+#include "lidar/Lidar.hpp"
 #include "defs/constante.h"
 #include "i2c/Arduino.hpp"
 #include <math.h>

@@ -1,13 +1,17 @@
-#include "lidar/lidar.h"
+#include "lidar/Lidar.hpp"
 #include <vector>
 
 static bool checkSLAMTECLIDARHealth(ILidarDriver * drv);
-static void lidarDelete(void);
-static ILidarDriver* drv;
 
-bool lidarSetup(const char* serialPort ,int baudrate){
+Lidar::Lidar(){
+    drv = NULL;
+}
+Lidar::~Lidar(){
+    lidarDelete();
+}
+bool Lidar::setup(const char* serialPort ,int baudrate){
 
-    static sl_result     op_result;
+    static sl_result op_result;
     drv = *createLidarDriver();
 
     if (!drv) {
@@ -74,9 +78,6 @@ bool lidarSetup(const char* serialPort ,int baudrate){
         printf("Answer Type: %d\n\n", (int)mode.ans_type);
     }
 
-
-
-
     // check health...
     if (!checkSLAMTECLIDARHealth(drv)) {
         lidarDelete();
@@ -84,34 +85,34 @@ bool lidarSetup(const char* serialPort ,int baudrate){
     }
     printf("============================\n");
     
-
-    drv->setMotorSpeed();
+    drv->setMotorSpeed(); // TODO Find the correct value
     // start scan...
     drv->startScan(0,1);
 
     return true;
 }
 
-void lidarStop(void){
-    drv->stop();
-	delay(200);
-    drv->setMotorSpeed(0);
-    lidarDelete();
-}
 
-void lidarDelete(void){
-    if(drv) {
+void Lidar::lidarStop(void){
+    if (drv){
+        drv->stop();
+        delay(200);
+        drv->setMotorSpeed(0);
+        lidarDelete();
+    }
+}
+void Lidar::lidarDelete(){
+    if (drv) {
         delete drv;
         drv = NULL;
     }
 }
 
 
-
-bool getlidarData(lidarAnalize_t* data, int& countdata){
+bool Lidar::getlidarData(lidarAnalize_t data[], int& countdata){
     sl_lidar_response_measurement_node_hq_t nodes[8192];
     size_t   count = _countof(nodes);
-    sl_result     op_result;
+    sl_result op_result;
 
     op_result = drv->grabScanDataHq(nodes, count,0);
 

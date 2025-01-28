@@ -13,7 +13,7 @@
 #include "main.hpp"
 #include "actions/functions.h"
 #include "lidar/lidarAnalize.h"
-#include "lidar/lidar.h"
+#include "lidar/Lidar.hpp"
 #include "utils/utils.h"
 #include "utils/logger.hpp"
 #include "restAPI/restAPI.hpp"
@@ -37,6 +37,8 @@ Arduino arduino(I2C_ARDUINO_ADDR);
 Asserv robotI2C(-1);
 Arduino arduino(-1);
 #endif
+
+Lidar lidar;
 
 lidarAnalize_t lidarData[SIZEDATALIDAR];
 int lidar_count = 0;
@@ -295,9 +297,9 @@ int StartSequence()
     // signal(SIGTSTP, ctrlz);
 
 #ifndef DISABLE_LIDAR
-    if (!lidarSetup("/dev/ttyAMA0", 256000))
+    if (!lidar.setup("/dev/ttyAMA0", 256000))
     {
-        LOG_ERROR("cannot find the lidar");
+        LOG_ERROR("Cannot find the lidar");
         return -1;
     }
 #endif
@@ -373,7 +375,7 @@ void GetLidar()
     static position_t pos_opponent_avg_sum = {0, 0, 0};
     static int pos_opponent_avg_count = 0, count_pos = 0;
 
-    if (getlidarData(lidarData, lidar_count))
+    if (lidar.getlidarData(lidarData, lidar_count))
     {
         position_t position = tableStatus.robot.pos;
         position_t pos_opponent = position;
@@ -431,7 +433,7 @@ void GetLidarV2()
     static position_t pos_opponent_filtered = {0, 0, 0};
     static bool first_reading = true;
 
-    if (getlidarData(lidarData, lidar_count))
+    if (lidar.getlidarData(lidarData, lidar_count))
     {
         position_t position;
         colorTeam_t color;
@@ -483,7 +485,7 @@ void EndSequence()
 
     // Stop the lidar
 #ifndef DISABLE_LIDAR
-    lidarStop();
+    lidar.lidarStop();
 #endif
 
     robotI2C.set_motor_state(false);
@@ -497,32 +499,4 @@ void EndSequence()
     disableActionneur();
 
     LOG_DEBUG("Stopped");
-}
-
-bool isWifiConnected()
-{
-    std::ifstream file("/proc/net/wireless");
-    std::string line;
-
-    if (file.is_open())
-    {
-        while (std::getline(file, line))
-        {
-            if (line.find("wlan0") != std::string::npos)
-            {
-                LOG_GREEN_INFO("We are connected to a wifi : ", line.find("wlan0"));
-                // Si la ligne contient "wlan0", cela indique que l'interface Wi-Fi est présente
-                return true;
-            }
-        }
-        file.close();
-    }
-    else
-        LOG_ERROR("Erreur : Impossible d'ouvrir le fichier /proc/net/wireless.");
-    return false;
-}
-
-void executePythonScript(const std::string &command)
-{
-    std::system(command.c_str());
 }

@@ -27,4 +27,28 @@ inline char* currentTimeFormatted() {
     return tempsFormate;
 }
 
+inline bool isWifiConnected()
+{
+    std::ifstream file("/proc/net/wireless");
+    std::string line;
+
+    if (file.is_open())
+    {
+        while (std::getline(file, line))
+        {
+            if (line.find("wlan0") != std::string::npos)
+            {
+                return true;
+            }
+        }
+        file.close();
+    }
+    return false;
+}
+
+inline void executePythonScript(const std::string &command)
+{
+    std::system(command.c_str());
+}
+
 #endif
