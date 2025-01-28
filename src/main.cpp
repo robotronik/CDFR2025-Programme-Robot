@@ -32,10 +32,10 @@ TableState tableStatus;
 
 // Initiation of i2c devices
 #ifndef EMULATE_I2C
-CmdAsserv robotI2C(I2C_ASSER_ADDR);
+Asserv robotI2C(I2C_ASSER_ADDR);
 Arduino arduino(I2C_ARDUINO_ADDR);
 #else
-CmdAsserv robotI2C(-1);
+Asserv robotI2C(-1);
 Arduino arduino(-1);
 #endif
 
@@ -47,6 +47,7 @@ main_State_t nextState;
 bool initState;
 actionContainer actionSystem;
 bool manual_ctrl;
+bool (*manual_currentFunc)(); //Pointer to a function to execute of type bool func(void)
 
 std::thread api_server_thread;
 
@@ -110,37 +111,30 @@ int main(int argc, char *argv[])
             if (initState)
             {
                 LOG_STATE("INIT");
-                int bStateCapteur2 = 0;
-                resetActionneur();
 
-                arduino.readCapteur(2, bStateCapteur2);
-                if (bStateCapteur2 == 1)
-                {
-                    robotI2C.set_coordinates(-770, 1390, -90);
-                }
-                else
-                {
-                    robotI2C.set_coordinates(-770, -1390, 90);
-                }
+                arduino.setStepper(0, 1);
+                arduino.setStepper(0, 2);
+                arduino.setStepper(0, 3);
+                resetActionneur();
                 sensorCount = 0;
             }
 
-            int bStateCapteur3, bStateCapteur1;
-            arduino.readCapteur(3, bStateCapteur3);
-            arduino.readCapteur(1, bStateCapteur1);
+            bool bStateSensor3, bStateSensor1;
+            if (arduino.readSensor(3, bStateSensor3) && arduino.readSensor(1, bStateSensor1)){
+                if (bStateSensor3 == 1 && bStateSensor1 == 1)
+                    sensorCount++;
+                else
+                    sensorCount = 0;
+
+                if (sensorCount == 5)
+                {
+                    nextState = INITIALIZE;
+                    arduino.ledOff(2);
+                    arduino.ledOff(1);
+                }
+            }
             blinkLed(2, 500);
             blinkLed(1, 500);
-
-            if (bStateCapteur3 == 1 && bStateCapteur1 == 1)
-                sensorCount++;
-            else
-                sensorCount = 0;
-            if (sensorCount == 5)
-            {
-                nextState = INITIALIZE;
-                arduino.ledOff(2);
-                arduino.ledOff(1);
-            }
 
             break;
         }
@@ -150,7 +144,7 @@ int main(int argc, char *argv[])
             if (initState)
             {
                 LOG_STATE("INITIALIZE");
-                enableActionneur();
+                resetActionneur();
                 robotI2C.go_to_point(tableStatus.robot.pos.x, tableStatus.robot.pos.y);
                 robotI2C.set_motor_state(true);
                 robotI2C.set_brake_state(true); //TODO should be false
@@ -158,50 +152,21 @@ int main(int argc, char *argv[])
                 //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
                 //while(robotI2C.get_command_buffer_size() != 0); //wait end of all action above
             }
-            int bStateCapteur2 = 0;
-            arduino.readCapteur(2, bStateCapteur2);
-            if (bStateCapteur2 == 1)
-            {
-                tableStatus.robot.colorTeam = YELLOW;
-                nextState = WAITSTART; // SETHOME pour calibration
-                robotI2C.set_coordinates(-770, 1390, -90);
-                LOG_INFO("teams : YELLOW");
-            }
-            else if (bStateCapteur2 == 0)
-            {
+            tableStatus.robot.colorTeam = readColorSensorSwitch();
+            if (tableStatus.robot.colorTeam == BLUE) {
                 tableStatus.robot.colorTeam = BLUE;
-                nextState = WAITSTART; // SETHOME pour calibration
+                nextState = WAITSTART;
                 robotI2C.set_coordinates(-770, -1390, 90);
                 LOG_INFO("teams : BLUE");
             }
-            else
-            {
-                LOG_ERROR("bStateCapteur2 IS NOT THE RIGHT VALUE (0 or 1)");
+            else if (tableStatus.robot.colorTeam == YELLOW) {
+                tableStatus.robot.colorTeam = YELLOW;
+                nextState = WAITSTART;
+                robotI2C.set_coordinates(-770, 1390, -90);
+                LOG_INFO("teams : YELLOW");
             }
             if (manual_ctrl)
                 nextState = MANUAL;
-            break;
-        }
-        //****************************************************************
-        case SETHOME:
-        {
-            if (initState)
-                LOG_STATE("SETHOME");
-            if (tableStatus.robot.colorTeam == YELLOW)
-            {
-                if (initPosition2(-700, 1280, -180))
-                {
-                    nextState = WAITSTART;
-                }
-            }
-            else
-            {
-                if (initPosition2(-700, -1280, -180))
-                {
-                    nextState = WAITSTART;
-                }
-            }
-
             break;
         }
         case WAITSTART:
@@ -210,19 +175,20 @@ int main(int argc, char *argv[])
                 LOG_STATE("WAITSTART");                
                 sensorCount = 0;
             }
-            int bStateCapteur1;
-            arduino.readCapteur(1, bStateCapteur1);
-            if (tableStatus.robot.colorTeam == YELLOW)
-            {
-                blinkLed(1, 500);
-            }
-            else
-            {
-                blinkLed(2, 500);
+            bool bStateSensor1;
+            if (arduino.readSensor(1, bStateSensor1)){
+                if (tableStatus.robot.colorTeam == YELLOW)
+                {
+                    blinkLed(1, 500);
+                }
+                else
+                {
+                    blinkLed(2, 500);
+                }
             }
 
             // Counts the number of time the magnet sensor
-            if (bStateCapteur1 == 0)
+            if (bStateSensor1 == 0)
                 sensorCount++;
             else
                 sensorCount = 0;
@@ -262,6 +228,12 @@ int main(int argc, char *argv[])
             if (initState)
                 LOG_STATE("MANUAL");
 
+            // Execute the function as long as it returns false
+            if (manual_currentFunc != NULL && manual_currentFunc != nullptr){
+                if (manual_currentFunc()){
+                    manual_currentFunc = NULL;
+                }
+            }
             if (!manual_ctrl)
                 nextState = FIN;
             break;
@@ -273,8 +245,8 @@ int main(int argc, char *argv[])
             if (initState)
             {
                 LOG_STATE("FIN");
-                arduino.servoPosition(4, 180);
-                arduino.servoPosition(1, 180);
+                arduino.moveServo(4, 180);
+                arduino.moveServo(1, 180);
                 arduino.disableStepper(1);
                 robotI2C.set_motor_state(false);
                 robotI2C.set_brake_state(false);
@@ -386,6 +358,7 @@ int StartSequence()
     nextState = INIT;
     initState = true;
     manual_ctrl = false;
+    manual_currentFunc = NULL;
 
     actionSystem.init(&robotI2C, &arduino, &tableStatus);
 
@@ -521,14 +494,15 @@ void EndSequence()
     lidarStop();
 #endif
 
+    robotI2C.set_motor_state(false);
+    robotI2C.set_brake_state(false);
+    //robotI2C.stop();
 
     arduino.ledOff(2);
     arduino.ledOff(1);
     resetActionneur();
-
-    robotI2C.set_motor_state(false);
-    robotI2C.set_brake_state(false);
-    //robotI2C.stop();
+    delay(1000);
+    disableActionneur();
 
     LOG_DEBUG("Stopped");
 }

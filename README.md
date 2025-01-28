@@ -102,3 +102,18 @@ sudo apt-get install xorg openbox chromium-browser
 export DISPLAY=:0
 sudo startx /usr/bin/chromium-browser --noerrdialogs --kiosk http:0.0.0.0:8080/robot --incognito --disable-extensions --no-sandbox
 ```
+
+## Actions et actionneurs
+
+(in code, theyre called banner, stocks, columns, platforms and tribunes)
+
+Defenies dans constante.h
+- Stepper 1 - Elevateur à planches
+- Stepper 2 - Elevateur à étages
+- Stepper 3 - Rail du bas
+- Stepper 4 - Rail du haut
+- Servo 1 - Push étage tribune
+- Servo 2 - Souleveur à planches gauche
+- Servo 3 - Souleveur à planches droite
+- Servo 4 - Pinces
+- servo 5 - Banière
