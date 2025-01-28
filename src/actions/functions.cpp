@@ -4,7 +4,7 @@
 #include "lidar/lidarAnalize.h"
 #include "lidar/lidar.h"
 #include "defs/constante.h"
-#include "i2c/arduino.hpp"
+#include "i2c/Arduino.hpp"
 #include <math.h>
 
 //TODO : Functions to fill in

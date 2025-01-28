@@ -2,7 +2,7 @@
 #include "navigation/highways.h"
 #include "defs/tableState.hpp"
 #include "i2c/Asserv.hpp"
-#include "i2c/arduino.hpp"
+#include "i2c/Arduino.hpp"
 
 bool testLogger();
 bool test_lidar_opponent();

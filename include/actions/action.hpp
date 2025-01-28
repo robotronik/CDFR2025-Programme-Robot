@@ -6,7 +6,7 @@
 #include "actions/functions.h"
 #include "defs/tableState.hpp"
 #include "defs/constante.h"
-#include "i2c/arduino.hpp"
+#include "i2c/Arduino.hpp"
 
 class action;
 

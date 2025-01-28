@@ -1,4 +1,4 @@
-#include "i2c/arduino.hpp"
+#include "i2c/Arduino.hpp"
 #include "utils/logger.hpp"
 
 Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
