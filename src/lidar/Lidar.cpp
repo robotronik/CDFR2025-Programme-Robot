@@ -5,6 +5,7 @@ static bool checkSLAMTECLIDARHealth(ILidarDriver * drv);
 
 Lidar::Lidar(){
     drv = NULL;
+    isSpinning = false;
 }
 Lidar::~Lidar(){
     Delete();
@@ -119,6 +120,7 @@ void Lidar::stopSpin(){
 
 
 bool Lidar::getData(){
+    if (drv == NULL) return false;
     if (!isSpinning) startSpin();
 
     sl_lidar_response_measurement_node_hq_t nodes[8192];
