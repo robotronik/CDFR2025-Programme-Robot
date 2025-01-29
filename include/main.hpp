@@ -21,7 +21,7 @@ extern main_State_t currentState;
 extern main_State_t nextState;
 
 extern TableState tableStatus;
-extern Asserv robotI2C;
+extern Asserv asserv;
 extern Arduino arduino;
 extern Lidar lidar;
 

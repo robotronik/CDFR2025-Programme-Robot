@@ -25,10 +25,10 @@ TableState tableStatus;
 
 // Initiation of i2c devices
 #ifndef EMULATE_I2C
-Asserv robotI2C(I2C_ASSER_ADDR);
+Asserv asserv(I2C_ASSER_ADDR);
 Arduino arduino(I2C_ARDUINO_ADDR);
 #else
-Asserv robotI2C(-1);
+Asserv asserv(-1);
 Arduino arduino(-1);
 #endif
 
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
         // Get Sensor Data
         {
             int16_t x, y, theta;
-            robotI2C.get_coordinates(x, y, theta);
+            asserv.get_coordinates(x, y, theta);
             tableStatus.robot.pos = {x, y, theta};
             // LOG_GREEN_INFO("X = ", x," Y = ", y, " theta = ", theta);
 
@@ -134,23 +134,23 @@ int main(int argc, char *argv[])
             {
                 LOG_STATE("INITIALIZE");
                 resetActionneur();
-                robotI2C.go_to_point(tableStatus.robot.pos.x, tableStatus.robot.pos.y);
-                robotI2C.set_motor_state(true);
-                robotI2C.set_brake_state(true); //TODO should be false
-                //robotI2C.set_linear_max_speed(MAX_SPEED);
+                asserv.go_to_point(tableStatus.robot.pos.x, tableStatus.robot.pos.y);
+                asserv.set_motor_state(true);
+                asserv.set_brake_state(true); //TODO should be false
+                //asserv.set_linear_max_speed(MAX_SPEED);
                 //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
-                //while(robotI2C.get_command_buffer_size() != 0); //wait end of all action above
+                //while(asserv.get_command_buffer_size() != 0); //wait end of all action above
                 lidar.startSpin();
             }
             tableStatus.robot.colorTeam = readColorSensorSwitch();
             if (tableStatus.robot.colorTeam == BLUE) {
                 nextState = WAITSTART;
-                robotI2C.set_coordinates(-770, -1390, 90);
+                asserv.set_coordinates(-770, -1390, 90);
                 LOG_INFO("teams : BLUE");
             }
             else if (tableStatus.robot.colorTeam == YELLOW) {
                 nextState = WAITSTART;
-                robotI2C.set_coordinates(-770, 1390, -90);
+                asserv.set_coordinates(-770, 1390, -90);
                 LOG_INFO("teams : YELLOW");
             }
             if (manual_ctrl)
@@ -198,9 +198,9 @@ int main(int argc, char *argv[])
             if (initState){
                 LOG_STATE("RUN");
                 tableStatus.startTime = _millis();
-                actionSystem.initAction(&robotI2C, &arduino, &(tableStatus));
+                actionSystem.initAction(&asserv, &arduino, &(tableStatus));
             }
-            bool finished = actionSystem.actionContainerRun(&robotI2C, &tableStatus);
+            bool finished = actionSystem.actionContainerRun(&asserv, &tableStatus);
 
             if (_millis() > tableStatus.startTime + 90000 || tableStatus.FIN || finished)
             {
@@ -234,8 +234,8 @@ int main(int argc, char *argv[])
             arduino.moveServo(4, 180);
             arduino.moveServo(1, 180);
             arduino.disableStepper(1);
-            robotI2C.set_motor_state(false);
-            robotI2C.set_brake_state(false);
+            asserv.set_motor_state(false);
+            asserv.set_brake_state(false);
             lidar.stopSpin();
             nextState = INIT;
             break;
@@ -287,7 +287,7 @@ int StartSequence()
 
     tableStatus.init();
 
-    // LOG_SETROBOT(robotI2C);
+    // LOG_SETROBOT(asserv);
     init_highways();
 
     // Start the api server in a separate thread
@@ -335,7 +335,7 @@ int StartSequence()
     manual_ctrl = false;
     manual_currentFunc = NULL;
 
-    actionSystem.init(&robotI2C, &arduino, &tableStatus);
+    actionSystem.init(&asserv, &arduino, &tableStatus);
 
     // std::string colorTest = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
     // std::filesystem::path exe_pathTest = std::filesystem::canonical(std::filesystem::path(argv[0])).parent_path();
@@ -343,7 +343,7 @@ int StartSequence()
     // std::string commandTest = "python3 " + python_script_pathTest.string() + " " +  colorTest;
     // std::thread python_threadTest(executePythonScript,commandTest);
 
-    robotI2C.set_coordinates(0,0,0);
+    asserv.set_coordinates(0,0,0);
 
     LOG_INFO("Init sequence done");
     return 0;
@@ -398,7 +398,7 @@ void GetLidar()
             count_pos = 0;
         count_pos++;
 
-        //int16_t braking_distance = robotI2C.get_braking_distance();
+        //int16_t braking_distance = asserv.get_braking_distance();
         //tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
     }
 }
@@ -468,9 +468,9 @@ void EndSequence()
     lidar.Stop();
 #endif
 
-    robotI2C.set_motor_state(false);
-    robotI2C.set_brake_state(false);
-    //robotI2C.stop();
+    asserv.set_motor_state(false);
+    asserv.set_brake_state(false);
+    //asserv.stop();
 
     arduino.ledOff(2);
     arduino.ledOff(1);
