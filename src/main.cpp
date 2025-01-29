@@ -100,39 +100,31 @@ int main(int argc, char *argv[])
             if (initState)
             {
                 LOG_STATE("INIT");
-
                 arduino.setStepper(0, 1);
                 arduino.setStepper(0, 2);
                 arduino.setStepper(0, 3);
                 resetActionneur();
                 sensorCount = 0;
+                arduino.RGB_Rainbow();
             }
 
-            bool bStateSensor3, bStateSensor1;
-            if (arduino.readSensor(3, bStateSensor3) && arduino.readSensor(1, bStateSensor1)){
-                if (bStateSensor3 == 1 && bStateSensor1 == 1)
-                    sensorCount++;
-                else
-                    sensorCount = 0;
-
+            bool initButtonState;
+            arduino.readSensor(1, initButtonState);
+            if (initButtonState){
+                sensorCount++;
                 if (sensorCount == 5)
-                {
-                    nextState = INITIALIZE;
-                    arduino.ledOff(2);
-                    arduino.ledOff(1);
-                }
+                    nextState = WAITSTART;
             }
-            blinkLed(2, 500);
-            blinkLed(1, 500);
+            else
+                sensorCount = 0;            
 
             break;
         }
         //****************************************************************
-        case INITIALIZE:
+        case WAITSTART:
         {
-            if (initState)
-            {
-                LOG_STATE("INITIALIZE");
+            if (initState){
+                LOG_STATE("WAITSTART");    
                 resetActionneur();
                 asserv.go_to_point(tableStatus.robot.pos.x, tableStatus.robot.pos.y);
                 asserv.set_motor_state(true);
@@ -140,54 +132,44 @@ int main(int argc, char *argv[])
                 //asserv.set_linear_max_speed(MAX_SPEED);
                 //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
                 //while(asserv.get_command_buffer_size() != 0); //wait end of all action above
-                lidar.startSpin();
-            }
-            tableStatus.robot.colorTeam = readColorSensorSwitch();
-            if (tableStatus.robot.colorTeam == BLUE) {
-                nextState = WAITSTART;
-                asserv.set_coordinates(-770, -1390, 90);
-                LOG_INFO("teams : BLUE");
-            }
-            else if (tableStatus.robot.colorTeam == YELLOW) {
-                nextState = WAITSTART;
-                asserv.set_coordinates(-770, 1390, -90);
-                LOG_INFO("teams : YELLOW");
-            }
-            if (manual_ctrl)
-                nextState = MANUAL;
-            break;
-        }
-        case WAITSTART:
-        {
-            if (initState){
-                LOG_STATE("WAITSTART");                
+                lidar.startSpin();            
                 sensorCount = 0;
             }
-            bool bStateSensor1;
-            if (arduino.readSensor(1, bStateSensor1)){
-                if (tableStatus.robot.colorTeam == YELLOW)
+
+            colorTeam_t color = readColorSensorSwitch();
+            if (color != tableStatus.robot.colorTeam){
+                LOG_INFO("Color switch detected");
+                tableStatus.robot.colorTeam = color;
+
+                switch (color)
                 {
-                    blinkLed(1, 500);
-                }
-                else
-                {
-                    blinkLed(2, 500);
+                case BLUE:
+                    LOG_INFO("teams : BLUE");
+                    nextState = WAITSTART;
+                    asserv.set_coordinates(-770, -1390, 90);
+                    arduino.RGB_Blinking(0, 0, 255);
+                    break;
+                case YELLOW:
+                    LOG_INFO("teams : YELLOW");
+                    nextState = WAITSTART;
+                    asserv.set_coordinates(-770, 1390, -90);
+                    arduino.RGB_Blinking(255, 255, 0);
+                    break;
+                case NONE:
+                    arduino.RGB_Blinking(255, 0, 0);
+                    break;
                 }
             }
-
+            bool magnetSensorState;
+            arduino.readSensor(2, magnetSensorState);
             // Counts the number of time the magnet sensor
-            if (bStateSensor1 == 0)
+            if (magnetSensorState)
                 sensorCount++;
             else
                 sensorCount = 0;
 
             if (sensorCount == 5)
-            {
                 nextState = RUN;
-                arduino.ledOff(1);
-                arduino.ledOff(2);
-                tableStatus.startTime = _millis();
-            }
             if (manual_ctrl)
                 nextState = MANUAL;
             break;
@@ -275,6 +257,8 @@ int StartSequence()
     signal(SIGTERM, ctrlc);
     signal(SIGINT, ctrlc);
     // signal(SIGTSTP, ctrlz);
+
+    arduino.RGB_Blinking(255, 0, 0); // Red blinking
 
 #ifndef DISABLE_LIDAR
     if (!lidar.setup("/dev/ttyAMA0", 256000))
@@ -472,8 +456,8 @@ void EndSequence()
     asserv.set_brake_state(false);
     //asserv.stop();
 
-    arduino.ledOff(2);
-    arduino.ledOff(1);
+    arduino.RGB_Solid(0, 0, 0); // OFF
+
     resetActionneur();
     delay(1000);
     disableActionneur();

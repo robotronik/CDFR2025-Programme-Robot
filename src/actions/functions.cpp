@@ -163,24 +163,6 @@ int returnToHome(){
     return res == NAV_DONE;
 }
 
-
-void blinkLed(int LED_ID,int periode){
-    static unsigned long startTime = _millis();
-    static int step = 0;
-
-    if(step == 0 && startTime < _millis()){
-        arduino.ledOn(LED_ID);
-        step++;
-        startTime = _millis()+periode/2;
-    }
-    else if(step == 1 && startTime < _millis()){
-        arduino.ledOff(LED_ID);
-        step = 0;
-        startTime = _millis()+periode/2;
-    }
-    return;
-}
-
 // Function to check if a point (px, py) lies inside the rectangle
 bool m_isPointInsideRectangle(float px, float py, float cx, float cy, float w, float h) {
     float left = cx - w / 2, right = cx + w / 2;

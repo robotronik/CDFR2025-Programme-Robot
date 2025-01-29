@@ -7,8 +7,7 @@ Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
 #define CMD_READ_SENSOR 0x02
 #define CMD_ENABLE_STEPPER 0x03
 #define CMD_DISABLE_STEPPER 0x04
-#define CMD_LED_ON 0x05
-#define CMD_LED_OFF 0x06
+#define CMD_RGB_LED 0x05
 #define CMD_MOVE_STEPPER 0x07
 #define CMD_SET_STEPPER 0x08
 #define CMD_GET_STEPPER 0x09
@@ -56,18 +55,6 @@ void Arduino::disableStepper(int StepperID) {
         LOG_ERROR("Arduino - Couldn't disable Stepper");
 }
 
-void Arduino::ledOn(int LED_ID) {
-    if (i2cFile == -1) return; // Emulation
-    if (I2cSendData(CMD_LED_ON, (uint8_t*)&LED_ID, 1))
-        LOG_ERROR("Arduino - Couldn't set led on");
-}
-
-void Arduino::ledOff(int LED_ID) {
-    if (i2cFile == -1) return; // Emulation
-    if (I2cSendData(CMD_LED_ON, (uint8_t*)&LED_ID, 1))
-        LOG_ERROR("Arduino - Couldn't set led off");
-}
-
 void Arduino::moveStepper(int32_t absPosition, int StepperID) {
     LOG_INFO("Arduino - Move Stepper #", StepperID);
     if (i2cFile == -1) return; // Emulation
@@ -102,3 +89,36 @@ bool Arduino::getStepper(int32_t& absPosition, int StepperID){
     LOG_DEBUG("Arduino - Stepper is at ", absPosition);
     return true;
 }
+
+void Arduino::RGB(int LED_ID, uint8_t mode, uint8_t r, uint8_t g, uint8_t b){
+    if (i2cFile == -1) return; // Emulation
+    uint8_t message [5];
+    uint8_t *ptr = message;
+    WriteUInt8(&ptr, LED_ID);
+    WriteUInt8(&ptr, mode);
+    if (mode != 2){
+        WriteUInt8(&ptr, r);
+        WriteUInt8(&ptr, g);
+        WriteUInt8(&ptr, b);
+        if (I2cSendData(CMD_RGB_LED, message, 5))
+            LOG_ERROR("Arduino - Couldn't set LED");
+    }
+    else if (I2cSendData(CMD_RGB_LED, message, 2)) // Rainbow mode
+        LOG_ERROR("Arduino - Couldn't set LED");
+}
+
+void Arduino::RGB_Solid(uint8_t R, uint8_t G, uint8_t B, int LED_ID){
+    LOG_INFO("Arduino - Set RGB LED #", LED_ID, " to solid color (", R, ", ", G, ", ", B, ")");
+    RGB(LED_ID, 0, R, G, B);
+}
+
+void Arduino::RGB_Blinking(uint8_t R, uint8_t G, uint8_t B, int LED_ID){
+    LOG_INFO("Arduino - Set RGB LED #", LED_ID, " to blinking color (", R, ", ", G, ", ", B, ")");
+    RGB(LED_ID, 1, R, G, B);
+}
+
+void Arduino::RGB_Rainbow(int LED_ID){
+    LOG_INFO("Arduino - Set RGB LED #", LED_ID, " to rainbow");
+    RGB(LED_ID, 2, 0, 0, 0);
+}
+

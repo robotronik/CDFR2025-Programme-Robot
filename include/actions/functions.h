@@ -20,8 +20,6 @@ bool movePlatformElevator(int level);
 bool moveTribunePusher(bool outside);
 bool moveTribuneElevator(bool high);
 
-void blinkLed(int LED_ID,int periode);
-
 colorTeam_t readColorSensorSwitch();
 
 #endif // MYFUNCTION_H

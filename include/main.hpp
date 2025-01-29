@@ -8,7 +8,6 @@
 
 typedef enum {
     INIT = 0,
-    INITIALIZE = 1,
     WAITSTART = 3,
     RUN = 4,
     FIN = 5,
