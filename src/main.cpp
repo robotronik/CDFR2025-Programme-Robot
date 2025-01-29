@@ -48,9 +48,6 @@ int StartSequence();
 void GetLidarV2();
 void EndSequence();
 
-bool isWifiConnected();
-void executePythonScript(const std::string &command);
-
 // Signal Management
 bool ctrl_c_pressed = false;
 void ctrlc(int)
@@ -85,7 +82,7 @@ int main(int argc, char *argv[])
             tableStatus.robot.pos = {x, y, theta};
             // LOG_GREEN_INFO("X = ", x," Y = ", y, " theta = ", theta);
 
-            if (currentState != FIN)
+            if (currentState != INIT)
             {
 #ifndef DISABLE_LIDAR
                 GetLidarV2();
@@ -143,16 +140,15 @@ int main(int argc, char *argv[])
                 //robotI2C.set_linear_max_speed(MAX_SPEED);
                 //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
                 //while(robotI2C.get_command_buffer_size() != 0); //wait end of all action above
+                lidar.startSpin();
             }
             tableStatus.robot.colorTeam = readColorSensorSwitch();
             if (tableStatus.robot.colorTeam == BLUE) {
-                tableStatus.robot.colorTeam = BLUE;
                 nextState = WAITSTART;
                 robotI2C.set_coordinates(-770, -1390, 90);
                 LOG_INFO("teams : BLUE");
             }
             else if (tableStatus.robot.colorTeam == YELLOW) {
-                tableStatus.robot.colorTeam = YELLOW;
                 nextState = WAITSTART;
                 robotI2C.set_coordinates(-770, 1390, -90);
                 LOG_INFO("teams : YELLOW");
@@ -234,23 +230,16 @@ int main(int argc, char *argv[])
         //****************************************************************
         case FIN:
         {
-            if (initState)
-            {
-                LOG_STATE("FIN");
-                arduino.moveServo(4, 180);
-                arduino.moveServo(1, 180);
-                arduino.disableStepper(1);
-                robotI2C.set_motor_state(false);
-                robotI2C.set_brake_state(false);
-                nextState = STOP;
-            }
+            LOG_STATE("FIN");
+            arduino.moveServo(4, 180);
+            arduino.moveServo(1, 180);
+            arduino.disableStepper(1);
+            robotI2C.set_motor_state(false);
+            robotI2C.set_brake_state(false);
+            lidar.stopSpin();
+            nextState = INIT;
             break;
         }
-        //****************************************************************
-        case STOP:
-            if (initState)
-                LOG_STATE("STOP");
-            break;
         //****************************************************************
         default:
             LOG_STATE("default");
@@ -312,7 +301,7 @@ int StartSequence()
     while(!ctrl_c_pressed){
         sleep(0.1);
 #ifndef DISABLE_LIDAR
-        getlidarData(lidarData, lidar_count);
+        getData(lidarData, lidar_count);
 #endif
         if (i % 10000 == 0){
             // randomly change the position of highway obstacles
@@ -366,7 +355,7 @@ void GetLidar()
     static position_t pos_opponent_avg_sum = {0, 0, 0};
     static int pos_opponent_avg_count = 0, count_pos = 0;
 
-    if (lidar.getlidarData())
+    if (lidar.getData())
     {
         position_t position = tableStatus.robot.pos;
         position_t pos_opponent = position;
@@ -424,7 +413,7 @@ void GetLidarV2()
     static position_t pos_opponent_filtered = {0, 0, 0};
     static bool first_reading = true;
 
-    if (lidar.getlidarData())
+    if (lidar.getData())
     {
         position_t position;
         colorTeam_t color;
@@ -476,7 +465,7 @@ void EndSequence()
 
     // Stop the lidar
 #ifndef DISABLE_LIDAR
-    lidar.lidarStop();
+    lidar.Stop();
 #endif
 
     robotI2C.set_motor_state(false);

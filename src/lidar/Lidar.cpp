@@ -7,9 +7,9 @@ Lidar::Lidar(){
     drv = NULL;
 }
 Lidar::~Lidar(){
-    lidarDelete();
+    Delete();
 }
-bool Lidar::setup(const char* serialPort ,int baudrate){
+bool Lidar::setup(const char* serialPort, int baudrate){
 
     static sl_result op_result;
     drv = *createLidarDriver();
@@ -41,7 +41,7 @@ bool Lidar::setup(const char* serialPort ,int baudrate){
 
     if (!connectSuccess) {
         (fprintf(stderr, "Error, cannot bind to the specified serial port %s.\n", serialPort));
-        lidarDelete();
+        Delete();
         return false;
     }
 
@@ -64,7 +64,7 @@ bool Lidar::setup(const char* serialPort ,int baudrate){
     sl_result res = drv->getAllSupportedScanModes(scanModes);
     if (SL_IS_FAIL(res)) {
         fprintf(stderr, "Error: Unable to retrieve scan modes.\n");
-        lidarDelete();
+        Delete();
         return false;
     }
 
@@ -80,12 +80,11 @@ bool Lidar::setup(const char* serialPort ,int baudrate){
 
     // check health...
     if (!checkSLAMTECLIDARHealth(drv)) {
-        lidarDelete();
+        Delete();
         return false;
     }
     printf("============================\n");
     
-    drv->setMotorSpeed(); // TODO Find the correct value
     // start scan...
     drv->startScan(0,1);
 
@@ -93,15 +92,15 @@ bool Lidar::setup(const char* serialPort ,int baudrate){
 }
 
 
-void Lidar::lidarStop(void){
+void Lidar::Stop(void){
     if (drv){
         drv->stop();
         delay(200);
-        drv->setMotorSpeed(0);
-        lidarDelete();
+        stopSpin();
+        Delete();
     }
 }
-void Lidar::lidarDelete(){
+void Lidar::Delete(){
     if (drv) {
         delete drv;
         drv = NULL;
@@ -109,7 +108,19 @@ void Lidar::lidarDelete(){
 }
 
 
-bool Lidar::getlidarData(){
+void Lidar::startSpin(){
+    drv->setMotorSpeed(); // TODO Find the correct value
+    isSpinning = true;
+}
+void Lidar::stopSpin(){
+    drv->setMotorSpeed(0);
+    isSpinning = false;
+}
+
+
+bool Lidar::getData(){
+    if (!isSpinning) startSpin();
+
     sl_lidar_response_measurement_node_hq_t nodes[8192];
     size_t   count = _countof(nodes);
     sl_result op_result;

@@ -19,11 +19,15 @@ public:
 
     bool setup(const char* serialPort, int baudrate);
 
-    bool getlidarData();
+    bool getData();
 
-    void lidarStop(void);
-    void lidarDelete();
+    void startSpin();
+    void stopSpin();
+
+    void Stop(void);
+    void Delete();
 private:
+    bool isSpinning;
     ILidarDriver* drv;
 };
 
