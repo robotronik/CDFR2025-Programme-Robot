@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
         //****************************************************************
         default:
             LOG_STATE("default");
-            nextState = STOP;
+            nextState = INIT;
             break;
         }
 
