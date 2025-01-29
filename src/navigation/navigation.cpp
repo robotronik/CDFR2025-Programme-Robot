@@ -35,23 +35,23 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
                 LOG_ERROR("Could not find path to target");
                 return NAV_ERROR;
             }else{
-                robotI2C.stop();
+                asserv.stop();
                 for (int i = 0; i < currentPathLenght; i++){
-                    robotI2C.go_to_point(currentPath[i].x,currentPath[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
+                    asserv.go_to_point(currentPath[i].x,currentPath[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
                 }
-                robotI2C.consigne_angulaire(theta, rotation);
+                asserv.consigne_angulaire(theta, rotation);
                 currentInstructionHash = hashValue;
             }
         }else{
-            robotI2C.stop();
-            robotI2C.go_to_point(x,y, theta, rotationLookAt, direction, rotation);
+            asserv.stop();
+            asserv.go_to_point(x,y, theta, rotationLookAt, direction, rotation);
             currentPath[0] = {x,y};
             currentPathLenght = 1;
             currentInstructionHash = hashValue;
         }
     }
     else{
-        ireturn = robotI2C.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
+        ireturn = asserv.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
     }
     return ireturn;
 }
@@ -79,23 +79,23 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
                 LOG_ERROR("Could not find path to target");
                 return NAV_ERROR;
             }else{
-                robotI2C.stop();
+                asserv.stop();
                 for (int i = 0; i < currentPathLenght; i++){
-                    robotI2C.go_to_point(currentPath[i].x,currentPath[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
+                    asserv.go_to_point(currentPath[i].x,currentPath[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
                 }
                 currentInstructionHash = hashValue;
             }
         }
         else{
-            robotI2C.stop();
-            robotI2C.go_to_point(x,y, rotationLookAt, direction);
+            asserv.stop();
+            asserv.go_to_point(x,y, rotationLookAt, direction);
             currentPath[0] = {x,y};
             currentPathLenght = 1;
             currentInstructionHash = hashValue;
         }
     }
     else{
-        ireturn = robotI2C.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
+        ireturn = asserv.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
     }
     return ireturn;
 }
@@ -113,13 +113,13 @@ void navigationOpponentDetection(){
     // Called from main, start of main fsm
 
     bool isEndangered = false;
-    switch (robotI2C.get_direction_side())
+    switch (asserv.get_direction_side())
     {
     case Direction::FORWARD:
-        isEndangered = robotI2C.get_braking_distance() > 69; // TODO find some value... > lidar.collideDistanceFORWARD();
+        isEndangered = asserv.get_braking_distance() > 69; // TODO find some value... > lidar.collideDistanceFORWARD();
         break;        
     case Direction::BACKWARD:
-        isEndangered = robotI2C.get_braking_distance() > 69;// > lidar.collideDistanceBACKWARD();
+        isEndangered = asserv.get_braking_distance() > 69;// > lidar.collideDistanceBACKWARD();
         break;    
     case Direction::NONE:
         isEndangered = false;
@@ -132,12 +132,12 @@ void navigationOpponentDetection(){
     //TODO : Maybe call Collide ?
 
     if(isEndangered && !is_robot_stalled){
-        robotI2C.pause();
+        asserv.pause();
         is_robot_stalled = true;
         robot_stall_start_time = _millis();
     }
     else if(!isEndangered && is_robot_stalled){
-        robotI2C.resume();
+        asserv.resume();
         is_robot_stalled = false;
     }
 }

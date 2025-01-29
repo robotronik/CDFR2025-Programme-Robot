@@ -44,7 +44,7 @@ public:
     void init(Asserv* irobot, Arduino* iarduino, TableState* itable);
     void initAction( Asserv* irobot, Arduino* iarduino, TableState* itable);
     bool forceNextAction(void);
-    int actionContainerRun(Asserv* robotI2C,TableState* itable);
+    int actionContainerRun(Asserv* asserv,TableState* itable);
     void resetAllAction(void);
     ~actionContainer();
 private : 
