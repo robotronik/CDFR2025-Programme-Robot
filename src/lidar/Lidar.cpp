@@ -1,4 +1,5 @@
 #include "lidar/Lidar.hpp"
+#include "main.hpp"
 #include <vector>
 
 static bool checkSLAMTECLIDARHealth(ILidarDriver * drv);
@@ -8,7 +9,7 @@ Lidar::Lidar(){
     isSpinning = false;
 }
 Lidar::~Lidar(){
-    Delete();
+    Stop();
 }
 bool Lidar::setup(const char* serialPort, int baudrate){
 
@@ -111,10 +112,12 @@ void Lidar::Delete(){
 
 void Lidar::startSpin(){
     drv->setMotorSpeed(); // TODO Find the correct value
+    arduino.SetLidarPWM(128);
     isSpinning = true;
 }
 void Lidar::stopSpin(){
     drv->setMotorSpeed(0);
+    arduino.SetLidarPWM(0);
     isSpinning = false;
 }
 

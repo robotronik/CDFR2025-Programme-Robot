@@ -8,6 +8,7 @@ Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
 #define CMD_ENABLE_STEPPER 0x03
 #define CMD_DISABLE_STEPPER 0x04
 #define CMD_RGB_LED 0x05
+#define CMD_PWM_LIDAR 0x06
 #define CMD_MOVE_STEPPER 0x07
 #define CMD_SET_STEPPER 0x08
 #define CMD_GET_STEPPER 0x09
@@ -122,3 +123,7 @@ void Arduino::RGB_Rainbow(int LED_ID){
     RGB(LED_ID, 2, 0, 0, 0);
 }
 
+void Arduino::SetLidarPWM(uint8_t val){
+    if (I2cSendData(CMD_PWM_LIDAR, &val, 1))
+        LOG_ERROR("Arduino - Couldn't set Lidar PWM");
+}
