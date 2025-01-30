@@ -188,6 +188,6 @@ void opponentInAction(position_t* position){ //TODO : Check if this is correct
 
 colorTeam_t readColorSensorSwitch(){
     bool sensor = 0;
-    if (!arduino.readSensor(2, sensor)) return NONE;
+    if (!arduino.readSensor(3, sensor)) return NONE;
     return sensor ? YELLOW : BLUE;
 }

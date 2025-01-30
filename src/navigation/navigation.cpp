@@ -120,6 +120,8 @@ void navigationOpponentDetection(){
         break;        
     case Direction::BACKWARD:
         isEndangered = asserv.get_braking_distance() > 69;// > lidar.collideDistanceBACKWARD();
+        tableStatus.pos_opponent;
+        tableStatus.robot.pos;
         break;    
     case Direction::NONE:
         isEndangered = false;
