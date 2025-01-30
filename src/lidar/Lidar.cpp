@@ -98,9 +98,9 @@ void Lidar::Stop(void){
     if (drv){
         drv->stop();
         delay(200);
-        stopSpin();
         Delete();
     }
+    stopSpin();
 }
 void Lidar::Delete(){
     if (drv) {
@@ -111,12 +111,10 @@ void Lidar::Delete(){
 
 
 void Lidar::startSpin(){
-    drv->setMotorSpeed(); // TODO Find the correct value
     arduino.SetLidarPWM(128);
     isSpinning = true;
 }
 void Lidar::stopSpin(){
-    drv->setMotorSpeed(0);
     arduino.SetLidarPWM(0);
     isSpinning = false;
 }
@@ -127,16 +125,16 @@ bool Lidar::getData(){
     if (!isSpinning) startSpin();
 
     sl_lidar_response_measurement_node_hq_t nodes[8192];
-    size_t   count = _countof(nodes);
+    size_t   r_count = _countof(nodes);
     sl_result op_result;
 
-    op_result = drv->grabScanDataHq(nodes, count,0);
+    op_result = drv->grabScanDataHq(nodes, r_count, 0);
 
     if (SL_IS_OK(op_result)) {
-        drv->ascendScanData(nodes, count);
+        drv->ascendScanData(nodes, r_count);
         int pos;
         count = 0;
-        for (pos = 0; pos < (int)count; ++pos) {
+        for (pos = 0; pos < (int)r_count; ++pos) {
             bool valid = (nodes[pos].quality >> SL_LIDAR_RESP_MEASUREMENT_QUALITY_SHIFT) != 0;
             if (valid){
                 data[count].onTable = 0;

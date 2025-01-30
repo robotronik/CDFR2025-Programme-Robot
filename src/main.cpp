@@ -145,13 +145,11 @@ int main(int argc, char *argv[])
                 {
                 case BLUE:
                     LOG_INFO("teams : BLUE");
-                    nextState = WAITSTART;
                     asserv.set_coordinates(-770, -1390, 90);
                     arduino.RGB_Blinking(0, 0, 255);
                     break;
                 case YELLOW:
                     LOG_INFO("teams : YELLOW");
-                    nextState = WAITSTART;
                     asserv.set_coordinates(-770, 1390, -90);
                     arduino.RGB_Blinking(255, 255, 0);
                     break;
