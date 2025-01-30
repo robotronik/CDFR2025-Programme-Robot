@@ -108,12 +108,12 @@ void Arduino::RGB(int LED_ID, uint8_t mode, uint8_t r, uint8_t g, uint8_t b){
 }
 
 void Arduino::RGB_Solid(uint8_t R, uint8_t G, uint8_t B, int LED_ID){
-    LOG_INFO("Arduino - Set RGB LED #", LED_ID, " to solid color (", R, ", ", G, ", ", B, ")");
+    LOG_INFO("Arduino - Set RGB LED #", LED_ID, " to solid color (", (int)R, ", ", (int)G, ", ", (int)B, ")");
     RGB(LED_ID, 0, R, G, B);
 }
 
 void Arduino::RGB_Blinking(uint8_t R, uint8_t G, uint8_t B, int LED_ID){
-    LOG_INFO("Arduino - Set RGB LED #", LED_ID, " to blinking color (", R, ", ", G, ", ", B, ")");
+    LOG_INFO("Arduino - Set RGB LED #", LED_ID, " to blinking color (", (int)R, ", ", (int)G, ", ", (int)B, ")");
     RGB(LED_ID, 1, R, G, B);
 }
 

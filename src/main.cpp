@@ -17,7 +17,7 @@
 
 // #define DISABLE_LIDAR
 // #define TEST_API_ONLY
-// #define DISABLE_LIDAR_BEACONS
+#define DISABLE_LIDAR_BEACONS
 // #define EMULATE_I2C
 
 
@@ -126,9 +126,9 @@ int main(int argc, char *argv[])
             if (initState){
                 LOG_STATE("WAITSTART");    
                 resetActionneur();
-                asserv.go_to_point(tableStatus.robot.pos.x, tableStatus.robot.pos.y);
-                asserv.set_motor_state(true);
-                asserv.set_brake_state(true); //TODO should be false
+                // asserv.go_to_point(tableStatus.robot.pos.x, tableStatus.robot.pos.y);
+                // asserv.set_motor_state(true);
+                // asserv.set_brake_state(true); //TODO should be false
                 //asserv.set_linear_max_speed(MAX_SPEED);
                 //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
                 //while(asserv.get_command_buffer_size() != 0); //wait end of all action above
@@ -195,8 +195,10 @@ int main(int argc, char *argv[])
         //****************************************************************
         case MANUAL:
         {
-            if (initState)
+            if (initState){
                 LOG_STATE("MANUAL");
+                arduino.RGB_Blinking(255, 0, 255); // Purple blinking
+            }
 
             // Execute the function as long as it returns false
             if (manual_currentFunc != NULL && manual_currentFunc != nullptr){
