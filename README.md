@@ -81,6 +81,9 @@ Pour nettoyer faire
 make clean-all
 ```
 
+Sur un nouveau Raspi, configurer avec
+sudo raspi-config
+Et activer l'I2C dans interface options
 
 ## Debugging on a Raspberry Pi with VS Code
 
