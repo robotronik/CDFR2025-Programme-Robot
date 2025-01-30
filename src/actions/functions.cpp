@@ -132,7 +132,7 @@ bool moveTribunePusher(bool outside){
     if (previousOutside != outside){
         startTime = _millis(); // Reset the timer
         previousOutside = outside;
-        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, outside ? 120 : 20); // TODO : Check if this is correct
+        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, outside ? 180 : 0); // TODO : Check if this is correct
     }
     return (_millis() > startTime + 2000); // delay
 }
