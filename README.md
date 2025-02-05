@@ -83,7 +83,7 @@ make clean-all
 
 Sur un nouveau Raspi, configurer avec
 sudo raspi-config
-Et activer l'I2C dans interface options
+Et activer l'I2C et la communicaton série dans interface options
 
 ## Debugging on a Raspberry Pi with VS Code
 
