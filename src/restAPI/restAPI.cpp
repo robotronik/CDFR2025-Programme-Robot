@@ -240,6 +240,16 @@ void StartAPIServer(){
     CROW_ROUTE(app, "/set_manual_control_mode").methods(crow::HTTPMethod::POST)([](const crow::request& req){
         auto req_data = json::parse(req.body);
         bool req_value = req_data["value"];
+        if(req_value && currentState != WAITSTART){
+            json response;
+            response["message"] = "Cannot enter manual mode when not in WAITSTART";
+            return crow::response(400, response.dump(4));
+        }
+        else if (!req_value && currentState != MANUAL){
+            json response;
+            response["message"] = "Cannot exit manual mode when not in MANUAL";
+            return crow::response(400, response.dump(4));
+        }
 
         //Apply the value
         manual_ctrl = req_value;
