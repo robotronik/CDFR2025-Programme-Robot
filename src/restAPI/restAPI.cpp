@@ -342,7 +342,7 @@ void StartAPIServer(){
         LOG_INFO("Manual ctrl : Requested set_move, value=", req_value);
 
         // Apply the value
-        asserv.go_to_point(newXvalue,newYvalue);
+        asserv.go_to_point(newXvalue,newYvalue, Rotation::SHORTEST, req_value > 0 ? Direction::FORWARD : Direction::BACKWARD);
 
 
         json response;
