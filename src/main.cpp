@@ -126,9 +126,8 @@ int main(int argc, char *argv[])
             if (initState){
                 LOG_STATE("WAITSTART");    
                 resetActionneur();
-                // asserv.go_to_point(tableStatus.robot.pos.x, tableStatus.robot.pos.y);
-                // asserv.set_motor_state(true);
-                // asserv.set_brake_state(true); //TODO should be false
+                asserv.set_motor_state(true);
+                asserv.set_brake_state(false); 
                 //asserv.set_linear_max_speed(MAX_SPEED);
                 //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
                 //while(asserv.get_command_buffer_size() != 0); //wait end of all action above
