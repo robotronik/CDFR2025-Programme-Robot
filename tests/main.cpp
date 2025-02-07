@@ -3,6 +3,9 @@
 #include "defs/tableState.hpp"
 #include "i2c/Asserv.hpp"
 #include "i2c/Arduino.hpp"
+#include "utils/logger.hpp"
+
+#define UNIT_TEST(x) numTests++; if(!(x)) {LOG_ERROR("Test failed on line ", __LINE__ );}else { numPassed++;}
 
 bool testLogger();
 bool test_lidar_opponent();
@@ -16,32 +19,23 @@ int main() {
 
 //Runs every test
 int runAllTests() {
-    std::cout << "Running tests" << std::endl;
+    LOG_INFO("Running tests");
     int numPassed = 0;
     int numTests = 0;
 
     //Runs the logger tests
-    std::cout << "Running logger tests" << std::endl;
-    numTests++;
-    if(testLogger())
-        numPassed++;
+    LOG_INFO("Running logger tests" );
+    UNIT_TEST(testLogger());
 
-    std::cout << "Running highway tests" << std::endl;
-    numTests++;
+    LOG_INFO("Running highway tests");
     init_highways();
-    if (unit_tests())
-        numPassed++;
+    UNIT_TEST(unit_tests());
 
     //Runs the lidar tests
-    std::cout << "Running lidar tests" << std::endl;
-    numTests++;
-    if(test_lidar_opponent())
-        numPassed++;
-    numTests++;
-    if(test_lidar_beacons())
-        numPassed++;
+    LOG_INFO("Running lidar tests");
+    UNIT_TEST(test_lidar_opponent());
+    UNIT_TEST(test_lidar_beacons());
 
-
-    std::cout << numPassed << "/" << numTests << " tests passed" << std::endl;
+    LOG_INFO("There has been ", numPassed, "/", numTests, " tests passed");
     return (numTests == numPassed) ? 0 : 1;
 }

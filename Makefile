@@ -32,7 +32,14 @@ SRC_LIB_COM = $(shell find $(SRCDIR_LIBCOM) -name "*.cpp")
 OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.o,$(SRC))
 OBJ += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM))
 
-SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp $(SRCDIR)/restAPI/restAPI.cpp $(SRCDIR)/navigation/navigation.cpp $(SRCDIR)/actions/functions.cpp $(SRCDIR)/actions/actionContainer.cpp $(SRCDIR)/actions/action.cpp, $(SRC))
+SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp \
+			$(SRCDIR)/restAPI/restAPI.cpp \
+			$(SRCDIR)/navigation/navigation.cpp \
+			$(SRCDIR)/actions/functions.cpp \
+			$(SRCDIR)/actions/actionContainer.cpp \
+			$(SRCDIR)/actions/action.cpp \
+			$(SRCDIR)/lidar/Lidar.cpp, \
+			$(SRC) )
 SRC_TEST = $(wildcard $(SRCDIR_TEST)/*.cpp)
 OBJ_NO_MAIN = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.o,$(SRC_NO_MAIN))
 OBJ_NO_MAIN += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM)) 
