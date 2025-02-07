@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
             }
 
             colorTeam_t color = readColorSensorSwitch();
-            if (color != tableStatus.robot.colorTeam){
+            if (color != NULL && color != tableStatus.robot.colorTeam){
                 LOG_INFO("Color switch detected");
                 tableStatus.robot.colorTeam = color;
 
@@ -151,9 +151,6 @@ int main(int argc, char *argv[])
                     LOG_INFO("teams : YELLOW");
                     asserv.set_coordinates(-770, 1390, -90);
                     arduino.RGB_Blinking(255, 255, 0);
-                    break;
-                case NONE:
-                    arduino.RGB_Blinking(255, 0, 0);
                     break;
                 }
             }
