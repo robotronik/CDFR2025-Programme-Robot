@@ -12,7 +12,7 @@
 #include "utils/logger.hpp"
 #include "restAPI/restAPI.hpp"
 #include "navigation/highways.h"
-#include "ArucoCam.hpp"
+#include "vision/ArucoCam.hpp"
 
 #include "actions/actionContainer.hpp"
 

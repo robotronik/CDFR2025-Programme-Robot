@@ -2,9 +2,9 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
-#include "httplib.h"
-#include "ArucoCam.hpp"
-#include "logger.hpp"
+#include "utils/httplib.h"
+#include "vision/ArucoCam.hpp"
+#include "utils/logger.hpp"
 #include "nlohmann/json.hpp" // For handling JSON
 using json = nlohmann::json;
 #define PORT_OFFSET 5000
