@@ -201,14 +201,18 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    // If the response is not OK, parse the JSON message
+                    return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Something went wrong!');
+                    });
                 }
                 return response.json(); // Assuming the response will be JSON
             })
             .then(data => {
-            })
+            })                
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
+                alert(error);
             });
         }
         
@@ -231,7 +235,10 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    // If the response is not OK, parse the JSON message
+                    return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Something went wrong!');
+                    });
                 }
                 return response.json(); // Assuming the response will be JSON
             })
@@ -239,6 +246,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
+                alert(error);
             });
         }
 
@@ -261,7 +269,10 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    // If the response is not OK, parse the JSON message
+                    return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Something went wrong!');
+                    });
                 }
                 return response.json(); // Assuming the response will be JSON
             })
@@ -269,6 +280,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
+                alert(error);
             });
         }
 
@@ -285,7 +297,10 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    // If the response is not OK, parse the JSON message
+                    return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Something went wrong!');
+                    });
                 }
                 return response.json(); // Assuming the response will be JSON
             })
@@ -293,6 +308,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
+                alert(error);
             });
         }
         
@@ -308,7 +324,10 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    // If the response is not OK, parse the JSON message
+                    return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Something went wrong!');
+                    });
                 }
                 return response.json(); // Assuming the response will be JSON
             })
@@ -316,6 +335,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
+                alert(error);
             });
         }
 
@@ -331,7 +351,10 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    // If the response is not OK, parse the JSON message
+                    return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Something went wrong!');
+                    });
                 }
                 return response.json(); // Assuming the response will be JSON
             })
@@ -339,6 +362,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
+                alert(error);
             });
         }
 
@@ -354,7 +378,10 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    // If the response is not OK, parse the JSON message
+                    return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Something went wrong!');
+                    });
                 }
                 return response.json(); // Assuming the response will be JSON
             })
@@ -362,6 +389,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
+                alert(error);
             });
         }
 
@@ -375,7 +403,10 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    // If the response is not OK, parse the JSON message
+                    return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Something went wrong!');
+                    });
                 }
                 return response.json(); // Assuming the response will be JSON
             })
@@ -383,6 +414,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
+                alert(error);
             });
         }
     </script>

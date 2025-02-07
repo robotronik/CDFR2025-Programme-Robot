@@ -1,4 +1,4 @@
-#include "logger.hpp"
+#include "utils/logger.hpp"
 
 bool testLogger(){
 	Logger::getInstance().log(LogLevel::DEBUG, "This is a debug message!");

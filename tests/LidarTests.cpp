@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include "lidarAnalize.h"
-//#include "lidar.h"
-#include "structs.hpp"
-#include "constante.h"
+#include "lidar/lidarAnalize.h"
+//#include "lidar/Lidar.hpp"
+#include "defs/structs.hpp"
+#include "defs/constante.h"
 
 bool run_lidar_opponent_test(std::string testName, std::string data_file_name, position_t robot_pos, position_t expected_opponent_pos, bool has_opponent);
 bool run_lidar_beacons_test(std::string testName, std::string data_file_name, position_t expected_robot_pos, colorTeam_t expected_color);

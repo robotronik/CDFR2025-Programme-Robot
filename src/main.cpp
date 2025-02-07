@@ -2,53 +2,45 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <string.h>
-#include <iostream>
-#include <time.h>
-#include <cstdlib>
-#include <filesystem>
 #include <thread>
-#include <fstream>
 #include <unistd.h>  // for usleep
 
 #include "main.hpp"
-#include "functions.h"
-#include "lidarAnalize.h"
-#include "lidar.h"
-#include "utils.h"
-#include "logger.hpp"
-#include "restAPI.hpp"
-#include "gpio.h"
-#include "highways.h"
+#include "actions/functions.h"
+#include "lidar/lidarAnalize.h"
+#include "utils/utils.h"
+#include "utils/logger.hpp"
+#include "restAPI/restAPI.hpp"
+#include "navigation/highways.h"
 #include "ArucoCam.hpp"
 
-#include "actionContainer.hpp"
+#include "actions/actionContainer.hpp"
 
-#define DISABLE_LIDAR
-#define TEST_API_ONLY
-// #define DISABLE_LIDAR_BEACONS
-#define EMULATE_I2C
 // #define EMULATE_CAM
+// #define DISABLE_LIDAR
+// #define TEST_API_ONLY
+#define DISABLE_LIDAR_BEACONS
+// #define EMULATE_I2C
 
 
 TableState tableStatus;
 
 // Initiation of i2c devices
 #ifndef EMULATE_I2C
-Asserv robotI2C(I2C_ASSER_ADDR);
+Asserv asserv(I2C_ASSER_ADDR);
 Arduino arduino(I2C_ARDUINO_ADDR);
 #else
-Asserv robotI2C(-1);
+Asserv asserv(-1);
 Arduino arduino(-1);
 #endif
+
+Lidar lidar;
 
 #ifndef EMULATE_CAM
 ArucoCam arucoCam1(0, "data/cam0.yml");
 #else
 ArucoCam arucoCam1(-1, "data/cam0.yml");
 #endif
-
-lidarAnalize_t lidarData[SIZEDATALIDAR];
-int lidar_count = 0;
 
 main_State_t currentState;
 main_State_t nextState;
@@ -63,9 +55,6 @@ std::thread api_server_thread;
 int StartSequence();
 void GetLidarV2();
 void EndSequence();
-
-bool isWifiConnected();
-void executePythonScript(const std::string &command);
 
 // Signal Management
 bool ctrl_c_pressed = false;
@@ -97,11 +86,11 @@ int main(int argc, char *argv[])
         // Get Sensor Data
         {
             int16_t x, y, theta;
-            robotI2C.get_coordinates(x, y, theta);
+            asserv.get_coordinates(x, y, theta);
             tableStatus.robot.pos = {x, y, theta};
             // LOG_GREEN_INFO("X = ", x," Y = ", y, " theta = ", theta);
 
-            if (currentState != FIN)
+            if (currentState != INIT)
             {
 #ifndef DISABLE_LIDAR
                 GetLidarV2();
@@ -119,95 +108,70 @@ int main(int argc, char *argv[])
             if (initState)
             {
                 LOG_STATE("INIT");
-
                 arduino.setStepper(0, 1);
                 arduino.setStepper(0, 2);
                 arduino.setStepper(0, 3);
                 resetActionneur();
                 sensorCount = 0;
+                arduino.RGB_Rainbow();
             }
 
-            bool bStateSensor3, bStateSensor1;
-            if (arduino.readSensor(3, bStateSensor3) && arduino.readSensor(1, bStateSensor1)){
-                if (bStateSensor3 == 1 && bStateSensor1 == 1)
-                    sensorCount++;
-                else
-                    sensorCount = 0;
-
+            bool initButtonState;
+            arduino.readSensor(1, initButtonState);
+            if (initButtonState){
+                sensorCount++;
                 if (sensorCount == 5)
-                {
-                    nextState = INITIALIZE;
-                    arduino.ledOff(2);
-                    arduino.ledOff(1);
-                }
+                    nextState = WAITSTART;
             }
-            blinkLed(2, 500);
-            blinkLed(1, 500);
+            else
+                sensorCount = 0;            
 
             break;
         }
         //****************************************************************
-        case INITIALIZE:
-        {
-            if (initState)
-            {
-                LOG_STATE("INITIALIZE");
-                resetActionneur();
-                robotI2C.go_to_point(tableStatus.robot.pos.x, tableStatus.robot.pos.y);
-                robotI2C.set_motor_state(true);
-                robotI2C.set_brake_state(true); //TODO should be false
-                //robotI2C.set_linear_max_speed(MAX_SPEED);
-                //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
-                //while(robotI2C.get_command_buffer_size() != 0); //wait end of all action above
-            }
-            tableStatus.robot.colorTeam = readColorSensorSwitch();
-            if (tableStatus.robot.colorTeam == BLUE) {
-                tableStatus.robot.colorTeam = BLUE;
-                nextState = WAITSTART;
-                robotI2C.set_coordinates(-770, -1390, 90);
-                LOG_INFO("teams : BLUE");
-            }
-            else if (tableStatus.robot.colorTeam == YELLOW) {
-                tableStatus.robot.colorTeam = YELLOW;
-                nextState = WAITSTART;
-                robotI2C.set_coordinates(-770, 1390, -90);
-                LOG_INFO("teams : YELLOW");
-            }
-            if (manual_ctrl)
-                nextState = MANUAL;
-            break;
-        }
         case WAITSTART:
         {
             if (initState){
-                LOG_STATE("WAITSTART");                
+                LOG_STATE("WAITSTART");    
+                resetActionneur();
+                asserv.set_motor_state(true);
+                asserv.set_brake_state(false); 
+                //asserv.set_linear_max_speed(MAX_SPEED);
+                //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
+                //while(asserv.get_command_buffer_size() != 0); //wait end of all action above
+                lidar.startSpin();            
                 sensorCount = 0;
             }
-            bool bStateSensor1;
-            if (arduino.readSensor(1, bStateSensor1)){
-                if (tableStatus.robot.colorTeam == YELLOW)
+
+            colorTeam_t color = readColorSensorSwitch();
+            if (color != NULL && color != tableStatus.robot.colorTeam){
+                LOG_INFO("Color switch detected");
+                tableStatus.robot.colorTeam = color;
+
+                switch (color)
                 {
-                    blinkLed(1, 500);
-                }
-                else
-                {
-                    blinkLed(2, 500);
+                case BLUE:
+                    LOG_INFO("teams : BLUE");
+                    asserv.set_coordinates(-770, -1390, 90);
+                    arduino.RGB_Blinking(0, 0, 255);
+                    break;
+                case YELLOW:
+                    LOG_INFO("teams : YELLOW");
+                    asserv.set_coordinates(-770, 1390, -90);
+                    arduino.RGB_Blinking(255, 255, 0);
+                    break;
                 }
             }
-
+            bool magnetSensorState;
+            arduino.readSensor(2, magnetSensorState);
             // Counts the number of time the magnet sensor
-            if (bStateSensor1 == 0)
+            if (magnetSensorState)
                 sensorCount++;
             else
                 sensorCount = 0;
 
             if (sensorCount == 5)
-            {
                 nextState = RUN;
-                arduino.ledOff(1);
-                arduino.ledOff(2);
-                tableStatus.startTime = _millis();
-            }
             if (manual_ctrl)
                 nextState = MANUAL;
             break;
@@ -218,9 +182,9 @@ int main(int argc, char *argv[])
             if (initState){
                 LOG_STATE("RUN");
                 tableStatus.startTime = _millis();
-                actionSystem.initAction(&robotI2C, &arduino, &(tableStatus));
+                actionSystem.initAction(&asserv, &arduino, &(tableStatus));
             }
-            bool finished = actionSystem.actionContainerRun(&robotI2C, &tableStatus);
+            bool finished = actionSystem.actionContainerRun(&asserv, &tableStatus);
 
             if (_millis() > tableStatus.startTime + 90000 || tableStatus.FIN || finished)
             {
@@ -233,8 +197,10 @@ int main(int argc, char *argv[])
         //****************************************************************
         case MANUAL:
         {
-            if (initState)
+            if (initState){
                 LOG_STATE("MANUAL");
+                arduino.RGB_Blinking(255, 0, 255); // Purple blinking
+            }
 
             // Execute the function as long as it returns false
             if (manual_currentFunc != NULL && manual_currentFunc != nullptr){
@@ -250,27 +216,20 @@ int main(int argc, char *argv[])
         //****************************************************************
         case FIN:
         {
-            if (initState)
-            {
-                LOG_STATE("FIN");
-                arduino.moveServo(4, 180);
-                arduino.moveServo(1, 180);
-                arduino.disableStepper(1);
-                robotI2C.set_motor_state(false);
-                robotI2C.set_brake_state(false);
-                nextState = STOP;
-            }
+            LOG_STATE("FIN");
+            arduino.moveServo(4, 180);
+            arduino.moveServo(1, 180);
+            arduino.disableStepper(1);
+            asserv.set_motor_state(false);
+            asserv.set_brake_state(false);
+            lidar.stopSpin();
+            nextState = INIT;
             break;
         }
         //****************************************************************
-        case STOP:
-            if (initState)
-                LOG_STATE("STOP");
-            break;
-        //****************************************************************
         default:
             LOG_STATE("default");
-            nextState = STOP;
+            nextState = INIT;
             break;
         }
 
@@ -303,16 +262,12 @@ int StartSequence()
     signal(SIGINT, ctrlc);
     // signal(SIGTSTP, ctrlz);
 
-#ifndef DISABLE_LIDAR
-    if (!lidarSetup("/dev/ttyAMA0", 256000))
-    {
-        LOG_ERROR("cannot find the lidar");
-        return -1;
-    }
+    arduino.RGB_Blinking(255, 0, 0); // Red blinking
 
-    // Setup the PWM on pin 18
-    if (GPIO_SetupPWMMotor() == -1) {
-        fprintf(stderr, "Unable to initialize gpio\n");
+#ifndef DISABLE_LIDAR
+    if (!lidar.setup("/dev/ttyAMA0", 256000))
+    {
+        LOG_ERROR("Cannot find the lidar");
         return -1;
     }
 #endif
@@ -320,7 +275,7 @@ int StartSequence()
 
     tableStatus.init();
 
-    // LOG_SETROBOT(robotI2C);
+    // LOG_SETROBOT(asserv);
     init_highways();
 
     // Start the api server in a separate thread
@@ -336,7 +291,7 @@ int StartSequence()
     while(!ctrl_c_pressed){
         sleep(0.1);
 #ifndef DISABLE_LIDAR
-        getlidarData(lidarData, lidar_count);
+        getData(lidarData, lidar_count);
 #endif
         if (i % 1000 == 0){
             arucoCam1.getPos();
@@ -373,7 +328,7 @@ int StartSequence()
     manual_ctrl = false;
     manual_currentFunc = NULL;
 
-    actionSystem.init(&robotI2C, &arduino, &tableStatus);
+    actionSystem.init(&asserv, &arduino, &tableStatus);
 
     // std::string colorTest = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
     // std::filesystem::path exe_pathTest = std::filesystem::canonical(std::filesystem::path(argv[0])).parent_path();
@@ -381,7 +336,7 @@ int StartSequence()
     // std::string commandTest = "python3 " + python_script_pathTest.string() + " " +  colorTest;
     // std::thread python_threadTest(executePythonScript,commandTest);
 
-    robotI2C.set_coordinates(0,0,0);
+    asserv.set_coordinates(0,0,0);
 
     LOG_INFO("Init sequence done");
     return 0;
@@ -393,14 +348,14 @@ void GetLidar()
     static position_t pos_opponent_avg_sum = {0, 0, 0};
     static int pos_opponent_avg_count = 0, count_pos = 0;
 
-    if (getlidarData(lidarData, lidar_count))
+    if (lidar.getData())
     {
         position_t position = tableStatus.robot.pos;
         position_t pos_opponent = position;
-        convertAngularToAxial(lidarData, lidar_count, &position, -100);
-        //init_position_balise(lidarData, lidar_count, &position);
-        convertAngularToAxial(lidarData, lidar_count, &position, 50);
-        if (position_opponent(lidarData, lidar_count, position, &pos_opponent)){
+        convertAngularToAxial(lidar.data, lidar.count, &position, -100);
+        //init_position_balise(lidar.data, lidar_count, &position);
+        convertAngularToAxial(lidar.data, lidar.count, &position, 50);
+        if (position_opponent(lidar.data, lidar.count, position, &pos_opponent)){
             pos_opponent_avg_sum.x += pos_opponent.x;
             pos_opponent_avg_sum.y += pos_opponent.y;
             pos_opponent_avg_count++;
@@ -436,7 +391,7 @@ void GetLidar()
             count_pos = 0;
         count_pos++;
 
-        //int16_t braking_distance = robotI2C.get_braking_distance();
+        //int16_t braking_distance = asserv.get_braking_distance();
         //tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
     }
 }
@@ -451,13 +406,13 @@ void GetLidarV2()
     static position_t pos_opponent_filtered = {0, 0, 0};
     static bool first_reading = true;
 
-    if (getlidarData(lidarData, lidar_count))
+    if (lidar.getData())
     {
         position_t position;
         colorTeam_t color;
         // TODO : Add offset to lidar robot pos
 #ifndef DISABLE_LIDAR_BEACONS
-        if (position_robot_beacons(lidarData, lidar_count, &position, tableStatus.robot.colorTeam, &color)){
+        if (position_robot_beacons(lidar.data, lidar.count, &position, tableStatus.robot.colorTeam, &color)){
             LOG_GREEN_INFO("Successfully found the robot's position using beacons");
             LOG_GREEN_INFO("X = ", position.x," Y = ", position.y, " theta = ", position.theta);
             // TODO, apply that new position to the tableStatus robot pos and the asserv
@@ -466,10 +421,10 @@ void GetLidarV2()
             position = tableStatus.robot.pos;
         }
 #endif
-        convertAngularToAxial(lidarData, lidar_count, &position, 50);
+        convertAngularToAxial(lidar.data, lidar.count, &position, 50);
         
         position_t pos_opponent;
-        if (position_opponentV2(lidarData, lidar_count, position, &pos_opponent)){
+        if (position_opponentV2(lidar.data, lidar.count, position, &pos_opponent)){
             // If it's the first reading, initialize the filtered position
             if (first_reading)
             {
@@ -503,47 +458,18 @@ void EndSequence()
 
     // Stop the lidar
 #ifndef DISABLE_LIDAR
-    GPIO_stopPWMMotor();
-    lidarStop();
+    lidar.Stop();
 #endif
 
-    robotI2C.set_motor_state(false);
-    robotI2C.set_brake_state(false);
-    //robotI2C.stop();
+    asserv.set_motor_state(false);
+    asserv.set_brake_state(false);
+    //asserv.stop();
 
-    arduino.ledOff(2);
-    arduino.ledOff(1);
+    arduino.RGB_Solid(0, 0, 0); // OFF
+
     resetActionneur();
     delay(1000);
     disableActionneur();
 
     LOG_DEBUG("Stopped");
-}
-
-bool isWifiConnected()
-{
-    std::ifstream file("/proc/net/wireless");
-    std::string line;
-
-    if (file.is_open())
-    {
-        while (std::getline(file, line))
-        {
-            if (line.find("wlan0") != std::string::npos)
-            {
-                LOG_GREEN_INFO("We are connected to a wifi : ", line.find("wlan0"));
-                // Si la ligne contient "wlan0", cela indique que l'interface Wi-Fi est présente
-                return true;
-            }
-        }
-        file.close();
-    }
-    else
-        LOG_ERROR("Erreur : Impossible d'ouvrir le fichier /proc/net/wireless.");
-    return false;
-}
-
-void executePythonScript(const std::string &command)
-{
-    std::system(command.c_str());
 }

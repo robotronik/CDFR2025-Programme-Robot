@@ -81,6 +81,9 @@ Pour nettoyer faire
 make clean-all
 ```
 
+Sur un nouveau Raspi, configurer avec
+sudo raspi-config
+Et activer l'I2C et la communicaton série dans interface options
 
 ## Debugging on a Raspberry Pi with VS Code
 
@@ -118,3 +121,10 @@ Defenies dans constante.h
 - Servo 3 - Souleveur à planches droite
 - Servo 4 - Pinces
 - servo 5 - Banière
+
+## RGB Light signals
+
+If the LED is off, the program isnt running
+If the LED is rainbow, the robot is waiting
+If the LED is blinking RED, theres an error
+During a match, the LED will be blinking with the color of the robot's team
