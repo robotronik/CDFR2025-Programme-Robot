@@ -30,7 +30,6 @@ public:
     /* data generale*/
     position_t pos_opponent;
     unsigned long startTime;
-    bool FIN;
     robot_t robot;
     table_t zoneFull[6];          // zone départ/arrivés
 

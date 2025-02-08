@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
             }
             bool finished = actionSystem.run();
 
-            if (_millis() > tableStatus.startTime + 90000 || tableStatus.FIN || finished)
+            if (_millis() > tableStatus.startTime + 90000 || finished)
             {
                 nextState = FIN;
             }

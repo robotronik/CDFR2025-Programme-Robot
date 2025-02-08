@@ -6,7 +6,6 @@ TableState::TableState(){}
 void TableState::init()
 {
     score = 1;
-    FIN = false;
     pos_opponent.x = 0; pos_opponent.y = 0;
 
     robot.pos = {0, 0, 0};
@@ -60,7 +59,6 @@ void to_json(json& j, const TableState& ts) {
         {"zoneFull", ts.zoneFull},
         {"pos_opponent", ts.pos_opponent},
         {"startTime", ts.startTime},
-        {"FIN", ts.FIN},
         {"robot", ts.robot}
     };
 }
