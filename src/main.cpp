@@ -444,9 +444,7 @@ void EndSequence()
     api_server_thread.join();
 
     // Stop the lidar
-#ifndef DISABLE_LIDAR
     lidar.Stop();
-#endif
 
     asserv.set_motor_state(false);
     asserv.set_brake_state(false);
