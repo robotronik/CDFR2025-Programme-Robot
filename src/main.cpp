@@ -37,7 +37,7 @@ Lidar lidar;
 main_State_t currentState;
 main_State_t nextState;
 bool initState;
-actionContainer actionSystem;
+ActionContainer actionSystem;
 bool manual_ctrl;
 bool (*manual_currentFunc)(); //Pointer to a function to execute of type bool func(void)
 

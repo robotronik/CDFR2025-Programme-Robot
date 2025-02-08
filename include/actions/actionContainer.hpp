@@ -8,7 +8,7 @@
 #include "lidar/lidarAnalize.h"
 #include "lidar/Lidar.hpp"
 
-class actionContainer
+class ActionContainer
 {
 private:
     Action* takeStock0;
@@ -36,8 +36,8 @@ private:
     std::vector<Action*> listeAction;
 
 public:
-    actionContainer();
-    ~actionContainer();
+    ActionContainer();
+    ~ActionContainer();
     void init();
     void initAction();
     bool forceNextAction();

@@ -1,10 +1,10 @@
 #include "actions/actionContainer.hpp"
 #include "main.hpp"
 
-actionContainer::actionContainer(){}
-actionContainer::~actionContainer(){}
+ActionContainer::ActionContainer(){}
+ActionContainer::~ActionContainer(){}
 
-void actionContainer::init(){
+void ActionContainer::init(){
     takeStock0 = new Action("takeStock0");
     takeStock1 = new Action("takeStock1");
     takeStock2 = new Action("takeStock2");
@@ -28,7 +28,7 @@ void actionContainer::init(){
 
 }
 
-void actionContainer::initAction(){
+void ActionContainer::initAction(){
     
 // ACTION 1 : CHERCHER DU STOCK
     takeStock0->setStartPoint(0,0,Direction::FORWARD,Rotation::SHORTEST); //replace 0,0 by coords of Stock[0]
@@ -105,7 +105,7 @@ void actionContainer::initAction(){
     choosNextAction();
 }
 
-int actionContainer::run(){
+int ActionContainer::run(){
     int iActionReturn, iChoosNextReturn = 0, iRet = 0;
     iActionReturn = currentAction->runAction();
     if(iActionReturn == -100){
@@ -127,7 +127,7 @@ int actionContainer::run(){
 }
 
 
-bool actionContainer::forceNextAction(){
+bool ActionContainer::forceNextAction(){
     bool bRet = false;
     for (Action* elem : listeAction) {
         if(elem->actionNeedForce()){
@@ -137,7 +137,7 @@ bool actionContainer::forceNextAction(){
     return bRet;
 }
 
-int actionContainer::choosNextAction(){
+int ActionContainer::choosNextAction(){
     LOG_GREEN_INFO("CHOOSE NEW ACTION: ");
     int bestCost = -1;
     for (Action* elem : listeAction) {
@@ -152,7 +152,7 @@ int actionContainer::choosNextAction(){
     return bestCost;
 }
 
-void actionContainer::resetAllAction(){
+void ActionContainer::resetAllAction(){
     for (Action* elem : listeAction) {
         elem->resetActionEnable();
     }
