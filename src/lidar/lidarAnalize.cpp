@@ -197,7 +197,7 @@ position_float_t position_estime(double alpha12, double alpha23, double alpha31,
     double D1_2 = sqrt(pow(bal_1.x - bal_2.x,2)+pow(bal_1.y - bal_2.y,2));
     double D2_3 = sqrt(pow(bal_3.x - bal_2.x,2)+pow(bal_3.y - bal_2.y,2));
     double D1_3 = sqrt(pow(bal_1.x - bal_3.x,2)+pow(bal_1.y - bal_3.y,2));
-    double R1,X1,Y1,R2,X2,Y2,R3;
+    double R1,R2,R3;
 
     R1 = D1_2/(2*sin(alpha12*M_PI/180));
     R2 = D2_3/(2*sin(alpha23*M_PI/180));
@@ -342,10 +342,9 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
     */
 
     // donne poto 1 et 2
-    double poto_1_2, poto_2_3, poto_3_1, d_tot = 10000, d1,d2,d3, x1,y1, x2,y2,x3,y3;
-    int index_poto1, index_poto2, index_poto3; //poto 1 = gauche haut, poto 2 = gauche bas, poto 3 = droite
+    double poto_1_2, poto_2_3, poto_3_1, d_tot = 10000;
+    int index_poto1, index_poto2, index_poto3, d1, d2, d3; //poto 1 = gauche haut, poto 2 = gauche bas, poto 3 = droite
     poto_1_2 = 1900.0;poto_2_3 = 3326.5; poto_3_1 = 3326.5;
-    int L = 3000;
 
     if (rows >= 3) {
         for (int i= 0; i< rows; i++){

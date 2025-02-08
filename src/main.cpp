@@ -45,7 +45,7 @@ ArucoCam arucoCam1(-1, "data/cam0.yml");
 main_State_t currentState;
 main_State_t nextState;
 bool initState;
-actionContainer actionSystem;
+ActionContainer actionSystem;
 bool manual_ctrl;
 bool (*manual_currentFunc)(); //Pointer to a function to execute of type bool func(void)
 
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
             }
 
             colorTeam_t color = readColorSensorSwitch();
-            if (color != NULL && color != tableStatus.robot.colorTeam){
+            if (color != NONE && color != tableStatus.robot.colorTeam){
                 LOG_INFO("Color switch detected");
                 tableStatus.robot.colorTeam = color;
 
@@ -159,6 +159,8 @@ int main(int argc, char *argv[])
                     LOG_INFO("teams : YELLOW");
                     asserv.set_coordinates(-770, 1390, -90);
                     arduino.RGB_Blinking(255, 255, 0);
+                    break;
+                default:
                     break;
                 }
             }
@@ -182,9 +184,9 @@ int main(int argc, char *argv[])
             if (initState){
                 LOG_STATE("RUN");
                 tableStatus.startTime = _millis();
-                actionSystem.initAction(&asserv, &arduino, &(tableStatus));
+                actionSystem.initAction();
             }
-            bool finished = actionSystem.actionContainerRun(&asserv, &tableStatus);
+            bool finished = actionSystem.run();
 
             if (_millis() > tableStatus.startTime + 90000 || tableStatus.FIN || finished)
             {
@@ -328,7 +330,7 @@ int StartSequence()
     manual_ctrl = false;
     manual_currentFunc = NULL;
 
-    actionSystem.init(&asserv, &arduino, &tableStatus);
+    actionSystem.init();
 
     // std::string colorTest = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
     // std::filesystem::path exe_pathTest = std::filesystem::canonical(std::filesystem::path(argv[0])).parent_path();
@@ -409,9 +411,9 @@ void GetLidarV2()
     if (lidar.getData())
     {
         position_t position;
-        colorTeam_t color;
         // TODO : Add offset to lidar robot pos
 #ifndef DISABLE_LIDAR_BEACONS
+        colorTeam_t color;
         if (position_robot_beacons(lidar.data, lidar.count, &position, tableStatus.robot.colorTeam, &color)){
             LOG_GREEN_INFO("Successfully found the robot's position using beacons");
             LOG_GREEN_INFO("X = ", position.x," Y = ", position.y, " theta = ", position.theta);
@@ -457,9 +459,7 @@ void EndSequence()
     api_server_thread.join();
 
     // Stop the lidar
-#ifndef DISABLE_LIDAR
     lidar.Stop();
-#endif
 
     asserv.set_motor_state(false);
     asserv.set_brake_state(false);

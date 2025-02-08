@@ -18,7 +18,6 @@ int construct(int x,int y,int theta){
 // function to construct a single tribune by placing a single platform and pushing the tribune
 bool constructSingleTribune(){
     static int state = 1;
-    bool res1, res2;
     switch (state)
     {
     case 1:
@@ -30,16 +29,12 @@ bool constructSingleTribune(){
             state ++;
         break;
     case 3:
-        res1 = movePlatformLifts(false);
-        res2 = moveTribunePusher(true);
-        if (res1 && res2){
+        if (movePlatformLifts(false) & moveTribunePusher(true)){
             state++;
         }
         break;
     case 4:
-        res1 = movePlatformLifts(true);
-        res2 = moveTribunePusher(false);
-        if (res1 && res2){
+        if (movePlatformLifts(true) & moveTribunePusher(false)){
             state = 1;
             return true;
         }
@@ -105,10 +100,10 @@ bool movePlatformElevator(int level){
     }
     if (previousLevel != level){
         previousLevel = level;
-        arduino.moveStepper(target, PLATFORMS_ELEVATOR_STEPPER_NUM); // TODO : Check if this is correct
+        arduino.moveStepper(target, PLATFORMS_ELEVATOR_STEPPER_NUM);
     }
     int32_t currentValue;
-    if (!arduino.getStepper(currentValue, PLATFORMS_ELEVATOR_STEPPER_NUM)) return true;
+    if (!arduino.getStepper(currentValue, PLATFORMS_ELEVATOR_STEPPER_NUM)) return true; // TODO Might need to change this (throw error)
     return (currentValue == target);
 }
 
