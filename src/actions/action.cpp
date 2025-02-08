@@ -1,10 +1,7 @@
 #include "actions/action.hpp"
+#include "main.hpp"
 
-
-action::action(std::string name, Asserv* irobot, Arduino* iarduino, TableState* itable){
-    robot = irobot;
-    arduino = iarduino;
-    table = itable;
+action::action(std::string name){
     actionName = name;
 
     noEndPoint = true;
@@ -40,7 +37,7 @@ int action::runAction(void){
             nextState = FSM_ACTION_INIT;
             actionEnable = false;
             if(badEndPtr){
-                badEndPtr(table);
+                badEndPtr();
             }
             ireturn = -1;
         }
@@ -49,7 +46,7 @@ int action::runAction(void){
 
     case FSM_ACTION_ACTION :
         if(initStat) LOG_STATE("FSM_ACTION_ACTION");
-        navRet = (nav_return_t)runActionPtr(this,robot,arduino,table);
+        navRet = (nav_return_t)runActionPtr(this);
         if(navRet>0){
             if(noEndPoint){
                 nextState = FSM_ACTION_INIT;
@@ -59,14 +56,14 @@ int action::runAction(void){
                 nextState = FSM_ACTION_MOVEEND;
             }
             if(goodEndPtr){
-                goodEndPtr(table,robot);
+                goodEndPtr();
             }
         }
         else if(navRet<0){
             nextState = FSM_ACTION_INIT;
             actionEnable = false;
             if(badEndPtr){
-                badEndPtr(table);
+                badEndPtr();
             }
             ireturn = -1;
         }
@@ -84,7 +81,7 @@ int action::runAction(void){
             nextState = FSM_ACTION_INIT;
             actionEnable = false;
             if(badEndPtr){
-                badEndPtr(table);
+                badEndPtr();
             }
             ireturn = -1;
         }
@@ -113,39 +110,39 @@ int action::costAction(void){
     return cost;
 }
 
-void action::setCostAction(int num_action, int num_i_action, TableState *itable, int x_start, int y_start){
+void action::setCostAction(int num_action, int num_i_action, int x_start, int y_start){
     int distance_action;
 
     // TODO : Change this to use itable.robot.pos instead
     int16_t x_pos,y_pos,theta_pos;
-    robot->get_coordinates(x_pos,y_pos,theta_pos);
+    asserv.get_coordinates(x_pos,y_pos,theta_pos);
 
     validActionPtr = -1;
     //ACTION 1 : TAKE STOCK
     //TODO
-    //if (num_action == 1 && itable->planteStockFull[num_i_action].etat && !itable->robot.robotHavePlante && !allJardiniereFull(itable) && itable->startTime+75000 > _millis()){
+    //if (num_action == 1 && tableStatus.planteStockFull[num_i_action].etat && !tableStatus.robot.robotHavePlante && !allJardiniereFull(itable) && tableStatus.startTime+75000 > _millis()){
     //    distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));  //distance de l'action au robot
-    //    validActionPtr = itable->planteStockFull[num_i_action].cout - distance_action/100; //distance : 10cm = -1 points
+    //    validActionPtr = tableStatus.planteStockFull[num_i_action].cout - distance_action/100; //distance : 10cm = -1 points
     //    LOG_GREEN_INFO("action 1 : ",validActionPtr," / ",num_i_action);
     //}
 
     //ACTION 2 : PUT IN CONSTRUCTION
     //TODO
-    //else if (num_action == 2 && !itable->JardiniereFull[num_i_action].etat && itable->robot.robotHavePlante && itable->robot.colorTeam == JardinierePosition[num_i_action].team && itable->jardiniereFree[num_i_action].etat){
+    //else if (num_action == 2 && !tableStatus.JardiniereFull[num_i_action].etat && tableStatus.robot.robotHavePlante && tableStatus.robot.colorTeam == JardinierePosition[num_i_action].team && tableStatus.jardiniereFree[num_i_action].etat){
     //    distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));
-    //    validActionPtr = itable->JardiniereFull[num_i_action].cout - distance_action/100;
+    //    validActionPtr = tableStatus.JardiniereFull[num_i_action].cout - distance_action/100;
     //    LOG_GREEN_INFO("action 2 : ",validActionPtr," / ",num_i_action, " / ", distance_action);
     //}
 
     //ACTION 4 : return to Home
-    if (num_action == 4 && itable->startTime+85000 < _millis()){
+    if (num_action == 4 && tableStatus.startTime+85000 < _millis()){
         validActionPtr = 200;
         LOG_GREEN_INFO("action 4 : ",validActionPtr," / ",num_i_action);
     }
 
     /*
     //ACTION 5 : wait until fin
-    else if (num_action == 5 && itable->startTime+88000 > _millis() && !itable->FIN){
+    else if (num_action == 5 && tableStatus.startTime+88000 > _millis() && !tableStatus.FIN){
         validActionPtr = 4;
         LOG_GREEN_INFO("action 5 : ",validActionPtr);
     
@@ -153,7 +150,7 @@ void action::setCostAction(int num_action, int num_i_action, TableState *itable,
    */
 }
 
-void action::setRunAction(std::function<int(action*, Asserv*, Arduino*, TableState*)> ptr){
+void action::setRunAction(std::function<int(action*)> ptr){
     runActionPtr = ptr;
 }
 
@@ -200,10 +197,10 @@ std::string action::getName(void){
     return actionName;
 }
 
-void action::goodEnd(std::function<void(TableState*,Asserv*)> ptr){
+void action::goodEnd(std::function<void()> ptr){
     goodEndPtr = ptr;
 }
-void action::badEnd(std::function<void(TableState*)> ptr){
+void action::badEnd(std::function<void()> ptr){
     badEndPtr = ptr;
 }
 
@@ -211,11 +208,12 @@ void action::resetActionEnable(void){
     actionEnable = true;
 }
 
+// idk what this does
 void action::setKeyMoment(unsigned long keyMom){
     keyMomentSet = true;
     keyMoment = keyMom;
 }
 
 bool action::actionNeedForce(void){
-    return table->startTime+keyMoment < _millis() && keyMomentSet;
+    return tableStatus.startTime+keyMoment < _millis() && keyMomentSet;
 }

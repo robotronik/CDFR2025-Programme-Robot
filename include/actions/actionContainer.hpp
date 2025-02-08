@@ -33,22 +33,18 @@ private:
     action* returnToHomeAction;
     action* currentAction;
 
-    Asserv* robot;
-    Arduino* arduino;
-    TableState* table;
-
     std::vector<action*> listeAction;
 
 public:
     actionContainer();
-    void init(Asserv* irobot, Arduino* iarduino, TableState* itable);
-    void initAction( Asserv* irobot, Arduino* iarduino, TableState* itable);
-    bool forceNextAction(void);
-    int actionContainerRun(Asserv* asserv,TableState* itable);
-    void resetAllAction(void);
     ~actionContainer();
-private : 
+    void init();
+    void initAction();
+    bool forceNextAction();
+    int run();
+    void resetAllAction();
 
-    int choosNextAction(void);
+private : 
+    int choosNextAction();
 };
 

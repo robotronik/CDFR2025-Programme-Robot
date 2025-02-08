@@ -10,14 +10,14 @@
 
 class action;
 
-typedef int (*FuncRunPtr)(action*, Asserv*, Arduino*, TableState*);
-typedef int (*FuncValidPtr)(TableState*);
+// TODO : Remove this typedef
+//typedef int (*FuncRunPtr)(action*);
+//typedef int (*FuncValidPtr)();
 
 
 class action
 {
 private: 
-
 
     typedef enum{
         FSM_ACTION_INIT,
@@ -27,14 +27,10 @@ private:
     }fsmAction_t;
 
 private:
-    Asserv* robot;
-    Arduino* arduino;
-    TableState* table;
-
-    std::function<int(action*, Asserv*, Arduino*, TableState*)> runActionPtr;
+    std::function<int(action*)> runActionPtr;
     int validActionPtr;
-    std::function<void(TableState*,Asserv *)> goodEndPtr;
-    std::function<void(TableState*)> badEndPtr;
+    std::function<void()> goodEndPtr;
+    std::function<void()> badEndPtr;
 
     position_t startPostion;
     Direction startDirection;
@@ -56,20 +52,20 @@ private:
     bool nothetaStart = false;
 
 public:
-    action(std::string name, Asserv* irobot, Arduino* iarduino, TableState* itable);
-    int runAction(void);
-    void setRunAction(std::function<int(action*, Asserv*, Arduino*, TableState*)> ptr);
+    action(std::string name);
+    int runAction();
+    void setRunAction(std::function<int(action*)> ptr);
     void setStartPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
     void setStartPoint(int x, int y, Direction Direction, Rotation rotation);
     void setEndPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
-    int costAction(void);
-    void goodEnd(std::function<void(TableState*, Asserv*)> ptr);
-    void badEnd(std::function<void(TableState*)> ptr);
-    void setCostAction(int num_action, int num_i_action, TableState *itable, int x_start, int y_start);
-    void resetActionEnable(void);
+    int costAction();
+    void goodEnd(std::function<void()> ptr);
+    void badEnd(std::function<void()> ptr);
+    void setCostAction(int num_action, int num_i_action, int x_start, int y_start);
+    void resetActionEnable();
     void setKeyMoment(unsigned long keyMom);
-    bool actionNeedForce(void);
-    std::string getName(void);
+    bool actionNeedForce();
+    std::string getName();
     ~action();
 
     friend std::ostream& operator<<(std::ostream& os, action& obj) {
@@ -78,6 +74,6 @@ public:
     }
 
 private:
-    nav_return_t goToStart(void);
-    nav_return_t goToEnd(void);
+    nav_return_t goToStart();
+    nav_return_t goToEnd();
 };
