@@ -1,7 +1,7 @@
 #include "actions/action.hpp"
 #include "main.hpp"
 
-action::action(std::string name){
+Action::Action(std::string name){
     actionName = name;
 
     noEndPoint = true;
@@ -10,11 +10,11 @@ action::action(std::string name){
     actionEnable = true;
 }
 
-action::~action(){
+Action::~Action(){
    
 }
 
-int action::runAction(void){
+int Action::runAction(void){
     LOG_SCOPE("Action");
     int ireturn = 0;
     fsmAction_t nextState = currentState;
@@ -102,7 +102,7 @@ int action::runAction(void){
     return ireturn;
 }
 
-int action::costAction(void){
+int Action::costAction(void){
     int cost = validActionPtr;
     if(actionEnable == false){
         cost = -1;
@@ -110,7 +110,7 @@ int action::costAction(void){
     return cost;
 }
 
-void action::setCostAction(int num_action, int num_i_action, int x_start, int y_start){
+void Action::setCostAction(int num_action, int num_i_action, int x_start, int y_start){
     int distance_action;
 
     // TODO : Change this to use itable.robot.pos instead
@@ -123,7 +123,7 @@ void action::setCostAction(int num_action, int num_i_action, int x_start, int y_
     //if (num_action == 1 && tableStatus.planteStockFull[num_i_action].etat && !tableStatus.robot.robotHavePlante && !allJardiniereFull(itable) && tableStatus.startTime+75000 > _millis()){
     //    distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));  //distance de l'action au robot
     //    validActionPtr = tableStatus.planteStockFull[num_i_action].cout - distance_action/100; //distance : 10cm = -1 points
-    //    LOG_GREEN_INFO("action 1 : ",validActionPtr," / ",num_i_action);
+    //    LOG_GREEN_INFO("Action 1 : ",validActionPtr," / ",num_i_action);
     //}
 
     //ACTION 2 : PUT IN CONSTRUCTION
@@ -131,30 +131,30 @@ void action::setCostAction(int num_action, int num_i_action, int x_start, int y_
     //else if (num_action == 2 && !tableStatus.JardiniereFull[num_i_action].etat && tableStatus.robot.robotHavePlante && tableStatus.robot.colorTeam == JardinierePosition[num_i_action].team && tableStatus.jardiniereFree[num_i_action].etat){
     //    distance_action = sqrt(pow(x_pos-x_start,2) + pow(y_pos-y_start,2));
     //    validActionPtr = tableStatus.JardiniereFull[num_i_action].cout - distance_action/100;
-    //    LOG_GREEN_INFO("action 2 : ",validActionPtr," / ",num_i_action, " / ", distance_action);
+    //    LOG_GREEN_INFO("Action 2 : ",validActionPtr," / ",num_i_action, " / ", distance_action);
     //}
 
     //ACTION 4 : return to Home
     if (num_action == 4 && tableStatus.startTime+85000 < _millis()){
         validActionPtr = 200;
-        LOG_GREEN_INFO("action 4 : ",validActionPtr," / ",num_i_action);
+        LOG_GREEN_INFO("Action 4 : ",validActionPtr," / ",num_i_action);
     }
 
     /*
     //ACTION 5 : wait until fin
     else if (num_action == 5 && tableStatus.startTime+88000 > _millis() && !tableStatus.FIN){
         validActionPtr = 4;
-        LOG_GREEN_INFO("action 5 : ",validActionPtr);
+        LOG_GREEN_INFO("Action 5 : ",validActionPtr);
     
     }
    */
 }
 
-void action::setRunAction(std::function<int(action*)> ptr){
+void Action::setRunAction(std::function<int(Action*)> ptr){
     runActionPtr = ptr;
 }
 
-nav_return_t action::goToStart(void){
+nav_return_t Action::goToStart(void){
     if(nothetaStart){
         return navigationGoToNoTurn(startPostion.x,startPostion.y, startDirection,startRotation);
     }
@@ -164,11 +164,11 @@ nav_return_t action::goToStart(void){
 }
 
 
-nav_return_t action::goToEnd(void){
+nav_return_t Action::goToEnd(void){
     return navigationGoTo(endPostion.x, endPostion.y, endPostion.theta, endDirection);
 }
 
-void action::setStartPoint(int x, int y, int theta, Direction Direction, Rotation rotation){
+void Action::setStartPoint(int x, int y, int theta, Direction Direction, Rotation rotation){
     startPostion.x = x;
     startPostion.y = y;
     startPostion.theta = theta;
@@ -176,7 +176,7 @@ void action::setStartPoint(int x, int y, int theta, Direction Direction, Rotatio
     startRotation = rotation;
 }
 
-void action::setStartPoint(int x, int y, Direction Direction, Rotation rotation){
+void Action::setStartPoint(int x, int y, Direction Direction, Rotation rotation){
     startPostion.x = x;
     startPostion.y = y;
     startDirection = Direction;
@@ -184,7 +184,7 @@ void action::setStartPoint(int x, int y, Direction Direction, Rotation rotation)
     nothetaStart = true;
 }
 
-void action::setEndPoint(int x, int y, int theta, Direction Direction, Rotation rotation){
+void Action::setEndPoint(int x, int y, int theta, Direction Direction, Rotation rotation){
     endPostion.x = x;
     endPostion.y = y;
     endPostion.theta = theta;
@@ -193,27 +193,27 @@ void action::setEndPoint(int x, int y, int theta, Direction Direction, Rotation 
     noEndPoint = false;
 }
 
-std::string action::getName(void){
+std::string Action::getName(void){
     return actionName;
 }
 
-void action::goodEnd(std::function<void()> ptr){
+void Action::goodEnd(std::function<void()> ptr){
     goodEndPtr = ptr;
 }
-void action::badEnd(std::function<void()> ptr){
+void Action::badEnd(std::function<void()> ptr){
     badEndPtr = ptr;
 }
 
-void action::resetActionEnable(void){
+void Action::resetActionEnable(void){
     actionEnable = true;
 }
 
 // idk what this does
-void action::setKeyMoment(unsigned long keyMom){
+void Action::setKeyMoment(unsigned long keyMom){
     keyMomentSet = true;
     keyMoment = keyMom;
 }
 
-bool action::actionNeedForce(void){
+bool Action::actionNeedForce(void){
     return tableStatus.startTime+keyMoment < _millis() && keyMomentSet;
 }

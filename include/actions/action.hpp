@@ -8,14 +8,9 @@
 #include "defs/constante.h"
 #include "i2c/Arduino.hpp"
 
-class action;
+class Action;
 
-// TODO : Remove this typedef
-//typedef int (*FuncRunPtr)(action*);
-//typedef int (*FuncValidPtr)();
-
-
-class action
+class Action
 {
 private: 
 
@@ -27,7 +22,7 @@ private:
     }fsmAction_t;
 
 private:
-    std::function<int(action*)> runActionPtr;
+    std::function<int(Action*)> runActionPtr;
     int validActionPtr;
     std::function<void()> goodEndPtr;
     std::function<void()> badEndPtr;
@@ -52,9 +47,9 @@ private:
     bool nothetaStart = false;
 
 public:
-    action(std::string name);
+    Action(std::string name);
     int runAction();
-    void setRunAction(std::function<int(action*)> ptr);
+    void setRunAction(std::function<int(Action*)> ptr);
     void setStartPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
     void setStartPoint(int x, int y, Direction Direction, Rotation rotation);
     void setEndPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
@@ -66,9 +61,9 @@ public:
     void setKeyMoment(unsigned long keyMom);
     bool actionNeedForce();
     std::string getName();
-    ~action();
+    ~Action();
 
-    friend std::ostream& operator<<(std::ostream& os, action& obj) {
+    friend std::ostream& operator<<(std::ostream& os, Action& obj) {
         os << obj.getName();
         return os;
     }

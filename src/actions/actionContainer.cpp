@@ -5,26 +5,26 @@ actionContainer::actionContainer(){}
 actionContainer::~actionContainer(){}
 
 void actionContainer::init(){
-    takeStock0 = new action("takeStock0");
-    takeStock1 = new action("takeStock1");
-    takeStock2 = new action("takeStock2");
-    takeStock3 = new action("takeStock3");
-    takeStock4 = new action("takeStock4");
-    takeStock5 = new action("takeStock5");
-    takeStock6 = new action("takeStock6");
-    takeStock7 = new action("takeStock7");
-    takeStock8 = new action("takeStock8");
-    takeStock9 = new action("takeStock9");
+    takeStock0 = new Action("takeStock0");
+    takeStock1 = new Action("takeStock1");
+    takeStock2 = new Action("takeStock2");
+    takeStock3 = new Action("takeStock3");
+    takeStock4 = new Action("takeStock4");
+    takeStock5 = new Action("takeStock5");
+    takeStock6 = new Action("takeStock6");
+    takeStock7 = new Action("takeStock7");
+    takeStock8 = new Action("takeStock8");
+    takeStock9 = new Action("takeStock9");
 
-    putInConstruction0 = new action("putInConstruction0");
-    putInConstruction1 = new action("putInConstruction1");
-    putInConstruction2 = new action("putInConstruction2");
-    putInConstruction3 = new action("putInConstruction3");
-    putInConstruction4 = new action("putInConstruction4");
-    putInConstruction5 = new action("putInConstruction5");
+    putInConstruction0 = new Action("putInConstruction0");
+    putInConstruction1 = new Action("putInConstruction1");
+    putInConstruction2 = new Action("putInConstruction2");
+    putInConstruction3 = new Action("putInConstruction3");
+    putInConstruction4 = new Action("putInConstruction4");
+    putInConstruction5 = new Action("putInConstruction5");
 
-    waitFin = new action("waitFin");
-    returnToHomeAction = new action("returnToHomeAction");
+    waitFin = new Action("waitFin");
+    returnToHomeAction = new Action("returnToHomeAction");
 
 }
 
@@ -32,7 +32,7 @@ void actionContainer::initAction(){
     
 // ACTION 1 : CHERCHER DU STOCK
     takeStock0->setStartPoint(0,0,Direction::FORWARD,Rotation::SHORTEST); //replace 0,0 by coords of Stock[0]
-    takeStock0->setRunAction([&](action* iaction) {
+    takeStock0->setRunAction([&](Action* iaction) {
         //return takePlant2(iAsser,iarduino,itable,plantPosition[0].x - MARGESTOCKPLANTX,plantPosition[0].y - MARGESTOCKPLANTY,plantPosition[0].x + MARGESTOCKPLANTX/DIVIDE,plantPosition[0].y + MARGESTOCKPLANTY/DIVIDE,0);
         return takeStock(0,0,0,0,0);
     });
@@ -48,7 +48,7 @@ void actionContainer::initAction(){
 // ACTION 2 PUT IN CONSTRUCTION ZONE 
     putInConstruction0->setStartPoint(0, 0, 90, Direction::FORWARD, Rotation::SHORTEST);
     putInConstruction0->setEndPoint(0, 0, 90, Direction::BACKWARD, Rotation::SHORTEST);
-    putInConstruction0->setRunAction([](action* iaction) {
+    putInConstruction0->setRunAction([](Action* iaction) {
         return construct(0, 0, 90);
     });
     putInConstruction0->goodEnd([](){
@@ -77,7 +77,7 @@ void actionContainer::initAction(){
 
         // ACTION 4
     returnToHomeAction->setStartPoint(700,(tableStatus.robot.colorTeam == YELLOW ? 1200 : -1200), Direction::FORWARD, Rotation::SHORTEST);
-    returnToHomeAction->setRunAction([](action* iaction) {
+    returnToHomeAction->setRunAction([](Action* iaction) {
         int iret = 0;
         //if(FastReleasePlant(iarduino))
         //    iret = -100;
@@ -92,7 +92,7 @@ void actionContainer::initAction(){
 
     //ACTION 5
     waitFin->setStartPoint(700,0,(tableStatus.robot.colorTeam == YELLOW ? -90 : 90),Direction::FORWARD,Rotation::SHORTEST);
-    waitFin->setRunAction([](action* iaction){
+    waitFin->setRunAction([](Action* iaction){
         while (tableStatus.startTime+88000 > _millis()){
             sleep(0.25);
         }
@@ -129,7 +129,7 @@ int actionContainer::run(){
 
 bool actionContainer::forceNextAction(){
     bool bRet = false;
-    for (action* elem : listeAction) {
+    for (Action* elem : listeAction) {
         if(elem->actionNeedForce()){
             bRet = true;
         }
@@ -140,7 +140,7 @@ bool actionContainer::forceNextAction(){
 int actionContainer::choosNextAction(){
     LOG_GREEN_INFO("CHOOSE NEW ACTION: ");
     int bestCost = -1;
-    for (action* elem : listeAction) {
+    for (Action* elem : listeAction) {
         int cost = elem->costAction();
         //LOG_INFO("elem = ", currentAction->getName(), "cost = ", cost);
         if(cost>bestCost){
@@ -153,7 +153,7 @@ int actionContainer::choosNextAction(){
 }
 
 void actionContainer::resetAllAction(){
-    for (action* elem : listeAction) {
+    for (Action* elem : listeAction) {
         elem->resetActionEnable();
     }
 }

@@ -11,29 +11,29 @@
 class actionContainer
 {
 private:
-    action* takeStock0;
-    action* takeStock1;
-    action* takeStock2;
-    action* takeStock3;
-    action* takeStock4;
-    action* takeStock5;
-    action* takeStock6;
-    action* takeStock7;
-    action* takeStock8;
-    action* takeStock9;
+    Action* takeStock0;
+    Action* takeStock1;
+    Action* takeStock2;
+    Action* takeStock3;
+    Action* takeStock4;
+    Action* takeStock5;
+    Action* takeStock6;
+    Action* takeStock7;
+    Action* takeStock8;
+    Action* takeStock9;
 
-    action* putInConstruction0;
-    action* putInConstruction1;
-    action* putInConstruction2;
-    action* putInConstruction3;
-    action* putInConstruction4;
-    action* putInConstruction5;
+    Action* putInConstruction0;
+    Action* putInConstruction1;
+    Action* putInConstruction2;
+    Action* putInConstruction3;
+    Action* putInConstruction4;
+    Action* putInConstruction5;
 
-    action * waitFin;
-    action* returnToHomeAction;
-    action* currentAction;
+    Action * waitFin;
+    Action* returnToHomeAction;
+    Action* currentAction;
 
-    std::vector<action*> listeAction;
+    std::vector<Action*> listeAction;
 
 public:
     actionContainer();
