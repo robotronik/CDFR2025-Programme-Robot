@@ -12,17 +12,17 @@ class Action;
 
 class Action
 {
-private: 
-
-    typedef enum{
+private:
+    typedef enum
+    {
         FSM_ACTION_INIT,
         FSM_ACTION_MOVESTART,
         FSM_ACTION_ACTION,
         FSM_ACTION_MOVEEND
-    }fsmAction_t;
+    } fsmAction_t;
 
 private:
-    std::function<int(Action*)> runActionPtr;
+    std::function<int(Action *)> runActionPtr;
     int validActionPtr;
     std::function<void()> goodEndPtr;
     std::function<void()> badEndPtr;
@@ -49,7 +49,7 @@ private:
 public:
     Action(std::string name);
     int runAction();
-    void setRunAction(std::function<int(Action*)> ptr);
+    void setRunAction(std::function<int(Action *)> ptr);
     void setStartPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
     void setStartPoint(int x, int y, Direction Direction, Rotation rotation);
     void setEndPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
@@ -63,7 +63,8 @@ public:
     std::string getName();
     ~Action();
 
-    friend std::ostream& operator<<(std::ostream& os, Action& obj) {
+    friend std::ostream &operator<<(std::ostream &os, Action &obj)
+    {
         os << obj.getName();
         return os;
     }
