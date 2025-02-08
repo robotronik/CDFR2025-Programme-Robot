@@ -1,6 +1,6 @@
-# cdfr2025-Programme-Robot
+# CDFR2025-Programme-Robot
 
-Bienvenue dans le projet cdfr2025-Programme-Robot ! Ce projet vise à développer un programme pour contrôler un robot dans le cadre du CDFR 2025.
+Bienvenue dans le projet CDFR2025-Programme-Robot ! Ce projet vise à développer un programme pour contrôler un robot dans le cadre du CDFR 2025.
 
 ## Description
 
@@ -66,7 +66,7 @@ make clean
 
 ## Compilation pour RasbPi
 
-Assurez vous d'avoir les dépendances requieses pour compiler sur arm.
+Assurez vous d'avoir les dépendances requises pour compiler sur arm.
 Simplement lancer la commande pour compiler le programme pour ARM et l'installer sur le RasbPi.
 Pour se connecter en ssh au RasbPi sans avoir à utiliser de mot de passe, utiliser
 ssh-copy-id pi@192.168.1.47
@@ -81,9 +81,9 @@ Pour nettoyer faire
 make clean-all
 ```
 
-Sur un nouveau Raspi, configurer avec
+Sur un nouveau Raspi, il faut configurer avec
 sudo raspi-config
-Et activer l'I2C et la communicaton série dans interface options
+et activer l'I2C et la communicaton série dans Interface Options
 
 ## Debugging on a Raspberry Pi with VS Code
 
@@ -93,9 +93,8 @@ You can now set breakpoints and use all the debugging tools available in VS Code
 
 ## Accessibilité au site (restAPI)
 
-Soyez sur le même internet local que le robot.
-Le programme doit être lancer depis n'importe quel pc.
-Allez sur cette adresse ds un navigateur : http://raspberrypi.local:8080
+Soyez sur le même internet local que le robot. Le programme doit être lancé.
+Allez sur cette adresse dans un navigateur : http://raspitronik.local:8080
 
 ## Ecran tactile sur le robot
 
@@ -123,7 +122,13 @@ Defenies dans constante.h
 
 ## RGB Light signals
 
-If the LED is off, the program isnt running
-If the LED is rainbow, the robot is waiting
-If the LED is blinking RED, theres an error
-During a match, the LED will be blinking with the color of the robot's team
+SOLID:
+- There's no case where it should be solid
+
+BLINKING:
+- Red, the program has failed. Restart the robot.
+- Blue, the robot is ready to start as blue
+- Yellow, the robot is ready to start as yellow
+- Purple, the robot is in manual control mode
+RAINBOW:
+- The robot is waiting for user input
