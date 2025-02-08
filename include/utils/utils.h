@@ -48,9 +48,4 @@ inline bool isWifiConnected()
     return false;
 }
 
-inline void executePythonScript(const std::string &command)
-{
-    std::system(command.c_str());
-}
-
 #endif
