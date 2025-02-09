@@ -47,4 +47,16 @@ inline bool isWifiConnected()
     return false;
 }
 
-#endif
+inline void setProgramPriority(int val = 99) // Max priority
+{
+    struct sched_param param;
+    param.sched_priority = 99;  // Highest priority for SCHED_FIFO
+
+    if (sched_setscheduler(0, SCHED_FIFO, &param) == -1) {
+        perror("sched_setscheduler failed");
+        throw std::runtime_error("sched_setscheduler failed. Make sure the programs runs in SUDO");
+    }
+    printf("Program priority set to %d\n", val);
+}
+
+#endif //UTILS_H

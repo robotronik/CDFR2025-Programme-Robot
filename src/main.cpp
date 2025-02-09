@@ -73,6 +73,7 @@ int main(int argc, char *argv[])
     while (!ctrl_c_pressed)
     {
         loopStartTime = _millis();
+        LOG_DEBUG("ay", loopStartTime);
 
         // Get Sensor Data
         {
@@ -235,9 +236,9 @@ int main(int argc, char *argv[])
         if (ms > loopStartTime + LOOP_TIME_MS){
             LOG_WARNING("Loop took more than " , LOOP_TIME_MS, "ms to execute (", (ms - loopStartTime), " ms)");
         }
-        else{
-            //State machine runs at a constant rate
-            usleep(1000 * (loopStartTime + LOOP_TIME_MS - ms));
+        //State machine runs at a constant rate
+        while (_millis() < loopStartTime + LOOP_TIME_MS){
+            usleep(100);
         }
     }
 
@@ -252,6 +253,8 @@ int StartSequence()
     signal(SIGTERM, ctrlc);
     signal(SIGINT, ctrlc);
     // signal(SIGTSTP, ctrlz);
+
+    setProgramPriority();
 
     arduino.RGB_Blinking(255, 0, 0); // Red blinking
 
