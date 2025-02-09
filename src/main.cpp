@@ -15,10 +15,10 @@
 
 #include "actions/actionContainer.hpp"
 
-#define DISABLE_LIDAR
+// #define DISABLE_LIDAR
 // #define TEST_API_ONLY
 #define DISABLE_LIDAR_BEACONS
-#define EMULATE_I2C
+// #define EMULATE_I2C
 
 
 TableState tableStatus;
@@ -52,13 +52,13 @@ void EndSequence();
 bool ctrl_c_pressed = false;
 void ctrlc(int)
 {
-    LOG_DEBUG("Stop Signal Recieved");
+    LOG_INFO("Stop Signal Recieved");
     ctrl_c_pressed = true;
 }
 bool ctrl_z_pressed = false;
 void ctrlz(int signal)
 {
-    LOG_DEBUG("Termination Signal Recieved");
+    LOG_INFO("Termination Signal Recieved");
     ctrl_z_pressed = true;
 }
 
@@ -445,5 +445,5 @@ void EndSequence()
     delay(1000);
     disableActionneur();
 
-    LOG_DEBUG("Stopped");
+    LOG_GREEN_INFO("Stopped");
 }
