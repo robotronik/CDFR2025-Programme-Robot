@@ -64,6 +64,8 @@ void ctrlz(int signal)
 
 int main(int argc, char *argv[])
 {
+    LOG_SCOPE("Main");
+    
     if (StartSequence() != 0)
         return -1;
 
@@ -72,7 +74,6 @@ int main(int argc, char *argv[])
     unsigned long loopStartTime;
     while (!ctrl_c_pressed)
     {
-        LOG_SCOPE("Main");
         loopStartTime = _millis();
 
         // Get Sensor Data
