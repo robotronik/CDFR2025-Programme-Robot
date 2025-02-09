@@ -1,14 +1,5 @@
 #pragma once
 
-extern "C" {
-#include <i2c/smbus.h>
-#include <linux/i2c-dev.h>
-#include <unistd.h>				//Needed for I2C port
-#include <fcntl.h>				//Needed for I2C port
-#include <sys/ioctl.h>			//Needed for I2C port
-}
-
-#include <iostream>
 #include <cstdint>
 
 class I2CDevice {
