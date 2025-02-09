@@ -62,12 +62,16 @@ inline void log(LogLevel level, const std::string& functionName, const std::stri
     std::string colorCode = getColorCode(level);
     std::string resetCode = "\033[0m";
 
-    std::cout << colorCode
-              << currentTimeFormatted() << " "
-              << "[" << getLevelString(level) << "]  \t"
-              << "[" << functionName << "]  \t"
-              << oss.str()
-              << resetCode << std::endl;
+    std::ostringstream logStream;
+    logStream << colorCode
+            << currentTimeFormatted() << " "
+            << "[" << getLevelString(level) << "]  \t"
+            << "[" << functionName << "]  \t"
+            << oss.str()
+            << resetCode << std::endl;
+
+    // Print the fully constructed log message in one operation.
+    std::cout << logStream.str();
 }
 
 } // namespace SimpleLogger

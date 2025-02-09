@@ -15,10 +15,10 @@
 
 #include "actions/actionContainer.hpp"
 
-// #define DISABLE_LIDAR
+#define DISABLE_LIDAR
 // #define TEST_API_ONLY
 #define DISABLE_LIDAR_BEACONS
-// #define EMULATE_I2C
+#define EMULATE_I2C
 
 
 TableState tableStatus;
@@ -231,12 +231,13 @@ int main(int argc, char *argv[])
         }
 
         // Check if state machine is running above loop time
-        if (_millis() > loopStartTime + LOOP_TIME_MS){
-            LOG_WARNING("Loop took more than " , LOOP_TIME_MS, "ms to execute (", (_millis() - loopStartTime), " ms)");
+        unsigned long ms = _millis();
+        if (ms > loopStartTime + LOOP_TIME_MS){
+            LOG_WARNING("Loop took more than " , LOOP_TIME_MS, "ms to execute (", (ms - loopStartTime), " ms)");
         }
-        //State machine runs at a constant rate
-        while(_millis() < loopStartTime + LOOP_TIME_MS){    
-            usleep(100);  // sleep for 100 microseconds
+        else{
+            //State machine runs at a constant rate
+            usleep(1000 * (loopStartTime + LOOP_TIME_MS - ms));
         }
     }
 
