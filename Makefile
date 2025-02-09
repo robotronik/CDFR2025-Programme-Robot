@@ -54,7 +54,7 @@ DEPENDS += $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_TEST)/%.d,$(SRC_TEST))
 .PHONY: all clean tests clean-all deploy run
 
 all: check $(BINDIR) build_lidarLib $(TARGET) $(TEST_TARGET) copy_html
-	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && ./programCDFR)' pour exécuter le programme."
+	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && sudo ./programCDFR)' pour exécuter le programme."
 
 check:
 	@if [ ! -d "$(SRCDIR_LIBCOM)" ]; then \
