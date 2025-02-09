@@ -1,130 +1,97 @@
 #pragma once
+
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <chrono>
+#include <ctime>
 #include <iomanip>
-//#include <Asserv.hpp>
-#include <stack>
 #include "utils/utils.h"
 
-enum class LogLevel { DEBUG, INFO, WARNING, ERROR, GREENINFO};
+enum class LogLevel {
+    DEBUG,
+    INFO,
+    WARNING,
+    ERROR,
+    GREENINFO
+};
 
+// Only messages with a level equal to or above CURRENT_LOG_LEVEL will be printed.
 constexpr LogLevel CURRENT_LOG_LEVEL = LogLevel::DEBUG;
 
-class ScopeLogger {
-private:
-    static std::stack<std::string> functionName_; 
+namespace SimpleLogger {
 
-public:
-    ScopeLogger(const std::string& functionName){
-        functionName_.push(functionName);
+inline std::string getLevelString(LogLevel level) {
+    switch (level) {
+        case LogLevel::DEBUG:     return "DEBUG";
+        case LogLevel::INFO:      return "INFO";
+        case LogLevel::WARNING:   return "WARNING";
+        case LogLevel::ERROR:     return "ERROR";
+        case LogLevel::GREENINFO: return "INFO";
+        default:                  return "";
     }
+}
 
-    ~ScopeLogger() {
-        functionName_.pop();
+inline std::string getColorCode(LogLevel level) {
+    switch (level) {
+        case LogLevel::DEBUG:     return "\033[90m"; // Light gray
+        case LogLevel::GREENINFO: return "\033[32m"; // Green
+        case LogLevel::WARNING:   return "\033[33m"; // Yellow
+        case LogLevel::ERROR:     return "\033[31m"; // Red
+        default:                  return "\033[0m";  // Default/Reset
     }
+}
 
-    static std::string logIndentation(){
-        std::ostringstream returnstring;
-        if (!functionName_.empty()) {
-            returnstring << "   "<< std::setw(15) <<  std::left << functionName_.top();
-        }
-        for (size_t i = 1; i < functionName_.size(); ++i) {
-            returnstring << "=";
-        }
-        if (!functionName_.empty()) {
-            returnstring << ">";
-        }
-        return returnstring.str();
-    }
+// Base case for message appending: when there are no more arguments.
+inline void appendMessage(std::ostringstream& /*oss*/) {}
 
-};
+// Recursively append all parts of the message.
+template<typename T, typename... Args>
+inline void appendMessage(std::ostringstream& oss, const T& value, const Args&... args) {
+    oss << value;
+    appendMessage(oss, args...);
+}
 
-inline std::stack<std::string> ScopeLogger::functionName_;
+template<typename... Args>
+inline void log(LogLevel level, const std::string& functionName, const std::string& message, const Args&... args) {
+    if (level < CURRENT_LOG_LEVEL)
+        return;
+    std::ostringstream oss;
+    appendMessage(oss, message, args...);
 
+    std::string colorCode = getColorCode(level);
+    std::string resetCode = "\033[0m";
 
+    std::cout << colorCode
+              << currentTimeFormatted() << " "
+              << "[" << getLevelString(level) << "]  \t"
+              << "[" << functionName << "]  \t"
+              << oss.str()
+              << resetCode << std::endl;
+}
 
-class Logger {
-private:
-    //Asser* robot = NULL;
-    bool noLog = false;
+} // namespace SimpleLogger
 
-public:
+inline void initLog(void){
+    std::cout << "\033[1;31m";
+    std::cout << "  _____   ____  ____   ____ _______ _____   ____  _   _ _____ _  __" << std::endl;
+    std::cout << " |  __ \\ / __ \\|  _ \\ / __ \\__   __|  __ \\ / __ \\| \\ | |_   _| |/ /" << std::endl;
+    std::cout << " | |__) | |  | | |_) | |  | | | |  | |__) | |  | |  \\| | | | | ' / " << std::endl;
+    std::cout << " |  _  /| |  | |  _ <| |  | | | |  |  _  /| |  | | .  | | | |  <  " << std::endl;
+    std::cout << " | | \\ \\| |__| | |_) | |__| | | |  | | \\ \\| |__| | |\\  |_| |_| . \\ " << std::endl;
+    std::cout << " |_|  \\_\\\\____/|____/ \\____/  |_|  |_|  \\_\\\\____/|_| \\_|_____|_|\\_\\" << std::endl;
+    std::cout << "\n\033[0m";                                                           
+                                                                
+    std::cout << "ROBOTRONIK" << std::endl;
+    std::cout << "PROGRAM ROBOT CDFR" << std::endl;
+    std::cout << "Start Time : " << currentTimeFormatted() << std::endl;
+}
 
-    static Logger& getInstance() {
-        static Logger instance;
-        return instance;
-    }
+// Convenience macros that automatically pass the calling function's name.
+#define LOG_DEBUG(message, ...)    SimpleLogger::log(LogLevel::DEBUG,    __FILE__, message, ##__VA_ARGS__)
+#define LOG_INFO(message, ...)     SimpleLogger::log(LogLevel::INFO,     __FILE__, message, ##__VA_ARGS__)
+#define LOG_WARNING(message, ...)  SimpleLogger::log(LogLevel::WARNING,  __FILE__, message, ##__VA_ARGS__)
+#define LOG_ERROR(message, ...)    SimpleLogger::log(LogLevel::ERROR,    __FILE__, message, ##__VA_ARGS__)
+#define LOG_GREEN_INFO(message, ...) SimpleLogger::log(LogLevel::GREENINFO,__FILE__, message, ##__VA_ARGS__)
 
-    void initLog(void){
-        std::cout << "\033[1;31m";
-        std::cout << "  _____   ____  ____   ____ _______ _____   ____  _   _ _____ _  __" << std::endl;
-        std::cout << " |  __ \\ / __ \\|  _ \\ / __ \\__   __|  __ \\ / __ \\| \\ | |_   _| |/ /" << std::endl;
-        std::cout << " | |__) | |  | | |_) | |  | | | |  | |__) | |  | |  \\| | | | | ' / " << std::endl;
-        std::cout << " |  _  /| |  | |  _ <| |  | | | |  |  _  /| |  | | . ` | | | |  <  " << std::endl;
-        std::cout << " | | \\ \\| |__| | |_) | |__| | | |  | | \\ \\| |__| | |\\  |_| |_| . \\ " << std::endl;
-        std::cout << " |_|  \\_\\\\____/|____/ \\____/  |_|  |_|  \\_\\\\____/|_| \\_|_____|_|\\_\\" << std::endl;
-        std::cout << "\n\033[0m";                                                           
-                                                                    
-        std::cout << "ROBOTRONIK" << std::endl;
-        std::cout << "PROGRAM ROBOT CDFR" << std::endl;
-        char* tempsFormate = currentTimeFormatted();
-        std::cout << "Start Time : " << tempsFormate << std::endl;
-        free(tempsFormate);
-    }
-
-    template<typename... Args>
-    void log(LogLevel level, const std::string& message, Args... args) {
-        if (level < CURRENT_LOG_LEVEL) return;
-        std::ostringstream oss;
-        appendMessage(oss, message, args...);
-
-        switch (level) {
-            case LogLevel::DEBUG:
-                std::cout << currentTimeFormatted() << " [DEBUG]" << std::setw(10)  <<  std::left << ScopeLogger::logIndentation() << " " << oss.str() << std::endl;
-                break;
-            case LogLevel::INFO:
-                std::cout << currentTimeFormatted() << " [INFO]" << std::setw(11)  <<  std::left << ScopeLogger::logIndentation()  << " " << oss.str() << std::endl;
-                break;
-            case LogLevel::WARNING:
-                std::cout << currentTimeFormatted() << " [WARNING]" << std::setw(8)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
-                break;
-            case LogLevel::ERROR:
-                std::cout << currentTimeFormatted();
-                std::cout << "\033[1;31m";
-                std::cout << " [ERROR]" << std::setw(10)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
-                std::cout << "\033[0m";
-                break;
-            case LogLevel::GREENINFO:
-                std::cout << currentTimeFormatted();
-                std::cout << "\033[32m";
-                std::cout << " [INFO]" << std::setw(11)  <<  std::left << ScopeLogger::logIndentation()  << " "  << oss.str() << std::endl;
-                std::cout << "\033[0m";
-                break;
-
-            default:
-                break;
-        }
-    }
-
-private:
-    Logger() {}
-
-    template<typename T, typename... Args>
-    void appendMessage(std::ostringstream& oss, const T& value, Args... args) {
-        oss << value;
-        appendMessage(oss, args...);
-    }
-
-    void appendMessage(std::ostringstream& oss) {}  // Base case for recursion
-};
-
-// Macros for easier logging
-#define LOG_DEBUG(message, ...) Logger::getInstance().log(LogLevel::DEBUG, message, ##__VA_ARGS__)
-#define LOG_INFO(message, ...) Logger::getInstance().log(LogLevel::INFO, message, ##__VA_ARGS__)
-#define LOG_GREEN_INFO(message, ...) Logger::getInstance().log(LogLevel::GREENINFO, message, ##__VA_ARGS__)
-#define LOG_STATE(message, ...) Logger::getInstance().log(LogLevel::INFO, message, ##__VA_ARGS__)
-#define LOG_WARNING(message, ...) Logger::getInstance().log(LogLevel::WARNING, message, ##__VA_ARGS__)
-#define LOG_ERROR(message, ...) Logger::getInstance().log(LogLevel::ERROR, message, ##__VA_ARGS__)
-#define LOG_INIT() Logger::getInstance().initLog()
-#define LOG_SCOPE(message) ScopeLogger __logger__(message)
+#define LOG_INIT() initLog();

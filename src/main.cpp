@@ -60,13 +60,13 @@ void EndSequence();
 bool ctrl_c_pressed = false;
 void ctrlc(int)
 {
-    LOG_DEBUG("Stop Signal Recieved");
+    LOG_INFO("Stop Signal Recieved");
     ctrl_c_pressed = true;
 }
 bool ctrl_z_pressed = false;
 void ctrlz(int signal)
 {
-    LOG_DEBUG("Termination Signal Recieved");
+    LOG_INFO("Termination Signal Recieved");
     ctrl_z_pressed = true;
 }
 
@@ -80,7 +80,6 @@ int main(int argc, char *argv[])
     unsigned long loopStartTime;
     while (!ctrl_c_pressed)
     {
-        LOG_SCOPE("Main");
         loopStartTime = _millis();
 
         // Get Sensor Data
@@ -107,7 +106,7 @@ int main(int argc, char *argv[])
         {
             if (initState)
             {
-                LOG_STATE("INIT");
+                LOG_GREEN_INFO("INIT");
                 arduino.setStepper(0, 1);
                 arduino.setStepper(0, 2);
                 arduino.setStepper(0, 3);
@@ -132,7 +131,7 @@ int main(int argc, char *argv[])
         case WAITSTART:
         {
             if (initState){
-                LOG_STATE("WAITSTART");    
+                LOG_GREEN_INFO("WAITSTART");    
                 resetActionneur();
                 asserv.set_motor_state(true);
                 asserv.set_brake_state(false); 
@@ -182,7 +181,7 @@ int main(int argc, char *argv[])
         case RUN:
         {
             if (initState){
-                LOG_STATE("RUN");
+                LOG_GREEN_INFO("RUN");
                 tableStatus.startTime = _millis();
                 actionSystem.initAction();
             }
@@ -200,7 +199,7 @@ int main(int argc, char *argv[])
         case MANUAL:
         {
             if (initState){
-                LOG_STATE("MANUAL");
+                LOG_GREEN_INFO("MANUAL");
                 arduino.RGB_Blinking(255, 0, 255); // Purple blinking
             }
 
@@ -218,7 +217,7 @@ int main(int argc, char *argv[])
         //****************************************************************
         case FIN:
         {
-            LOG_STATE("FIN");
+            LOG_GREEN_INFO("FIN");
             asserv.set_motor_state(false);
             asserv.set_brake_state(false);
             lidar.stopSpin();
@@ -227,7 +226,7 @@ int main(int argc, char *argv[])
         }
         //****************************************************************
         default:
-            LOG_STATE("default");
+            LOG_GREEN_INFO("default");
             nextState = INIT;
             break;
         }
@@ -270,9 +269,6 @@ int StartSequence()
         return -1;
     }
 #endif
-
-
-    tableStatus.init();
 
     // LOG_SETROBOT(asserv);
     init_highways();
@@ -331,7 +327,7 @@ int StartSequence()
 
     asserv.set_coordinates(0,0,0);
 
-    LOG_INFO("Init sequence done");
+    LOG_GREEN_INFO("Init sequence done");
     return 0;
 }
 
@@ -443,7 +439,7 @@ void GetLidarV2()
 
 void EndSequence()
 {
-    LOG_DEBUG("Stopping");
+    LOG_GREEN_INFO("Stopping");
     
     // Stop the API server
     StopAPIServer();
@@ -462,5 +458,5 @@ void EndSequence()
     delay(1000);
     disableActionneur();
 
-    LOG_DEBUG("Stopped");
+    LOG_GREEN_INFO("Stopped");
 }

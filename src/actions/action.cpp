@@ -17,7 +17,6 @@ Action::~Action()
 
 int Action::runAction(void)
 {
-    LOG_SCOPE("Action");
     int ireturn = 0;
     fsmAction_t nextState = currentState;
     nav_return_t navRet;
@@ -25,14 +24,10 @@ int Action::runAction(void)
     switch (currentState)
     {
     case FSM_ACTION_INIT:
-        if (initStat)
-            LOG_STATE("FSM_ACTION_INIT");
         nextState = FSM_ACTION_MOVESTART;
         break;
 
     case FSM_ACTION_MOVESTART:
-        if (initStat)
-            LOG_STATE("FSM_ACTION_MOVESTART");
         navRet = goToStart();
         if (navRet > 0)
         {
@@ -51,8 +46,6 @@ int Action::runAction(void)
         break;
 
     case FSM_ACTION_ACTION:
-        if (initStat)
-            LOG_STATE("FSM_ACTION_ACTION");
         navRet = (nav_return_t)runActionPtr(this);
         if (navRet > 0)
         {
@@ -83,8 +76,6 @@ int Action::runAction(void)
         break;
 
     case FSM_ACTION_MOVEEND:
-        if (initStat)
-            LOG_STATE("FSM_ACTION_MOVEEND");
         navRet = goToEnd();
         if (navRet > 0)
         {
@@ -104,8 +95,6 @@ int Action::runAction(void)
         break;
 
     default:
-        if (initStat)
-            LOG_STATE("default");
         nextState = FSM_ACTION_INIT;
         break;
     }

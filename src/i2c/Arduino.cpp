@@ -16,10 +16,10 @@ Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
 
 // [0;180]
 void Arduino::moveServo(int ServoID, int position) {
-    LOG_INFO("Arduino - Move servo #", ServoID, " to ", position);
+    LOG_DEBUG("Move servo #", ServoID, " to ", position);
     if (i2cFile == -1) return; // Emulation
     if (position < 0 || position > 180) {
-        LOG_ERROR("Arduino - Servo position out of range");
+        LOG_ERROR("Servo position out of range");
         return;
     }
     uint8_t message [2];
@@ -27,7 +27,7 @@ void Arduino::moveServo(int ServoID, int position) {
     WriteUInt8(&ptr, ServoID);
     WriteUInt8(&ptr, position); // These could be simplified but for reading clarity
     if (I2cSendData(CMD_MOVE_SERVO, message, 2))
-        LOG_ERROR("Arduino - Couldn't move servo");
+        LOG_ERROR("Couldn't move servo");
 }
 
 bool Arduino::readSensor(int SensorID, bool& value){
@@ -36,58 +36,60 @@ bool Arduino::readSensor(int SensorID, bool& value){
     uint8_t message[1];
     uint8_t *ptr = message;
     WriteUInt8(&ptr, SensorID);
-    if (I2cSendBlockReceiveData(CMD_READ_SENSOR, message, 1, &data, 1))
+    if (I2cSendBlockReceiveData(CMD_READ_SENSOR, message, 1, &data, 1)){
+        LOG_WARNING("Couldn't read sensor");
         return false;
+    }
     value = data;
     return true;
 }
 
 void Arduino::enableStepper(int StepperID) {
-    LOG_DEBUG("Arduino - Enable Stepper #", StepperID);
+    LOG_DEBUG("Enable Stepper #", StepperID);
     if (i2cFile == -1) return; // Emulation
     if (I2cSendData(CMD_ENABLE_STEPPER, (uint8_t*)&StepperID, 1))
-        LOG_ERROR("Arduino - Couldn't enable Stepper");
+        LOG_ERROR("Couldn't enable Stepper");
 }
 
 void Arduino::disableStepper(int StepperID) {
-    LOG_DEBUG("Arduino - Disable Stepper #", StepperID);
+    LOG_DEBUG("Disable Stepper #", StepperID);
     if (i2cFile == -1) return; // Emulation
     if (I2cSendData(CMD_DISABLE_STEPPER, (uint8_t*)&StepperID, 1))
-        LOG_ERROR("Arduino - Couldn't disable Stepper");
+        LOG_ERROR("Couldn't disable Stepper");
 }
 
 void Arduino::moveStepper(int32_t absPosition, int StepperID) {
-    LOG_INFO("Arduino - Move Stepper #", StepperID);
+    LOG_DEBUG("Move Stepper #", StepperID, " to ", absPosition);
     if (i2cFile == -1) return; // Emulation
     uint8_t message [5];
     uint8_t *ptr = message;
     WriteUInt8(&ptr, StepperID);
     WriteInt32(&ptr, absPosition);
     if (I2cSendData(CMD_MOVE_STEPPER, message, 5))
-        LOG_ERROR("Arduino - Couldn't move Stepper");
+        LOG_ERROR("Couldn't move Stepper");
 }
 
 
 void Arduino::setStepper(int32_t absPosition, int StepperID){
-    LOG_INFO("Arduino - Set Stepper #", StepperID);
+    LOG_DEBUG("Set Stepper #", StepperID, " to ", absPosition);
     if (i2cFile == -1) return; // Emulation
     uint8_t message [5];
     uint8_t *ptr = message;
     WriteUInt8(&ptr, StepperID);
     WriteInt32(&ptr, absPosition);
     if (I2cSendData(CMD_SET_STEPPER, message, 5))
-        LOG_ERROR("Arduino - Couldn't set Stepper");
+        LOG_ERROR("Couldn't set Stepper");
 }
 
 bool Arduino::getStepper(int32_t& absPosition, int StepperID){
-    LOG_INFO("Arduino - Get Stepper #", StepperID);
+    LOG_DEBUG("Get Stepper #", StepperID);
     if (i2cFile == -1) return false; // Emulation
     uint8_t data[4];
     if (I2cSendBlockReceiveData(CMD_GET_STEPPER, (uint8_t*)&StepperID, 1, data, 4))
         return false;
     uint8_t* ptr = data;
     absPosition = ReadInt32(&ptr);
-    LOG_DEBUG("Arduino - Stepper is at ", absPosition);
+    LOG_DEBUG("Stepper #", StepperID, " is at ", absPosition);
     return true;
 }
 
@@ -102,28 +104,28 @@ void Arduino::RGB(int LED_ID, uint8_t mode, uint8_t r, uint8_t g, uint8_t b){
         WriteUInt8(&ptr, g);
         WriteUInt8(&ptr, b);
         if (I2cSendData(CMD_RGB_LED, message, 5))
-            LOG_ERROR("Arduino - Couldn't set LED");
+            LOG_ERROR("Couldn't set LED");
     }
     else if (I2cSendData(CMD_RGB_LED, message, 2)) // Rainbow mode
-        LOG_ERROR("Arduino - Couldn't set LED");
+        LOG_ERROR("Couldn't set LED");
 }
 
 void Arduino::RGB_Solid(uint8_t R, uint8_t G, uint8_t B, int LED_ID){
-    LOG_INFO("Arduino - Set RGB LED #", LED_ID, " to solid color (", (int)R, ", ", (int)G, ", ", (int)B, ")");
+    LOG_DEBUG("Set RGB LED #", LED_ID, " to solid color (", (int)R, ", ", (int)G, ", ", (int)B, ")");
     RGB(LED_ID, 0, R, G, B);
 }
 
 void Arduino::RGB_Blinking(uint8_t R, uint8_t G, uint8_t B, int LED_ID){
-    LOG_INFO("Arduino - Set RGB LED #", LED_ID, " to blinking color (", (int)R, ", ", (int)G, ", ", (int)B, ")");
+    LOG_DEBUG("Set RGB LED #", LED_ID, " to blinking color (", (int)R, ", ", (int)G, ", ", (int)B, ")");
     RGB(LED_ID, 1, R, G, B);
 }
 
 void Arduino::RGB_Rainbow(int LED_ID){
-    LOG_INFO("Arduino - Set RGB LED #", LED_ID, " to rainbow");
+    LOG_DEBUG("Set RGB LED #", LED_ID, " to rainbow");
     RGB(LED_ID, 2, 0, 0, 0);
 }
 
 void Arduino::SetLidarPWM(uint8_t val){
     if (I2cSendData(CMD_PWM_LIDAR, &val, 1))
-        LOG_ERROR("Arduino - Couldn't set Lidar PWM");
+        LOG_ERROR("Couldn't set Lidar PWM");
 }

@@ -21,7 +21,6 @@ public:
 
     TableState();
     ~TableState();
-    void init();
 
     int getScore();
     void setScore(int score);

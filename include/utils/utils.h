@@ -18,15 +18,14 @@ inline unsigned long _millis() {
     return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000); // Conversion en millisecondes
 }
 
-inline char* currentTimeFormatted() {
+inline std::string currentTimeFormatted() {
     time_t temps;
     struct tm date;
-    char* tempsFormate = (char*)malloc(80);  // dynamically allocate memory
-    if (tempsFormate == NULL) return NULL;  // check for allocation failure
+    char buffer[32];
     time(&temps);
     date = *localtime(&temps);
-    strftime(tempsFormate, 80, "%Y-%m-%d %H:%M:%S", &date);
-    return tempsFormate;
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &date);
+    return std::string(buffer);
 }
 
 inline bool isWifiConnected()

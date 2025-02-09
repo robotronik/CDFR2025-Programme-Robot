@@ -1,6 +1,15 @@
 #include "i2c/I2CDevice.hpp"
 #include <stdio.h>
 #include <string.h> // Include for memcpy
+#include "utils/logger.hpp"
+
+extern "C" {
+#include <i2c/smbus.h>
+#include <linux/i2c-dev.h>
+#include <unistd.h>				//Needed for I2C port
+#include <fcntl.h>				//Needed for I2C port
+#include <sys/ioctl.h>			//Needed for I2C port
+}
 
 I2CDevice::I2CDevice(int slave_address){
     int adapter_nr = 1; /* probably dynamically determined */
@@ -8,7 +17,7 @@ I2CDevice::I2CDevice(int slave_address){
 
     if (slave_address == -1) // I2C Emulation
     {
-        std::cout << "Emulating I2C\n";
+        LOG_INFO("Emulating I2C");
         i2cFile = -1;
     }
     else{
@@ -16,14 +25,13 @@ I2CDevice::I2CDevice(int slave_address){
         i2cFile = open(filename, O_RDWR);
         if (i2cFile < 0) {
             /* ERROR HANDLING; you can check errno to see what went wrong */
-            std::cout << "Couldn't open I2C file\n";
-            exit(1);
+            throw std::runtime_error("Couldn't open I2C file");
         }
 
         if (ioctl(i2cFile, I2C_SLAVE, slave_address) < 0) {
-            std::cout << "ioctl failed\n";
             close(i2cFile);
-            exit(1);
+            LOG_ERROR("ioctl error");
+            throw std::runtime_error("Couldn't ioctl I2C file");
         }
     }
 }
@@ -31,7 +39,7 @@ I2CDevice::I2CDevice(int slave_address){
 I2CDevice::~I2CDevice(){
     if (i2cFile >= 0) {
         close(i2cFile);
-        std::cout << "I2C file closed successfully\n";
+        LOG_INFO("I2C file closed successfully");
     }
 }
 
