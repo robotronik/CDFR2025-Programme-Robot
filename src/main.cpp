@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
             }
             bool finished = actionSystem.run();
 
-            if (_millis() > tableStatus.startTime + 90000 || tableStatus.FIN || finished)
+            if (_millis() > tableStatus.startTime + 90000 || finished)
             {
                 nextState = FIN;
             }
@@ -219,9 +219,6 @@ int main(int argc, char *argv[])
         case FIN:
         {
             LOG_STATE("FIN");
-            arduino.moveServo(4, 180);
-            arduino.moveServo(1, 180);
-            arduino.disableStepper(1);
             asserv.set_motor_state(false);
             asserv.set_brake_state(false);
             lidar.stopSpin();
@@ -331,12 +328,6 @@ int StartSequence()
     manual_currentFunc = NULL;
 
     actionSystem.init();
-
-    // std::string colorTest = tableStatus.colorTeam == YELLOW ? "YELLOW" : "BLUE";
-    // std::filesystem::path exe_pathTest = std::filesystem::canonical(std::filesystem::path(argv[0])).parent_path();
-    // std::filesystem::path python_script_pathTest = exe_pathTest / "../startPAMI.py";
-    // std::string commandTest = "python3 " + python_script_pathTest.string() + " " +  colorTest;
-    // std::thread python_threadTest(executePythonScript,commandTest);
 
     asserv.set_coordinates(0,0,0);
 
