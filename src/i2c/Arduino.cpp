@@ -36,8 +36,10 @@ bool Arduino::readSensor(int SensorID, bool& value){
     uint8_t message[1];
     uint8_t *ptr = message;
     WriteUInt8(&ptr, SensorID);
-    if (I2cSendBlockReceiveData(CMD_READ_SENSOR, message, 1, &data, 1))
+    if (I2cSendBlockReceiveData(CMD_READ_SENSOR, message, 1, &data, 1)){
+        LOG_WARNING("Arduino - Couldn't read sensor");
         return false;
+    }
     value = data;
     return true;
 }
