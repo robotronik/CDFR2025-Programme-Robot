@@ -73,7 +73,6 @@ int main(int argc, char *argv[])
     while (!ctrl_c_pressed)
     {
         loopStartTime = _millis();
-        LOG_DEBUG("ay", loopStartTime);
 
         // Get Sensor Data
         {
