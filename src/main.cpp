@@ -15,10 +15,10 @@
 
 #include "actions/actionContainer.hpp"
 
-// #define DISABLE_LIDAR
+#define DISABLE_LIDAR
 // #define TEST_API_ONLY
 #define DISABLE_LIDAR_BEACONS
-// #define EMULATE_I2C
+#define EMULATE_I2C
 
 
 TableState tableStatus;
@@ -262,9 +262,6 @@ int StartSequence()
         return -1;
     }
 #endif
-
-
-    tableStatus.init();
 
     // LOG_SETROBOT(asserv);
     init_highways();

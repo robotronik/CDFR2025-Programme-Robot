@@ -2,15 +2,12 @@
 
 //table_t : etat, cout, tps, color
 
-TableState::TableState(){}
-void TableState::init()
-{
+TableState::TableState(){
     score = 1;
     pos_opponent.x = 0; pos_opponent.y = 0;
 
     robot.pos = {0, 0, 0};
     robot.colorTeam = NONE;
-
 
     /* data show must go on*/
     for(int i = 0; i<6;i++){
@@ -27,8 +24,7 @@ void TableState::init()
     robot.plank_count = 0;
 }
 
-TableState::~TableState(){
-}
+TableState::~TableState(){}
 
 int TableState::getScore()
 {
