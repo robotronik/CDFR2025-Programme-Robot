@@ -36,7 +36,7 @@
 const position_t STOCK_POSITION_ARRAY[] = {{2175, 1725, 0}, {2925, 1325, 90}, {2925, 400, 90}, {2225, 250, 0}, {1900, 950, 0}, 
                                             {1100, 950, 0}, {775, 250, 0}, {75, 400, 90}, {75, 1325, 90}, {825, 1725, 0}};
 
-const position_t STOCK_OFFSETS[][2] = {
+const position_t STOCK_OFFSETS[] = {
     {COL_OFFSET_STOCK, -NO_COL_OFFSET_STOCK, -90},  //0 : Offset for horizontal droite bas
     {COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK, 90},  //1 : Offset for horizontal droite haut
     {-COL_OFFSET_STOCK, -NO_COL_OFFSET_STOCK, -90},  //2 : Offset for horizontal gauche bas

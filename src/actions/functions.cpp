@@ -249,16 +249,16 @@ bool getStock(int stockN, position_t& pos){
     // Returns the best position to go to get the stockN
     // Returns false if the stock is unavail
 
-    if (!tableStatus.stock[i].etat) return false;
+    if (!tableStatus.stock[stockN].etat) return false;
     
     position_t availPos[4];
     int availCount = 0;
 
     for (int n = 0; n < 4; n++){
-        int map = STOCK_OFFSET_MAPPING[i][n];
+        int map = STOCK_OFFSET_MAPPING[stockN][n];
         if (map < 0) continue;
         position_t offset = STOCK_OFFSETS[map];
-        position_t finalPos = STOCK_POSITION_ARRAY[i];
+        position_t finalPos = STOCK_POSITION_ARRAY[stockN];
         finalPos.x += offset.x;
         finalPos.y += offset.y;
         finalPos.theta = offset.theta;
