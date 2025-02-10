@@ -36,16 +36,16 @@
 const position_t STOCK_POSITION_ARRAY[] = {{2175, 1725, 0}, {2925, 1325, 90}, {2925, 400, 90}, {2225, 250, 0}, {1900, 950, 0}, 
                                             {1100, 950, 0}, {775, 250, 0}, {75, 400, 90}, {75, 1325, 90}, {825, 1725, 0}};
 
-const int STOCK_OFFSETS[][2] = {
-    {COL_OFFSET_STOCK, -NO_COL_OFFSET_STOCK},  //0 : Offset for horizontal droite bas
-    {COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK},  //1 : Offset for horizontal droite haut
-    {-COL_OFFSET_STOCK, -NO_COL_OFFSET_STOCK},  //2 : Offset for horizontal gauche bas
-    {-COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK},  //3 : Offset for horizontal gauche haut
+const position_t STOCK_OFFSETS[][2] = {
+    {COL_OFFSET_STOCK, -NO_COL_OFFSET_STOCK, -90},  //0 : Offset for horizontal droite bas
+    {COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK, 90},  //1 : Offset for horizontal droite haut
+    {-COL_OFFSET_STOCK, -NO_COL_OFFSET_STOCK, -90},  //2 : Offset for horizontal gauche bas
+    {-COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK, 90},  //3 : Offset for horizontal gauche haut
 
-    {NO_COL_OFFSET_STOCK, -COL_OFFSET_STOCK},  //4 : Offset for vertical droite bas
-    {NO_COL_OFFSET_STOCK, COL_OFFSET_STOCK},  //5 : Offset for vertical droite haut
-    {-NO_COL_OFFSET_STOCK, -COL_OFFSET_STOCK},  //6 : Offset for vertical gauche bas
-    {-NO_COL_OFFSET_STOCK, COL_OFFSET_STOCK},  //7 : Offset for vertical gauche haut
+    {NO_COL_OFFSET_STOCK, -COL_OFFSET_STOCK, 0},  //4 : Offset for vertical droite bas
+    {NO_COL_OFFSET_STOCK, COL_OFFSET_STOCK, 0},  //5 : Offset for vertical droite haut
+    {-NO_COL_OFFSET_STOCK, -COL_OFFSET_STOCK, 180},  //6 : Offset for vertical gauche bas
+    {-NO_COL_OFFSET_STOCK, COL_OFFSET_STOCK, 180},  //7 : Offset for vertical gauche haut
 }; 
 const int STOCK_OFFSET_MAPPING[10][4] = {
     {0, -1, -1,-1},   // Stock 0 utilise les offsets 0

@@ -226,6 +226,25 @@ void switchTeamSide(colorTeam_t color){
     }
 }
 
+void getAvailableStockPositions(){
+    // Returns all the stocks available and their position
+    for (int i = 0; i < STOCK_COUNT; i++){
+        if (tableStatus.stock[i].etat){
+            // 4 different ways to approach
+            for (int n = 0; n < 4; n++){
+                int map = STOCK_OFFSET_MAPPING[i][n];
+                if (map < 0) continue;
+                position_t offset = STOCK_OFFSETS[map];
+                position_t finalPos = STOCK_POSITION_ARRAY[i];
+                finalPos.x += offset.x;
+                finalPos.y += offset.y;
+                finalPos.theta = offset.theta;
+                // TODO Do something with finalPos
+            }
+        }
+    }
+}
+
 // ------------------------------------------------------
 //                    INPUT SENSOR
 // ------------------------------------------------------
