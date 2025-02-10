@@ -32,7 +32,7 @@
 #define COL_OFFSET_STOCK 300 //find collinear offset to take a stock 
 #define NO_COL_OFFSET_STOCK 200 //find non ollinear offset to take a stock 
 
-const int rayon[3] = {200,200,250};
+// Angle is either 0 for horizontal stock of 90 for vertical
 const position_t STOCK_POSITION_ARRAY[] = {{2175, 1725, 0}, {2925, 1325, 90}, {2925, 400, 90}, {2225, 250, 0}, {1900, 950, 0}, 
                                             {1100, 950, 0}, {775, 250, 0}, {75, 400, 90}, {75, 1325, 90}, {825, 1725, 0}};
 
@@ -60,5 +60,4 @@ const int STOCK_OFFSET_MAPPING[10][4] = {
     {2, -1, -1,-1}    // Stock 9 utilise les offsets 
 };
 
-// Angle is either 0 for horizontal stock of 90 for vertical
-const int STOCK_COUNT = 2; // and this
+const int STOCK_COUNT = 10;
