@@ -206,7 +206,7 @@ void StartAPIServer(){
             return crow::response(400, response.dump(4));
         }
 
-        tableStatus.robot.colorTeam = req_color;
+        switchTeamSide(req_color);
 
         json response;
         response["message"] = "Successfull";

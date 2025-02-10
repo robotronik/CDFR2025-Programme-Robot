@@ -123,12 +123,13 @@ Defenies dans constante.h
 ## RGB Light signals
 
 SOLID:
-- There's no case where it should be solid
+- Green, the robot has finished the match
 
 BLINKING:
 - Red, the program has failed. Restart the robot.
 - Blue, the robot is ready to start as blue
 - Yellow, the robot is ready to start as yellow
 - Purple, the robot is in manual control mode
+
 RAINBOW:
 - The robot is waiting for user input

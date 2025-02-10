@@ -44,7 +44,10 @@ typedef struct
 {
     colorTeam_t colorTeam;// équipe du robot
     position_t pos; //position du robot
+    position_t target; //TODO json
     double vit_x,vit_y; //TODO vitesse instantannée du robot
+    int braking_distance; //TODO json
+    int direction_side; //TODO json
     int columns_count;
     int plank_count;
 }robot_t;

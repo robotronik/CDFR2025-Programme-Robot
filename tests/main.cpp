@@ -1,11 +1,5 @@
-#include <iostream>
-#include "navigation/highways.h"
-#include "defs/tableState.hpp"
-#include "i2c/Asserv.hpp"
-#include "i2c/Arduino.hpp"
 #include "utils/logger.hpp"
-
-#define UNIT_TEST(x) numTests++; if(!(x)) {LOG_ERROR("Test failed on line ", __LINE__ );}else { numPassed++;}
+#include "navigation/highways.h"
 
 bool testLogger();
 bool test_lidar_opponent();
@@ -17,6 +11,7 @@ int main() {
     return runAllTests();
 }
 
+#define UNIT_TEST(x) numTests++; if(!(x)) {LOG_ERROR("Test failed on line ", __LINE__ );}else { numPassed++;}
 //Runs every test
 int runAllTests() {
     LOG_INFO("Running tests");
