@@ -29,8 +29,8 @@
 #define SPEED_STOCK 8000 // Motor speed for collecting stock (mm/s)
 #define STEPPER_SPEED 1000 // Stepper motor speed for collecting stock (steps/s)
 
-#define COL_OFFSET_STOCK 300 //find collinear offset to take a stock 
-#define NO_COL_OFFSET_STOCK 200 //find non ollinear offset to take a stock 
+#define COL_OFFSET_STOCK 320
+#define NO_COL_OFFSET_STOCK 165 
 
 // Angle is either 0 for horizontal stock of 90 for vertical
 const position_t STOCK_POSITION_ARRAY[] = {{2175, 1725, 0}, {2925, 1325, 90}, {2925, 400, 90}, {2225, 250, 0}, {1900, 950, 0}, 
