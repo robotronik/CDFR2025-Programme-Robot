@@ -65,8 +65,8 @@ inline void log(LogLevel level, const std::string& functionName, const std::stri
     std::ostringstream logStream;
     logStream << colorCode
             << currentTimeFormatted() << " "
-            << "[" << getLevelString(level) << "]  \t"
-            << "[" << functionName << "]  \t"
+            << std::left << std::setw(10) << ("[" + getLevelString(level) + "]") // Fixed width for log level
+            << std::left << std::setw(28) << ("[" + functionName + "]") << "  " // Fixed width for function name
             << oss.str()
             << resetCode << std::endl;
 
@@ -92,10 +92,10 @@ inline void initLog(void){
 }
 
 // Convenience macros that automatically pass the calling function's name.
-#define LOG_DEBUG(message, ...)    SimpleLogger::log(LogLevel::DEBUG,    __FILE__, message, ##__VA_ARGS__)
-#define LOG_INFO(message, ...)     SimpleLogger::log(LogLevel::INFO,     __FILE__, message, ##__VA_ARGS__)
-#define LOG_WARNING(message, ...)  SimpleLogger::log(LogLevel::WARNING,  __FILE__, message, ##__VA_ARGS__)
-#define LOG_ERROR(message, ...)    SimpleLogger::log(LogLevel::ERROR,    __FILE__, message, ##__VA_ARGS__)
+#define LOG_DEBUG(message, ...)      SimpleLogger::log(LogLevel::DEBUG,    __FILE__, message, ##__VA_ARGS__)
+#define LOG_INFO(message, ...)       SimpleLogger::log(LogLevel::INFO,     __FILE__, message, ##__VA_ARGS__)
+#define LOG_WARNING(message, ...)    SimpleLogger::log(LogLevel::WARNING,  __FILE__, message, ##__VA_ARGS__)
+#define LOG_ERROR(message, ...)      SimpleLogger::log(LogLevel::ERROR,    __FILE__, message, ##__VA_ARGS__)
 #define LOG_GREEN_INFO(message, ...) SimpleLogger::log(LogLevel::GREENINFO,__FILE__, message, ##__VA_ARGS__)
 
 #define LOG_INIT() initLog();
