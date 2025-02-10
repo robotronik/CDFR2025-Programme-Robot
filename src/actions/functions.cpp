@@ -15,6 +15,10 @@ int construct(int x,int y,int theta){
     return 0;
 }
 
+// ------------------------------------------------------
+//                   BASIC FSM CONTROL
+// ------------------------------------------------------
+
 // function to construct a single tribune by placing a single platform and pushing the tribune
 bool constructSingleTribune(){
     static int state = 1;
@@ -49,7 +53,7 @@ bool takeStockPlatforms(){
     switch (state)
     {
     case 0:
-        if (movePlatformLifts(true)) // Move the platforms inside
+        if (movePlatformLifts(true)) // Move the platforms lifts inside
             state ++;
         break;
     case 1:
@@ -57,7 +61,7 @@ bool takeStockPlatforms(){
             state ++;
         break;
     case 2:
-        if (movePlatformLifts(false)) // Move the platforms outside
+        if (movePlatformLifts(false)) // Move the platforms lifts outside
             state ++;
         break;
     case 3:
@@ -69,6 +73,10 @@ bool takeStockPlatforms(){
     }
     return false;
 }
+
+// ------------------------------------------------------
+//                   SERVO CONTROL
+// ------------------------------------------------------
 
 // This shit is clean af
 bool movePlatformLifts(bool inside){
@@ -83,6 +91,21 @@ bool movePlatformLifts(bool inside){
     return (_millis() > startTime + 1000); // delay
 }
 
+bool moveTribunePusher(bool outside){
+    static unsigned long startTime = _millis();
+    static bool previousOutside = !outside;
+    if (previousOutside != outside){
+        startTime = _millis(); // Reset the timer
+        previousOutside = outside;
+        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, outside ? 180 : 0); // TODO : Check if this is correct
+    }
+    return (_millis() > startTime + 2000); // delay
+}
+
+// ------------------------------------------------------
+//                   STEPPER CONTROL
+// ------------------------------------------------------
+
 // Moves the platforms elevator to a predefined level
 // 0:lowest, 1:middle, 2:highest
 bool movePlatformElevator(int level){
@@ -96,7 +119,7 @@ bool movePlatformElevator(int level){
     case 1:
         target = 1000; break;
     case 2:
-        target = 12000; break;
+        target = 4000; break;
     }
     if (previousLevel != level){
         previousLevel = level;
@@ -121,17 +144,10 @@ bool moveTribuneElevator(bool high){
     return (currentValue == target);
 }
 
-bool moveTribunePusher(bool outside){
-    static unsigned long startTime = _millis();
-    static bool previousOutside = !outside;
-    if (previousOutside != outside){
-        startTime = _millis(); // Reset the timer
-        previousOutside = outside;
-        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, outside ? 180 : 0); // TODO : Check if this is correct
-    }
-    return (_millis() > startTime + 2000); // delay
-}
 
+// ------------------------------------------------------
+//                GLOBAL SET/RES CONTROL
+// ------------------------------------------------------
 
 
 void resetActionneur(){
@@ -149,6 +165,11 @@ void disableActionneur(){
     arduino.disableStepper(3);
     arduino.disableStepper(4);
 }
+
+
+// ------------------------------------------------------
+//                        OTHER
+// ------------------------------------------------------
 
 // TODO : Remove ? Not even used..
 int returnToHome(){
@@ -180,9 +201,62 @@ void opponentInAction(position_t* position){ //TODO : Check if this is correct
         }
     }
 }
+void switchTeamSide(colorTeam_t color){
+    if (color == NULL) return;
+    if (currentState == RUN) return;
+    if (color != tableStatus.robot.colorTeam){
+        LOG_INFO("Color switch detected");
+        tableStatus.robot.colorTeam = color;
+
+        switch (color)
+        {
+        case BLUE:
+            LOG_INFO("Switching to BLUE");
+            asserv.set_coordinates(-770, -1390, 90);
+            arduino.RGB_Blinking(0, 0, 255);
+            break;
+        case YELLOW:
+            LOG_INFO("Switching to YELLOW");
+            asserv.set_coordinates(-770, 1390, -90);
+            arduino.RGB_Blinking(255, 255, 0);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+// ------------------------------------------------------
+//                    INPUT SENSOR
+// ------------------------------------------------------
 
 colorTeam_t readColorSensorSwitch(){
     bool sensor = 0;
     if (!arduino.readSensor(3, sensor)) return NONE;
     return sensor ? YELLOW : BLUE;
 }
+
+// Returns true if button sensor was high for the last N calls
+bool readButtonSensor(){
+    static int count = 0;
+    bool state;
+    if (!arduino.readSensor(1, state)) return false;
+    if (state)
+        count++;
+    else
+        count = 0;
+    return (count >= 5);
+}
+// Returns true if the latch sensor is disconnected
+bool readLatchSensor(){
+    static int count = 0;
+    bool state;
+    if (!arduino.readSensor(2, state)) return false;
+    if (!state)
+        count++;
+    else
+        count = 0;
+    return (count >= 5);
+}
+
+// TODO columns sensors
