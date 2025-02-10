@@ -245,6 +245,33 @@ void getAvailableStockPositions(){
     }
 }
 
+bool getStock(int stockN, position_t& pos){
+    // Returns the best position to go to get the stockN
+    // Returns false if the stock is unavail
+
+    if (!tableStatus.stock[i].etat) return false;
+    
+    position_t availPos[4];
+    int availCount = 0;
+
+    for (int n = 0; n < 4; n++){
+        int map = STOCK_OFFSET_MAPPING[i][n];
+        if (map < 0) continue;
+        position_t offset = STOCK_OFFSETS[map];
+        position_t finalPos = STOCK_POSITION_ARRAY[i];
+        finalPos.x += offset.x;
+        finalPos.y += offset.y;
+        finalPos.theta = offset.theta;
+
+        pos = finalPos;
+        return true;
+    }
+
+    // TODO Implement some logic to decide the best angle to approach
+
+    return true;
+}
+
 // ------------------------------------------------------
 //                    INPUT SENSOR
 // ------------------------------------------------------
