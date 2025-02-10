@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
             tableStatus.robot.braking_distance = asserv.get_braking_distance();
             asserv.get_current_target(x, y, theta);
             tableStatus.robot.target = {x, y, theta};
-            tableStatus.robot.direction_side = asserv.get_direction_side();
+            tableStatus.robot.direction_side = (int)asserv.get_direction_side();
 
             if (currentState != INIT)
             {
@@ -330,7 +330,7 @@ void GetLidar()
                 // Execute if opponent has not moved too much
                 if (dist < 250)
                 {
-                    opponentInAction(&pos_opponent);
+                    opponentInAction(pos_opponent);
                 }
             }
         }
@@ -392,7 +392,7 @@ void GetLidarV2()
             tableStatus.pos_opponent.x = pos_opponent_filtered.x;
             tableStatus.pos_opponent.y = pos_opponent_filtered.y;
 
-            opponentInAction(&pos_opponent_filtered);
+            opponentInAction(pos_opponent_filtered);
         }
     }
 }
