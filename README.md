@@ -130,5 +130,6 @@ BLINKING:
 - Blue, the robot is ready to start as blue
 - Yellow, the robot is ready to start as yellow
 - Purple, the robot is in manual control mode
+
 RAINBOW:
 - The robot is waiting for user input
