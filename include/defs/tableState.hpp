@@ -22,6 +22,7 @@ public:
     TableState();
     ~TableState();
 
+    void reset();
     int getScore();
     void setScore(int score);
     void incrementScore(int score);

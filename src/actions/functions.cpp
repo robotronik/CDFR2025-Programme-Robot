@@ -186,7 +186,7 @@ bool m_isPointInsideRectangle(float px, float py, float cx, float cy, float w, f
     return (px >= left && px <= right && py >= bottom && py <= top);
 }
 
-void opponentInAction(position_t* position){ //TODO : Check if this is correct
+void opponentInAction(position_t position){ //TODO : Check if this is correct
     const int OPPONENT_ROBOT_RADIUS = 200; //200mm
     for (int i = 0; i < STOCK_COUNT; i++){
         if (tableStatus.stock[i].etat == false)
@@ -194,9 +194,9 @@ void opponentInAction(position_t* position){ //TODO : Check if this is correct
         position_t stock_pos = STOCK_POSITION_ARRAY[i];
         int w = stock_pos.theta == 0 ? 300 : 0;
         int h = stock_pos.theta == 90 ? 300 : 0;
-        if (m_isPointInsideRectangle(position->x, position->y, stock_pos.x, stock_pos.y, OPPONENT_ROBOT_RADIUS * 2 + w, OPPONENT_ROBOT_RADIUS * 2 + h)){
+        if (m_isPointInsideRectangle(position.x, position.y, stock_pos.x, stock_pos.y, OPPONENT_ROBOT_RADIUS * 2 + w, OPPONENT_ROBOT_RADIUS * 2 + h)){
             tableStatus.stock[i].etat = false;
-            LOG_GREEN_INFO("opponent has taken stock #", i, " / x = ", position->x , " / y = ", position->y);
+            LOG_GREEN_INFO("opponent has taken stock #", i, " / x = ", position.x , " / y = ", position.y);
             break;
         }
     }
@@ -250,12 +250,14 @@ bool readButtonSensor(){
 // Returns true if the latch sensor is disconnected
 bool readLatchSensor(){
     static int count = 0;
+    static bool prev_state = false;
     bool state;
-    if (!arduino.readSensor(2, state)) return false;
+    if (!arduino.readSensor(2, state)) return prev_state;
     if (!state)
         count++;
     else
-        count = 0;
+        count = 0;    
+    prev_state = state;
     return (count >= 5);
 }
 

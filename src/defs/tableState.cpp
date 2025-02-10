@@ -3,6 +3,12 @@
 //table_t : etat, cout, tps, color
 
 TableState::TableState(){
+    reset();
+}
+
+TableState::~TableState(){}
+
+void TableState::reset(){
     score = 1;
     pos_opponent.x = 0; pos_opponent.y = 0;
 
@@ -23,8 +29,6 @@ TableState::TableState(){
     robot.columns_count = 0;
     robot.plank_count = 0;
 }
-
-TableState::~TableState(){}
 
 int TableState::getScore()
 {

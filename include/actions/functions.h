@@ -6,7 +6,7 @@
 int returnToHome();
 void resetActionneur(); // Called when the robot is ready to move
 void disableActionneur();
-void opponentInAction(position_t* position);
+void opponentInAction(position_t position);
 void switchTeamSide(colorTeam_t color);
 
 //New functions (FSM)

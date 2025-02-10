@@ -103,6 +103,7 @@ int main(int argc, char *argv[])
             {
                 LOG_GREEN_INFO("INIT");
                 disableActionneur();
+                tableStatus.reset();
                 arduino.RGB_Rainbow();
             }
             if (readButtonSensor() && !readLatchSensor())
@@ -173,11 +174,16 @@ int main(int argc, char *argv[])
         //****************************************************************
         case FIN:
         {
-            LOG_GREEN_INFO("FIN");
+            if (initState){
+                LOG_GREEN_INFO("FIN");
+                arduino.RGB_Solid(0, 255, 0);
+            }
             asserv.set_motor_state(false);
             asserv.set_brake_state(false);
             lidar.stopSpin();
-            nextState = INIT;
+
+            if (readLatchSensor())
+                nextState = INIT;
             break;
         }
         //****************************************************************
