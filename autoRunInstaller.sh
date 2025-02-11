@@ -19,6 +19,10 @@ install_service() {
     # Récupère le nom du fichier binaire
     program_name=$(basename "$program_path")
 
+    # Get the directory where this script (and your program) is located
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+
     # Crée le contenu du fichier de service
     service_content="[Unit]
 Description=Service pour $program_name
@@ -29,7 +33,11 @@ Type=simple
 ExecStart=$program_path
 Restart=always
 RestartSec=3
-
+User=root
+AmbientCapabilities=CAP_SYS_NICE CAP_NET_BIND_SERVICE
+StandardOutput=journal
+StandardError=journal
+WorkingDirectory=$SCRIPT_DIR
 [Install]
 WantedBy=multi-user.target
 "

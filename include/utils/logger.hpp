@@ -72,6 +72,7 @@ inline void log(LogLevel level, const std::string& functionName, const std::stri
 
     // Print the fully constructed log message in one operation.
     std::cout << logStream.str();
+    std::cout.flush();  // Explicit flush to ensure immediate writing
 }
 
 } // namespace SimpleLogger
