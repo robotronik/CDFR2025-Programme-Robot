@@ -159,6 +159,29 @@ void StartAPIServer(){
         return crow::response(response.dump(4));
     });
 
+    // Define a route for an simple GET request that returns all of the information from the arduino
+    CROW_ROUTE(app, "/get_arduino")
+    ([](){
+        json response;
+        response["message"] = "Failure to get Arduino data!";
+        json stepper_pos = json::array();
+        for (int i = 1; i <= 4; i++){
+            int32_t val ;
+            if (!arduino.getStepper(val, i)) return crow::response(400, response.dump(4));
+            stepper_pos.push_back({i, val});
+        }
+        json sensor_state = json::array();
+        for (int i = 1; i <= 6; i++){
+            bool val ;
+            if (!arduino.readSensor(i, val)) return crow::response(400, response.dump(4));
+            sensor_state.push_back({i, val});
+        }
+        response["stepper_pos"] = stepper_pos;
+        response["sensor_state"] = sensor_state;
+        response["message"] = "Success to fetch Arduino data";
+        return crow::response(response.dump(4));
+    });
+
     // ------------------------------- POST Routes -------------------------------
 
     // Define a route for a POST request that accepts JSON data and responds with a message
