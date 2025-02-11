@@ -232,7 +232,7 @@ void switchTeamSide(colorTeam_t color){
 
 colorTeam_t readColorSensorSwitch(){
     bool sensor = 0;
-    if (!arduino.readSensor(3, sensor)) return NONE;
+    if (!arduino.readSensor(COLOR_SENSOR_NUM, sensor)) return NONE;
     return sensor ? YELLOW : BLUE;
 }
 
@@ -240,7 +240,7 @@ colorTeam_t readColorSensorSwitch(){
 bool readButtonSensor(){
     static int count = 0;
     bool state;
-    if (!arduino.readSensor(1, state)) return false;
+    if (!arduino.readSensor(BUTTON_SENSOR_NUM, state)) return false;
     if (state)
         count++;
     else
@@ -252,7 +252,7 @@ bool readLatchSensor(){
     static int count = 0;
     static bool prev_state = false;
     bool state;
-    if (!arduino.readSensor(2, state)) return prev_state;
+    if (!arduino.readSensor(LATCH_SENSOR_NUM, state)) return prev_state;
     if (!state)
         count++;
     else
@@ -261,4 +261,10 @@ bool readLatchSensor(){
     return (count >= 5);
 }
 
-// TODO columns sensors
+// Returns true if both sensors are high
+bool readFrontColumnsSensors(){
+    bool state1, state2;
+    if (!arduino.readSensor(FRONT_COLUMN_SENSOR1_NUM, state1)) return false;
+    if (!arduino.readSensor(FRONT_COLUMN_SENSOR2_NUM, state2)) return false;
+    return (state1 && state2);
+}

@@ -27,5 +27,6 @@ bool moveTribuneElevator(bool high);
 colorTeam_t readColorSensorSwitch();
 bool readButtonSensor();
 bool readLatchSensor();
+bool readFrontColumnsSensors();
 
 #endif // MYFUNCTION_H

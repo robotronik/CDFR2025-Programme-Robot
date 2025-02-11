@@ -15,16 +15,23 @@
 #define RETURN_HOME 10 //Points for coming back home action
 #define MAX_SPEED 20000
 
-// Define the pins on the arduino for the servos and steppers
+// Define the nums of the arduino for the STEPPERS
 #define PLATFORMS_ELEVATOR_STEPPER_NUM    1
 #define TRIBUNES_ELEVATOR_STEPPER_NUM     2
 #define COLOMNS_RAIL_LOW_STEPPER_NUM      3
 #define COLOMNS_RAIL_HIGH_STEPPER_NUM     4
+// Define the nums of the arduino for the SERVOS
 #define TRIBUNES_PUSH_SERVO_NUM           1
 #define PLATFORMS_LIFT_LEFT_SERVO_NUM     2
 #define PLATFORMS_LIFT_RIGHT_SERVO_NUM    3
 #define TRIBUNES_CLAWS_SERVO_NUM          4
 #define BANNER_RELEASE_SERVO_NUM          5
+// Define the nums of the arduino for the SENSORS
+#define BUTTON_SENSOR_NUM                 1
+#define LATCH_SENSOR_NUM                  2
+#define COLOR_SENSOR_NUM                  3
+#define FRONT_COLUMN_SENSOR1_NUM          4
+#define FRONT_COLUMN_SENSOR2_NUM          5
 
 #define SPEED_STOCK 8000 // Motor speed for collecting stock (mm/s)
 #define STEPPER_SPEED 1000 // Stepper motor speed for collecting stock (steps/s)
