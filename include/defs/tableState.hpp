@@ -1,19 +1,20 @@
 #pragma once
 #include "defs/structs.hpp"
 #include "utils/logger.hpp"
+#include "defs/constante.h"
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
 typedef struct 
 {
-    bool etat; // si l'action a été faite ou non
-    int cout; // points que rapporte l'action
-    float tps; //temps passé par l'opponent dans l'action
-    colorTeam_t color; //NONE, BLUE or YELLOW
-}table_t;
+    // State is true if action was done or is available
+    bool state;
+    // Points is the number of points that could be earned from this action
+    int points;
+}game_element_t;
 
-// Define serialization for table_t
-void to_json(json& j, const table_t& t);
+// Define serialization for game_element_t
+void to_json(json& j, const game_element_t& t);
 
 class TableState
 {
@@ -31,11 +32,11 @@ public:
     position_t pos_opponent;
     unsigned long startTime;
     robot_t robot;
-    table_t zoneFull[6];          // zone départ/arrivés
+    game_element_t zoneFull[6];          // zone départ/arrivés
 
     /* data Show Must Go On*/
-    table_t stock[10];
-    table_t banderole;
+    game_element_t stocks[STOCK_COUNT];
+    game_element_t banderole;
 
 private:
     int score;

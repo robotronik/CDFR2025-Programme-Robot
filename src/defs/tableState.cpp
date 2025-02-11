@@ -1,6 +1,6 @@
 #include "defs/tableState.hpp"
 
-//table_t : etat, cout, tps, color
+//game_element_t : etat, cout, tps, color
 
 TableState::TableState(){
     reset();
@@ -17,14 +17,14 @@ void TableState::reset(){
 
     /* data show must go on*/
     for(int i = 0; i<6;i++){
-        zoneFull[i].etat = false;
+        zoneFull[i].state = false;
     }
-    for(int i = 0; i<10;i++){
-        stock[i].etat = true;
-        stock[i].cout = 100; //TODO
-        stock[i].color = NONE;
+    for(int i = 0; i<STOCK_COUNT;i++){
+        stocks[i].state = true;
+        stocks[i].points = 100; //TODO
     }
-    banderole.etat = false;
+    banderole.state = false;
+    banderole.points = 20;
 
     robot.columns_count = 0;
     robot.plank_count = 0;
@@ -43,18 +43,18 @@ void TableState::setScore(int score)
 void TableState::incrementScore(int score)
 {
     this->score += score;
-    LOG_GREEN_INFO("score = ", getScore());
+    LOG_GREEN_INFO("Score = ", getScore());
 }
 
-// Define serialization for table_t
-void to_json(json& j, const table_t& t) {
-    j = json{{"etat", t.etat}, {"cout", t.cout}, {"tps", t.tps}, {"color", t.color}};
+// Define serialization for game_element_t
+void to_json(json& j, const game_element_t& t) {
+    j = json{{"state", t.state}, {"points", t.points}};
 }
 
 // Serialize tableState
 void to_json(json& j, const TableState& ts) {
     j = json{
-        {"stock", ts.stock},
+        {"stocks", ts.stocks},
         {"banderole", ts.banderole},
         {"zoneFull", ts.zoneFull},
         {"pos_opponent", ts.pos_opponent},
