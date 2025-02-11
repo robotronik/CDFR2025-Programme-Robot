@@ -33,31 +33,34 @@
 #define NO_COL_OFFSET_STOCK 165 
 
 // Angle is either 0 for horizontal stock of 90 for vertical
-const position_t STOCK_POSITION_ARRAY[] = {{2175, 1725, 0}, {2925, 1325, 90}, {2925, 400, 90}, {2225, 250, 0}, {1900, 950, 0}, 
-                                            {1100, 950, 0}, {775, 250, 0}, {75, 400, 90}, {75, 1325, 90}, {825, 1725, 0}};
+const position_t STOCK_POSITION_ARRAY[] = {{-725, 675, 0}, {-325, 1425, 90}, {600, 1425, 90}, {750, 725, 0}, {50, 400, 0}, 
+                                           {-725,-675, 0}, {-325,-1425, 90}, {600,-1425, 90}, {750,-725, 0}, {50,-400, 0}};
 
 const position_t STOCK_OFFSETS[] = {
-    {COL_OFFSET_STOCK, -NO_COL_OFFSET_STOCK, -90},  //0 : Offset for horizontal droite bas
-    {COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK, 90},  //1 : Offset for horizontal droite haut
-    {-COL_OFFSET_STOCK, -NO_COL_OFFSET_STOCK, -90},  //2 : Offset for horizontal gauche bas
+    { COL_OFFSET_STOCK,-NO_COL_OFFSET_STOCK,-90},  //0 : Offset for horizontal droite bas
+    { COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK, 90},  //1 : Offset for horizontal droite haut
+    {-COL_OFFSET_STOCK,-NO_COL_OFFSET_STOCK,-90},  //2 : Offset for horizontal gauche bas
     {-COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK, 90},  //3 : Offset for horizontal gauche haut
 
-    {NO_COL_OFFSET_STOCK, -COL_OFFSET_STOCK, 0},  //4 : Offset for vertical droite bas
-    {NO_COL_OFFSET_STOCK, COL_OFFSET_STOCK, 0},  //5 : Offset for vertical droite haut
-    {-NO_COL_OFFSET_STOCK, -COL_OFFSET_STOCK, 180},  //6 : Offset for vertical gauche bas
-    {-NO_COL_OFFSET_STOCK, COL_OFFSET_STOCK, 180},  //7 : Offset for vertical gauche haut
+    { NO_COL_OFFSET_STOCK,-COL_OFFSET_STOCK, 0},   //4 : Offset for vertical droite bas
+    { NO_COL_OFFSET_STOCK, COL_OFFSET_STOCK, 0},   //5 : Offset for vertical droite haut
+    {-NO_COL_OFFSET_STOCK,-COL_OFFSET_STOCK, 180}, //6 : Offset for vertical gauche bas
+    {-NO_COL_OFFSET_STOCK, COL_OFFSET_STOCK, 180}, //7 : Offset for vertical gauche haut
 }; 
 const int STOCK_OFFSET_MAPPING[10][4] = {
-    {0, -1, -1,-1},   // Stock 0 utilise les offsets 0
-    {6, 7, -1,-1},   // Stock 1 utilise les offsets 6 et 7
-    {6, 7, -1,-1},   // Stock 2 utilise les offsets 6 et 7
-    {1, 3, -1,-1},   // Stock 3 utilise les offsets 1 et 3
+    {0, -1, -1,-1}, // Stock 0 utilise les offsets 0
+    {6, 7, -1,-1},  // Stock 1 utilise les offsets 6 et 7
+    {6, 7, -1,-1},  // Stock 2 utilise les offsets 6 et 7
+    {1, 3, -1,-1},  // Stock 3 utilise les offsets 1 et 3
     {0, 1, 2, 3},   // Stock 4 utilise les offsets 0,1,2 et 3
-    {0, 1, 2, 3},   // Stock 5 utilise les offsets 0,1,2 et 4
-    {1, 3, -1,-1},   // Stock 6 utilise les offsets 1 et 3
-    {4, 5, -1,-1},   // Stock 7 utilise les offsets 4 et 5
-    {4, 5, -1,-1},   // Stock 8 utilise les offsets 4 et 5
-    {2, -1, -1,-1}    // Stock 9 utilise les offsets 
+
+    {2, -1, -1,-1}, // Stock 5 utilise les offsets 2
+    {4, 5, -1,-1},  // Stock 6 utilise les offsets 4 et 5
+    {4, 5, -1,-1},  // Stock 7 utilise les offsets 4 et 5    
+    {1, 3, -1,-1},  // Stock 8 utilise les offsets 1 et 3
+    {0, 1, 2, 3},   // Stock 9 utilise les offsets 0,1,2 et 4
 };
 
 const int STOCK_COUNT = 10;
+const int PROTECTED_BLUE_STOCK = 0;
+const int PROTECTED_YELLOW_STOCK = 5;

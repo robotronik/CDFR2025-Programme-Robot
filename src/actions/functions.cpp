@@ -229,18 +229,23 @@ void switchTeamSide(colorTeam_t color){
 void getAvailableStockPositions(){
     // Returns all the stocks available and their position
     for (int i = 0; i < STOCK_COUNT; i++){
-        if (tableStatus.stock[i].etat){
-            // 4 different ways to approach
-            for (int n = 0; n < 4; n++){
-                int map = STOCK_OFFSET_MAPPING[i][n];
-                if (map < 0) continue;
-                position_t offset = STOCK_OFFSETS[map];
-                position_t finalPos = STOCK_POSITION_ARRAY[i];
-                finalPos.x += offset.x;
-                finalPos.y += offset.y;
-                finalPos.theta = offset.theta;
-                // TODO Do something with finalPos
-            }
+        if (!tableStatus.stock[i].etat)
+            continue;
+        if (tableStatus.robot.colorTeam == BLUE && i == PROTECTED_YELLOW_STOCK)
+            continue;
+        if (tableStatus.robot.colorTeam == YELLOW && i == PROTECTED_BLUE_STOCK)
+            continue;
+        
+        // 4 different ways to approach
+        for (int n = 0; n < 4; n++){
+            int map = STOCK_OFFSET_MAPPING[i][n];
+            if (map < 0) continue;
+            position_t offset = STOCK_OFFSETS[map];
+            position_t finalPos = STOCK_POSITION_ARRAY[i];
+            finalPos.x += offset.x;
+            finalPos.y += offset.y;
+            finalPos.theta = offset.theta;
+            // TODO Do something with finalPos
         }
     }
 }
@@ -250,6 +255,8 @@ bool getStock(int stockN, position_t& pos){
     // Returns false if the stock is unavail
 
     if (!tableStatus.stock[stockN].etat) return false;
+    if (tableStatus.robot.colorTeam == BLUE && stockN == PROTECTED_YELLOW_STOCK) return false;
+    if (tableStatus.robot.colorTeam == YELLOW && stockN == PROTECTED_BLUE_STOCK) return false;
     
     position_t availPos[4];
     int availCount = 0;
