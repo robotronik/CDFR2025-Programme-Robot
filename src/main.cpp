@@ -76,7 +76,6 @@ int main(int argc, char *argv[])
         return -1;
 
     // Private counter
-    int sensorCount = 0;
     unsigned long loopStartTime;
     while (!ctrl_c_pressed)
     {
@@ -88,6 +87,10 @@ int main(int argc, char *argv[])
             asserv.get_coordinates(x, y, theta);
             tableStatus.robot.pos = {x, y, theta};
             // LOG_GREEN_INFO("X = ", x," Y = ", y, " theta = ", theta);
+            tableStatus.robot.braking_distance = asserv.get_braking_distance();
+            asserv.get_current_target(x, y, theta);
+            tableStatus.robot.target = {x, y, theta};
+            tableStatus.robot.direction_side = (int)asserv.get_direction_side();
 
             if (currentState != INIT)
             {
@@ -107,71 +110,35 @@ int main(int argc, char *argv[])
             if (initState)
             {
                 LOG_GREEN_INFO("INIT");
-                arduino.setStepper(0, 1);
-                arduino.setStepper(0, 2);
-                arduino.setStepper(0, 3);
-                resetActionneur();
-                sensorCount = 0;
+                disableActionneur();
+                tableStatus.reset();
                 arduino.RGB_Rainbow();
             }
-
-            bool initButtonState;
-            arduino.readSensor(1, initButtonState);
-            if (initButtonState){
-                sensorCount++;
-                if (sensorCount == 5)
-                    nextState = WAITSTART;
-            }
-            else
-                sensorCount = 0;            
-
+            if (readButtonSensor() && !readLatchSensor())
+                nextState = WAITSTART;
             break;
         }
         //****************************************************************
         case WAITSTART:
         {
             if (initState){
-                LOG_GREEN_INFO("WAITSTART");    
+                LOG_GREEN_INFO("WAITSTART");  
+                arduino.setStepper(0, 1);
+                arduino.setStepper(0, 2);
+                arduino.setStepper(0, 3);  
                 resetActionneur();
                 asserv.set_motor_state(true);
                 asserv.set_brake_state(false); 
                 //asserv.set_linear_max_speed(MAX_SPEED);
                 //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
                 //while(asserv.get_command_buffer_size() != 0); //wait end of all action above
-                lidar.startSpin();            
-                sensorCount = 0;
+                lidar.startSpin();
             }
 
             colorTeam_t color = readColorSensorSwitch();
-            if (color != NONE && color != tableStatus.robot.colorTeam){
-                LOG_INFO("Color switch detected");
-                tableStatus.robot.colorTeam = color;
+            switchTeamSide(color);
 
-                switch (color)
-                {
-                case BLUE:
-                    LOG_INFO("teams : BLUE");
-                    asserv.set_coordinates(-770, -1390, 90);
-                    arduino.RGB_Blinking(0, 0, 255);
-                    break;
-                case YELLOW:
-                    LOG_INFO("teams : YELLOW");
-                    asserv.set_coordinates(-770, 1390, -90);
-                    arduino.RGB_Blinking(255, 255, 0);
-                    break;
-                default:
-                    break;
-                }
-            }
-            bool magnetSensorState;
-            arduino.readSensor(2, magnetSensorState);
-            // Counts the number of time the magnet sensor
-            if (magnetSensorState)
-                sensorCount++;
-            else
-                sensorCount = 0;
-
-            if (sensorCount == 5)
+            if (readLatchSensor())
                 nextState = RUN;
             if (manual_ctrl)
                 nextState = MANUAL;
@@ -181,16 +148,14 @@ int main(int argc, char *argv[])
         case RUN:
         {
             if (initState){
-                LOG_GREEN_INFO("RUN");
+                LOG_GREEN_INFO("RUN"); 
                 tableStatus.startTime = _millis();
                 actionSystem.initAction();
             }
             bool finished = actionSystem.run();
 
             if (_millis() > tableStatus.startTime + 90000 || finished)
-            {
                 nextState = FIN;
-            }
             break;
         }
 
@@ -217,11 +182,16 @@ int main(int argc, char *argv[])
         //****************************************************************
         case FIN:
         {
-            LOG_GREEN_INFO("FIN");
+            if (initState){
+                LOG_GREEN_INFO("FIN");
+                arduino.RGB_Solid(0, 255, 0);
+            }
             asserv.set_motor_state(false);
             asserv.set_brake_state(false);
             lidar.stopSpin();
-            nextState = INIT;
+
+            if (readLatchSensor())
+                nextState = INIT;
             break;
         }
         //****************************************************************
@@ -243,9 +213,9 @@ int main(int argc, char *argv[])
         if (ms > loopStartTime + LOOP_TIME_MS){
             LOG_WARNING("Loop took more than " , LOOP_TIME_MS, "ms to execute (", (ms - loopStartTime), " ms)");
         }
-        else{
-            //State machine runs at a constant rate
-            usleep(1000 * (loopStartTime + LOOP_TIME_MS - ms));
+        //State machine runs at a constant rate
+        while (_millis() < loopStartTime + LOOP_TIME_MS){
+            usleep(100);
         }
     }
 
@@ -260,6 +230,8 @@ int StartSequence()
     signal(SIGTERM, ctrlc);
     signal(SIGINT, ctrlc);
     // signal(SIGTSTP, ctrlz);
+
+    setProgramPriority();
 
     arduino.RGB_Blinking(255, 0, 0); // Red blinking
 
@@ -371,7 +343,7 @@ void GetLidar()
                 // Execute if opponent has not moved too much
                 if (dist < 250)
                 {
-                    opponentInAction(&pos_opponent);
+                    opponentInAction(pos_opponent);
                 }
             }
         }
@@ -433,7 +405,7 @@ void GetLidarV2()
             tableStatus.pos_opponent.x = pos_opponent_filtered.x;
             tableStatus.pos_opponent.y = pos_opponent_filtered.y;
 
-            opponentInAction(&pos_opponent_filtered);
+            opponentInAction(pos_opponent_filtered);
         }
     }
 }
