@@ -85,6 +85,17 @@ Sur un nouveau Raspi, il faut configurer avec
 sudo raspi-config
 et activer l'I2C et la communicaton série dans Interface Options
 
+Pour voir le service (useful commands)
+```bash
+journalctl -b -u programCDFR
+journalctl -u programCDFR -f
+
+systemctl list-units --type=service
+
+sudo systemctl daemon-reload
+sudo systemctl restart programCDFR
+```
+
 ## Debugging on a Raspberry Pi with VS Code
 
 Connect your PC to the same Wi-Fi as the Raspberry Pi.
