@@ -176,8 +176,8 @@ void StartAPIServer(){
             if (!arduino.readSensor(i, val)) return crow::response(400, response.dump(4));
             sensor_state.push_back({i, val});
         }
-        response["stepper_pos"] = stepper_pos;
-        response["sensor_state"] = sensor_state;
+        response["steppers_pos"] = stepper_pos;
+        response["sensors_state"] = sensor_state;
         response["message"] = "Success to fetch Arduino data";
         return crow::response(response.dump(4));
     });
