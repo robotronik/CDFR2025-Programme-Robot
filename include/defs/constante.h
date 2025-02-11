@@ -36,6 +36,7 @@
 const position_t STOCK_POSITION_ARRAY[] = {{-725, 675, 0}, {-325, 1425, 90}, {600, 1425, 90}, {750, 725, 0}, {50, 400, 0}, 
                                            {-725,-675, 0}, {-325,-1425, 90}, {600,-1425, 90}, {750,-725, 0}, {50,-400, 0}};
 
+// Offset of the robot from the stocks
 const position_t STOCK_OFFSETS[] = {
     { COL_OFFSET_STOCK,-NO_COL_OFFSET_STOCK,-90},  //0 : Offset for horizontal droite bas
     { COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK, 90},  //1 : Offset for horizontal droite haut

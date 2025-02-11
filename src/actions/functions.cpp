@@ -202,7 +202,7 @@ void opponentInAction(position_t position){ //TODO : Check if this is correct
     }
 }
 void switchTeamSide(colorTeam_t color){
-    if (color == NULL) return;
+    if (color == NONE) return;
     if (currentState == RUN) return;
     if (color != tableStatus.robot.colorTeam){
         LOG_INFO("Color switch detected");
@@ -235,30 +235,15 @@ void getAvailableStockPositions(){
             continue;
         if (tableStatus.robot.colorTeam == YELLOW && i == PROTECTED_BLUE_STOCK)
             continue;
-        
-        // 4 different ways to approach
-        for (int n = 0; n < 4; n++){
-            int map = STOCK_OFFSET_MAPPING[i][n];
-            if (map < 0) continue;
-            position_t offset = STOCK_OFFSETS[map];
-            position_t finalPos = STOCK_POSITION_ARRAY[i];
-            finalPos.x += offset.x;
-            finalPos.y += offset.y;
-            finalPos.theta = offset.theta;
-            // TODO Do something with finalPos
-        }
+
+        position_t availPos[4];
+        int count = getStockPositions(i, availPos);
+        LOG_DEBUG("Stock ", i, " available positions: ", count);
     }
 }
 
-bool getStock(int stockN, position_t& pos){
-    // Returns the best position to go to get the stockN
-    // Returns false if the stock is unavail
-
-    if (!tableStatus.stock[stockN].etat) return false;
-    if (tableStatus.robot.colorTeam == BLUE && stockN == PROTECTED_YELLOW_STOCK) return false;
-    if (tableStatus.robot.colorTeam == YELLOW && stockN == PROTECTED_BLUE_STOCK) return false;
-    
-    position_t availPos[4];
+// Returns the count of the available positions 
+int getStockPositions(int stockN, position_t availPos[4]){
     int availCount = 0;
 
     for (int n = 0; n < 4; n++){
@@ -270,13 +255,10 @@ bool getStock(int stockN, position_t& pos){
         finalPos.y += offset.y;
         finalPos.theta = offset.theta;
 
-        pos = finalPos;
-        return true;
+        availPos[availCount] = finalPos;
+        availCount ++;
     }
-
-    // TODO Implement some logic to decide the best angle to approach
-
-    return true;
+    return availCount;
 }
 
 // ------------------------------------------------------

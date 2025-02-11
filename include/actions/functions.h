@@ -16,6 +16,10 @@ int construct(int x,int y,int theta);
 bool takeStockPlatforms();
 bool constructSingleTribune();
 
+// Related to stock management
+void getAvailableStockPositions(); // TODO finish
+int getStockPositions(int stockN, position_t availPos[4]);
+
 // Servo Control
 bool movePlatformLifts(bool inside);
 bool moveTribunePusher(bool outside);
