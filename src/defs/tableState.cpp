@@ -49,9 +49,8 @@ int TableState::getScore()
             break;
         }
     }
-    // TODO
-    //if ( Robot is in ending zone )
-        //totalScore += 10;
+    if (isRobotInArrivalZone(robot.pos))
+        totalScore += 10;
 
     if (done_banderole)
         totalScore += 20;
