@@ -212,6 +212,9 @@ void opponentInAction(position_t position){ //TODO : Check if this is correct
             break;
         }
     }
+    // Update the opponent robot's position in highways
+    obs_obj_opponent.pos.x = position.x;
+    obs_obj_opponent.pos.y = position.y;
 }
 void switchTeamSide(colorTeam_t color){
     if (color == NULL) return;
