@@ -1,4 +1,5 @@
 #include "defs/tableState.hpp"
+#include "actions/functions.h"
 #include "utils/logger.hpp"
 
 TableState::TableState(){

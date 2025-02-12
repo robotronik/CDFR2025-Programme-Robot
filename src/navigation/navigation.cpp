@@ -3,6 +3,7 @@
 #include "navigation/highways.h"
 #include "main.hpp"
 #include "defs/constante.h" // DISTANCESTOP and DISTANCESTART
+#include "utils/logger.hpp"
 
 static bool is_robot_stalled;
 static unsigned long robot_stall_start_time;

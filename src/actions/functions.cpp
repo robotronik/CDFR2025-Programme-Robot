@@ -212,6 +212,9 @@ void opponentInAction(position_t position){ //TODO : Check if this is correct
             break;
         }
     }
+    // Update the opponent robot's position in highways
+    obs_obj_opponent.pos.x = position.x;
+    obs_obj_opponent.pos.y = position.y;
 }
 void switchTeamSide(colorTeam_t color){
     if (color == NONE) return;
@@ -279,7 +282,7 @@ bool isRobotInArrivalZone(position_t position){
     int w = 450;
     int h = 600;
     int c_x = -550 - w/2;
-    int c_y = TableState.robot.colorTeam == BLUE ? (900 + h/2) : (-900 - h/2);
+    int c_y = tableStatus.robot.colorTeam == BLUE ? (900 + h/2) : (-900 - h/2);
     return m_isPointInsideRectangle(position.x, position.y, c_x, c_y, w + 2*robotSmallRadius, h + 2*robotSmallRadius);
 }
 

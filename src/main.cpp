@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
             asserv.set_brake_state(false);
             lidar.stopSpin();
 
-            if (readLatchSensor())
+            if (!readLatchSensor())
                 nextState = INIT;
             break;
         }

@@ -84,7 +84,7 @@ void ActionContainer::initAction()
         return iret; });
     returnToHomeAction->setKeyMoment(85000);
     returnToHomeAction->goodEnd([]()
-                                { tableStatus.incrementScore(RETURN_HOME); });
+                                {  });
     returnToHomeAction->setCostAction(4, 0, 0, 0);
     listeAction.push_back(returnToHomeAction);
 

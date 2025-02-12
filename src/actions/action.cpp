@@ -1,4 +1,5 @@
 #include "actions/action.hpp"
+#include "utils/logger.hpp"
 #include "main.hpp"
 
 Action::Action(std::string name)
