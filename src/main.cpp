@@ -78,10 +78,11 @@ int main(int argc, char *argv[])
             int16_t x, y, theta;
             asserv.get_coordinates(x, y, theta);
             tableStatus.robot.pos = {x, y, theta};
-            // LOG_GREEN_INFO("X = ", x," Y = ", y, " theta = ", theta);
+            // LOG_GREEN_INFO("Robot pos : { x = ", x," y = ", y, " theta = ", theta, " }");
             tableStatus.robot.braking_distance = asserv.get_braking_distance();
             asserv.get_current_target(x, y, theta);
             tableStatus.robot.target = {x, y, theta};
+            // LOG_GREEN_INFO("Robot target : { x = ", x," y = ", y, " theta = ", theta, " }");
             tableStatus.robot.direction_side = (int)asserv.get_direction_side();
 
             if (currentState != INIT)
