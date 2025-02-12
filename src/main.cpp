@@ -78,10 +78,11 @@ int main(int argc, char *argv[])
             int16_t x, y, theta;
             asserv.get_coordinates(x, y, theta);
             tableStatus.robot.pos = {x, y, theta};
-            // LOG_GREEN_INFO("X = ", x," Y = ", y, " theta = ", theta);
+            // LOG_GREEN_INFO("Robot pos : { x = ", x," y = ", y, " theta = ", theta, " }");
             tableStatus.robot.braking_distance = asserv.get_braking_distance();
             asserv.get_current_target(x, y, theta);
             tableStatus.robot.target = {x, y, theta};
+            // LOG_GREEN_INFO("Robot target : { x = ", x," y = ", y, " theta = ", theta, " }");
             tableStatus.robot.direction_side = (int)asserv.get_direction_side();
 
             if (currentState != INIT)
@@ -103,7 +104,7 @@ int main(int argc, char *argv[])
             {
                 LOG_GREEN_INFO("INIT");
                 init_highways();
-                disableActionneur();
+                disableActuators();
                 tableStatus.reset();
                 arduino.RGB_Rainbow();
             }
@@ -118,8 +119,9 @@ int main(int argc, char *argv[])
                 LOG_GREEN_INFO("WAITSTART");  
                 arduino.setStepper(0, 1);
                 arduino.setStepper(0, 2);
-                arduino.setStepper(0, 3);  
-                resetActionneur();
+                arduino.setStepper(0, 3);
+                arduino.setStepper(0, 4);
+                homeActuators();
                 asserv.set_motor_state(true);
                 asserv.set_brake_state(false); 
                 //asserv.set_linear_max_speed(MAX_SPEED);
@@ -151,8 +153,6 @@ int main(int argc, char *argv[])
                 nextState = FIN;
             break;
         }
-
-
         //****************************************************************
         case MANUAL:
         {
@@ -171,7 +171,6 @@ int main(int argc, char *argv[])
                 nextState = FIN;
             break;
         }
-
         //****************************************************************
         case FIN:
         {
@@ -406,15 +405,16 @@ void EndSequence()
     // Stop the lidar
     lidar.Stop();
 
+#ifndef EMULATE_I2C
     asserv.set_motor_state(false);
     asserv.set_brake_state(false);
     //asserv.stop();
 
     arduino.RGB_Solid(0, 0, 0); // OFF
 
-    resetActionneur();
-    delay(1000);
-    disableActionneur();
+    while(!homeActuators()){delay(100);};
+    disableActuators();
+#endif // EMULATE_I2C
 
     LOG_GREEN_INFO("Stopped");
 }

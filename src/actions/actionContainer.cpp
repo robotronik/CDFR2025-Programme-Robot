@@ -113,11 +113,11 @@ int ActionContainer::run()
     }
     else if (iActionReturn != 0)
     {
-        resetActionneur();
+        homeActuators();
         initAction();
     }
     // else if(forceNextAction()){
-    //     resetActionneur();
+    //     homeActuators();
     //     iChoosNextReturn = choosNextAction();
     // }
 

@@ -4,8 +4,9 @@
 #include "defs/structs.hpp"
 
 int returnToHome();
-void resetActionneur(); // Called when the robot is ready to move
-void disableActionneur();
+bool homeActuators(); // TODO Maybe move this to Arduino class ?
+void enableActuators();
+void disableActuators();
 void opponentInAction(position_t position);
 void switchTeamSide(colorTeam_t color);
 void setStockAsRemoved(int num);

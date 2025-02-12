@@ -116,7 +116,7 @@ export DISPLAY=:0
 sudo startx /usr/bin/chromium-browser --noerrdialogs --kiosk http:0.0.0.0:8080/robot --incognito --disable-extensions --no-sandbox
 ```
 
-## Actions et actionneurs
+## Actions and Actuators
 
 (in code, theyre called banner, stocks, columns, platforms and tribunes)
 
