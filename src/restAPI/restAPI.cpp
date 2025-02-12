@@ -124,7 +124,7 @@ void StartAPIServer(){
         navigation_path_json(current_navigation_path);
         response["navigation-path"] = current_navigation_path;
         
-        response["target_pos"] = tableStatus.robot.targetPos;
+        response["target_pos"] = tableStatus.robot.target;
 
         return crow::response(response.dump());
     });

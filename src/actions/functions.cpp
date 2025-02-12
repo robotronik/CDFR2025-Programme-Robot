@@ -247,7 +247,7 @@ bool isRobotInArrivalZone(position_t position){
     int w = 450;
     int h = 600;
     int c_x = -550 - w/2;
-    int c_y = TableState.robot.colorTeam == BLUE ? (900 + h/2) : (-900 - h/2);
+    int c_y = tableStatus.robot.colorTeam == BLUE ? (900 + h/2) : (-900 - h/2);
     return m_isPointInsideRectangle(position.x, position.y, c_x, c_y, w + 2*robotSmallRadius, h + 2*robotSmallRadius);
 }
 

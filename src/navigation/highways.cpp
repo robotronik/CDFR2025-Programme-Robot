@@ -190,7 +190,7 @@ void init_highways(){
         p.y = STOCK_POSITION_ARRAY[i].y;
         int w = STOCK_POSITION_ARRAY[i].theta == 90 ? 400 : 100;
         int h = STOCK_POSITION_ARRAY[i].theta == 90 ? 100 : 400;
-        obs_obj_stocks[i] = {p, true, w, h, highway_obstruction_object_type::Rectangle}
+        obs_obj_stocks[i] = {p, true, w, h, highway_obstruction_object_type::Rectangle};
     }
 }
 // Returns the number of points in result[]. If error, returns 0
