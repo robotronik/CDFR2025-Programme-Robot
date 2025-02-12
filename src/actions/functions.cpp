@@ -273,6 +273,16 @@ int getStockPositions(int stockN, position_t availPos[4]){
     return availCount;
 }
 
+bool isRobotInArrivalZone(position_t position){
+    // Returns true if the robot is in the arrival zone
+    int robotSmallRadius = 100;
+    int w = 450;
+    int h = 600;
+    int c_x = -550 - w/2;
+    int c_y = TableState.robot.colorTeam == BLUE ? (900 + h/2) : (-900 - h/2);
+    return m_isPointInsideRectangle(position.x, position.y, c_x, c_y, w + 2*robotSmallRadius, h + 2*robotSmallRadius);
+}
+
 // ------------------------------------------------------
 //                    INPUT SENSOR
 // ------------------------------------------------------
