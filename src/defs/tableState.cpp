@@ -1,6 +1,5 @@
 #include "defs/tableState.hpp"
-
-//game_element_t : etat, cout, tps, color
+#include "utils/logger.hpp"
 
 TableState::TableState(){
     reset();
@@ -9,54 +8,61 @@ TableState::TableState(){
 TableState::~TableState(){}
 
 void TableState::reset(){
-    score = 1;
     pos_opponent.x = 0; pos_opponent.y = 0;
 
     robot.pos = {0, 0, 0};
     robot.colorTeam = NONE;
 
     /* data show must go on*/
-    for(int i = 0; i<6;i++){
-        zoneFull[i].state = false;
-    }
     for(int i = 0; i<STOCK_COUNT;i++){
-        stocks[i].state = true;
-        stocks[i].points = 100; //TODO
+        avail_stocks[i] = true;
     }
-    banderole.state = false;
-    banderole.points = 20;
+    done_banderole = false;
 
     robot.columns_count = 0;
     robot.plank_count = 0;
+
+    for (int i = 0; i < 10; i++){
+        builtTribuneHeights[i] = 0;
+    }
 }
 
 int TableState::getScore()
 {
-    return score;
-}
+    int totalScore = 0; //TODO Maybe start at 1 ?
+    for (int i = 0; i < 10; i++){
+        switch (builtTribuneHeights[i])
+        {
+        case 0:
+            break;
+        case 1:
+            totalScore += 4;
+            break;
+        case 2:
+            totalScore += 4 + 8;
+            break;
+        case 3:
+            totalScore += 4 + 8 + 16;
+            break;
+        default:
+            LOG_ERROR("Built tribune heigh is at impossible value : ", builtTribuneHeights[i]);
+            break;
+        }
+    }
+    // TODO
+    //if ( Robot is in ending zone )
+        //totalScore += 10;
 
-void TableState::setScore(int score)
-{
-    this->score = score;
-}
-
-void TableState::incrementScore(int score)
-{
-    this->score += score;
-    LOG_GREEN_INFO("Score = ", getScore());
-}
-
-// Define serialization for game_element_t
-void to_json(json& j, const game_element_t& t) {
-    j = json{{"state", t.state}, {"points", t.points}};
+    if (done_banderole)
+        totalScore += 20;
+    return totalScore;
 }
 
 // Serialize tableState
 void to_json(json& j, const TableState& ts) {
     j = json{
-        {"stocks", ts.stocks},
-        {"banderole", ts.banderole},
-        {"zoneFull", ts.zoneFull},
+        {"avail_stocks", ts.avail_stocks},
+        {"done_banderole", ts.done_banderole},
         {"pos_opponent", ts.pos_opponent},
         {"startTime", ts.startTime},
         {"robot", ts.robot}

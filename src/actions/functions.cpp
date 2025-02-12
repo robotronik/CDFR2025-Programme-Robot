@@ -1,6 +1,7 @@
 #include "actions/functions.h"
 #include "main.hpp"
 #include "navigation/navigation.h"
+#include "navigation/highways.h"
 #include "lidar/lidarAnalize.h"
 #include "lidar/Lidar.hpp"
 #include "defs/constante.h"
@@ -9,6 +10,8 @@
 
 //TODO : Functions to fill in
 int takeStock(int xStart,int yStart, int xEnd, int yEnd, int num_zone){
+    
+    setStockAsRemoved(-1); //TODO once has taken stock
     return 0;
 }
 int construct(int x,int y,int theta){
@@ -126,7 +129,7 @@ bool movePlatformElevator(int level){
         arduino.moveStepper(target, PLATFORMS_ELEVATOR_STEPPER_NUM);
     }
     int32_t currentValue;
-    if (!arduino.getStepper(currentValue, PLATFORMS_ELEVATOR_STEPPER_NUM)) return true; // TODO Might need to change this (throw error)
+    if (!arduino.getStepper(currentValue, PLATFORMS_ELEVATOR_STEPPER_NUM)) return false; // TODO Might need to change this (throw error)
     return (currentValue == target);
 }
 
@@ -140,7 +143,7 @@ bool moveTribuneElevator(bool high){
         arduino.moveStepper(target, TRIBUNES_ELEVATOR_STEPPER_NUM); // TODO : Check if this is correct
     }
     int32_t currentValue;
-    if (!arduino.getStepper(currentValue, TRIBUNES_ELEVATOR_STEPPER_NUM)) return true;
+    if (!arduino.getStepper(currentValue, TRIBUNES_ELEVATOR_STEPPER_NUM)) return false;
     return (currentValue == target);
 }
 
@@ -171,6 +174,12 @@ void disableActionneur(){
 //                        OTHER
 // ------------------------------------------------------
 
+void setStockAsRemoved(int num){
+    tableStatus.avail_stocks[num] = false;
+    obs_obj_stocks[num].present = false;
+    LOG_INFO("Removed stock ", num);
+}
+
 // TODO : Remove ? Not even used..
 int returnToHome(){
     int home_x = 700;
@@ -189,13 +198,13 @@ bool m_isPointInsideRectangle(float px, float py, float cx, float cy, float w, f
 void opponentInAction(position_t position){ //TODO : Check if this is correct
     const int OPPONENT_ROBOT_RADIUS = 200; //200mm
     for (int i = 0; i < STOCK_COUNT; i++){
-        if (tableStatus.stocks[i].state == false)
+        if (tableStatus.avail_stocks[i] == false)
             continue;
         position_t stock_pos = STOCK_POSITION_ARRAY[i];
         int w = stock_pos.theta == 0 ? 300 : 0;
         int h = stock_pos.theta == 90 ? 300 : 0;
         if (m_isPointInsideRectangle(position.x, position.y, stock_pos.x, stock_pos.y, OPPONENT_ROBOT_RADIUS * 2 + w, OPPONENT_ROBOT_RADIUS * 2 + h)){
-            tableStatus.stocks[i].state = false;
+            setStockAsRemoved(i);
             LOG_GREEN_INFO("opponent has taken stock #", i, " / x = ", position.x , " / y = ", position.y);
             break;
         }
