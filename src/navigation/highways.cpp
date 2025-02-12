@@ -27,9 +27,7 @@ bool any_obstacle_on_highway(highway_line * line);
 bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line);
 
 //These are all of the objects
-highway_obstruction_object obs_obj_stocks[]{
-    {{-500, 600}, true, 100, 400, highway_obstruction_object_type::Rectangle}
-};
+highway_obstruction_object obs_obj_stocks[STOCK_COUNT];
 highway_obstruction_object obs_obj_opponent = 
     {{500, 0}, true, 150, 0, highway_obstruction_object_type::Circle};
 
@@ -185,6 +183,14 @@ void init_highways(){
         graph[lines[i].a][lines[i].b] = i;
         graph[lines[i].b][lines[i].a] = i; // Highways are bidirectional
         highway_cost[i] = (int)travel_time;
+    }
+    for (int i = 0; i < STOCK_COUNT; i++){
+        highway_point p;
+        p.x = STOCK_POSITION_ARRAY[i].x;
+        p.y = STOCK_POSITION_ARRAY[i].y;
+        int w = STOCK_POSITION_ARRAY[i].theta == 90 ? 400 : 100;
+        int h = STOCK_POSITION_ARRAY[i].theta == 90 ? 100 : 400;
+        obs_obj_stocks[i] = {p, true, w, h, highway_obstruction_object_type::Rectangle}
     }
 }
 // Returns the number of points in result[]. If error, returns 0

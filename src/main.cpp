@@ -102,6 +102,7 @@ int main(int argc, char *argv[])
             if (initState)
             {
                 LOG_GREEN_INFO("INIT");
+                init_highways();
                 disableActionneur();
                 tableStatus.reset();
                 arduino.RGB_Rainbow();
@@ -234,9 +235,6 @@ int StartSequence()
         return -1;
     }
 #endif
-
-    // LOG_SETROBOT(asserv);
-    init_highways();
 
     // Start the api server in a separate thread
     api_server_thread = std::thread([&]()
