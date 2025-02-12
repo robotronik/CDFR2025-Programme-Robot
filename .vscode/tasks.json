@@ -20,7 +20,7 @@
     {
       "label": "startGDBserver",
       "type": "shell",
-      "command": "ssh robotronik@raspberrypi.local 'pkill gdbserver; gdbserver :1234 ~/CDFR2025/arm_bin/programCDFR'",
+      "command": "ssh robotronik@192.168.0.133 'sudo pkill gdbserver; cd ~/CDFR2025/arm_bin/ ; sudo gdbserver :1234 programCDFR'",
       "dependsOn": "deploy",
       "group": {
         "kind": "build",

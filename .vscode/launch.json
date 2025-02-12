@@ -6,9 +6,9 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/arm_bin/programCDFR",
-      "miDebuggerServerAddress": "debianpc.local:1234",
+      "miDebuggerServerAddress": "192.168.0.133:1234",
       "miDebuggerPath": "/usr/bin/gdb-multiarch",
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/arm_bin",
       "targetArchitecture": "arm",
       "externalConsole": false,
       "setupCommands": [
