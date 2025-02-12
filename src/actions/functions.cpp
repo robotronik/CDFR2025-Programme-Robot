@@ -153,20 +153,23 @@ bool moveTribuneElevator(bool high){
 // ------------------------------------------------------
 
 
-void resetActionneur(){
+// Returns true if actuators are home
+bool homeActuators(){
+    return 
+    movePlatformLifts(true) &
+    movePlatformElevator(0) &
+    moveTribunePusher(false) &
+    moveTribuneElevator(false);
+}
+void enableActuators(){
     for (int i = 0; i < 4; i++){
         arduino.enableStepper(i);
     }
-    movePlatformLifts(true);
-    movePlatformElevator(0);
-    moveTribunePusher(false);
-    moveTribuneElevator(false);
 }
-void disableActionneur(){
-    arduino.disableStepper(1);
-    arduino.disableStepper(2);
-    arduino.disableStepper(3);
-    arduino.disableStepper(4);
+void disableActuators(){
+    for (int i = 0; i < 4; i++){
+        arduino.disableStepper(i);
+    }
 }
 
 
