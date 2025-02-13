@@ -244,7 +244,7 @@ void switchTeamSide(colorTeam_t color){
 void getAvailableStockPositions(){
     // Returns all the stocks available and their position
     for (int i = 0; i < STOCK_COUNT; i++){
-        if (!tableStatus.stock[i].etat)
+        if (!tableStatus.avail_stocks[i])
             continue;
         if (tableStatus.robot.colorTeam == BLUE && i == PROTECTED_YELLOW_STOCK)
             continue;
