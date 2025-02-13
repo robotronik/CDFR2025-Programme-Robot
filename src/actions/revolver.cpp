@@ -146,8 +146,10 @@ bool LoadStock(int direction){
         LOG_INFO("ajout column pos ", abs(position-1-i));
         lowBarrelTab[position] = 1; // Remplit 4 cases successives
         lowBarrelCount++;
+
         SpinBarrel(rotation, 1);
     }
+    return true; // TODO
 }
 
 void take(int sens){//sens 1 = droite, 0 = gauche
