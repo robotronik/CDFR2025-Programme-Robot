@@ -178,35 +178,27 @@ bool ReleaseHigh(){
     return 0;
 }
 
-//fonction qui sort tout les boîtes du barillet
-bool ReleaseLow(){//sens 1 = droite, 0 = gauche
-    printf("ReleaseOne\n");
-    
-    if (lowBarrelCount == 0) {
-        printf("Plus de boîtes à sortir 1er etage\n"); 
-        return ReleaseHigh();
-    }
-    lowBarrelTab[2] = 0;
-    lowBarrelTab[3] = 0;
-    lowBarrelCount -= 2;
-    SpinBarrel(2,1);
-    DisplayBarrel();
-    return 0;
-}
-
 void main(){
     DisplayRobot();
     DisplayBarrel();
 
+    int choix;
+    for (int i = 0; i < 10; i++) {
+        printf("\nAjout de boîte %i\n", i + 1);
+        printf("Choisissez le côté (0 = Gauche, 1 = Droite, 2 = fin) : ");
+        scanf("%d", &choix);
 
-    take(1);
-    take(0);
-    take(1);
-    take(0);
-    take(1);
-    while (!PrepareRelease());
-    while (!ReleaseLow());
+        if (choix == 0 || choix == 1) {
+            take(choix);
+        } else if (choix == 2){
+            break;
+        }
+        else {
+            printf("Entrée invalide ! Veuillez entrer 0 pour Gauche ou 1 pour Droite.\n");
+            i--; // Répéter cette itération
+        }
+    }
 
-    printf("\nTerminé !\n");
+    printf("\nAjout terminé !\n");
     
 }
