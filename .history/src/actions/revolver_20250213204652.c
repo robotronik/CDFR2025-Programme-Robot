@@ -1,4 +1,6 @@
 #include "revolver.hpp"
+
+
 int lowBarrelTab[SIZE] = {0};  // 0 = vide, 1 = occupé
 int highBarrelTab[SIZE] = {0};  // 0 = vide, 1 = occupé
 int lowBarrelCount=0, highBarrelCount = 0;
@@ -101,22 +103,20 @@ bool PrerareLowBarrel(int sens){//sens 1 = droite, 0 = gauche
         }
         return 1; //Barrel placed
     }
-    
-    if (!PrepareHighBarrel(sens)) return 0; //call PrepareHighBarrel when first stage barrel is full (12 or 14)
-    if (lowBarrelCount == 12) {
-        if (lowBarrelTab[sens ? 8 : 11] != 0) {
-            SpinBarrel(sens ? 2 : -2, 1);
-            return 0;
-        }
-        MoveColumns(sens, 1);
-        return 0;
+    if (lowBarrelCount == 12 && lowBarrelTab[sens ? 8 : 11] != 0) {
+        SpinBarrel(sens ? 2 : -2, 1);
+        return false;
     }
 
-    if (lowBarrelCount == SIZE) {
+    if (lowBarrelCount == SIZE) {//call PrepareHighBarrel when first stage barrel is full
+        if (!PrepareHighBarrel(sens)) return false;
         MoveColumns(sens, 1);
-        return 0;
+        return false;
     }
-    return 1;
+
+    if (!PrepareHighBarrel(sens)) return false;
+    MoveColumns(sens, 1);
+    return PrepareHighBarrel(sens);
 }
 
 

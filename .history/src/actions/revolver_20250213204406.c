@@ -1,4 +1,6 @@
 #include "revolver.hpp"
+
+
 int lowBarrelTab[SIZE] = {0};  // 0 = vide, 1 = occupé
 int highBarrelTab[SIZE] = {0};  // 0 = vide, 1 = occupé
 int lowBarrelCount=0, highBarrelCount = 0;
@@ -66,12 +68,12 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished
     lowBarrelTab[start] = lowBarrelTab[end] = (sens == 1) ? 0 : 1;;
     highBarrelCount += sens ? 2 : -2;
     lowBarrelCount -= sens ? 2 : -2;
-    //return ArduinoMoveColumns()
+    //reeturn ArduinoMoveColumns()
     return true; // TODO: Remplacer par ArduinoMoveColumns()
 }
 
 
-//Fonction qui Gère le stockage du 2ème étage de boîtes return 1 when finished
+//Fonction qui Gère le stockage du 2ème étage de boîtes
 bool PrepareHighBarrel(int sens){//sens 1 = droite, 0 = gauche
     printf("INFO : PrepareHighBarrel sens : %i\n", sens);
     if (highBarrelCount == 0) return 1; //no columns in Highbarrel so position is good
@@ -89,7 +91,7 @@ bool PrepareHighBarrel(int sens){//sens 1 = droite, 0 = gauche
     return 1;
 }
 
-//Fonction qui Gère le stockage du 1er étage de boîtes, 
+//Fonction qui Gère le stockage du 1er étage de boîtes
 bool PrerareLowBarrel(int sens){//sens 1 = droite, 0 = gauche
     printf("INFO : PrerareLowBarrel sens : %s\n",(sens ? "droite" : "gauche"));
     if (lowBarrelCount == 0) return 1; //no columns in Lowbarrel so position is good
@@ -101,22 +103,20 @@ bool PrerareLowBarrel(int sens){//sens 1 = droite, 0 = gauche
         }
         return 1; //Barrel placed
     }
-    
-    if (!PrepareHighBarrel(sens)) return 0; //call PrepareHighBarrel when first stage barrel is full (12 or 14)
-    if (lowBarrelCount == 12) {
-        if (lowBarrelTab[sens ? 8 : 11] != 0) {
-            SpinBarrel(sens ? 2 : -2, 1);
-            return 0;
-        }
-        MoveColumns(sens, 1);
-        return 0;
+    if (lowBarrelCount == 12 && lowBarrelTab[sens ? 8 : 11] != 0) {
+        SpinBarrel(sens ? 2 : -2, 1);
+        return false;
     }
 
     if (lowBarrelCount == SIZE) {
+        if (!PrepareHighBarrel(sens)) return false;
         MoveColumns(sens, 1);
-        return 0;
+        return false;
     }
-    return 1;
+
+    if (!PrepareHighBarrel(sens)) return false;
+    MoveColumns(sens, 1);
+    return PrepareHighBarrel(sens);
 }
 
 
