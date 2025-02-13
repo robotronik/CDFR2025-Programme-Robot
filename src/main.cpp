@@ -12,6 +12,7 @@
 #include "utils/logger.hpp"
 #include "restAPI/restAPI.hpp"
 #include "navigation/highways.h"
+#include "actions/revolver.hpp" // TODO Remove (For testing)
 
 #include "actions/actionContainer.hpp"
 
@@ -273,6 +274,9 @@ int StartSequence()
     api_server_thread.join();
     return -1;
 #endif
+
+    // TODO Remove (For testing)
+    TestRevolver();
 
     currentState = INIT;
     nextState = INIT;
