@@ -11,4 +11,4 @@ bool PrepareHighBarrel(int sens);
 
 bool LoadStock(int direction);
 void take(int sens);
-void main();
+void TestRevolver();

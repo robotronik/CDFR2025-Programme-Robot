@@ -183,7 +183,7 @@ bool ReleaseLow(){//sens 1 = droite, 0 = gauche
     return 0;
 }
 
-void main(){
+void TestRevolver(){
     DisplayRobot();
     DisplayBarrel();
 
