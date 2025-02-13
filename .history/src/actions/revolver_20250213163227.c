@@ -143,28 +143,3 @@ void take(int sens){//sens 1 = droite, 0 = gauche
     LoadStock(sens);
     DisplayBarrel();
 }
-
-void main(){
-    DisplayRobot();
-    DisplayBarrel();
-
-    int choix;
-    for (int i = 0; i < 10; i++) {
-        printf("\nAjout de boîte %i\n", i + 1);
-        printf("Choisissez le côté (0 = Gauche, 1 = Droite, 2 = fin) : ");
-        scanf("%d", &choix);
-
-        if (choix == 0 || choix == 1) {
-            take(choix);
-        } else if (choix == 2){
-            break;
-        }
-        else {
-            printf("Entrée invalide ! Veuillez entrer 0 pour Gauche ou 1 pour Droite.\n");
-            i--; // Répéter cette itération
-        }
-    }
-
-    printf("\nAjout terminé !\n");
-    
-}
