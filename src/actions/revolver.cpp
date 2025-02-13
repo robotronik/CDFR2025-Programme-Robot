@@ -1,4 +1,4 @@
-#include "revolver.hpp"
+#include "actions/revolver.hpp"
 #include "utils/logger.hpp"
 #include "actions/functions.h"
 

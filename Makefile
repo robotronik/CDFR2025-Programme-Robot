@@ -38,6 +38,7 @@ SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp \
 			$(SRCDIR)/actions/functions.cpp \
 			$(SRCDIR)/actions/actionContainer.cpp \
 			$(SRCDIR)/actions/action.cpp \
+			$(SRCDIR)/actions/revolver.cpp \
 			$(SRCDIR)/lidar/Lidar.cpp \
 			$(SRCDIR)/defs/tableState.cpp \
 			, $(SRC) )
