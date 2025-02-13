@@ -162,6 +162,7 @@ bool moveLowColumnsRevolverAbs(int N){
     }
     int32_t currentValue;
     if (!arduino.getStepper(currentValue, COLOMNS_REVOLVER_LOW_STEPPER_NUM)) return false;
+    return (currentValue == absSteps);
 }
 
 // Move the higher revolver to an absolute position by N relative to the elevator
