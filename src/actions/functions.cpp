@@ -147,6 +147,40 @@ bool moveTribuneElevator(bool high){
     return (currentValue == target);
 }
 
+// Move the lower revolver to an absolute position by N relative to the pusher
+bool moveLowColumnsRevolverAbs(int N){
+    static int previousN = 0;
+
+    float gearTheets = 13; // Theets per rotation
+    float stepperSteps = 200 * 8; // 8 microstepping
+    float intervalBetweenN = 3.5; // Theets between N
+    int absSteps = (int)((stepperSteps * intervalBetweenN * N) / gearTheets);
+
+    if (previousN != N){
+        previousN = N;
+        arduino.moveStepper(absSteps, COLOMNS_REVOLVER_LOW_STEPPER_NUM);
+    }
+    int32_t currentValue;
+    if (!arduino.getStepper(currentValue, COLOMNS_REVOLVER_LOW_STEPPER_NUM)) return false;
+}
+
+// Move the higher revolver to an absolute position by N relative to the elevator
+bool moveHighColumnsRevolverAbs(int N){
+    static int previousN = 0;
+
+    float gearTheets = 13; // Theets per rotation
+    float stepperSteps = 200 * 8; // 8 microstepping
+    float intervalBetweenN = 3.5; // Theets between N
+    int absSteps = (int)((stepperSteps * intervalBetweenN * N) / gearTheets);
+
+    if (previousN != N){
+        previousN = N;
+        arduino.moveStepper(absSteps, COLOMNS_REVOLVER_HIGH_STEPPER_NUM);
+    }
+    int32_t currentValue;
+    if (!arduino.getStepper(currentValue, COLOMNS_REVOLVER_HIGH_STEPPER_NUM)) return false;
+    return (currentValue == absSteps);
+}
 
 // ------------------------------------------------------
 //                GLOBAL SET/RES CONTROL
