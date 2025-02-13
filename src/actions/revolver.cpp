@@ -4,7 +4,7 @@
 
 int lowBarrelTab[SIZE] = {0};  // 0 = Empty, 1 = Occupied
 int highBarrelTab[SIZE] = {0};  // 0 = Empty, 1 = Occupied
-int lowBarrelCount=0, highBarrelCount = 0;
+int lowBarrelCount = 0, highBarrelCount = 0;
 
 // Initialize the revolver when the game starts
 void initRevolver(){
@@ -35,7 +35,7 @@ void DisplayBarrel(){
     printf("\n\n");
 }
 
-// Spin the barrel by n positions (positive or negative) return 1 when finished
+// Spin the barrel by n positions (positive or negative) returns true when done
 bool SpinBarrel(int n, int num_tab) {//lowBarrel 1er = 1: highBarrel 2ème = 2
     LOG_INFO("SpinBarrel num ", num_tab, (n > 0) ? " sens horaire" : " sens anti-horaire");
     int *lowBarrel_actuel = (num_tab == 1) ? lowBarrelTab : highBarrelTab;
@@ -56,28 +56,35 @@ bool SpinBarrel(int n, int num_tab) {//lowBarrel 1er = 1: highBarrel 2ème = 2
             LOG_ERROR("Placement interdit");
         }
     }
-    //return TurnBarrel(n); //TODO implémenter ds functions (13 teeths)
-    return 1;
+    if (num_tab == 1)
+        return moveLowColumnsRevolverAbs(n);
+    else if (num_tab == 2)
+        return moveHighColumnsRevolverAbs(n);
+
+    return 1; // In case of error
 }
 
+// Returns true when done
 bool MoveColumns(int direction, int sens) { //return 1 when finished
     LOG_INFO("MoveColumns direction : ", direction, " sens : ", sens);
-    int start = (direction == 0 ? 0 : 5), end = (direction == 0 ? 13 : 6);
+    int start = (direction == 0 ? 0 : 5);
+    int end = (direction == 0 ? 13 : 6);
 
     if (sens == 1 && highBarrelTab[start]) {
-        LOG_ERROR("T'essais de monter des boites de conserve ou il y en a deja\n");
+        LOG_ERROR("T'essais de monter des columns de conserve ou il y en a deja\n");
+        // TODO Maybe return error or throw ?
     }
 
     highBarrelTab[start] = highBarrelTab[end] = (sens == 1) ? 1 : 0;;
     lowBarrelTab[start] = lowBarrelTab[end] = (sens == 1) ? 0 : 1;;
     highBarrelCount += sens ? 2 : -2;
     lowBarrelCount -= sens ? 2 : -2;
-    //return ArduinoMoveColumns()
-    return true; // TODO: Remplacer par ArduinoMoveColumns()
+    return true;
+    // TODO Add more logic to handle spinning by +N
 }
 
 
-//Fonction qui Gère le stockage du 2ème étage de boîtes return 1 when finished
+//Fonction qui Gère le stockage du 2ème étage de boîtes returns true when done
 bool PrepareHighBarrel(int sens){//sens 1 = droite, 0 = gauche
     LOG_INFO("PrepareHighBarrel sens : %i\n", sens);
     if (highBarrelCount == 0)
@@ -130,13 +137,13 @@ bool PrerareLowBarrel(int sens){//sens 1 = droite, 0 = gauche
 }
 
 
-//Load a Stock according to the direction (right = 1, left = 0) (droite = 1, gauche = 0)
+// Load a Stock according to the direction (right = 1, left = 0) (droite = 1, gauche = 0)
 bool LoadStock(int direction){
-    LOG_INFO("INFO : AjoutBoite", direction == 1 ? "Droite" : "Gauche");
-    int position = direction ? 5 : 0, rotation = direction ? -1 : 1; // position ajout boite, Sens de rotation
+    LOG_INFO("INFO : AjoutColumn", direction == 1 ? "Droite" : "Gauche");
+    int position = direction ? 5 : 0, rotation = direction ? -1 : 1; // position ajout column, Sens de rotation
     
     for (int i = 0; i < 4; i++) {
-        LOG_INFO("ajout boite pos ", abs(position-1-i));
+        LOG_INFO("ajout column pos ", abs(position-1-i));
         lowBarrelTab[position] = 1; // Remplit 4 cases successives
         lowBarrelCount++;
         SpinBarrel(rotation, 1);
@@ -175,7 +182,7 @@ bool PrepareRelease(){
 bool ReleaseHigh(){
     LOG_INFO("ReleaseHigh");
     if (highBarrelCount == 0) {
-        LOG_INFO("Plus de boites a sortir 2eme etage"); 
+        LOG_INFO("Plus de columns a sortir 2eme etage"); 
         return 1;
     }
     
@@ -191,7 +198,7 @@ bool ReleaseHigh(){
 bool ReleaseLow(){//sens 1 = droite, 0 = gauche
     LOG_INFO("ReleaseOne");
     if (lowBarrelCount == 0) {
-        LOG_INFO("Plus de boites a sortir 1er etage"); 
+        LOG_INFO("Plus de columns a sortir 1er etage"); 
         return ReleaseHigh();
     }
     lowBarrelTab[2] = 0; lowBarrelTab[3] = 0;
