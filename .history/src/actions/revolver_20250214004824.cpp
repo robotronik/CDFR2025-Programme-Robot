@@ -64,11 +64,10 @@ bool SpinBarrel(int n, int num_tab) {//lowBarrel 1er = 1: highBarrel 2ème = 2
     return 1; // In case of error
 }
 //return the shift needed to put first or last 1 to desired position
-int ShiftListNumber(int list[], int desired_position, int choose_first) {
+int shift_list(int list[], int desired_position, int choose_first) {//choose_first = 1 pour premier 1, 0 pour le dernier
     int n = 14, indices[14], count = 0;
     for (int i = 0; i < n; i++) if (list[i] == 1) indices[count++] = i;
     if (!count) return fprintf(stderr, "No 1 found.\n"), -1;
-    if (count == n) {printf("No need to move\n"); return 0;}
     int shift = (desired_position - (choose_first ? indices[0] : indices[count - 1])) % n;
     return (shift > n / 2) ? shift - n : shift;
 }
@@ -90,7 +89,7 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished
     highBarrelCount += sens ? 2 : -2;
     lowBarrelCount -= sens ? 2 : -2;
     return true;
-    // TODO Add more logic to handle spinning by +N (?? rien de spin ici)
+    // TODO Add more logic to handle spinning by +N
 }
 
 
