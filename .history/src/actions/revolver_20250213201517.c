@@ -1,18 +1,21 @@
-
+#include "revolver.hpp"
+/*
 #define SIZE 14 //Pour tester
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+*/
 int lowBarrelTab[SIZE] = {0};  // 0 = vide, 1 = occupé
 int highBarrelTab[SIZE] = {0};  // 0 = vide, 1 = occupé
 int lowBarrelCount=0, highBarrelCount = 0;
 
 void initRevolver(){//initialise les barillets si on re-initialise le programme
     for (int i = 0; i < SIZE; i++) {
-        lowBarrelTab[i] = highBarrelTab[i] = 0;
+        lowBarrelTab[i] = 0;
+        highBarrelTab[i] = 0;
     }
-    lowBarrelCount = highBarrelCount = 0;
+    lowBarrelCount = 0;
+    highBarrelCount = 0;
 }
 
 // Display the robot structure and the layout of the locations
@@ -63,14 +66,16 @@ bool SpinBarrel(int n, int num_tab) {//lowBarrel 1er = 1: highBarrel 2ème = 2
 
 bool MoveColumns(int direction, int sens) { 
     printf("INFO : MoveColumns direction : %i, sens : %i\n", direction, sens);
-    int start = (direction == 0 ? 0 : 5), end = (direction == 0 ? 13 : 6);
+    int start = (direction == 0 ? 0 : 5);
+    int end = (direction == 0 ? 13 : 6);
 
-    if (sens == 1 && highBarrelTab[start]) {printf("ERREUR : T'essais de monter des boîtes de conserve où il y en a déjà\n");}
+    if (sens == 1 && highBarrelTab[start] == 1) {printf("ERREUR : T'essais de monter des boîtes de conserve où il y en a déjà\n");}
 
     highBarrelTab[start] = highBarrelTab[end] = (sens == 1) ? 1 : 0;;
     lowBarrelTab[start] = lowBarrelTab[end] = (sens == 1) ? 0 : 1;;
-    highBarrelCount += sens ? 2 : -2;
-    lowBarrelCount -= sens ? 2 : -2;
+    highBarrelCount += (sens == 1) ? 2 : -2;
+    lowBarrelCount -= (sens == 1) ? 2 : -2;
+
     return true; // TODO: Remplacer par ArduinoMoveColumns()
 }
 
@@ -81,16 +86,18 @@ bool PrepareHighBarrel(int sens){//sens 1 = droite, 0 = gauche
     if (highBarrelCount == 0) return 1; //no columns in Highbarrel so position is good
     if (highBarrelCount >= 10) {printf("ERREUR Plus de place dans le barillet 2\n"); return 1;}
     
-    if (highBarrelTab[sens ? 5 : 0]) {
+    if (highBarrelTab[sens ? 5 : 0] == 1) {
         SpinBarrel(sens ? 2 : -2, 2); 
         return 1; //Une rotation de 2 suffit
     }
 
-    if (highBarrelCount <= 8 && !highBarrelTab[sens ? 7 : 12]){//whille there is not a box in the last column (7 or 12)
-        SpinBarrel(sens ? -2 : 2, 2);
-        return 0; 
+    if (highBarrelCount <= 8){
+        if (highBarrelTab[sens ? 7 : 12] != 1) { //whille there is not a box in the last column (7 or 12)
+            SpinBarrel(sens ? -2 : 2, 2);
+            return 0; 
+        }
+        return 1;
     }
-    return 1;
 }
 
 //Fonction qui Gère le stockage du 1er étage de boîtes
@@ -119,13 +126,16 @@ bool PrerareLowBarrel(int sens){//sens 1 = droite, 0 = gauche
     if (!PrepareHighBarrel(sens)) return false;
     MoveColumns(sens, 1);
     return PrepareHighBarrel(sens);
+    
 }
 
 
 //Load a Stock according to the direction (right = 1, left = 0) (droite = 1, gauche = 0)
 bool LoadStock(int direction){
     printf("INFO : AjoutBoite%s\n", direction == 1 ? "Droite" : "Gauche");
-    int position = direction ? 5 : 0, rotation = direction ? -1 : 1; // position ajout boite, Sens de rotation
+    
+    int position = (direction == 1) ? 5 : 0; // Position initiale selon la direction
+    int rotation = (direction == 1) ? -1 : 1; // Sens de rotation
     
     for (int i = 0; i < 4; i++) {
         printf("INFO : ajout boite pos %i\n", abs(position-1-i));
@@ -137,6 +147,7 @@ bool LoadStock(int direction){
 
 void take(int sens){//sens 1 = droite, 0 = gauche
     if (lowBarrelCount == SIZE && highBarrelCount == 10) {printf("ERREUR : Plus de place dans le revolver \n"); return;}
+
     while (!PrerareLowBarrel(sens));
     LoadStock(sens);
     DisplayBarrel();
@@ -156,15 +167,18 @@ bool PrepareRelease(){
     //prepare release high barrel
     if (highBarrelTab[0] == 0){
         SpinBarrel(1, 2);
+        DisplayBarrel();
         return 0;
     }
+
     DisplayBarrel();
     return 1;
 }
-bool ReleaseHigh(){printf("INFO : ReleaseHigh\n");
+bool ReleaseHigh(){
+    printf("INFO : ReleaseHigh\n");
     if (highBarrelCount == 0) {printf("INFO : Plus de boîtes à sortir 2ème étage\n"); return 1;}
-    
-    highBarrelTab[0] = highBarrelTab[13] = 0;//baisser les boîtes
+    highBarrelTab[0] = 0; //baisser les boîtes
+    highBarrelTab[13] = 0;
     highBarrelCount -= 2;
     SpinBarrel(2,2);
     SpinBarrel(3,1);
@@ -175,7 +189,9 @@ bool ReleaseHigh(){printf("INFO : ReleaseHigh\n");
 //fonction qui sort tout les boîtes du barillet
 bool ReleaseLow(){//sens 1 = droite, 0 = gauche
     printf("INFO : ReleaseOne\n");
-    if (lowBarrelCount == 0) {printf("INFO : Plus de boîtes à sortir 1er etage\n"); 
+    
+    if (lowBarrelCount == 0) {
+        printf("INFO : Plus de boîtes à sortir 1er etage\n"); 
         return ReleaseHigh();
     }
     lowBarrelTab[2] = 0; lowBarrelTab[3] = 0;
@@ -190,10 +206,10 @@ void main(){
     DisplayBarrel();
 
 
+    take(1);
     take(0);
     take(1);
-    take(1);
-    take(1);
+    take(0);
     take(1);
     while (!PrepareRelease());
     while (!ReleaseLow());
