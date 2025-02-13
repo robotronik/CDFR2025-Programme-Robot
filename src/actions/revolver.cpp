@@ -1,9 +1,13 @@
 #include "revolver.hpp"
-int lowBarrelTab[SIZE] = {0};  // 0 = vide, 1 = occupé
-int highBarrelTab[SIZE] = {0};  // 0 = vide, 1 = occupé
+#include "utils/logger.hpp"
+#include "actions/functions.h"
+
+int lowBarrelTab[SIZE] = {0};  // 0 = Empty, 1 = Occupied
+int highBarrelTab[SIZE] = {0};  // 0 = Empty, 1 = Occupied
 int lowBarrelCount=0, highBarrelCount = 0;
 
-void initRevolver(){//initialise les barillets si on re-initialise le programme
+// Initialize the revolver when the game starts
+void initRevolver(){
     for (int i = 0; i < SIZE; i++) {
         lowBarrelTab[i] = highBarrelTab[i] = 0;
     }
@@ -31,9 +35,9 @@ void DisplayBarrel(){
     printf("\n\n");
 }
 
-//Spin the barrel by n positions (positive or negative) return 1 when finished
+// Spin the barrel by n positions (positive or negative) return 1 when finished
 bool SpinBarrel(int n, int num_tab) {//lowBarrel 1er = 1: highBarrel 2ème = 2
-    printf("INFO : SpinBarrel num %i , %s \n", num_tab, (n > 0) ? "sens horaire" : "sens anti-horaire");
+    LOG_INFO("SpinBarrel num ", num_tab, (n > 0) ? " sens horaire" : " sens anti-horaire");
     int *lowBarrel_actuel = (num_tab == 1) ? lowBarrelTab : highBarrelTab;
     int temp[SIZE];
     
@@ -49,7 +53,7 @@ bool SpinBarrel(int n, int num_tab) {//lowBarrel 1er = 1: highBarrel 2ème = 2
     
     for (int i = 1; i <= 4; i++) {//case 1 2 3 4 2ème étage impossible
         if (temp[i] == 1 && num_tab == 2) {
-            printf("ERREUR : Placement interdit\n");
+            LOG_ERROR("Placement interdit");
         }
     }
     //return TurnBarrel(n); //TODO implémenter ds functions (13 teeths)
@@ -57,10 +61,12 @@ bool SpinBarrel(int n, int num_tab) {//lowBarrel 1er = 1: highBarrel 2ème = 2
 }
 
 bool MoveColumns(int direction, int sens) { //return 1 when finished
-    printf("INFO : MoveColumns direction : %i, sens : %i\n", direction, sens);
+    LOG_INFO("MoveColumns direction : ", direction, " sens : ", sens);
     int start = (direction == 0 ? 0 : 5), end = (direction == 0 ? 13 : 6);
 
-    if (sens == 1 && highBarrelTab[start]) {printf("ERREUR : T'essais de monter des boîtes de conserve où il y en a déjà\n");}
+    if (sens == 1 && highBarrelTab[start]) {
+        LOG_ERROR("T'essais de monter des boites de conserve ou il y en a deja\n");
+    }
 
     highBarrelTab[start] = highBarrelTab[end] = (sens == 1) ? 1 : 0;;
     lowBarrelTab[start] = lowBarrelTab[end] = (sens == 1) ? 0 : 1;;
@@ -73,9 +79,13 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished
 
 //Fonction qui Gère le stockage du 2ème étage de boîtes return 1 when finished
 bool PrepareHighBarrel(int sens){//sens 1 = droite, 0 = gauche
-    printf("INFO : PrepareHighBarrel sens : %i\n", sens);
-    if (highBarrelCount == 0) return 1; //no columns in Highbarrel so position is good
-    if (highBarrelCount >= 10) {printf("ERREUR Plus de place dans le barillet 2\n"); return 1;}
+    LOG_INFO("PrepareHighBarrel sens : %i\n", sens);
+    if (highBarrelCount == 0)
+        return 1; //no columns in Highbarrel so position is good
+    if (highBarrelCount >= 10) {
+        LOG_ERROR("Plus de place dans le barillet 2"); 
+        return 1;
+    }
     
     if (highBarrelTab[sens ? 5 : 0]) {
         SpinBarrel(sens ? 2 : -2, 2); 
@@ -91,7 +101,7 @@ bool PrepareHighBarrel(int sens){//sens 1 = droite, 0 = gauche
 
 //Fonction qui Gère le stockage du 1er étage de boîtes, 
 bool PrerareLowBarrel(int sens){//sens 1 = droite, 0 = gauche
-    printf("INFO : PrerareLowBarrel sens : %s\n",(sens ? "droite" : "gauche"));
+    LOG_INFO("PrerareLowBarrel sens : ",(sens ? "droite" : "gauche"));
     if (lowBarrelCount == 0) return 1; //no columns in Lowbarrel so position is good
 
     if (lowBarrelCount <= 10){
@@ -122,11 +132,11 @@ bool PrerareLowBarrel(int sens){//sens 1 = droite, 0 = gauche
 
 //Load a Stock according to the direction (right = 1, left = 0) (droite = 1, gauche = 0)
 bool LoadStock(int direction){
-    printf("INFO : AjoutBoite%s\n", direction == 1 ? "Droite" : "Gauche");
+    LOG_INFO("INFO : AjoutBoite", direction == 1 ? "Droite" : "Gauche");
     int position = direction ? 5 : 0, rotation = direction ? -1 : 1; // position ajout boite, Sens de rotation
     
     for (int i = 0; i < 4; i++) {
-        printf("INFO : ajout boite pos %i\n", abs(position-1-i));
+        LOG_INFO("ajout boite pos ", abs(position-1-i));
         lowBarrelTab[position] = 1; // Remplit 4 cases successives
         lowBarrelCount++;
         SpinBarrel(rotation, 1);
@@ -134,14 +144,17 @@ bool LoadStock(int direction){
 }
 
 void take(int sens){//sens 1 = droite, 0 = gauche
-    if (lowBarrelCount == SIZE && highBarrelCount == 10) {printf("ERREUR : Plus de place dans le revolver \n"); return;}
+    if (lowBarrelCount == SIZE && highBarrelCount == 10) {
+        LOG_ERROR("Plus de place dans le revolver");
+        return;
+    }
     while (!PrerareLowBarrel(sens));
     LoadStock(sens);
     DisplayBarrel();
 }
 
 bool PrepareRelease(){
-    printf("PrepareRelease\n"); //prepare release low barrel
+    LOG_INFO("PrepareRelease"); //prepare release low barrel
     if (lowBarrelTab[4] == 1 && lowBarrelTab[5] == 0){ //wait for the first box to be in the right position
         SpinBarrel(-1, 1);
         return 0;
@@ -159,8 +172,12 @@ bool PrepareRelease(){
     DisplayBarrel();
     return 1;
 }
-bool ReleaseHigh(){printf("INFO : ReleaseHigh\n");
-    if (highBarrelCount == 0) {printf("INFO : Plus de boîtes à sortir 2ème étage\n"); return 1;}
+bool ReleaseHigh(){
+    LOG_INFO("ReleaseHigh");
+    if (highBarrelCount == 0) {
+        LOG_INFO("Plus de boites a sortir 2eme etage"); 
+        return 1;
+    }
     
     highBarrelTab[0] = highBarrelTab[13] = 0;//baisser les boîtes
     highBarrelCount -= 2;
@@ -172,8 +189,9 @@ bool ReleaseHigh(){printf("INFO : ReleaseHigh\n");
 
 //fonction qui sort tout les boîtes du barillet
 bool ReleaseLow(){//sens 1 = droite, 0 = gauche
-    printf("INFO : ReleaseOne\n");
-    if (lowBarrelCount == 0) {printf("INFO : Plus de boîtes à sortir 1er etage\n"); 
+    LOG_INFO("ReleaseOne");
+    if (lowBarrelCount == 0) {
+        LOG_INFO("Plus de boites a sortir 1er etage"); 
         return ReleaseHigh();
     }
     lowBarrelTab[2] = 0; lowBarrelTab[3] = 0;
@@ -196,6 +214,6 @@ void TestRevolver(){
     while (!PrepareRelease());
     while (!ReleaseLow());
 
-    printf("\nTerminé !\n");
+    LOG_GREEN_INFO("Done Test Revolver !");
     
 }
