@@ -18,8 +18,8 @@
 // Define the nums of the arduino for the STEPPERS
 #define PLATFORMS_ELEVATOR_STEPPER_NUM    1
 #define TRIBUNES_ELEVATOR_STEPPER_NUM     2
-#define COLOMNS_RAIL_LOW_STEPPER_NUM      3
-#define COLOMNS_RAIL_HIGH_STEPPER_NUM     4
+#define COLOMNS_REVOLVER_LOW_STEPPER_NUM  3
+#define COLOMNS_REVOLVER_HIGH_STEPPER_NUM 4
 // Define the nums of the arduino for the SERVOS
 #define TRIBUNES_PUSH_SERVO_NUM           1
 #define PLATFORMS_LIFT_LEFT_SERVO_NUM     2

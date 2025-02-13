@@ -25,6 +25,8 @@ bool moveTribunePusher(bool outside);
 // Stepper Control
 bool movePlatformElevator(int level);
 bool moveTribuneElevator(bool high);
+bool moveLowColumnsRevolverAbs(int N);
+bool moveHighColumnsRevolverAbs(int N);
 
 // Input sensors
 colorTeam_t readColorSensorSwitch();
