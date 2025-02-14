@@ -140,6 +140,7 @@ int main(int argc, char *argv[])
         {
             if (initState){
                 LOG_GREEN_INFO("RUN"); 
+                tableStatus.reset();
                 tableStatus.startTime = _millis();
                 action.Reset();
             }

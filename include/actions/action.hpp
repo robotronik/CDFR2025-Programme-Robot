@@ -13,12 +13,12 @@ public:
     ActionFSM();
     ~ActionFSM();
     void Reset();
-
     bool RunFSM();
+
+private:
     ReturnFSM_t TakeSingleStockFSM(int num); // Num of the stock
     ReturnFSM_t ConstructAllTribunesFSM(int zone); // Num of the zone
 
-private:
     typedef enum
     {
         FSM_ACTION_GATHER,

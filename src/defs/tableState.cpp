@@ -3,24 +3,21 @@
 #include "utils/logger.hpp"
 
 TableState::TableState(){
+    pos_opponent.x = 0; pos_opponent.y = 0;
+    robot.pos = {0, 0, 0};
+    robot.colorTeam = NONE;
+
     reset();
 }
 
 TableState::~TableState(){}
 
 void TableState::reset(){
-    pos_opponent.x = 0; pos_opponent.y = 0;
-
-    robot.pos = {0, 0, 0};
-    robot.colorTeam = NONE;
-
     /* data show must go on*/
     for(int i = 0; i<STOCK_COUNT;i++){
         avail_stocks[i] = true;
     }
     done_banderole = false;
-
-    robot.columns_count = 0;
     robot.plank_count = 0;
 
     for (int i = 0; i < 10; i++){

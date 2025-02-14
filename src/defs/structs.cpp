@@ -37,7 +37,6 @@ void to_json(json& j, const robot_t& p) {
         {"pos", p.pos},
         {"vit_x", p.vit_x},
         {"vit_y", p.vit_y},
-        {"columns_count", p.columns_count},
         {"plank_count", p.plank_count},
         {"target", p.target},
         {"braking_distance", p.braking_distance},
