@@ -23,6 +23,7 @@
 
 
 TableState tableStatus;
+ActionFSM action;
 
 // Initiation of i2c devices
 #ifndef EMULATE_I2C
@@ -38,7 +39,6 @@ Lidar lidar;
 main_State_t currentState;
 main_State_t nextState;
 bool initState;
-ActionContainer actionSystem;
 bool manual_ctrl;
 bool (*manual_currentFunc)(); //Pointer to a function to execute of type bool func(void)
 
@@ -60,7 +60,7 @@ bool ctrl_z_pressed = false;
 void ctrlz(int signal)
 {
     LOG_INFO("Termination Signal Recieved");
-    ctrl_z_pressed = true;
+    exit(0);
 }
 
 int main(int argc, char *argv[])
@@ -90,7 +90,8 @@ int main(int argc, char *argv[])
             {
 #ifndef DISABLE_LIDAR
                 GetLidarV2();
-                navigationOpponentDetection();
+                if (currentState == RUN)
+                    navigationOpponentDetection();
 #endif
             }
         }
@@ -118,16 +119,12 @@ int main(int argc, char *argv[])
         {
             if (initState){
                 LOG_GREEN_INFO("WAITSTART");  
+                enableActuators();
                 arduino.setStepper(0, 1);
                 arduino.setStepper(0, 2);
                 arduino.setStepper(0, 3);
                 arduino.setStepper(0, 4);
                 homeActuators();
-                asserv.set_motor_state(true);
-                asserv.set_brake_state(false); 
-                //asserv.set_linear_max_speed(MAX_SPEED);
-                //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
-                //while(asserv.get_command_buffer_size() != 0); //wait end of all action above
                 lidar.startSpin();
             }
 
@@ -146,9 +143,9 @@ int main(int argc, char *argv[])
             if (initState){
                 LOG_GREEN_INFO("RUN"); 
                 tableStatus.startTime = _millis();
-                actionSystem.initAction();
+                action.Reset();
             }
-            bool finished = actionSystem.run();
+            bool finished = action.RunFSM();
 
             if (_millis() > tableStatus.startTime + 90000 || finished)
                 nextState = FIN;
@@ -178,9 +175,8 @@ int main(int argc, char *argv[])
             if (initState){
                 LOG_GREEN_INFO("FIN");
                 arduino.RGB_Solid(0, 255, 0);
+                disableActuators();
             }
-            asserv.set_motor_state(false);
-            asserv.set_brake_state(false);
             lidar.stopSpin();
 
             if (!readLatchSensor())
@@ -283,8 +279,6 @@ int StartSequence()
     initState = true;
     manual_ctrl = false;
     manual_currentFunc = NULL;
-
-    actionSystem.init();
 
     asserv.set_coordinates(0,0,0);
 
@@ -410,8 +404,6 @@ void EndSequence()
     lidar.Stop();
 
 #ifndef EMULATE_I2C
-    asserv.set_motor_state(false);
-    asserv.set_brake_state(false);
     //asserv.stop();
 
     arduino.RGB_Solid(0, 0, 0); // OFF

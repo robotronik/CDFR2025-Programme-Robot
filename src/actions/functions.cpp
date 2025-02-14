@@ -8,16 +8,6 @@
 #include "i2c/Arduino.hpp"
 #include <math.h>
 
-//TODO : Functions to fill in
-int takeStock(int xStart,int yStart, int xEnd, int yEnd, int num_zone){
-    
-    setStockAsRemoved(-1); //TODO once has taken stock
-    return 0;
-}
-int construct(int x,int y,int theta){
-    return 0;
-}
-
 // ------------------------------------------------------
 //                   BASIC FSM CONTROL
 // ------------------------------------------------------
@@ -202,21 +192,26 @@ bool moveHighColumnsRevolverAbs(int N){
 
 // Returns true if actuators are home
 bool homeActuators(){
-    return 
+    return (
     movePlatformLifts(true) &
     movePlatformElevator(0) &
     moveTribunePusher(false) &
-    moveTribuneElevator(false);
+    moveTribuneElevator(false) 
+    );
 }
 void enableActuators(){
     for (int i = 0; i < 4; i++){
         arduino.enableStepper(i);
     }
+    asserv.set_motor_state(true);
+    asserv.set_brake_state(false); 
 }
 void disableActuators(){
     for (int i = 0; i < 4; i++){
         arduino.disableStepper(i);
     }
+    asserv.set_motor_state(false);
+    asserv.set_brake_state(true); 
 }
 
 
@@ -230,12 +225,11 @@ void setStockAsRemoved(int num){
     LOG_INFO("Removed stock ", num);
 }
 
-// TODO : Remove ? Not even used..
-int returnToHome(){
-    int home_x = 700;
-    int home_y = tableStatus.robot.colorTeam == YELLOW ? 1200 : -1200;
+bool returnToHome(){
+    int home_x = -500;
+    int home_y = tableStatus.robot.colorTeam == BLUE ? 1100 : -1100;
     nav_return_t res = navigationGoToNoTurn(home_x, home_y);
-    return res == NAV_DONE;
+    return res == NAV_DONE && isRobotInArrivalZone(tableStatus.robot.pos);
 }
 
 // Function to check if a point (px, py) lies inside the rectangle

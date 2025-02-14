@@ -3,8 +3,8 @@
 
 #include "defs/structs.hpp"
 
-int returnToHome();
-bool homeActuators(); // TODO Maybe move this to Arduino class ?
+bool returnToHome();
+bool homeActuators();
 void enableActuators();
 void disableActuators();
 bool isRobotInArrivalZone(position_t position);
@@ -12,9 +12,7 @@ void opponentInAction(position_t position);
 void switchTeamSide(colorTeam_t color);
 void setStockAsRemoved(int num);
 
-//New functions (FSM)
-int takeStock(int xStart,int yStart, int xEnd, int yEnd, int num_zone);
-int construct(int x,int y,int theta);
+// Basic functions (FSM)
 bool takeStockPlatforms();
 bool constructSingleTribune();
 

@@ -1,75 +1,51 @@
 #pragma once
 
-#include <functional>
-#include <string>
-#include "navigation/navigation.h"
-#include "actions/functions.h"
-#include "defs/tableState.hpp"
-#include "defs/constante.h"
-#include "i2c/Arduino.hpp"
-
-class Action;
-
-class Action
+// Consider using enum class for better type safety
+typedef enum
 {
+    FSM_RETURN_WORKING =0x0,
+    FSM_RETURN_DONE    =0x1,
+    FSM_RETURN_ERROR   =0x2
+} ReturnFSM_t;
+
+class ActionFSM{
+public:
+    ActionFSM();
+    ~ActionFSM();
+    void Reset();
+
+    bool RunFSM();
+    ReturnFSM_t TakeSingleStockFSM(int num); // Num of the stock
+    ReturnFSM_t ConstructAllTribunesFSM(int zone); // Num of the zone
+
 private:
     typedef enum
     {
-        FSM_ACTION_INIT,
-        FSM_ACTION_MOVESTART,
-        FSM_ACTION_ACTION,
-        FSM_ACTION_MOVEEND
-    } fsmAction_t;
+        FSM_ACTION_GATHER,
+        FSM_ACTION_BUILD,
+        FSM_ACTION_DEPLOY_BANNER,
+        FSM_ACTION_NAV_HOME
+    } StateRun_t;
 
-private:
-    std::function<int(Action *)> runActionPtr;
-    int validActionPtr;
-    std::function<void()> goodEndPtr;
-    std::function<void()> badEndPtr;
+    StateRun_t runState = FSM_ACTION_GATHER;
 
-    position_t startPostion;
-    Direction startDirection;
-    Rotation startRotation;
-
-    bool noEndPoint = true;
-    position_t endPostion;
-    Direction endDirection;
-    Rotation endRotation;
-
-    fsmAction_t currentState = FSM_ACTION_INIT;
-    bool initStat = true;
-
-    std::string actionName;
-    bool actionEnable = true;
-
-    unsigned long keyMoment;
-    bool keyMomentSet = false;
-    bool nothetaStart = false;
-
-public:
-    Action(std::string name);
-    int runAction();
-    void setRunAction(std::function<int(Action *)> ptr);
-    void setStartPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
-    void setStartPoint(int x, int y, Direction Direction, Rotation rotation);
-    void setEndPoint(int x, int y, int theta, Direction Direction, Rotation rotation);
-    int costAction();
-    void goodEnd(std::function<void()> ptr);
-    void badEnd(std::function<void()> ptr);
-    void setCostAction(int num_action, int num_i_action, int x_start, int y_start);
-    void resetActionEnable();
-    void setKeyMoment(unsigned long keyMom);
-    bool actionNeedForce();
-    std::string getName();
-    ~Action();
-
-    friend std::ostream &operator<<(std::ostream &os, Action &obj)
+    typedef enum
     {
-        os << obj.getName();
-        return os;
-    }
+        FSM_SINGLESTOCK_NAV,
+        FSM_SINGLESTOCK_PREPARE,
+        FSM_SINGLESTOCK_MOVE,
+        FSM_SINGLESTOCK_COLLECT
+    } StateTakeSingleStock_t;
 
-private:
-    nav_return_t goToStart();
-    nav_return_t goToEnd();
-};
+    StateTakeSingleStock_t takeSingleStockState = FSM_SINGLESTOCK_NAV;
+
+    typedef enum
+    {
+        FSM_CONSTRUCT_NAV,
+        FSM_CONSTRUCT_MOVE,
+        FSM_CONSTRUCT_BUILD,
+        FSM_CONSTRUCT_EXIT
+    } StateConstructTribunes_t;
+
+    StateConstructTribunes_t constructAllTribunesState = FSM_CONSTRUCT_NAV;
+}
