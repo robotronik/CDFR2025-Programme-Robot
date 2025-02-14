@@ -170,6 +170,7 @@ void TestRevolver(){
     DisplayRobot();
     DisplayBarrel();
 
+
     take(1);
     take(0);
     take(1);

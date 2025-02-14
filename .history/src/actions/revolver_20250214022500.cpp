@@ -62,7 +62,8 @@ int ShiftListNumber(int list[], int desired_position, int choose_first) {//choos
 // Returns true when done
 bool MoveColumns(int direction, int sens) { //return 1 when finished
     LOG_INFO("MoveColumns direction : ", direction, " sens : ", sens);
-    int start = (direction == 0 ? 0 : 5),  end = (direction == 0 ? 13 : 6);
+    int start = (direction == 0 ? 0 : 5);
+    int end = (direction == 0 ? 13 : 6);
 
     if (sens == 1 && highBarrelTab[start]) {
         LOG_ERROR("T'essais de monter des columns de conserve ou il y en a deja\n");
@@ -74,7 +75,7 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished
     highBarrelCount += sens ? 2 : -2;
     lowBarrelCount -= sens ? 2 : -2; // TODO si MoveColumns est appeler jusqu'a que l'action soit finit, ça décrémente lowBarrelCount de 2 à chaque fois ???
     return true;
-    // TODO Add more logic to handle spinning by +N (?? rien ne spin ici)
+    // TODO Add more logic to handle spinning by +N (?? rien de spin ici)
 }
 
 
@@ -82,9 +83,13 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished
 bool PrepareHighBarrel(int sens){//sens 1 = droite, 0 = gauche
     LOG_INFO("PrepareHighBarrel sens : ", sens, "\n");
     if (highBarrelCount == 0)return 1; //no columns in Highbarrel so position is good
-    if (highBarrelCount >= 10) {LOG_ERROR("Plus de place dans le barillet 2"); return 1;}
 
-    if (!SpinBarrel(ShiftListNumber(highBarrelTab, sens ? 7 : 12, sens),2)) return 0; //n = shift needed to put first or last 1 to desired position (7 or 12)
+    if (highBarrelCount >= 10) {
+        LOG_ERROR("Plus de place dans le barillet 2"); 
+        return 1;
+    }
+    int n = ShiftListNumber(highBarrelTab, sens ? 7 : 12, sens); //n = shift needed to put first or last 1 to desired position (7 or 12)
+    if (!SpinBarrel(n,2)) return 0;
     return 1;
 }
 
@@ -93,17 +98,20 @@ bool PrerareLowBarrel(int sens){//sens 1 = droite, 0 = gauche
     LOG_INFO("PrerareLowBarrel sens : ",(sens ? "droite" : "gauche"));
     if (lowBarrelCount == 0) return 1; //no columns in Lowbarrel so position is good
 
-    if (!SpinBarrel(ShiftListNumber(lowBarrelTab, sens ? 4 : 1, !sens),1)) return 0;
+    int n = ShiftListNumber(lowBarrelTab, sens ? 4 : 1, !sens);
+    printf("n = %d\n", n);
+    DisplayBarrel();
+    if (!SpinBarrel(n,1)) return 0;
 
     PrepareHighBarrel(sens);
     if(lowBarrelCount == 12) {
-        SpinBarrel(sens ? 2 : -2, 1); //comment return 0 ???
+        SpinBarrel(sens ? 2 : -2, 1); //comment return 0
         MoveColumns(sens, 1);           
         if (highBarrelCount<=8) SpinBarrel(sens ? 2 : -2, 2);
         return 0;
     }
     if (lowBarrelCount == SIZE){
-        MoveColumns(sens, 1);        //comment return 0 ???
+        MoveColumns(sens, 1);        //comment return 0
         if (highBarrelCount<=8) SpinBarrel(sens ? 2 : -2, 2);
         return 0;
     }
@@ -120,13 +128,17 @@ bool LoadStock(int direction){
         LOG_INFO("ajout column pos ", abs(position-1-i));
         lowBarrelTab[position] = 1; // Remplit 4 cases successives
         lowBarrelCount++;
+
         SpinBarrel(rotation, 1);
     }
     return true; // TODO
 }
 
 void take(int sens){//sens 1 = droite, 0 = gauche
-    if (lowBarrelCount == SIZE && highBarrelCount == 10) {LOG_ERROR("Plus de place dans le revolver");return;}
+    if (lowBarrelCount == SIZE && highBarrelCount == 10) {
+        LOG_ERROR("Plus de place dans le revolver");
+        return;
+    }
     while (!PrerareLowBarrel(sens));
     LoadStock(sens);
     DisplayBarrel();
@@ -134,7 +146,10 @@ void take(int sens){//sens 1 = droite, 0 = gauche
 
 bool ReleaseHigh(){
     LOG_INFO("ReleaseHigh");
-    if (highBarrelCount == 0) {LOG_INFO("Plus de columns a sortir 2eme etage"); return 1;}
+    if (highBarrelCount == 0) {
+        LOG_INFO("Plus de columns a sortir 2eme etage"); 
+        return 1;
+    }
     
     highBarrelTab[0] = highBarrelTab[13] = 0;//baisser les boîtes
     highBarrelCount -= 2;
@@ -147,8 +162,10 @@ bool ReleaseHigh(){
 //fonction qui sort tout les boîtes du barillet
 bool ReleaseLow(){//sens 1 = droite, 0 = gauche
     LOG_INFO("ReleaseOne");
-    if (lowBarrelCount == 0) {LOG_INFO("Plus de columns a sortir 1er etage"); return ReleaseHigh();} 
-    
+    if (lowBarrelCount == 0) {
+        LOG_INFO("Plus de columns a sortir 1er etage"); 
+        return ReleaseHigh();
+    }
     lowBarrelTab[2] = 0; lowBarrelTab[3] = 0;
     lowBarrelCount -= 2;
     SpinBarrel(2,1);
@@ -158,8 +175,12 @@ bool ReleaseLow(){//sens 1 = droite, 0 = gauche
 
 bool Release(){
     LOG_INFO("PrepareRelease"); //prepare release low barrel
-    if (!SpinBarrel(ShiftListNumber(lowBarrelTab,3,0),1));
-    if (!SpinBarrel(ShiftListNumber(highBarrelTab, 0, 0),2));
+    int n = ShiftListNumber(lowBarrelTab,3,0);
+    if (!SpinBarrel(n,1));
+    
+    n = ShiftListNumber(highBarrelTab, 0, 0);
+    if (!SpinBarrel(n,2));
+
     DisplayBarrel();
     if (!ReleaseLow()) return 0;
     return 1;
@@ -169,6 +190,7 @@ bool Release(){
 void TestRevolver(){
     DisplayRobot();
     DisplayBarrel();
+
 
     take(1);
     take(0);

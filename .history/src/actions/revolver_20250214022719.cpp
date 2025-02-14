@@ -147,8 +147,10 @@ bool ReleaseHigh(){
 //fonction qui sort tout les boîtes du barillet
 bool ReleaseLow(){//sens 1 = droite, 0 = gauche
     LOG_INFO("ReleaseOne");
-    if (lowBarrelCount == 0) {LOG_INFO("Plus de columns a sortir 1er etage"); return ReleaseHigh();} 
-    
+    if (lowBarrelCount == 0) {
+        LOG_INFO("Plus de columns a sortir 1er etage"); 
+        return ReleaseHigh();
+    }
     lowBarrelTab[2] = 0; lowBarrelTab[3] = 0;
     lowBarrelCount -= 2;
     SpinBarrel(2,1);
@@ -158,8 +160,12 @@ bool ReleaseLow(){//sens 1 = droite, 0 = gauche
 
 bool Release(){
     LOG_INFO("PrepareRelease"); //prepare release low barrel
-    if (!SpinBarrel(ShiftListNumber(lowBarrelTab,3,0),1));
-    if (!SpinBarrel(ShiftListNumber(highBarrelTab, 0, 0),2));
+    int n = ShiftListNumber(lowBarrelTab,3,0);
+    if (!SpinBarrel(n,1));
+    
+    n = ShiftListNumber(highBarrelTab, 0, 0);
+    if (!SpinBarrel(n,2));
+
     DisplayBarrel();
     if (!ReleaseLow()) return 0;
     return 1;
@@ -169,6 +175,7 @@ bool Release(){
 void TestRevolver(){
     DisplayRobot();
     DisplayBarrel();
+
 
     take(1);
     take(0);

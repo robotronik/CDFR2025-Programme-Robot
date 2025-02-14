@@ -158,8 +158,12 @@ bool ReleaseLow(){//sens 1 = droite, 0 = gauche
 
 bool Release(){
     LOG_INFO("PrepareRelease"); //prepare release low barrel
-    if (!SpinBarrel(ShiftListNumber(lowBarrelTab,3,0),1));
-    if (!SpinBarrel(ShiftListNumber(highBarrelTab, 0, 0),2));
+    int n = ShiftListNumber(lowBarrelTab,3,0);
+    if (!SpinBarrel(n,1));
+    
+    n = ShiftListNumber(highBarrelTab, 0, 0);
+    if (!SpinBarrel(n,2));
+
     DisplayBarrel();
     if (!ReleaseLow()) return 0;
     return 1;
@@ -169,6 +173,7 @@ bool Release(){
 void TestRevolver(){
     DisplayRobot();
     DisplayBarrel();
+
 
     take(1);
     take(0);
