@@ -1,4 +1,5 @@
 #include <string>
+#include <exception>
 #include "actions/action.hpp"
 #include "utils/logger.hpp"
 #include "main.hpp"

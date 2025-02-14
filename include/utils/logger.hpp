@@ -6,6 +6,7 @@
 #include <chrono>
 #include <ctime>
 #include <iomanip>
+#include <exception>
 #include "utils/utils.h"
 
 enum class LogLevel {
