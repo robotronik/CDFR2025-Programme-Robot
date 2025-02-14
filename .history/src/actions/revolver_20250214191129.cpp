@@ -44,7 +44,7 @@ bool SpinBarrel(int n, int num_tab) {//lowBarrel 1er = 1: highBarrel 2ème = 2
     for (int i = 0; i < SIZE; i++) {temp[(i + n + SIZE) % SIZE] = lowBarrel_actuel[i];    }
     for (int i = 0; i < SIZE; i++) {if (!(num_tab == 2 && i >= 1 && i <= 4)){lowBarrel_actuel[i] = temp[i];}}
     for (int i = 1; i <= 4; i++) {if (temp[i] == 1 && num_tab == 2) {LOG_ERROR("Placement interdit");}}//case 1 2 3 4 2ème étage impossible
-    //DisplayBarrel();
+    DisplayBarrel();
     //MoveStepper(n, num_tab);
     return 1; // when finished
 }
@@ -134,7 +134,7 @@ void take(int sens){//sens 1 = droite, 0 = gauche
     if (lowBarrelCount == SIZE && highBarrelCount == 10) {LOG_ERROR("Plus de place dans le revolver");return;}
     while (!PrerareLowBarrel(sens));
     LoadStock(sens);
-    DisplayBarrel();
+    //DisplayBarrel();
 }
 
 bool ReleaseHigh(){
@@ -165,7 +165,7 @@ bool Release(){
     LOG_INFO("PrepareRelease"); //prepare release low barrel
     if (!SpinBarrel(ShiftListNumber(lowBarrelTab,3,0),1));
     if (!SpinBarrel(ShiftListNumber(highBarrelTab, 0, 0),2));
-    DisplayBarrel();
+    //DisplayBarrel();
     if (!ReleaseLow()) return 0;
     return 1;
 }

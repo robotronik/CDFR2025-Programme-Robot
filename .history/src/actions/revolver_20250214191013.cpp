@@ -44,7 +44,7 @@ bool SpinBarrel(int n, int num_tab) {//lowBarrel 1er = 1: highBarrel 2ème = 2
     for (int i = 0; i < SIZE; i++) {temp[(i + n + SIZE) % SIZE] = lowBarrel_actuel[i];    }
     for (int i = 0; i < SIZE; i++) {if (!(num_tab == 2 && i >= 1 && i <= 4)){lowBarrel_actuel[i] = temp[i];}}
     for (int i = 1; i <= 4; i++) {if (temp[i] == 1 && num_tab == 2) {LOG_ERROR("Placement interdit");}}//case 1 2 3 4 2ème étage impossible
-    //DisplayBarrel();
+    DisplayBarrel();
     //MoveStepper(n, num_tab);
     return 1; // when finished
 }
@@ -77,7 +77,7 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished sens 1 = mo
     //if (!moveServoFloorColumns(sens)) return 0;
     highBarrelCount += sens ? 2 : -2;
     lowBarrelCount -= sens ? 2 : -2;
-    //DisplayBarrel();
+    DisplayBarrel();
     return true;
     // TODO Add more logic to handle spinning by +N (??? pk ?  rien ne spin ici)
 }
@@ -145,7 +145,7 @@ bool ReleaseHigh(){
     highBarrelCount -= 2;
     SpinBarrel(2,2);
     SpinBarrel(3,1);
-    //DisplayBarrel();
+    DisplayBarrel();
     return 0;
 }
 
@@ -182,7 +182,6 @@ void TestRevolver(){
     take(1);
     take(0);
     while (!Release());
-    DisplayBarrel();
 
     LOG_GREEN_INFO("Done Test Revolver !");
     

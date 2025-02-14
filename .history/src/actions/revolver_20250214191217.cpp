@@ -134,7 +134,7 @@ void take(int sens){//sens 1 = droite, 0 = gauche
     if (lowBarrelCount == SIZE && highBarrelCount == 10) {LOG_ERROR("Plus de place dans le revolver");return;}
     while (!PrerareLowBarrel(sens));
     LoadStock(sens);
-    DisplayBarrel();
+DisplayBarrel();
 }
 
 bool ReleaseHigh(){
