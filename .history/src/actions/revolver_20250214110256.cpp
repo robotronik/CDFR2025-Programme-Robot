@@ -1,7 +1,6 @@
 #include "actions/revolver.hpp"
 #include "utils/logger.hpp"
 #include "actions/functions.h"
-#define SIZE 14
 
 int lowBarrelTab[SIZE] = {0};  // 0 = Empty, 1 = Occupied
 int highBarrelTab[SIZE] = {0};  // 0 = Empty, 1 = Occupied
@@ -38,14 +37,12 @@ void DisplayBarrel(){
 
 // Spin the barrel by n positions (positive or negative) returns true when done
 bool SpinBarrel(int n, int num_tab) {//lowBarrel 1er = 1: highBarrel 2ème = 2
-    LOG_INFO("SpinBarrel n =", n, "tab = ", num_tab, (n > 0) ? " sens horaire" : " sens anti-horaire");
+    //LOG_INFO("SpinBarrel n =", n, "tab = ", num_tab, (n > 0) ? " sens horaire" : " sens anti-horaire");
     int *lowBarrel_actuel = (num_tab == 1) ? lowBarrelTab : highBarrelTab;
     int temp[SIZE];
     for (int i = 0; i < SIZE; i++) {temp[(i + n + SIZE) % SIZE] = lowBarrel_actuel[i];    }
     for (int i = 0; i < SIZE; i++) {if (!(num_tab == 2 && i >= 1 && i <= 4)){lowBarrel_actuel[i] = temp[i];}}
     for (int i = 1; i <= 4; i++) {if (temp[i] == 1 && num_tab == 2) {LOG_ERROR("Placement interdit");}}//case 1 2 3 4 2ème étage impossible
-    DisplayBarrel();
-    //MoveStepper(n, num_tab);
     return 1; // when finished
 }
 
@@ -63,7 +60,7 @@ int ShiftListNumber(int list[], int desired_position, int choose_first) {//choos
     
 
 // Returns true when done
-bool MoveColumns(int direction, int sens) { //return 1 when finished sens 1 = monter, 0 = descendre
+bool MoveColumns(int direction, int sens) { //return 1 when finished
     LOG_INFO("MoveColumns direction : ", direction, " sens : ", sens);
     int start = (direction == 0 ? 0 : 5),  end = (direction == 0 ? 13 : 6);
 
@@ -74,12 +71,11 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished sens 1 = mo
 
     highBarrelTab[start] = highBarrelTab[end] = (sens == 1) ? 1 : 0;;
     lowBarrelTab[start] = lowBarrelTab[end] = (sens == 1) ? 0 : 1;;
-    //if (!moveServoFloorColumns(sens)) return 0;
+    if (!arduinoMoveColumns(direction, sens)) return 0;
     highBarrelCount += sens ? 2 : -2;
-    lowBarrelCount -= sens ? 2 : -2;
-    DisplayBarrel();
+    lowBarrelCount -= sens ? 2 : -2; // TODO si MoveColumns est appeler jusqu'a que l'action soit finit, ça décrémente lowBarrelCount de 2 à chaque fois ???
     return true;
-    // TODO Add more logic to handle spinning by +N (??? pk ?  rien ne spin ici)
+    // TODO Add more logic to handle spinning by +N (?? rien ne spin ici)
 }
 
 
@@ -111,7 +107,6 @@ bool PrerareLowBarrel(int sens){//sens 1 = droite, 0 = gauche
         if (highBarrelCount<=8) SpinBarrel(sens ? 2 : -2, 2);
         return 0;
     }
-    
     return 1;
 }
 

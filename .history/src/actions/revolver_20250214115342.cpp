@@ -1,7 +1,6 @@
 #include "actions/revolver.hpp"
 #include "utils/logger.hpp"
 #include "actions/functions.h"
-#define SIZE 14
 
 int lowBarrelTab[SIZE] = {0};  // 0 = Empty, 1 = Occupied
 int highBarrelTab[SIZE] = {0};  // 0 = Empty, 1 = Occupied
@@ -38,14 +37,13 @@ void DisplayBarrel(){
 
 // Spin the barrel by n positions (positive or negative) returns true when done
 bool SpinBarrel(int n, int num_tab) {//lowBarrel 1er = 1: highBarrel 2ème = 2
-    LOG_INFO("SpinBarrel n =", n, "tab = ", num_tab, (n > 0) ? " sens horaire" : " sens anti-horaire");
+    //LOG_INFO("SpinBarrel n =", n, "tab = ", num_tab, (n > 0) ? " sens horaire" : " sens anti-horaire");
     int *lowBarrel_actuel = (num_tab == 1) ? lowBarrelTab : highBarrelTab;
     int temp[SIZE];
     for (int i = 0; i < SIZE; i++) {temp[(i + n + SIZE) % SIZE] = lowBarrel_actuel[i];    }
     for (int i = 0; i < SIZE; i++) {if (!(num_tab == 2 && i >= 1 && i <= 4)){lowBarrel_actuel[i] = temp[i];}}
     for (int i = 1; i <= 4; i++) {if (temp[i] == 1 && num_tab == 2) {LOG_ERROR("Placement interdit");}}//case 1 2 3 4 2ème étage impossible
-    DisplayBarrel();
-    //MoveStepper(n, num_tab);
+    //MoveStepper(n, num_tab); //TODO
     return 1; // when finished
 }
 
@@ -74,10 +72,9 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished sens 1 = mo
 
     highBarrelTab[start] = highBarrelTab[end] = (sens == 1) ? 1 : 0;;
     lowBarrelTab[start] = lowBarrelTab[end] = (sens == 1) ? 0 : 1;;
-    //if (!moveServoFloorColumns(sens)) return 0;
+    if (!moveFloorColumns(sens)) return 0;
     highBarrelCount += sens ? 2 : -2;
     lowBarrelCount -= sens ? 2 : -2;
-    DisplayBarrel();
     return true;
     // TODO Add more logic to handle spinning by +N (??? pk ?  rien ne spin ici)
 }
@@ -101,13 +98,15 @@ bool PrerareLowBarrel(int sens){//sens 1 = droite, 0 = gauche
     if (!SpinBarrel(ShiftListNumber(lowBarrelTab, sens ? 4 : 1, !sens),1)) return 0;
     PrepareHighBarrel(sens);
     if(lowBarrelCount == 12) {
+        printf("test1\n");
         if (!SpinBarrel(sens ? 2 : -2, 1)) return 0;
-        MoveColumns(sens, 1);      //si on fait preparelowbarrel en boucle, movecolums diminue le nb de boite ds lowbarrelCount et donc on finit pas la boucle et fait pas spinbarrel
+        printf("test\n");
+        moveFloorColumns(sens);      //si on fait preparelowbarrel en boucle, movecolums diminue le nb de boite ds lowbarrelCount et donc on finit pas la boucle et fait pas spinbarrel
         if (highBarrelCount<=8) SpinBarrel(sens ? 2 : -2, 2);
         return 0;
     }
     if (lowBarrelCount == SIZE){
-        MoveColumns(sens, 1);
+        moveFloorColumns(sens);
         if (highBarrelCount<=8) SpinBarrel(sens ? 2 : -2, 2);
         return 0;
     }

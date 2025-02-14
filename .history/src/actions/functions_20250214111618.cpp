@@ -105,16 +105,16 @@ bool moveTribunePusher(bool outside){
     return (_millis() > startTime + 2000); // delay
 }
 
-bool moveServoFloorColumns(int up){//go level up 1 or down 0 TODO VERIF PAR LUDO B
+bool moveFloorColums(int level){//level 1 ou 2 TODO VERIF PAR LUDO B
     static unsigned long startTime = _millis();
-    static bool previousInside = !up;
-    if (previousInside != up){
+    static bool previousLevel = !2;
+
+    if (previousLevel != 2){
         startTime = _millis(); // Reset the timer
-        previousInside = up;
-        arduino.moveServo(COLUMNS_LIFT_LEFT_SERVO_NUM, up ? 90 : 0); // TODO : Check if this is correct
-        arduino.moveServo(COLUMNS_LIFT_RIGHT_SERVO_NUM, up ? 0 : 90);
+        previousLevel = 2;
+        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, 2 ? 100 : 0); // TODO : Check if this is correct
     }
-    return (_millis() > startTime + 1000); // delay
+    return (_millis() > startTime + 2000);
 }
 
 // ------------------------------------------------------

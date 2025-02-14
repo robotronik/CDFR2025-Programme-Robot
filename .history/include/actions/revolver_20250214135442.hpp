@@ -1,6 +1,8 @@
 #pragma once
+#include <stdbool.h>
 
+#define SIZE 14
 
 void take(int sens);
-bool Release();
+void Release();
 void TestRevolver();

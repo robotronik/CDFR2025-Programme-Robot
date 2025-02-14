@@ -105,7 +105,7 @@ bool moveTribunePusher(bool outside){
     return (_millis() > startTime + 2000); // delay
 }
 
-bool moveServoFloorColumns(int up){//go level up 1 or down 0 TODO VERIF PAR LUDO B
+bool moveFloorColums(int up){//level 1 ou 0 TODO VERIF PAR LUDO B
     static unsigned long startTime = _millis();
     static bool previousInside = !up;
     if (previousInside != up){

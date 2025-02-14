@@ -1,7 +1,6 @@
 #include "actions/revolver.hpp"
 #include "utils/logger.hpp"
 #include "actions/functions.h"
-#define SIZE 14
 
 int lowBarrelTab[SIZE] = {0};  // 0 = Empty, 1 = Occupied
 int highBarrelTab[SIZE] = {0};  // 0 = Empty, 1 = Occupied
@@ -74,7 +73,7 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished sens 1 = mo
 
     highBarrelTab[start] = highBarrelTab[end] = (sens == 1) ? 1 : 0;;
     lowBarrelTab[start] = lowBarrelTab[end] = (sens == 1) ? 0 : 1;;
-    //if (!moveServoFloorColumns(sens)) return 0;
+    if (!moveServoFloorColumns(sens)) return 0;
     highBarrelCount += sens ? 2 : -2;
     lowBarrelCount -= sens ? 2 : -2;
     DisplayBarrel();

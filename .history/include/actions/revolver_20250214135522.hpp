@@ -2,5 +2,5 @@
 
 
 void take(int sens);
-bool Release();
+void Release();
 void TestRevolver();

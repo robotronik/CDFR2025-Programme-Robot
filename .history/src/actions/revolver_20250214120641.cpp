@@ -1,7 +1,6 @@
 #include "actions/revolver.hpp"
 #include "utils/logger.hpp"
 #include "actions/functions.h"
-#define SIZE 14
 
 int lowBarrelTab[SIZE] = {0};  // 0 = Empty, 1 = Occupied
 int highBarrelTab[SIZE] = {0};  // 0 = Empty, 1 = Occupied

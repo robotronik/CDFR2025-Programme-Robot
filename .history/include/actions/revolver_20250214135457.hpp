@@ -1,6 +1,7 @@
 #pragma once
+#include <stdbool.h>
 
 
 void take(int sens);
-bool Release();
+void Release();
 void TestRevolver();
