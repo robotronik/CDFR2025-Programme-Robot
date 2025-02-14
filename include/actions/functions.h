@@ -4,7 +4,7 @@
 #include "defs/structs.hpp"
 
 bool returnToHome();
-bool homeActuators(); // TODO Maybe move this to Arduino class ?
+bool homeActuators();
 void enableActuators();
 void disableActuators();
 bool isRobotInArrivalZone(position_t position);

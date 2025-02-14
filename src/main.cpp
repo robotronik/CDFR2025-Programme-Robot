@@ -59,7 +59,7 @@ bool ctrl_z_pressed = false;
 void ctrlz(int signal)
 {
     LOG_INFO("Termination Signal Recieved");
-    ctrl_z_pressed = true;
+    exit(0);
 }
 
 int main(int argc, char *argv[])
@@ -118,16 +118,12 @@ int main(int argc, char *argv[])
         {
             if (initState){
                 LOG_GREEN_INFO("WAITSTART");  
+                enableActuators();
                 arduino.setStepper(0, 1);
                 arduino.setStepper(0, 2);
                 arduino.setStepper(0, 3);
                 arduino.setStepper(0, 4);
                 homeActuators();
-                asserv.set_motor_state(true);
-                asserv.set_brake_state(false); 
-                //asserv.set_linear_max_speed(MAX_SPEED);
-                //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
-                //while(asserv.get_command_buffer_size() != 0); //wait end of all action above
                 lidar.startSpin();
             }
 
@@ -178,9 +174,8 @@ int main(int argc, char *argv[])
             if (initState){
                 LOG_GREEN_INFO("FIN");
                 arduino.RGB_Solid(0, 255, 0);
+                disableActuators();
             }
-            asserv.set_motor_state(false);
-            asserv.set_brake_state(false);
             lidar.stopSpin();
 
             if (!readLatchSensor())
@@ -405,8 +400,6 @@ void EndSequence()
     lidar.Stop();
 
 #ifndef EMULATE_I2C
-    asserv.set_motor_state(false);
-    asserv.set_brake_state(false);
     //asserv.stop();
 
     arduino.RGB_Solid(0, 0, 0); // OFF

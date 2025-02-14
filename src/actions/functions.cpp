@@ -180,21 +180,26 @@ bool moveHighColumnsRevolverAbs(int N){
 
 // Returns true if actuators are home
 bool homeActuators(){
-    return 
+    return (
     movePlatformLifts(true) &
     movePlatformElevator(0) &
     moveTribunePusher(false) &
-    moveTribuneElevator(false);
+    moveTribuneElevator(false) 
+    );
 }
 void enableActuators(){
     for (int i = 0; i < 4; i++){
         arduino.enableStepper(i);
     }
+    asserv.set_motor_state(true);
+    asserv.set_brake_state(false); 
 }
 void disableActuators(){
     for (int i = 0; i < 4; i++){
         arduino.disableStepper(i);
     }
+    asserv.set_motor_state(false);
+    asserv.set_brake_state(true); 
 }
 
 
