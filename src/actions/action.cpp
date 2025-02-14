@@ -1,4 +1,5 @@
 #include <string>
+#include <exception>
 #include "actions/action.hpp"
 #include "utils/logger.hpp"
 #include "main.hpp"
@@ -95,11 +96,11 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(int zone){
         break;
     case FSM_CONSTRUCT_BUILD:
         if (constructSingleTribune()){
-            builtTribuneHeights[num]++;
+            tableStatus.builtTribuneHeights[num]++;
             if (false) { // TODO revolver is empty or plank_count == 0
                 constructAllTribunesState = FSM_CONSTRUCT_EXIT;
             }
-            else if (builtTribuneHeights[num] == 3){
+            else if (tableStatus.builtTribuneHeights[num] == 3){
                 constructAllTribunesState = FSM_CONSTRUCT_MOVE;
                 num++;
             }

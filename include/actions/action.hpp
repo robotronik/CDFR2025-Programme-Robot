@@ -48,4 +48,4 @@ private:
     } StateConstructTribunes_t;
 
     StateConstructTribunes_t constructAllTribunesState = FSM_CONSTRUCT_NAV;
-}
+};
