@@ -41,8 +41,9 @@ private:
     typedef enum
     {
         FSM_CONSTRUCT_NAV,
-        FSM_CONSTRUCT_BUILD,
         FSM_CONSTRUCT_MOVE,
+        FSM_CONSTRUCT_BUILD,
+        FSM_CONSTRUCT_EXIT,
     } StateConstructTribunes_t;
 
     StateConstructTribunes_t constructAllTribunesState = FSM_CONSTRUCT_NAV;

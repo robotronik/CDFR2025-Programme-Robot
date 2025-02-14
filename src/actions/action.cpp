@@ -18,15 +18,32 @@ void ActionFSM::Reset(){
 }
 
 bool ActionFSM::RunFSM(){
+    ReturnFSM_t ret;
     switch (runState)
     {
     //****************************************************************
     case FSM_ACTION_GATHER:
-        runState = FSM_ACTION_BUILD;
+        ret = TakeSingleStockFSM(0); //TODO choose the stock
+        if (ret == FSM_RETURN_DONE){
+            if (true) // TODO Done collecting
+                runState = FSM_ACTION_BUILD;
+            // else choose another stock
+        }
+        else if (ret == FSM_RETURN_ERROR){
+            LOG_ERROR("Couldn't take stock");
+            // TODO Handle error
+        }
         break;
     //****************************************************************
     case FSM_ACTION_BUILD:
-        runState = FSM_ACTION_DEPLOY_BANNER;
+        ret = ConstructAllTribunesFSM(0); //TODO choose the zone
+        if (ret == FSM_RETURN_DONE){
+            runState = FSM_ACTION_NAV_HOME;
+        }
+        else if (ret == FSM_RETURN_ERROR){
+            LOG_ERROR("Couldn't build tribune");
+            // TODO Handle error
+        }
         break;
     //****************************************************************
     case FSM_ACTION_DEPLOY_BANNER:
@@ -34,6 +51,8 @@ bool ActionFSM::RunFSM(){
         break;
     //****************************************************************
     case FSM_ACTION_NAV_HOME:
+        // Maybe do something like
+        // get close to home then move in if theres less than 3s left to the clock
         if (returnToHome()){
             runState = FSM_ACTION_GATHER;
             return true; //Robot is done
@@ -67,16 +86,30 @@ ReturnFSM_t TakeSingleStockFSM(int num){
     return FSM_RETURN_WORKING;
 }
 ReturnFSM_t ConstructAllTribunesFSM(int zone){
+    static int num = 0; // Keep track of the tribune were building
     switch (constructAllTribunesState){
     case FSM_CONSTRUCT_NAV:
         break;
+    case FSM_CONSTRUCT_MOVE:
+        // Place the robot to a tribune building location
+        break;
     case FSM_CONSTRUCT_BUILD:
         if (constructSingleTribune()){
-            constructAllTribunesState = FSM_CONSTRUCT_MOVE;
+            builtTribuneHeights[num]++;
+            if (false) { // TODO revolver is empty
+                constructAllTribunesState = FSM_CONSTRUCT_EXIT;
+            }
+            else if (builtTribuneHeights[num] == 3){
+                constructAllTribunesState = FSM_CONSTRUCT_MOVE;
+                num++;
+            }
         }
         break;
-    case FSM_CONSTRUCT_MOVE:
-        // Replace the robot to build another tribune
+    case FSM_CONSTRUCT_EXIT:
+        // Get out the way to make sure we dont destroy shit
+        // if nav_done
+        //   constructAllTribunesState = FSM_CONSTRUCT_NAV;
+        //   return true;
         break;
     }
     return FSM_RETURN_WORKING;
