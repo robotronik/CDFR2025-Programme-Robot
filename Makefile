@@ -48,13 +48,13 @@ TEST_OBJ = $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_TEST)/%.o,$(SRC_TEST))
 
 DEPENDS := $(shell find obj -type f -name '*.d')
 
--include $(DEPENDS)
-
 
 .PHONY: all clean tests clean-all deploy run
 
 all: check $(BINDIR) build_lidarLib $(TARGET) $(TEST_TARGET) copy_html
 	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && sudo ./programCDFR)' pour exécuter le programme."
+
+-include $(DEPENDS)
 
 check:
 	@if [ ! -d "$(SRCDIR_LIBCOM)" ]; then \
