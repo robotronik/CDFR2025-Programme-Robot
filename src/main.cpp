@@ -22,6 +22,7 @@
 
 
 TableState tableStatus;
+ActionFSM action;
 
 // Initiation of i2c devices
 #ifndef EMULATE_I2C
@@ -37,7 +38,6 @@ Lidar lidar;
 main_State_t currentState;
 main_State_t nextState;
 bool initState;
-ActionContainer actionSystem;
 bool manual_ctrl;
 bool (*manual_currentFunc)(); //Pointer to a function to execute of type bool func(void)
 
@@ -145,9 +145,9 @@ int main(int argc, char *argv[])
             if (initState){
                 LOG_GREEN_INFO("RUN"); 
                 tableStatus.startTime = _millis();
-                actionSystem.initAction();
+                action.Reset();
             }
-            bool finished = actionSystem.run();
+            bool finished = action.RunFSM();
 
             if (_millis() > tableStatus.startTime + 90000 || finished)
                 nextState = FIN;
@@ -279,8 +279,6 @@ int StartSequence()
     initState = true;
     manual_ctrl = false;
     manual_currentFunc = NULL;
-
-    actionSystem.init();
 
     asserv.set_coordinates(0,0,0);
 

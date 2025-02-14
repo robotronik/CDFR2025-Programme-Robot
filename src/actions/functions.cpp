@@ -8,16 +8,6 @@
 #include "i2c/Arduino.hpp"
 #include <math.h>
 
-//TODO : Functions to fill in
-int takeStock(int xStart,int yStart, int xEnd, int yEnd, int num_zone){
-    
-    setStockAsRemoved(-1); //TODO once has taken stock
-    return 0;
-}
-int construct(int x,int y,int theta){
-    return 0;
-}
-
 // ------------------------------------------------------
 //                   BASIC FSM CONTROL
 // ------------------------------------------------------
@@ -219,11 +209,11 @@ void setStockAsRemoved(int num){
 }
 
 // TODO : Remove ? Not even used..
-int returnToHome(){
-    int home_x = 700;
-    int home_y = tableStatus.robot.colorTeam == YELLOW ? 1200 : -1200;
+bool returnToHome(){
+    int home_x = -500;
+    int home_y = tableStatus.robot.colorTeam == BLUE ? 1100 : -1100;
     nav_return_t res = navigationGoToNoTurn(home_x, home_y);
-    return res == NAV_DONE;
+    return res == NAV_DONE && isRobotInArrivalZone(tableStatus.robot.pos);
 }
 
 // Function to check if a point (px, py) lies inside the rectangle

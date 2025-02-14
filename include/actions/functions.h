@@ -3,7 +3,7 @@
 
 #include "defs/structs.hpp"
 
-int returnToHome();
+bool returnToHome();
 bool homeActuators(); // TODO Maybe move this to Arduino class ?
 void enableActuators();
 void disableActuators();
@@ -12,9 +12,7 @@ void opponentInAction(position_t position);
 void switchTeamSide(colorTeam_t color);
 void setStockAsRemoved(int num);
 
-//New functions (FSM)
-int takeStock(int xStart,int yStart, int xEnd, int yEnd, int num_zone);
-int construct(int x,int y,int theta);
+// Basic functions (FSM)
 bool takeStockPlatforms();
 bool constructSingleTribune();
 
