@@ -95,6 +95,19 @@ bool moveTribunePusher(bool outside){
     return (_millis() > startTime + 2000); // delay
 }
 
+// Move level to the floor up or down (high or low)
+bool moveServoFloorColumns(bool up){
+    static unsigned long startTime = _millis();
+    static bool previousUp = !up;
+    if (previousUp != up){
+        startTime = _millis(); // Reset the timer
+        previousUp = up;
+        arduino.moveServo(COLUMNS_LIFT_LEFT_SERVO_NUM, up ? 90 : 0); // TODO : Check if this is correct
+        arduino.moveServo(COLUMNS_LIFT_RIGHT_SERVO_NUM, up ? 0 : 90);
+    }
+    return (_millis() > startTime + 1000); // delay
+}
+
 // ------------------------------------------------------
 //                   STEPPER CONTROL
 // ------------------------------------------------------
@@ -246,7 +259,7 @@ void opponentInAction(position_t position){ //TODO : Check if this is correct
     obs_obj_opponent.pos.y = position.y;
 }
 void switchTeamSide(colorTeam_t color){
-    if (color == NULL) return;
+    if (color == NONE) return;
     if (currentState == RUN) return;
     if (color != tableStatus.robot.colorTeam){
         LOG_INFO("Color switch detected");
@@ -268,6 +281,41 @@ void switchTeamSide(colorTeam_t color){
             break;
         }
     }
+}
+
+void getAvailableStockPositions(){
+    // Returns all the stocks available and their position
+    for (int i = 0; i < STOCK_COUNT; i++){
+        if (!tableStatus.avail_stocks[i])
+            continue;
+        if (tableStatus.robot.colorTeam == BLUE && i == PROTECTED_YELLOW_STOCK)
+            continue;
+        if (tableStatus.robot.colorTeam == YELLOW && i == PROTECTED_BLUE_STOCK)
+            continue;
+
+        position_t availPos[4];
+        int count = getStockPositions(i, availPos);
+        LOG_DEBUG("Stock ", i, " available positions: ", count);
+    }
+}
+
+// Returns the count of the available positions 
+int getStockPositions(int stockN, position_t availPos[4]){
+    int availCount = 0;
+
+    for (int n = 0; n < 4; n++){
+        int map = STOCK_OFFSET_MAPPING[stockN][n];
+        if (map < 0) continue;
+        position_t offset = STOCK_OFFSETS[map];
+        position_t finalPos = STOCK_POSITION_ARRAY[stockN];
+        finalPos.x += offset.x;
+        finalPos.y += offset.y;
+        finalPos.theta = offset.theta;
+
+        availPos[availCount] = finalPos;
+        availCount ++;
+    }
+    return availCount;
 }
 
 bool isRobotInArrivalZone(position_t position){
