@@ -60,11 +60,11 @@ ReturnFSM_t TakeSingleStockFSM(int num){
         if (takeStockPlatforms()){
             takeSingleStockState = FSM_SINGLESTOCK_NAV;
             setStockAsRemoved(num);
-            return true;
+            return FSM_RETURN_DONE;
         }
         break;
     }
-    return false;
+    return FSM_RETURN_WORKING;
 }
 ReturnFSM_t ConstructAllTribunesFSM(int zone){
     switch (constructAllTribunesState){
@@ -79,5 +79,5 @@ ReturnFSM_t ConstructAllTribunesFSM(int zone){
         // Replace the robot to build another tribune
         break;
     }
-    return false;
+    return FSM_RETURN_WORKING;
 }
