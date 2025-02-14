@@ -89,7 +89,8 @@ int main(int argc, char *argv[])
             {
 #ifndef DISABLE_LIDAR
                 GetLidarV2();
-                navigationOpponentDetection();
+                if (currentState == RUN)
+                    navigationOpponentDetection();
 #endif
             }
         }
