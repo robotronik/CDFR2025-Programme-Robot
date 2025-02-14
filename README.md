@@ -99,6 +99,7 @@ sudo systemctl restart programCDFR
 ## Debugging on a Raspberry Pi with VS Code
 
 Connect your PC to the same Wi-Fi as the Raspberry Pi.
+Change the address in launch.json and task.json to match the robot address.
 Press F5 in VS Code to start debugging.
 You can now set breakpoints and use all the debugging tools available in VS Code for remote debugging on the Raspberry Pi.
 
@@ -117,7 +118,7 @@ export DISPLAY=:0
 sudo startx /usr/bin/chromium-browser --noerrdialogs --kiosk http:0.0.0.0:8080/robot --incognito --disable-extensions --no-sandbox
 ```
 
-## Actions et actionneurs
+## Actions and Actuators
 
 (in code, theyre called banner, stocks, columns, platforms and tribunes)
 

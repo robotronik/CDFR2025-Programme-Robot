@@ -84,6 +84,7 @@ int I2CDevice::I2cSendBlockReceiveData (uint8_t command, uint8_t* data, int leng
             if (i2c_smbus_write_byte(i2cFile, command))
                 return -1;
         }
+        usleep(200); // wait for sensor to finish loading the output buffer data
         if (read(i2cFile, out_data, out_length) != out_length)
             return -1;
     }

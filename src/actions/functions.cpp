@@ -1,19 +1,12 @@
 #include "actions/functions.h"
 #include "main.hpp"
 #include "navigation/navigation.h"
+#include "navigation/highways.h"
 #include "lidar/lidarAnalize.h"
 #include "lidar/Lidar.hpp"
 #include "defs/constante.h"
 #include "i2c/Arduino.hpp"
 #include <math.h>
-
-//TODO : Functions to fill in
-int takeStock(int xStart,int yStart, int xEnd, int yEnd, int num_zone){
-    return 0;
-}
-int construct(int x,int y,int theta){
-    return 0;
-}
 
 // ------------------------------------------------------
 //                   BASIC FSM CONTROL
@@ -102,6 +95,19 @@ bool moveTribunePusher(bool outside){
     return (_millis() > startTime + 2000); // delay
 }
 
+// Move level to the floor up or down (high or low)
+bool moveServoFloorColumns(bool up){
+    static unsigned long startTime = _millis();
+    static bool previousUp = !up;
+    if (previousUp != up){
+        startTime = _millis(); // Reset the timer
+        previousUp = up;
+        arduino.moveServo(COLUMNS_LIFT_LEFT_SERVO_NUM, up ? 90 : 0); // TODO : Check if this is correct
+        arduino.moveServo(COLUMNS_LIFT_RIGHT_SERVO_NUM, up ? 0 : 90);
+    }
+    return (_millis() > startTime + 1000); // delay
+}
+
 // ------------------------------------------------------
 //                   STEPPER CONTROL
 // ------------------------------------------------------
@@ -126,7 +132,7 @@ bool movePlatformElevator(int level){
         arduino.moveStepper(target, PLATFORMS_ELEVATOR_STEPPER_NUM);
     }
     int32_t currentValue;
-    if (!arduino.getStepper(currentValue, PLATFORMS_ELEVATOR_STEPPER_NUM)) return true; // TODO Might need to change this (throw error)
+    if (!arduino.getStepper(currentValue, PLATFORMS_ELEVATOR_STEPPER_NUM)) return false; // TODO Might need to change this (throw error)
     return (currentValue == target);
 }
 
@@ -140,30 +146,73 @@ bool moveTribuneElevator(bool high){
         arduino.moveStepper(target, TRIBUNES_ELEVATOR_STEPPER_NUM); // TODO : Check if this is correct
     }
     int32_t currentValue;
-    if (!arduino.getStepper(currentValue, TRIBUNES_ELEVATOR_STEPPER_NUM)) return true;
+    if (!arduino.getStepper(currentValue, TRIBUNES_ELEVATOR_STEPPER_NUM)) return false;
     return (currentValue == target);
 }
 
+// Move the lower revolver to an absolute position by N relative to the pusher
+bool moveLowColumnsRevolverAbs(int N){
+    static int previousN = 0;
+
+    float gearTheets = 13; // Theets per rotation
+    float stepperSteps = 200 * 8; // 8 microstepping
+    float intervalBetweenN = 3.5; // Theets between N
+    int absSteps = (int)((stepperSteps * intervalBetweenN * N) / gearTheets);
+
+    if (previousN != N){
+        previousN = N;
+        arduino.moveStepper(absSteps, COLOMNS_REVOLVER_LOW_STEPPER_NUM);
+    }
+    int32_t currentValue;
+    if (!arduino.getStepper(currentValue, COLOMNS_REVOLVER_LOW_STEPPER_NUM)) return false;
+    return (currentValue == absSteps);
+}
+
+// Move the higher revolver to an absolute position by N relative to the elevator
+bool moveHighColumnsRevolverAbs(int N){
+    static int previousN = 0;
+
+    float gearTheets = 13; // Theets per rotation
+    float stepperSteps = 200 * 8; // 8 microstepping
+    float intervalBetweenN = 3.5; // Theets between N
+    int absSteps = (int)((stepperSteps * intervalBetweenN * N) / gearTheets);
+
+    if (previousN != N){
+        previousN = N;
+        arduino.moveStepper(absSteps, COLOMNS_REVOLVER_HIGH_STEPPER_NUM);
+    }
+    int32_t currentValue;
+    if (!arduino.getStepper(currentValue, COLOMNS_REVOLVER_HIGH_STEPPER_NUM)) return false;
+    return (currentValue == absSteps);
+}
 
 // ------------------------------------------------------
 //                GLOBAL SET/RES CONTROL
 // ------------------------------------------------------
 
 
-void resetActionneur(){
+// Returns true if actuators are home
+bool homeActuators(){
+    return (
+    movePlatformLifts(true) &
+    movePlatformElevator(0) &
+    moveTribunePusher(false) &
+    moveTribuneElevator(false) 
+    );
+}
+void enableActuators(){
     for (int i = 0; i < 4; i++){
         arduino.enableStepper(i);
     }
-    movePlatformLifts(true);
-    movePlatformElevator(0);
-    moveTribunePusher(false);
-    moveTribuneElevator(false);
+    asserv.set_motor_state(true);
+    asserv.set_brake_state(false); 
 }
-void disableActionneur(){
-    arduino.disableStepper(1);
-    arduino.disableStepper(2);
-    arduino.disableStepper(3);
-    arduino.disableStepper(4);
+void disableActuators(){
+    for (int i = 0; i < 4; i++){
+        arduino.disableStepper(i);
+    }
+    asserv.set_motor_state(false);
+    asserv.set_brake_state(true); 
 }
 
 
@@ -171,12 +220,17 @@ void disableActionneur(){
 //                        OTHER
 // ------------------------------------------------------
 
-// TODO : Remove ? Not even used..
-int returnToHome(){
-    int home_x = 700;
-    int home_y = tableStatus.robot.colorTeam == YELLOW ? 1200 : -1200;
+void setStockAsRemoved(int num){
+    tableStatus.avail_stocks[num] = false;
+    obs_obj_stocks[num].present = false;
+    LOG_INFO("Removed stock ", num);
+}
+
+bool returnToHome(){
+    int home_x = -500;
+    int home_y = tableStatus.robot.colorTeam == BLUE ? 1100 : -1100;
     nav_return_t res = navigationGoToNoTurn(home_x, home_y);
-    return res == NAV_DONE;
+    return res == NAV_DONE && isRobotInArrivalZone(tableStatus.robot.pos);
 }
 
 // Function to check if a point (px, py) lies inside the rectangle
@@ -189,20 +243,23 @@ bool m_isPointInsideRectangle(float px, float py, float cx, float cy, float w, f
 void opponentInAction(position_t position){ //TODO : Check if this is correct
     const int OPPONENT_ROBOT_RADIUS = 200; //200mm
     for (int i = 0; i < STOCK_COUNT; i++){
-        if (tableStatus.stock[i].etat == false)
+        if (tableStatus.avail_stocks[i] == false)
             continue;
         position_t stock_pos = STOCK_POSITION_ARRAY[i];
         int w = stock_pos.theta == 0 ? 300 : 0;
         int h = stock_pos.theta == 90 ? 300 : 0;
         if (m_isPointInsideRectangle(position.x, position.y, stock_pos.x, stock_pos.y, OPPONENT_ROBOT_RADIUS * 2 + w, OPPONENT_ROBOT_RADIUS * 2 + h)){
-            tableStatus.stock[i].etat = false;
+            setStockAsRemoved(i);
             LOG_GREEN_INFO("opponent has taken stock #", i, " / x = ", position.x , " / y = ", position.y);
             break;
         }
     }
+    // Update the opponent robot's position in highways
+    obs_obj_opponent.pos.x = position.x;
+    obs_obj_opponent.pos.y = position.y;
 }
 void switchTeamSide(colorTeam_t color){
-    if (color == NULL) return;
+    if (color == NONE) return;
     if (currentState == RUN) return;
     if (color != tableStatus.robot.colorTeam){
         LOG_INFO("Color switch detected");
@@ -226,13 +283,58 @@ void switchTeamSide(colorTeam_t color){
     }
 }
 
+void getAvailableStockPositions(){
+    // Returns all the stocks available and their position
+    for (int i = 0; i < STOCK_COUNT; i++){
+        if (!tableStatus.avail_stocks[i])
+            continue;
+        if (tableStatus.robot.colorTeam == BLUE && i == PROTECTED_YELLOW_STOCK)
+            continue;
+        if (tableStatus.robot.colorTeam == YELLOW && i == PROTECTED_BLUE_STOCK)
+            continue;
+
+        position_t availPos[4];
+        int count = getStockPositions(i, availPos);
+        LOG_DEBUG("Stock ", i, " available positions: ", count);
+    }
+}
+
+// Returns the count of the available positions 
+int getStockPositions(int stockN, position_t availPos[4]){
+    int availCount = 0;
+
+    for (int n = 0; n < 4; n++){
+        int map = STOCK_OFFSET_MAPPING[stockN][n];
+        if (map < 0) continue;
+        position_t offset = STOCK_OFFSETS[map];
+        position_t finalPos = STOCK_POSITION_ARRAY[stockN];
+        finalPos.x += offset.x;
+        finalPos.y += offset.y;
+        finalPos.theta = offset.theta;
+
+        availPos[availCount] = finalPos;
+        availCount ++;
+    }
+    return availCount;
+}
+
+bool isRobotInArrivalZone(position_t position){
+    // Returns true if the robot is in the arrival zone
+    int robotSmallRadius = 100;
+    int w = 450;
+    int h = 600;
+    int c_x = -550 - w/2;
+    int c_y = tableStatus.robot.colorTeam == BLUE ? (900 + h/2) : (-900 - h/2);
+    return m_isPointInsideRectangle(position.x, position.y, c_x, c_y, w + 2*robotSmallRadius, h + 2*robotSmallRadius);
+}
+
 // ------------------------------------------------------
 //                    INPUT SENSOR
 // ------------------------------------------------------
 
 colorTeam_t readColorSensorSwitch(){
     bool sensor = 0;
-    if (!arduino.readSensor(3, sensor)) return NONE;
+    if (!arduino.readSensor(COLOR_SENSOR_NUM, sensor)) return NONE;
     return sensor ? YELLOW : BLUE;
 }
 
@@ -240,7 +342,7 @@ colorTeam_t readColorSensorSwitch(){
 bool readButtonSensor(){
     static int count = 0;
     bool state;
-    if (!arduino.readSensor(1, state)) return false;
+    if (!arduino.readSensor(BUTTON_SENSOR_NUM, state)) return false;
     if (state)
         count++;
     else
@@ -252,7 +354,7 @@ bool readLatchSensor(){
     static int count = 0;
     static bool prev_state = false;
     bool state;
-    if (!arduino.readSensor(2, state)) return prev_state;
+    if (!arduino.readSensor(LATCH_SENSOR_NUM, state)) return prev_state;
     if (!state)
         count++;
     else
@@ -261,4 +363,10 @@ bool readLatchSensor(){
     return (count >= 5);
 }
 
-// TODO columns sensors
+// Returns true if both sensors are high
+bool readFrontColumnsSensors(){
+    bool state1, state2;
+    if (!arduino.readSensor(FRONT_COLUMN_SENSOR1_NUM, state1)) return false;
+    if (!arduino.readSensor(FRONT_COLUMN_SENSOR2_NUM, state2)) return false;
+    return (state1 && state2);
+}

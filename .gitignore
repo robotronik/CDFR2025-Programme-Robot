@@ -19,6 +19,7 @@ tmp/
 Thumbs.db
 /.vs
 /CppProperties.json
+/.history
 
 .vscode/*
 !.vscode/tasks.json

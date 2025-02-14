@@ -13,8 +13,7 @@
 #include "restAPI/restAPI.hpp"
 #include "navigation/highways.h"
 #include "vision/ArucoCam.hpp"
-
-#include "actions/actionContainer.hpp"
+#include "actions/revolver.hpp" // TODO Remove (For testing)
 
 // #define EMULATE_CAM
 // #define DISABLE_LIDAR
@@ -24,6 +23,7 @@
 
 
 TableState tableStatus;
+ActionFSM action;
 
 // Initiation of i2c devices
 #ifndef EMULATE_I2C
@@ -45,7 +45,6 @@ ArucoCam arucoCam1(-1, "data/cam0.yml");
 main_State_t currentState;
 main_State_t nextState;
 bool initState;
-ActionContainer actionSystem;
 bool manual_ctrl;
 bool (*manual_currentFunc)(); //Pointer to a function to execute of type bool func(void)
 
@@ -67,7 +66,7 @@ bool ctrl_z_pressed = false;
 void ctrlz(int signal)
 {
     LOG_INFO("Termination Signal Recieved");
-    ctrl_z_pressed = true;
+    exit(0);
 }
 
 int main(int argc, char *argv[])
@@ -86,17 +85,19 @@ int main(int argc, char *argv[])
             int16_t x, y, theta;
             asserv.get_coordinates(x, y, theta);
             tableStatus.robot.pos = {x, y, theta};
-            // LOG_GREEN_INFO("X = ", x," Y = ", y, " theta = ", theta);
+            // LOG_GREEN_INFO("Robot pos : { x = ", x," y = ", y, " theta = ", theta, " }");
             tableStatus.robot.braking_distance = asserv.get_braking_distance();
             asserv.get_current_target(x, y, theta);
             tableStatus.robot.target = {x, y, theta};
+            // LOG_GREEN_INFO("Robot target : { x = ", x," y = ", y, " theta = ", theta, " }");
             tableStatus.robot.direction_side = (int)asserv.get_direction_side();
 
             if (currentState != INIT)
             {
 #ifndef DISABLE_LIDAR
                 GetLidarV2();
-                navigationOpponentDetection();
+                if (currentState == RUN)
+                    navigationOpponentDetection();
 #endif
             }
         }
@@ -110,7 +111,8 @@ int main(int argc, char *argv[])
             if (initState)
             {
                 LOG_GREEN_INFO("INIT");
-                disableActionneur();
+                init_highways();
+                disableActuators();
                 tableStatus.reset();
                 arduino.RGB_Rainbow();
             }
@@ -123,15 +125,12 @@ int main(int argc, char *argv[])
         {
             if (initState){
                 LOG_GREEN_INFO("WAITSTART");  
+                enableActuators();
                 arduino.setStepper(0, 1);
                 arduino.setStepper(0, 2);
-                arduino.setStepper(0, 3);  
-                resetActionneur();
-                asserv.set_motor_state(true);
-                asserv.set_brake_state(false); 
-                //asserv.set_linear_max_speed(MAX_SPEED);
-                //LOG_DEBUG("Waiting for get_command_buffer_size to be 0");
-                //while(asserv.get_command_buffer_size() != 0); //wait end of all action above
+                arduino.setStepper(0, 3);
+                arduino.setStepper(0, 4);
+                homeActuators();
                 lidar.startSpin();
             }
 
@@ -149,17 +148,16 @@ int main(int argc, char *argv[])
         {
             if (initState){
                 LOG_GREEN_INFO("RUN"); 
+                tableStatus.reset();
                 tableStatus.startTime = _millis();
-                actionSystem.initAction();
+                action.Reset();
             }
-            bool finished = actionSystem.run();
+            bool finished = action.RunFSM();
 
             if (_millis() > tableStatus.startTime + 90000 || finished)
                 nextState = FIN;
             break;
         }
-
-
         //****************************************************************
         case MANUAL:
         {
@@ -178,19 +176,17 @@ int main(int argc, char *argv[])
                 nextState = FIN;
             break;
         }
-
         //****************************************************************
         case FIN:
         {
             if (initState){
                 LOG_GREEN_INFO("FIN");
                 arduino.RGB_Solid(0, 255, 0);
+                disableActuators();
             }
-            asserv.set_motor_state(false);
-            asserv.set_brake_state(false);
             lidar.stopSpin();
 
-            if (readLatchSensor())
+            if (!readLatchSensor())
                 nextState = INIT;
             break;
         }
@@ -243,9 +239,6 @@ int StartSequence()
     }
 #endif
 
-    // LOG_SETROBOT(asserv);
-    init_highways();
-
     // Start the api server in a separate thread
     api_server_thread = std::thread([&]()
                                     { StartAPIServer(); });
@@ -290,13 +283,14 @@ int StartSequence()
     return -1;
 #endif
 
+    // TODO Remove (For testing)
+    TestRevolver();
+
     currentState = INIT;
     nextState = INIT;
     initState = true;
     manual_ctrl = false;
     manual_currentFunc = NULL;
-
-    actionSystem.init();
 
     asserv.set_coordinates(0,0,0);
 
@@ -421,15 +415,14 @@ void EndSequence()
     // Stop the lidar
     lidar.Stop();
 
-    asserv.set_motor_state(false);
-    asserv.set_brake_state(false);
+#ifndef EMULATE_I2C
     //asserv.stop();
 
     arduino.RGB_Solid(0, 0, 0); // OFF
 
-    resetActionneur();
-    delay(1000);
-    disableActionneur();
+    while(!homeActuators()){delay(100);};
+    disableActuators();
+#endif // EMULATE_I2C
 
     LOG_GREEN_INFO("Stopped");
 }

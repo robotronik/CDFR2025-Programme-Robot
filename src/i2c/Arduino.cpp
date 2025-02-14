@@ -31,7 +31,7 @@ void Arduino::moveServo(int ServoID, int position) {
 }
 
 bool Arduino::readSensor(int SensorID, bool& value){
-    if (i2cFile == -1) return false; // Emulation
+    if (i2cFile == -1) {value = false; return true;}; // Emulation
     uint8_t data;
     uint8_t message[1];
     uint8_t *ptr = message;
@@ -83,7 +83,7 @@ void Arduino::setStepper(int32_t absPosition, int StepperID){
 
 bool Arduino::getStepper(int32_t& absPosition, int StepperID){
     LOG_DEBUG("Get Stepper #", StepperID);
-    if (i2cFile == -1) return false; // Emulation
+    if (i2cFile == -1) {absPosition = 0; return true;} // Emulation
     uint8_t data[4];
     if (I2cSendBlockReceiveData(CMD_GET_STEPPER, (uint8_t*)&StepperID, 1, data, 4))
         return false;
