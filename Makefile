@@ -43,19 +43,18 @@ SRC_NO_MAIN = $(filter-out $(SRCDIR)/main.cpp \
 			, $(SRC) )
 SRC_TEST = $(wildcard $(SRCDIR_TEST)/*.cpp)
 OBJ_NO_MAIN = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.o,$(SRC_NO_MAIN))
-OBJ_NO_MAIN += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM)) 
+OBJ_NO_MAIN += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.o,$(SRC_LIB_COM))
 TEST_OBJ = $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_TEST)/%.o,$(SRC_TEST))
 
-
-DEPENDS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_MAIN)/%.d,$(SRC)) 
-DEPENDS += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_LIBCOM)/%.d,$(SRC_LIB_COM)) 
-DEPENDS += $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_TEST)/%.d,$(SRC_TEST)) 
+DEPENDS := $(shell find obj -type f -name '*.d')
 
 
 .PHONY: all clean tests clean-all deploy run
 
 all: check $(BINDIR) build_lidarLib $(TARGET) $(TEST_TARGET) copy_html copy_lidar copy_aruco
 	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && sudo ./programCDFR)' pour exécuter le programme."
+
+-include $(DEPENDS)
 
 check:
 	@if [ ! -d "$(SRCDIR_LIBCOM)" ]; then \
@@ -74,8 +73,6 @@ $(TEST_TARGET): $(OBJ_NO_MAIN) $(TEST_OBJ) | $(BINDIR)
 	@echo "--------------------------------- Compilation des tests... ---------------------------------"
 	@echo " APP  $@"
 	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/x86_64-linux-gnu
-
--include $(DEPENDS)
 
 $(OBJDIR_MAIN)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR_MAIN)
 	@echo " CXX  $@"
@@ -138,10 +135,10 @@ ARM_TARGET = $(ARMBINDIR)/programCDFR
 ARM_TEST_TARGET = $(ARMBINDIR)/tests
 
 ARM_OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_ARM)/%.o,$(SRC))
-ARM_OBJ += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_ARM_LIBCOM)/%.o,$(SRC_LIB_COM)) 
+ARM_OBJ += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_ARM_LIBCOM)/%.o,$(SRC_LIB_COM))
 
 ARM_OBJ_NO_MAIN = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR_ARM)/%.o,$(SRC_NO_MAIN))
-ARM_OBJ_NO_MAIN += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_ARM_LIBCOM)/%.o,$(SRC_LIB_COM)) 
+ARM_OBJ_NO_MAIN += $(patsubst $(SRCDIR_LIBCOM)/%.cpp,$(OBJDIR_ARM_LIBCOM)/%.o,$(SRC_LIB_COM))
 ARM_TEST_OBJ = $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_ARM_TEST)/%.o,$(SRC_TEST))
 
 
@@ -188,7 +185,7 @@ $(ARM_TEST_TARGET): $(ARM_OBJ_NO_MAIN) $(ARM_TEST_OBJ) | $(ARMBINDIR)
 
 # Deploy target
 deploy: check build_arm_lidarLib $(ARM_TARGET) copy_html_arm copy_install_sh copy_aruco_arm
-	@echo "--------------------------------- Deploiement vers le Raspberry Pi... ---------------------------------" 
+	@echo "--------------------------------- Deploiement vers le Raspberry Pi... ---------------------------------"
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
 
