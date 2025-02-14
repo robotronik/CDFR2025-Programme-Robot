@@ -213,7 +213,6 @@ void setStockAsRemoved(int num){
     LOG_INFO("Removed stock ", num);
 }
 
-// TODO : Remove ? Not even used..
 bool returnToHome(){
     int home_x = -500;
     int home_y = tableStatus.robot.colorTeam == BLUE ? 1100 : -1100;
