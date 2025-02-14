@@ -94,6 +94,7 @@ bool PrerareLowBarrel(int sens){//sens 1 = droite, 0 = gauche
     if (lowBarrelCount == 0) return 1; //no columns in Lowbarrel so position is good
 
     if (!SpinBarrel(ShiftListNumber(lowBarrelTab, sens ? 4 : 1, !sens),1)) return 0;
+
     PrepareHighBarrel(sens);
     if(lowBarrelCount == 12) {
         if (!SpinBarrel(sens ? 2 : -2, 1)) return 0;
@@ -102,7 +103,7 @@ bool PrerareLowBarrel(int sens){//sens 1 = droite, 0 = gauche
         return 0;
     }
     if (lowBarrelCount == SIZE){
-        MoveColumns(sens, 1);
+        MoveColumns(sens, 1);        //comment return 0 ???
         if (highBarrelCount<=8) SpinBarrel(sens ? 2 : -2, 2);
         return 0;
     }
