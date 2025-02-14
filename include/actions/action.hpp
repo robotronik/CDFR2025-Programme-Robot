@@ -1,5 +1,6 @@
 #pragma once
 
+// Consider using enum class for better type safety
 typedef enum
 {
     FSM_RETURN_WORKING =0x0,
@@ -43,7 +44,7 @@ private:
         FSM_CONSTRUCT_NAV,
         FSM_CONSTRUCT_MOVE,
         FSM_CONSTRUCT_BUILD,
-        FSM_CONSTRUCT_EXIT,
+        FSM_CONSTRUCT_EXIT
     } StateConstructTribunes_t;
 
     StateConstructTribunes_t constructAllTribunesState = FSM_CONSTRUCT_NAV;
