@@ -62,7 +62,7 @@ bool ActionFSM::RunFSM(){
     return false;
 }
 
-ReturnFSM_t TakeSingleStockFSM(int num){
+ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num){
     switch (takeSingleStockState){
     case FSM_SINGLESTOCK_NAV:
         // navigationGoTo(startPostion.x, startPostion.y, startPostion.theta, startDirection);
@@ -85,7 +85,7 @@ ReturnFSM_t TakeSingleStockFSM(int num){
     }
     return FSM_RETURN_WORKING;
 }
-ReturnFSM_t ConstructAllTribunesFSM(int zone){
+ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(int zone){
     static int num = 0; // Keep track of the tribune were building
     switch (constructAllTribunesState){
     case FSM_CONSTRUCT_NAV:
