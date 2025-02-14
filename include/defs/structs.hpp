@@ -48,7 +48,6 @@ typedef struct
     double vit_x,vit_y; //TODO vitesse instantannée du robot
     int braking_distance;
     int direction_side;
-    int columns_count;
     int plank_count;
 }robot_t;
 

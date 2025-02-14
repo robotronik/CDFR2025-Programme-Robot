@@ -96,7 +96,7 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(int zone){
     case FSM_CONSTRUCT_BUILD:
         if (constructSingleTribune()){
             builtTribuneHeights[num]++;
-            if (false) { // TODO revolver is empty
+            if (false) { // TODO revolver is empty or plank_count == 0
                 constructAllTribunesState = FSM_CONSTRUCT_EXIT;
             }
             else if (builtTribuneHeights[num] == 3){
