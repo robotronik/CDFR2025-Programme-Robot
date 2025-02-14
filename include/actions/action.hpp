@@ -11,7 +11,7 @@ class ActionFSM{
 public:
     ActionFSM();
     ~ActionFSM();
-    Reset();
+    void Reset();
 
     bool RunFSM();
     ReturnFSM_t TakeSingleStockFSM(int num); // Num of the stock
