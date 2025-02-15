@@ -7,6 +7,20 @@ bool lowBarrelTab[SIZE] = {0};  // false = Empty,  true = Occupied
 bool highBarrelTab[SIZE] = {0}; // false = Empty,  true = Occupied
 int lowBarrelCount = 0, highBarrelCount = 0;
 
+// Internal prototypes
+void initRevolver();
+void DisplayRobot();
+void DisplayBarrel();
+bool SpinBarrel(int n, int num_tab);
+bool MoveColumns(int direction, int sens);
+bool PrerareLowBarrel(direction_t dir);
+bool PrerareHighBarrel(direction_t dir);
+bool PrepareHighBarrel(direction_t dir);
+bool LoadStock(direction_t dir);
+bool ReleaseLow();
+bool ReleaseHigh();
+
+
 // Initialize the revolver when the game starts
 void initRevolver(){
     for (int i = 0; i < SIZE; i++) {
@@ -14,6 +28,10 @@ void initRevolver(){
     }
     lowBarrelCount = highBarrelCount = 0;
 }
+
+// -------------------------------------------------
+// Display functions
+// -------------------------------------------------
 
 // Display the robot structure and the layout of the locations
 void DisplayRobot(){
@@ -35,6 +53,10 @@ void DisplayBarrel(){
     printf(" %d %d %d %d                %d %d %d %d\n", lowBarrelTab[11], lowBarrelTab[10], lowBarrelTab[9], lowBarrelTab[8],highBarrelTab[11], highBarrelTab[10], highBarrelTab[9], highBarrelTab[8]);
     printf("\n\n");
 }
+
+// -------------------------------------------------
+// Functions to handle revolver
+// -------------------------------------------------
 
 // Spin the barrel by n positions (positive or negative) returns true when done
 bool SpinBarrel(int n, int num_tab) {//lowBarrel 1er = 1: highBarrel 2eme = 2
@@ -89,6 +111,24 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished sens 1 = mo
     return true;
 }
 
+// -------------------------------------------------
+// Functions to handle incomming stock
+// -------------------------------------------------
+
+// Load a Stock according to the direction
+bool LoadStock(direction_t dir){
+    LOG_INFO("INFO : AjoutColumn ", (dir == FROM_RIGHT) ? "Right" : "Left");
+    int position = (dir == FROM_RIGHT) ? 5 : 0;
+    int rotation = (dir == FROM_RIGHT) ? -1 : 1; // position ajout column, Sens de rotation
+    
+    for (int i = 0; i < 4; i++) {
+        LOG_INFO("ajout column pos ", abs(position-1-i));
+        lowBarrelTab[position] = 1; // Remplit 4 cases successives
+        lowBarrelCount++;
+        SpinBarrel(rotation, 1);
+    }
+    return true; // TODO
+}
 
 // Function that manages the storage of the second level. Returns true when done.
 bool PrepareHighBarrel(direction_t dir){
@@ -103,7 +143,7 @@ bool PrepareHighBarrel(direction_t dir){
 //Fonction qui Gère le stockage du 1er étage de columns, 
 bool PrerareLowBarrel(direction_t dir){
     LOG_INFO("PrerareLowBarrel sens : ",((dir==FROM_RIGHT) ? "droite" : "gauche"));
-    if (lowBarrelCount == false) return 1; //no columns in Lowbarrel so position is good
+    if (lowBarrelCount == 0) return 1; //no columns in Lowbarrel so position is good
 
     if (!SpinBarrel(ShiftListNumber(lowBarrelTab, dir ? 4 : 1, !dir),1)) return false;
     PrepareHighBarrel(dir);
@@ -126,27 +166,17 @@ bool PrerareLowBarrel(direction_t dir){
     return true;
 }
 
+// -------------------------------------------------
+// Functions to handle outgoing
+// -------------------------------------------------
 
-// Load a Stock according to the direction
-bool LoadStock(direction_t dir){
-    LOG_INFO("INFO : AjoutColumn ", (dir == FROM_RIGHT) ? "Right" : "Left");
-    int position = (dir == FROM_RIGHT) ? 5 : 0;
-    int rotation = (dir == FROM_RIGHT) ? -1 : 1; // position ajout column, Sens de rotation
-    
-    for (int i = 0; i < 4; i++) {
-        LOG_INFO("ajout column pos ", abs(position-1-i));
-        lowBarrelTab[position] = 1; // Remplit 4 cases successives
-        lowBarrelCount++;
-        SpinBarrel(rotation, 1);
-    }
-    return true; // TODO
-}
-
-void take(direction_t dir){
-    if (lowBarrelCount == SIZE && highBarrelCount == 10) {LOG_ERROR("Plus de place dans le revolver");return;}
-    while (!PrerareLowBarrel(dir));
-    LoadStock(dir);
+bool Release(){
+    LOG_INFO("Release"); //prepare release low barrel
+    if (!SpinBarrel(ShiftListNumber(lowBarrelTab,3,0),1));
+    if (!SpinBarrel(ShiftListNumber(highBarrelTab, 0, 0),2));
     DisplayBarrel();
+    if (!ReleaseLow()) return 0;
+    return 1;
 }
 
 bool ReleaseHigh(){
@@ -168,7 +198,6 @@ bool ReleaseLow() {
         LOG_INFO("No columns to release from the first stage");
         return ReleaseHigh();
     } 
-
     lowBarrelTab[2] = 0;
     lowBarrelTab[3] = 0;
     lowBarrelCount -= 2;
@@ -177,26 +206,27 @@ bool ReleaseLow() {
     return false;
 }
 
-bool Release(){
-    LOG_INFO("Release"); //prepare release low barrel
-    if (!SpinBarrel(ShiftListNumber(lowBarrelTab,3,0),1));
-    if (!SpinBarrel(ShiftListNumber(highBarrelTab, 0, 0),2));
-    DisplayBarrel();
-    if (!ReleaseLow()) return 0;
-    return 1;
-}
+// -------------------------------------------------
+// Test Functions
+// -------------------------------------------------
 
+void TestTakeAction(direction_t dir){
+    if (lowBarrelCount == SIZE && highBarrelCount == 10) {LOG_ERROR("Plus de place dans le revolver");return;}
+    while (!PrerareLowBarrel(dir));
+    LoadStock(dir);
+    DisplayBarrel();
+}
 
 void TestRevolver(){
     DisplayRobot();
     DisplayBarrel();
 
-    take(FROM_RIGHT);
-    take(FROM_LEFT);
-    take(FROM_RIGHT);
-    take(FROM_LEFT);
-    take(FROM_RIGHT);
-    take(FROM_LEFT);
+    TestTakeAction(FROM_RIGHT);
+    TestTakeAction(FROM_LEFT);
+    TestTakeAction(FROM_RIGHT);
+    TestTakeAction(FROM_LEFT);
+    TestTakeAction(FROM_RIGHT);
+    TestTakeAction(FROM_LEFT);
     while (!Release());
 
     LOG_GREEN_INFO("Done Test Revolver !");
