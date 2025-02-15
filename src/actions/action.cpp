@@ -16,6 +16,8 @@ ActionFSM::~ActionFSM(){}
 
 void ActionFSM::Reset(){
     runState = FSM_ACTION_GATHER;
+    takeSingleStockState = FSM_SINGLESTOCK_NAV;
+    constructAllTribunesState = FSM_CONSTRUCT_NAV;
 }
 
 bool ActionFSM::RunFSM(){
