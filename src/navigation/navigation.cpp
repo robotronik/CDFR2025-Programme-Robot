@@ -123,7 +123,7 @@ void navigationOpponentDetection(){
     double opponentDistance = sqrt(pow(tableStatus.pos_opponent.x - tableStatus.robot.pos.y, 2) - pow(tableStatus.pos_opponent.y - tableStatus.robot.pos.y, 2));
     double targetAngle = atan2(tableStatus.robot.target.y - tableStatus.robot.pos.y, tableStatus.robot.target.x - tableStatus.robot.pos.x);
     double opponentAngle = atan2(tableStatus.pos_opponent.y - tableStatus.robot.pos.y, tableStatus.pos_opponent.x - tableStatus.robot.pos.x);
-    double angleInterval = atan(opponentRadius/opponentDistance); 
+    double angleInterval = atan((opponentRadius + margin)/opponentDistance); 
     
     bool isEndangered = false;
     switch (asserv.get_direction_side())
