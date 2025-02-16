@@ -370,3 +370,11 @@ bool readFrontColumnsSensors(){
     if (!arduino.readSensor(FRONT_COLUMN_SENSOR2_NUM, state2)) return false;
     return (state1 && state2);
 }
+
+// Returns true if 2 cans are detected in front of the pusher
+bool readPusherSensors(){
+    bool state1, state2;
+    if (!arduino.readSensor(PUSHER_SENSOR1_NUM, state1)) return false;
+    if (!arduino.readSensor(PUSHER_SENSOR2_NUM, state2)) return false;
+    return (state1 && state2);
+}

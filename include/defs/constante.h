@@ -34,6 +34,8 @@
 #define COLOR_SENSOR_NUM                  3
 #define FRONT_COLUMN_SENSOR1_NUM          4
 #define FRONT_COLUMN_SENSOR2_NUM          5
+#define PUSHER_SENSOR1_NUM                6
+#define PUSHER_SENSOR2_NUM                7
 
 #define SPEED_STOCK 8000 // Motor speed for collecting stock (mm/s)
 #define STEPPER_SPEED 1000 // Stepper motor speed for collecting stock (steps/s)
