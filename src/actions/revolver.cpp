@@ -19,7 +19,8 @@ bool MoveColumns(int direction, int sens);
 bool PrepareHighBarrel(direction_t dir);
 bool ReleaseLow();
 bool ReleaseHigh();
-
+bool isRevolverFull();
+bool isRevolverEmpty();
 
 // Initialize the revolver when the game starts
 void initRevolver(){
@@ -66,6 +67,9 @@ bool isRevolverFull(){
     }
     return false;
 }
+bool isRevolverEmpty(){
+    return (lowBarrelCount == 0 && highBarrelCount == 0);
+}
 void ShiftArray(bool arr[], int n, int size) {
     bool* temp = (bool*)malloc(sizeof(bool) * size);
     for (int i = 0; i < size; i++)
@@ -85,7 +89,7 @@ bool SpinHighBarrel(int n) {
         highBarrelShiftTarget = highBarrelShift + n;
         init = true;
     }
-    if (emulateActuators || moveLowColumnsRevolverAbs(highBarrelShiftTarget)){
+    if (emulateActuators || moveHighColumnsRevolverAbs(highBarrelShiftTarget)){
         ShiftArray(highArr, n, SIZE_HIGH);
         for (int i = 1; i <= 4; i++) { // Case 1 2 3 4 High barrel
             if (highArr[i]) LOG_ERROR("High barrel : Illegal position");
@@ -209,7 +213,7 @@ bool PrerareLowBarrel(direction_t dir){
 bool PrepareHighBarrel(direction_t dir){
     LOG_INFO("Prepare High Barrel sens : ", dir, "\n");
     if (highBarrelCount == 0)return 1; //no columns in Highbarrel so position is good
-    if (highBarrelCount >= 10) {LOG_ERROR("Plus de place dans le barillet 2"); return 1;}
+    if (highBarrelCount >= 10) {LOG_WARNING("Plus de place dans le barillet 2"); return 1;}
 
     if (!SpinHighBarrel(ShiftListNumber(highArr, (dir==FROM_RIGHT) ? 7 : 12, dir==FROM_RIGHT))) return 0; //n = shift needed to put first or last 1 to desired position (7 or 12)
     return 1;
@@ -230,7 +234,10 @@ bool Release(){
 
 bool ReleaseHigh(){
     LOG_INFO("ReleaseHigh");
-    if (highBarrelCount == 0) {LOG_INFO("Plus de columns a sortir 2eme etage"); return 1;}
+    if (highBarrelCount == 0) {
+        LOG_ERROR("Plus de columns a sortir 2eme etage");
+        throw std::runtime_error("No more columns on high");
+    }
     
     highArr[0] = highArr[13] = 0;//baisser les columns
     highBarrelCount -= 2;
@@ -253,7 +260,7 @@ bool ReleaseLow() {
     lowBarrelCount -= 2;
     SpinLowBarrel(2);
     DisplayBarrel();
-    return false;
+    return true; //TODO
 }
 
 // -------------------------------------------------
@@ -280,7 +287,8 @@ void TestRevolver(){
     TestTakeAction(FROM_LEFT);
     TestTakeAction(FROM_RIGHT);
     TestTakeAction(FROM_LEFT);
-    while (!Release());
+    while (!isRevolverEmpty())
+        Release();
 
     emulateActuators = false;
     
