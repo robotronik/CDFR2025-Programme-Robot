@@ -129,12 +129,12 @@ void navigationOpponentDetection(){
     switch (asserv.get_direction_side())
     {
         case Direction::FORWARD:
-            if((targetAngle < opponentAngle + angleInterval) && (targetAngle > opponentAngle - angleInterval)) // we aren't moving towards the opponent
+            if((targetAngle > opponentAngle + angleInterval) || (targetAngle < opponentAngle - angleInterval)) // we aren't moving towards the opponent
                 isEndangered = false;
             else 
                 isEndangered = tableStatus.robot.braking_distance > opponentDistance - opponentRadius - margin; // we are moving towards the opponent, check whether our target is accessible or not
         case Direction::BACKWARD:
-            if((targetAngle < opponentAngle + angleInterval) && (targetAngle > opponentAngle - angleInterval)) // we aren't moving towards the opponent
+            if((targetAngle > opponentAngle + angleInterval) || (targetAngle < opponentAngle - angleInterval)) // we aren't moving towards the opponent
                 isEndangered = false;
             else 
                 isEndangered = tableStatus.robot.braking_distance > opponentDistance - opponentRadius - margin; // we are moving towards the opponent, check whether our target is accessible or not
