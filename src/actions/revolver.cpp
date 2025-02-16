@@ -84,6 +84,8 @@ void ShiftArray(bool arr[], int n, int size) {
 bool SpinHighBarrel(int n) {
     static bool init = false;
     static int highBarrelShiftTarget = 0;
+    if (n==0)
+        return true;
     if (!init){
         LOG_INFO("Spin High Barrel by n=", n, (n > 0) ? " Clockwise" : " Anticlockwise");
         highBarrelShiftTarget = highBarrelShift + n;
