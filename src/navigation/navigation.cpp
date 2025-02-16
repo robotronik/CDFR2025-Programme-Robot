@@ -113,27 +113,39 @@ void navigationOpponentDetection(){
     // This is where it disables the robot in case it might collide with the opponent
     // Called from main, start of main fsm
 
+    // perhaps it would be possible to predict the opponent's movement as well for more accurate detection?
+
+    // TODO find real values (approximate the opponent with a circle of radius opponent_width, and give ourselves a safety margin (our own's robot radius?))
+    double opponentRadius = 10.0; 
+    double margin = 10.0; 
+
+    // calculate the stuff we need to detect a collision (we put ourselves in the robot's reference frame)
+    double opponentDistance = sqrt(pow(tableStatus.pos_opponent.x - tableStatus.robot.pos.y, 2) - pow(tableStatus.pos_opponent.y - tableStatus.robot.pos.y, 2));
+    double targetAngle = atan2(tableStatus.robot.target.y - tableStatus.robot.pos.y, tableStatus.robot.target.x - tableStatus.robot.pos.x);
+    double opponentAngle = atan2(tableStatus.pos_opponent.y - tableStatus.robot.pos.y, tableStatus.pos_opponent.x - tableStatus.robot.pos.x);
+    double angleInterval = atan(opponentRadius/opponentDistance); 
+    
     bool isEndangered = false;
     switch (asserv.get_direction_side())
     {
-    case Direction::FORWARD:
-        isEndangered = asserv.get_braking_distance() > 69; // TODO find some value... > lidar.collideDistanceFORWARD();
-        break;        
-    case Direction::BACKWARD:
-        isEndangered = asserv.get_braking_distance() > 69;// > lidar.collideDistanceBACKWARD();
-        tableStatus.pos_opponent;
-        tableStatus.robot.pos;
-        break;    
-    case Direction::NONE:
-        isEndangered = false;
-        break;
-    default:
-        break;
+        case Direction::FORWARD:
+            if((targetAngle < opponentAngle + angleInterval) && (targetAngle > opponentAngle - angleInterval)) // we aren't moving towards the opponent
+                isEndangered = false;
+            else 
+                isEndangered = tableStatus.robot.braking_distance > opponentDistance - opponentRadius - margin; // we are moving towards the opponent, check whether our target is accessible or not
+        case Direction::BACKWARD:
+            if((targetAngle < opponentAngle + angleInterval) && (targetAngle > opponentAngle - angleInterval)) // we aren't moving towards the opponent
+                isEndangered = false;
+            else 
+                isEndangered = tableStatus.robot.braking_distance > opponentDistance - opponentRadius - margin; // we are moving towards the opponent, check whether our target is accessible or not
+            break;
+        case Direction::NONE: // we are not actively moving
+            break;
+        default:
+            break;
     }
-    return; // TODO TODO REMOVE WHEN YOU HAVE LIDAR
 
-    //TODO : Maybe call Collide ?
-
+    // stop the robot if it is endangered
     if(isEndangered && !is_robot_stalled){
         asserv.pause();
         is_robot_stalled = true;
