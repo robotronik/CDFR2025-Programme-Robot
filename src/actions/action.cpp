@@ -7,6 +7,7 @@
 #include "actions/functions.h"
 #include "defs/tableState.hpp"
 #include "defs/constante.h"
+#include "actions/revolver.hpp"
 
 ActionFSM::ActionFSM(){
     Reset();
@@ -18,6 +19,7 @@ void ActionFSM::Reset(){
     runState = FSM_ACTION_GATHER;
     takeSingleStockState = FSM_SINGLESTOCK_NAV;
     constructAllTribunesState = FSM_CONSTRUCT_NAV;
+    initRevolver();
 }
 
 bool ActionFSM::RunFSM(){
