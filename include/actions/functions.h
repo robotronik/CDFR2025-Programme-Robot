@@ -36,5 +36,6 @@ colorTeam_t readColorSensorSwitch();
 bool readButtonSensor();
 bool readLatchSensor();
 bool readFrontColumnsSensors();
+bool readPusherSensors();
 
 #endif // MYFUNCTION_H
