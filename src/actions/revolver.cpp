@@ -217,8 +217,7 @@ bool PrepareHighBarrel(direction_t dir){
     if (highBarrelCount == 0)return 1; //no columns in Highbarrel so position is good
     if (highBarrelCount >= 10) {LOG_WARNING("Plus de place dans le barillet 2"); return 1;}
 
-    if (!SpinHighBarrel(ShiftListNumber(highArr, (dir==FROM_RIGHT) ? 7 : 12, dir==FROM_RIGHT))) return 0; //n = shift needed to put first or last 1 to desired position (7 or 12)
-    return 1;
+    return SpinHighBarrel(ShiftListNumber(highArr, (dir==FROM_RIGHT) ? 7 : 12, dir==FROM_RIGHT)); //n = shift needed to put first or last 1 to desired position (7 or 12)
 }
 
 // -------------------------------------------------
@@ -273,7 +272,7 @@ bool ReleaseLow() {
         ReleaseHigh();
         return false;
     } 
-    if (!readPusherSensors()){
+    if (!emulateActuators && !readPusherSensors()){
         LOG_WARNING("Missing columns detected to be pushed");
         if (!readLeftPusherSensors())
         {
