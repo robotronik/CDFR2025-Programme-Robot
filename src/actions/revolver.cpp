@@ -226,27 +226,7 @@ bool PrepareHighBarrel(direction_t dir){
 
 bool RevolverRelease(){
     LOG_INFO("RevolverRelease"); //prepare release low barrel
-    int state = 0;
-    switch (state){
-    case 0:
-        if (SpinLowBarrel(ShiftListNumber(lowArr, 3, false))){
-            state++;
-        }
-        break;
-    case 1:
-        if (SpinHighBarrel(ShiftListNumber(highArr, 0, false))){
-            DisplayBarrel();
-            state++;
-        }
-        break;
-    case 2:
-        if (ReleaseLow()){
-            state=0;
-            return true;
-        }
-        break;
-    }
-    return false;
+    return ReleaseLow();
 }
 
 bool ReleaseHigh(){
@@ -267,31 +247,36 @@ bool ReleaseHigh(){
 // Function to release all columns from the barrel
 bool ReleaseLow() {
     LOG_INFO("ReleaseLow");
-    if (lowBarrelCount == 0) { 
-        LOG_INFO("No columns to release from the first stage, releasing high");
-        ReleaseHigh();
-        return false;
-    } 
-    if (!emulateActuators && !readPusherSensors()){
-        LOG_WARNING("Missing columns detected to be pushed");
-        if (!readLeftPusherSensors())
-        {
-            LOG_WARNING("Missing columns detected to be pushed on left");
-            lowArr[2] = 0;
-            lowBarrelCount--;
+    
+    if (SpinLowBarrel(ShiftListNumber(lowArr, 3, false)) & SpinHighBarrel(ShiftListNumber(highArr, 0, false))){
+        DisplayBarrel();
+        if (lowBarrelCount == 0) { 
+            LOG_INFO("No columns to release from the first stage, releasing high");
+            ReleaseHigh();
+        } 
+        else if (lowArr[2] && lowArr[3]) {
+            if (emulateActuators || readPusherSensors()){
+                LOG_INFO("Pusher sensors ok");
+                lowArr[2] = 0; // left
+                lowArr[3] = 0; // right
+                lowBarrelCount -= 2;
+                return true;
+            }
+            else{
+                LOG_WARNING("Missing columns detected to be pushed");
+                if (!readLeftPusherSensors())
+                {
+                    LOG_WARNING("Missing columns detected to be pushed on left");
+                    lowArr[2] = 0;
+                    lowBarrelCount--;
+                }
+                if (!readRightPusherSensor()){
+                    LOG_WARNING("Missing columns detected to be pushed on right");
+                    lowArr[3] = 0;
+                    lowBarrelCount--;
+                }
+            }
         }
-        if (!readRightPusherSensor()){
-            LOG_WARNING("Missing columns detected to be pushed on right");
-            lowArr[3] = 0;
-            lowBarrelCount--;
-        }
-    }
-    else{
-        LOG_INFO("Pusher sensors ok");
-        lowArr[2] = 0; // left
-        lowArr[3] = 0; // right
-        lowBarrelCount -= 2;
-        return true; //TODO
     }
     return false;
 }
