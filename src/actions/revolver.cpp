@@ -68,7 +68,7 @@ bool isRevolverFull(){
     return false;
 }
 bool isRevolverEmpty(){
-    return (lowBarrelCount == 0 && highBarrelCount == 0);
+    return (lowBarrelCount <= 1 && highBarrelCount == 0);
 }
 void ShiftArray(bool arr[], int n, int size) {
     bool* temp = (bool*)malloc(sizeof(bool) * size);
@@ -161,7 +161,7 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished sens 1 = mo
 // -------------------------------------------------
 
 // Load a Stock according to the direction. Barrel needs to be prepared. Called for loading stock
-bool LoadStock(direction_t dir){
+bool RevolverLoadStock(direction_t dir){
     static int i = 0;
     int intake_pos = (dir == FROM_RIGHT) ? 4 : 1;
     int rotation = (dir == FROM_RIGHT) ? -1 : 1; // position ajout column, Sens de rotation
@@ -225,13 +225,29 @@ bool PrepareHighBarrel(direction_t dir){
 // Functions to handle outgoing
 // -------------------------------------------------
 
-bool Release(){
-    LOG_INFO("Release"); //prepare release low barrel
-    if (!SpinLowBarrel(ShiftListNumber(lowArr, 3, false)));
-    if (!SpinHighBarrel(ShiftListNumber(highArr, 0, false)));
-    DisplayBarrel();
-    if (!ReleaseLow()) return 0;
-    return 1;
+bool RevolverRelease(){
+    LOG_INFO("RevolverRelease"); //prepare release low barrel
+    int state = 0;
+    switch (state){
+    case 0:
+        if (SpinLowBarrel(ShiftListNumber(lowArr, 3, false))){
+            state++;
+        }
+        break;
+    case 1:
+        if (SpinHighBarrel(ShiftListNumber(highArr, 0, false))){
+            DisplayBarrel();
+            state++;
+        }
+        break;
+    case 2:
+        if (ReleaseLow()){
+            state=0;
+            return true;
+        }
+        break;
+    }
+    return false;
 }
 
 bool ReleaseHigh(){
@@ -257,12 +273,28 @@ bool ReleaseLow() {
         ReleaseHigh();
         return false;
     } 
-    lowArr[2] = 0;
-    lowArr[3] = 0;
-    lowBarrelCount -= 2;
-    SpinLowBarrel(2);
-    DisplayBarrel();
-    return true; //TODO
+    if (!readPusherSensors()){
+        LOG_WARNING("Missing columns detected to be pushed");
+        if (!readLeftPusherSensors())
+        {
+            LOG_WARNING("Missing columns detected to be pushed on left");
+            lowArr[2] = 0;
+            lowBarrelCount--;
+        }
+        if (!readRightPusherSensor()){
+            LOG_WARNING("Missing columns detected to be pushed on right");
+            lowArr[3] = 0;
+            lowBarrelCount--;
+        }
+    }
+    else{
+        LOG_INFO("Pusher sensors ok");
+        lowArr[2] = 0; // left
+        lowArr[3] = 0; // right
+        lowBarrelCount -= 2;
+        return true; //TODO
+    }
+    return false;
 }
 
 // -------------------------------------------------
@@ -273,7 +305,7 @@ void TestTakeAction(direction_t dir){
     if (isRevolverFull())
         return;
     while (!PrerareLowBarrel(dir));
-    while (!LoadStock(dir));
+    while (!RevolverLoadStock(dir));
     DisplayBarrel();
 }
 
@@ -290,7 +322,7 @@ void TestRevolver(){
     TestTakeAction(FROM_RIGHT);
     TestTakeAction(FROM_LEFT);
     while (!isRevolverEmpty())
-        Release();
+        RevolverRelease();
 
     emulateActuators = false;
     

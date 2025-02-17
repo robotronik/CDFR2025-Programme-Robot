@@ -77,7 +77,7 @@ ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
     switch (takeSingleStockState){
     case FSM_SINGLESTOCK_NAV:
         nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, true);
-        if (nav_ret == NAV_DONE & PrepareLowBarrel(stock_intake_dir)){
+        if (nav_ret == NAV_DONE & RevolverPrepareLowBarrel(stock_intake_dir)){
             takeSingleStockState = FSM_SINGLESTOCK_MOVE;
         }
         else if (nav_ret == NAV_ERROR){
@@ -89,7 +89,7 @@ ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
             nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y, stock_nav_dir, Rotation::SHORTEST, false);
         else // Vertical stock
             nav_ret = navigationGoToNoTurn(stockPos.x, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
-        if (nav_ret == NAV_DONE & LoadStock(stock_intake_dir)){
+        if (nav_ret == NAV_DONE & RevolverLoadStock(stock_intake_dir)){
             takeSingleStockState = FSM_SINGLESTOCK_COLLECT;
         }
         else if (nav_ret == NAV_ERROR){
@@ -111,19 +111,28 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(int zone){
     static int num = 0; // Keep track of the tribune were building
     switch (constructAllTribunesState){
     case FSM_CONSTRUCT_NAV:
+        // Nav to the tribune building location (zone)
         break;
     case FSM_CONSTRUCT_MOVE:
         // Place the robot to a tribune building location
         break;
+    case FSM_CONSTRUCT_PREPREVOLVER:
+        if (RevolverRelease()){
+            constructAllTribunesState = FSM_CONSTRUCT_BUILD;
+        }
+        break;
     case FSM_CONSTRUCT_BUILD:
         if (constructSingleTribune()){
             tableStatus.builtTribuneHeights[num]++;
-            if (false) { // TODO revolver is empty or plank_count == 0
+            if (isRevolverEmpty() || tableStatus.robot.plank_count == 0) {
                 constructAllTribunesState = FSM_CONSTRUCT_EXIT;
             }
             else if (tableStatus.builtTribuneHeights[num] == 3){
                 constructAllTribunesState = FSM_CONSTRUCT_MOVE;
                 num++;
+            }
+            else {
+                constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
             }
         }
         break;
@@ -132,6 +141,8 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(int zone){
         // if nav_done
         //   constructAllTribunesState = FSM_CONSTRUCT_NAV;
         //   return true;
+        constructAllTribunesState = FSM_CONSTRUCT_NAV
+        return true;
         break;
     }
     return FSM_RETURN_WORKING;

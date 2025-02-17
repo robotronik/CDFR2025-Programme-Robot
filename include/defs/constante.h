@@ -32,8 +32,8 @@
 #define BUTTON_SENSOR_NUM                 1
 #define LATCH_SENSOR_NUM                  2
 #define COLOR_SENSOR_NUM                  3
-#define PUSHER_SENSOR1_NUM                4
-#define PUSHER_SENSOR2_NUM                5
+#define PUSHER_LEFT_SENSOR_NUM            4
+#define PUSHER_RIGHT_SENSOR_NUM           5
 
 #define SPEED_STOCK 8000 // Motor speed for collecting stock (mm/s)
 #define STEPPER_SPEED 1000 // Stepper motor speed for collecting stock (steps/s)

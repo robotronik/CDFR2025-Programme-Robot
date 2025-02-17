@@ -10,14 +10,15 @@ typedef enum {
 // initRevolver : Initialize the revolver when the game starts
 void initRevolver();
 bool isRevolverFull();
+bool isRevolverEmpty();
 
-// PrepareLowBarrel : Prepare the low barrel for incoming stock
-bool PrepareLowBarrel(direction_t dir);
-// LoadStock : Adds the 4 columns of stock to the revolver
-bool LoadStock(direction_t dir);
+// RevolverPrepareLowBarrel : Prepare the low barrel for incoming stock
+bool RevolverPrepareLowBarrel(direction_t dir);
+// RevolverLoadStock : Adds the 4 columns of stock to the revolver
+bool RevolverLoadStock(direction_t dir);
 
-// Release : Release the barrel
-bool Release();
+// RevolverRelease : RevolverRelease the barrel
+bool RevolverRelease();
 
 // TestRevolver : Test the revolver
 void TestRevolver();

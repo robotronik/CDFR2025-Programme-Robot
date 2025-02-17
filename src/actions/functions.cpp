@@ -26,17 +26,11 @@ bool constructSingleTribune(){
             state ++;
         break;
     case 3:
-        if (!readPusherSensors()){
-            // TODO: turn revolver
-        }
-        else state ++;
-        break;
-    case 4:
         if (movePlatformLifts(false) & moveTribunePusher(true)){
             state++;
         }
         break;
-    case 5:
+    case 4:
         if (movePlatformLifts(true) & moveTribunePusher(false)){
             state = 1;
             return true;
@@ -369,10 +363,17 @@ bool readLatchSensor(){
     return (count >= 5);
 }
 
+bool readLeftPusherSensors(){
+    bool state;
+    if (!arduino.readSensor(PUSHER_LEFT_SENSOR_NUM, state)) return false;
+    return state;
+}
+bool readRightPusherSensors(){
+    bool state;
+    if (!arduino.readSensor(PUSHER_RIGHT_SENSOR_NUM, state)) return false;
+    return state;
+}
 // Returns true if 2 cans are detected in front of the pusher
 bool readPusherSensors(){
-    bool state1, state2;
-    if (!arduino.readSensor(PUSHER_SENSOR1_NUM, state1)) return false;
-    if (!arduino.readSensor(PUSHER_SENSOR2_NUM, state2)) return false;
-    return (state1 && state2);
+    return readLeftPusherSensors() & readRightPusherSensors();
 }

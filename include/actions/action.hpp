@@ -42,6 +42,7 @@ private:
     {
         FSM_CONSTRUCT_NAV,
         FSM_CONSTRUCT_MOVE,
+        FSM_CONSTRUCT_PREPREVOLVER,
         FSM_CONSTRUCT_BUILD,
         FSM_CONSTRUCT_EXIT
     } StateConstructTribunes_t;
