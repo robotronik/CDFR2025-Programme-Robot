@@ -120,10 +120,10 @@ void navigationOpponentDetection(){
     double margin = 10.0; 
 
     // calculate the stuff we need to detect a collision (we put ourselves in the robot's reference frame)
-    double opponentDistance = sqrt(pow(tableStatus.pos_opponent.x - tableStatus.robot.pos.y, 2) - pow(tableStatus.pos_opponent.y - tableStatus.robot.pos.y, 2));
+    double opponentDistance = sqrt(pow(tableStatus.pos_opponent.x - tableStatus.robot.pos.y, 2) + pow(tableStatus.pos_opponent.y - tableStatus.robot.pos.y, 2));
     double targetAngle = atan2(tableStatus.robot.target.y - tableStatus.robot.pos.y, tableStatus.robot.target.x - tableStatus.robot.pos.x);
     double opponentAngle = atan2(tableStatus.pos_opponent.y - tableStatus.robot.pos.y, tableStatus.pos_opponent.x - tableStatus.robot.pos.x);
-    double angleInterval = atan(opponentRadius/opponentDistance); 
+    double angleInterval = atan((opponentRadius + margin)/opponentDistance); 
     
     bool isEndangered = false;
     switch (tableStatus.robot.direction_side)
