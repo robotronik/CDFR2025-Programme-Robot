@@ -26,11 +26,17 @@ bool constructSingleTribune(){
             state ++;
         break;
     case 3:
+        if (!readPusherSensors()){
+            // TODO: turn revolver
+        }
+        else state ++;
+        break;
+    case 4:
         if (movePlatformLifts(false) & moveTribunePusher(true)){
             state++;
         }
         break;
-    case 4:
+    case 5:
         if (movePlatformLifts(true) & moveTribunePusher(false)){
             state = 1;
             return true;
