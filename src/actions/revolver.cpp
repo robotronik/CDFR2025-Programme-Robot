@@ -183,7 +183,7 @@ bool RevolverLoadStock(direction_t dir){
 }
 
 // Function that manages the storage of the first level. Returns true when done preparing for intake of stock from direction
-bool PrerareLowBarrel(direction_t dir){
+bool RevolverPrepareLowBarrel(direction_t dir){
     LOG_INFO("Prerare Low Barrel direction : ",((dir==FROM_RIGHT) ? "right" : "left"));
     if (lowBarrelCount == 0) return true; //no columns in Lowbarrel so position is good
 
@@ -264,7 +264,7 @@ bool ReleaseLow() {
             }
             else{
                 LOG_WARNING("Missing columns detected to be pushed");
-                if (!readLeftPusherSensors())
+                if (!readLeftPusherSensor())
                 {
                     LOG_WARNING("Missing columns detected to be pushed on left");
                     lowArr[2] = 0;
@@ -288,7 +288,7 @@ bool ReleaseLow() {
 void TestTakeAction(direction_t dir){
     if (isRevolverFull())
         return;
-    while (!PrerareLowBarrel(dir));
+    while (!RevolverPrepareLowBarrel(dir));
     while (!RevolverLoadStock(dir));
     DisplayBarrel();
 }
