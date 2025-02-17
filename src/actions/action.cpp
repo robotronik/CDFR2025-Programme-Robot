@@ -67,17 +67,34 @@ bool ActionFSM::RunFSM(){
     return false;
 }
 
-ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num){
+ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
+    position_t stockPos = STOCK_POSITION_ARRAY[num];
+    position_t stockOff = STOCK_OFFSETS[num][offset];
+    stock_direction_t stock_dir = STOCK_DIRECTION[num][offset]; // FORWARDS OR BACKWARDS
+    Direction stock_nav_dir      = stock_dir == FORWARDS ? Direction::FORWARD : Direction::BACKWARD;
+    direction_t stock_intake_dir = stock_dir == FORWARDS ? FROM_LEFT : FROM_RIGHT;
+    nav_return_t nav_ret;
     switch (takeSingleStockState){
     case FSM_SINGLESTOCK_NAV:
-        // navigationGoTo(startPostion.x, startPostion.y, startPostion.theta, startDirection);
-        break;
-    case FSM_SINGLESTOCK_PREPARE:
-        // Finish prep of the revolver in case its not done yet
+        nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, true);
+        if (nav_ret == NAV_DONE & PrepareLowBarrel(stock_intake_dir)){
+            takeSingleStockState = FSM_SINGLESTOCK_MOVE;
+        }
+        else if (nav_ret == NAV_ERROR){
+            return FSM_RETURN_ERROR;
+        }
         break;
     case FSM_SINGLESTOCK_MOVE:
-        // Move while spinning the revolver (shit is gonna get real)
-        // navigationGoToNoTurn(startPostion.x, startPostion.y, startDirection, startRotation);
+        if (stockPos.theta == 0) // Horizontal stock
+            nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y, stock_nav_dir, Rotation::SHORTEST, false);
+        else // Vertical stock
+            nav_ret = navigationGoToNoTurn(stockPos.x, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
+        if (nav_ret == NAV_DONE & LoadStock(stock_intake_dir)){
+            takeSingleStockState = FSM_SINGLESTOCK_COLLECT;
+        }
+        else if (nav_ret == NAV_ERROR){
+            return FSM_RETURN_ERROR;
+        }
         break;
     case FSM_SINGLESTOCK_COLLECT:
         // Collect the stock
