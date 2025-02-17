@@ -126,20 +126,21 @@ void navigationOpponentDetection(){
     double angleInterval = atan((opponentRadius + margin)/opponentDistance); 
     
     bool isEndangered = false;
-    switch (tableStatus.robot.direction_side)
+    switch ((Direction)tableStatus.robot.direction_side)
     {
-        case (int)Direction::FORWARD:
-            if((targetAngle < opponentAngle + angleInterval) && (targetAngle > opponentAngle - angleInterval)) // we aren't moving towards the opponent
-                isEndangered = false;
-            else 
-                isEndangered = tableStatus.robot.braking_distance > opponentDistance - opponentRadius - margin; // we are moving towards the opponent, check whether our target is accessible or not
-        case (int)Direction::BACKWARD:
+        case Direction::FORWARD:
             if((targetAngle < opponentAngle + angleInterval) && (targetAngle > opponentAngle - angleInterval)) // we aren't moving towards the opponent
                 isEndangered = false;
             else 
                 isEndangered = tableStatus.robot.braking_distance > opponentDistance - opponentRadius - margin; // we are moving towards the opponent, check whether our target is accessible or not
             break;
-        case (int)Direction::NONE: // we are not actively moving
+        case Direction::BACKWARD:
+            if((targetAngle < opponentAngle + angleInterval) && (targetAngle > opponentAngle - angleInterval)) // we aren't moving towards the opponent
+                isEndangered = false;
+            else 
+                isEndangered = tableStatus.robot.braking_distance > opponentDistance - opponentRadius - margin; // we are moving towards the opponent, check whether our target is accessible or not
+            break;
+        case Direction::NONE: // we are not actively moving
             break;
         default:
             break;
