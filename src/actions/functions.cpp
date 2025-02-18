@@ -363,17 +363,17 @@ bool readLatchSensor(){
     return (count >= 5);
 }
 
-bool readLeftPusherSensors(){
+bool readLeftPusherSensor(){
     bool state;
     if (!arduino.readSensor(PUSHER_LEFT_SENSOR_NUM, state)) return false;
     return state;
 }
-bool readRightPusherSensors(){
+bool readRightPusherSensor(){
     bool state;
     if (!arduino.readSensor(PUSHER_RIGHT_SENSOR_NUM, state)) return false;
     return state;
 }
 // Returns true if 2 cans are detected in front of the pusher
 bool readPusherSensors(){
-    return readLeftPusherSensors() & readRightPusherSensors();
+    return readLeftPusherSensor() & readRightPusherSensor();
 }

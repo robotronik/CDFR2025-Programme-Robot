@@ -28,7 +28,7 @@ bool ActionFSM::RunFSM(){
     {
     //****************************************************************
     case FSM_ACTION_GATHER:
-        ret = TakeSingleStockFSM(0); //TODO choose the stock
+        ret = TakeSingleStockFSM(0, 0); //TODO choose the stock
         if (ret == FSM_RETURN_DONE){
             if (true) // TODO Done collecting
                 runState = FSM_ACTION_BUILD;
@@ -69,7 +69,8 @@ bool ActionFSM::RunFSM(){
 
 ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
     position_t stockPos = STOCK_POSITION_ARRAY[num];
-    position_t stockOff = STOCK_OFFSETS[num][offset];
+    int off = STOCK_OFFSET_MAPPING[num][offset];
+    position_t stockOff = STOCK_OFFSETS[off];
     stock_direction_t stock_dir = STOCK_DIRECTION[num][offset]; // FORWARDS OR BACKWARDS
     Direction stock_nav_dir      = stock_dir == FORWARDS ? Direction::FORWARD : Direction::BACKWARD;
     direction_t stock_intake_dir = stock_dir == FORWARDS ? FROM_LEFT : FROM_RIGHT;
@@ -77,7 +78,7 @@ ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
     switch (takeSingleStockState){
     case FSM_SINGLESTOCK_NAV:
         nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, true);
-        if (nav_ret == NAV_DONE & RevolverPrepareLowBarrel(stock_intake_dir)){
+        if (RevolverPrepareLowBarrel(stock_intake_dir) && (nav_ret == NAV_DONE)){
             takeSingleStockState = FSM_SINGLESTOCK_MOVE;
         }
         else if (nav_ret == NAV_ERROR){
@@ -89,7 +90,7 @@ ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
             nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y, stock_nav_dir, Rotation::SHORTEST, false);
         else // Vertical stock
             nav_ret = navigationGoToNoTurn(stockPos.x, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
-        if (nav_ret == NAV_DONE & RevolverLoadStock(stock_intake_dir)){
+        if ((nav_ret == NAV_DONE) & RevolverLoadStock(stock_intake_dir)){
             takeSingleStockState = FSM_SINGLESTOCK_COLLECT;
         }
         else if (nav_ret == NAV_ERROR){
@@ -141,8 +142,8 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(int zone){
         // if nav_done
         //   constructAllTribunesState = FSM_CONSTRUCT_NAV;
         //   return true;
-        constructAllTribunesState = FSM_CONSTRUCT_NAV
-        return true;
+        constructAllTribunesState = FSM_CONSTRUCT_NAV;
+        return FSM_RETURN_DONE;
         break;
     }
     return FSM_RETURN_WORKING;
