@@ -117,6 +117,15 @@ export DISPLAY=:0
 sudo startx /usr/bin/chromium-browser --noerrdialogs --kiosk http:0.0.0.0:8080/robot --incognito --disable-extensions --no-sandbox
 ```
 
+Configuration de lecran long
+```bash
+sudo nano /boot/firmware/config.txt
+```
+et mettre 
+```bash
+dtoverlay=vc4-kms-dsi-waveshare-panel,8_8_inch
+```
+
 ## Actions and Actuators
 
 (in code, theyre called banner, stocks, columns, platforms and tribunes)
