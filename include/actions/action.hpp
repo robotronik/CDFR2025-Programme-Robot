@@ -16,7 +16,7 @@ public:
     bool RunFSM();
 
 private:
-    ReturnFSM_t TakeSingleStockFSM(int num); // Num of the stock
+    ReturnFSM_t TakeSingleStockFSM(int num, int offset); // Num of the stock
     ReturnFSM_t ConstructAllTribunesFSM(int zone); // Num of the zone
 
     typedef enum
@@ -32,7 +32,6 @@ private:
     typedef enum
     {
         FSM_SINGLESTOCK_NAV,
-        FSM_SINGLESTOCK_PREPARE,
         FSM_SINGLESTOCK_MOVE,
         FSM_SINGLESTOCK_COLLECT
     } StateTakeSingleStock_t;
@@ -43,6 +42,7 @@ private:
     {
         FSM_CONSTRUCT_NAV,
         FSM_CONSTRUCT_MOVE,
+        FSM_CONSTRUCT_PREPREVOLVER,
         FSM_CONSTRUCT_BUILD,
         FSM_CONSTRUCT_EXIT
     } StateConstructTribunes_t;

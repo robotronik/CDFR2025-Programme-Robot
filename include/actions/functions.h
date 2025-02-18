@@ -35,6 +35,8 @@ bool moveHighColumnsRevolverAbs(int N);
 colorTeam_t readColorSensorSwitch();
 bool readButtonSensor();
 bool readLatchSensor();
-bool readFrontColumnsSensors();
+bool readLeftPusherSensor();
+bool readRightPusherSensor();
+bool readPusherSensors();
 
 #endif // MYFUNCTION_H

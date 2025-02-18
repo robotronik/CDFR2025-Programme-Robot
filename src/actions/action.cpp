@@ -7,6 +7,7 @@
 #include "actions/functions.h"
 #include "defs/tableState.hpp"
 #include "defs/constante.h"
+#include "actions/revolver.hpp"
 
 ActionFSM::ActionFSM(){
     Reset();
@@ -16,6 +17,9 @@ ActionFSM::~ActionFSM(){}
 
 void ActionFSM::Reset(){
     runState = FSM_ACTION_GATHER;
+    takeSingleStockState = FSM_SINGLESTOCK_NAV;
+    constructAllTribunesState = FSM_CONSTRUCT_NAV;
+    initRevolver();
 }
 
 bool ActionFSM::RunFSM(){
@@ -63,17 +67,34 @@ bool ActionFSM::RunFSM(){
     return false;
 }
 
-ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num){
+ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
+    position_t stockPos = STOCK_POSITION_ARRAY[num];
+    position_t stockOff = STOCK_OFFSETS[num][offset];
+    stock_direction_t stock_dir = STOCK_DIRECTION[num][offset]; // FORWARDS OR BACKWARDS
+    Direction stock_nav_dir      = stock_dir == FORWARDS ? Direction::FORWARD : Direction::BACKWARD;
+    direction_t stock_intake_dir = stock_dir == FORWARDS ? FROM_LEFT : FROM_RIGHT;
+    nav_return_t nav_ret;
     switch (takeSingleStockState){
     case FSM_SINGLESTOCK_NAV:
-        // navigationGoTo(startPostion.x, startPostion.y, startPostion.theta, startDirection);
-        break;
-    case FSM_SINGLESTOCK_PREPARE:
-        // Finish prep of the revolver in case its not done yet
+        nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, true);
+        if (nav_ret == NAV_DONE & RevolverPrepareLowBarrel(stock_intake_dir)){
+            takeSingleStockState = FSM_SINGLESTOCK_MOVE;
+        }
+        else if (nav_ret == NAV_ERROR){
+            return FSM_RETURN_ERROR;
+        }
         break;
     case FSM_SINGLESTOCK_MOVE:
-        // Move while spinning the revolver (shit is gonna get real)
-        // navigationGoToNoTurn(startPostion.x, startPostion.y, startDirection, startRotation);
+        if (stockPos.theta == 0) // Horizontal stock
+            nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y, stock_nav_dir, Rotation::SHORTEST, false);
+        else // Vertical stock
+            nav_ret = navigationGoToNoTurn(stockPos.x, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
+        if (nav_ret == NAV_DONE & RevolverLoadStock(stock_intake_dir)){
+            takeSingleStockState = FSM_SINGLESTOCK_COLLECT;
+        }
+        else if (nav_ret == NAV_ERROR){
+            return FSM_RETURN_ERROR;
+        }
         break;
     case FSM_SINGLESTOCK_COLLECT:
         // Collect the stock
@@ -90,19 +111,28 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(int zone){
     static int num = 0; // Keep track of the tribune were building
     switch (constructAllTribunesState){
     case FSM_CONSTRUCT_NAV:
+        // Nav to the tribune building location (zone)
         break;
     case FSM_CONSTRUCT_MOVE:
         // Place the robot to a tribune building location
         break;
+    case FSM_CONSTRUCT_PREPREVOLVER:
+        if (RevolverRelease()){
+            constructAllTribunesState = FSM_CONSTRUCT_BUILD;
+        }
+        break;
     case FSM_CONSTRUCT_BUILD:
         if (constructSingleTribune()){
             tableStatus.builtTribuneHeights[num]++;
-            if (false) { // TODO revolver is empty or plank_count == 0
+            if (isRevolverEmpty() || tableStatus.robot.plank_count == 0) {
                 constructAllTribunesState = FSM_CONSTRUCT_EXIT;
             }
             else if (tableStatus.builtTribuneHeights[num] == 3){
                 constructAllTribunesState = FSM_CONSTRUCT_MOVE;
                 num++;
+            }
+            else {
+                constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
             }
         }
         break;
@@ -111,6 +141,8 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(int zone){
         // if nav_done
         //   constructAllTribunesState = FSM_CONSTRUCT_NAV;
         //   return true;
+        constructAllTribunesState = FSM_CONSTRUCT_NAV
+        return true;
         break;
     }
     return FSM_RETURN_WORKING;
