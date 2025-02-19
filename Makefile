@@ -105,7 +105,7 @@ $(BINDIR):
 	@echo " DIR  $@"
 	@mkdir -p $@
 
-tests: $(TEST_TARGET) copy_lidar
+tests: build_lidarLib $(TEST_TARGET) copy_lidar
 	@echo "--------------------------------- Exécution des tests... ---------------------------------"
 	cd $(BINDIR) && ./tests
 

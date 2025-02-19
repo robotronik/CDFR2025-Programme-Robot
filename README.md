@@ -116,6 +116,17 @@ sudo apt-get install xorg openbox chromium-browser
 sudo apt install xorg openbox -y
 export DISPLAY=:0
 sudo startx /usr/bin/chromium-browser --noerrdialogs --kiosk http:0.0.0.0:8080/robot --incognito --disable-extensions --no-sandbox
+ou
+/usr/bin/chromium-browser --kiosk http:0.0.0.0:8080/robot --incognito --disable-extensions
+```
+
+Configuration de lecran long
+```bash
+sudo nano /boot/firmware/config.txt
+```
+et mettre 
+```bash
+dtoverlay=vc4-kms-dsi-waveshare-panel,8_8_inch
 ```
 
 ## Actions and Actuators
