@@ -9,6 +9,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    
+    # Install dependencies
+    - name: Install required packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y make gcc g++ libasio-dev nlohmann-json3-dev
+          
     - name: make tests
       run: make tests
     - name: make
