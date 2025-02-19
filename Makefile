@@ -51,7 +51,7 @@ DEPENDS := $(shell find obj -type f -name '*.d')
 
 .PHONY: all clean tests clean-all deploy run
 
-all: check $(BINDIR) build_lidarLib $(TARGET) $(TEST_TARGET) copy_html
+all: check $(BINDIR) build_lidarLib $(TARGET) $(TEST_TARGET) copy_html copy_lidar copy_aruco
 	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && sudo ./programCDFR)' pour exécuter le programme."
 
 -include $(DEPENDS)
@@ -184,7 +184,7 @@ $(ARM_TEST_TARGET): $(ARM_OBJ_NO_MAIN) $(ARM_TEST_OBJ) | $(ARMBINDIR)
 	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
 
 # Deploy target
-deploy: check build_arm_lidarLib $(ARM_TARGET) copy_html_arm copy_install_sh
+deploy: check build_arm_lidarLib $(ARM_TARGET) copy_html_arm copy_install_sh copy_aruco_arm
 	@echo "--------------------------------- Deploiement vers le Raspberry Pi... ---------------------------------"
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
@@ -219,6 +219,7 @@ copy_html: | $(BINDIR)
 # Rule to copy the HTML directory to the arm bin
 copy_html_arm: | $(ARMBINDIR)
 	cp -r html $(ARMBINDIR)
+
 # Rule to copy the lidar json directory to the bin
 copy_lidar: | $(BINDIR)
 	cp -r tests/lidar $(BINDIR)
@@ -228,6 +229,16 @@ copy_lidar_arm: | $(ARMBINDIR)
 # Rule to copy the autoRunInstaller.sh file to the arm bin directory
 copy_install_sh: | $(ARMBINDIR)
 	cp autoRunInstaller.sh $(ARMBINDIR)
+
+# Rule to copy the python aruco detection directory to the bin
+copy_aruco: | $(BINDIR)
+	cp -r ../PythonArucoOpenCV/data $(BINDIR)
+	cp ../PythonArucoOpenCV/detect_aruco.py $(BINDIR)
+# Rule to copy the python aruco detection directory to the arm bin
+copy_aruco_arm: | $(ARMBINDIR)
+	cp -r ../PythonArucoOpenCV/data $(ARMBINDIR)
+	cp ../PythonArucoOpenCV/detect_aruco.py $(ARMBINDIR)
+
 
 
 clean:
