@@ -33,6 +33,8 @@ ArucoCam::ArucoCam(int cam_number, char* calibration_file_path) {
         (char *)std::to_string(PORT_OFFSET + id).c_str(),
         (char *)"--cam",
         (char *)std::to_string(id).c_str(),
+        (char *)"--headless",
+        (char *)"True",
         nullptr
     };
 
@@ -87,17 +89,25 @@ bool ArucoCam::getPos(int & x, int & y, int & theta) {
     y = position.value("y", 0);
     theta = position.value("theta", 0);
     LOG_GREEN_INFO("ArucoCam ", id, " position: { x = ", x, ", y = ", y, ", theta = ", theta, " }");
+    // Return true if the values were successfully extracted
+    // TODO Maybe call stop() so the cam is not running anymore
     return true;
 }
 
 void ArucoCam::start() {
-    status = true;
-    LOG_GREEN_INFO("ArucoCam ", id, " started");
+    json response;
+    if (restAPI_GET(url, "/start", response)){
+        status = true;
+        LOG_GREEN_INFO("ArucoCam ", id, " started");
+    }
 }
 
 void ArucoCam::stop() {
-    status = false;
-    LOG_GREEN_INFO("ArucoCam ", id, " stopped");
+    json response;
+    if (restAPI_GET(url, "/stop", response)){
+        status = false;
+        LOG_GREEN_INFO("ArucoCam ", id, " stopped");
+    }
 }
 
 bool restAPI_GET(const std::string &url, const std::string &resquest, json &response) {
