@@ -39,7 +39,7 @@ Arduino arduino(-1);
 Lidar lidar;
 
 #ifndef EMULATE_CAM
-ArucoCam arucoCam1(0, "data/cam0.yml");
+ArucoCam arucoCam1(0, "data/brio3.yaml");
 #else
 ArucoCam arucoCam1(-1, "data/cam0.yml");
 #endif
