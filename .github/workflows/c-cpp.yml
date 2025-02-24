@@ -21,6 +21,9 @@ jobs:
     
     - name: Clone Lib Commune
       run: git clone https://github.com/robotronik/librairie-commune.git ../librairie-commune
+
+    - name: Clone Aruco OpenCV
+      run: git clone https://github.com/robotronik/PythonArucoOpenCV.git ../PythonArucoOpenCV
           
     - name: make tests
       run: make tests
