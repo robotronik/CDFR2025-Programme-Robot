@@ -4,24 +4,20 @@ on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
-    steps:    
+    steps:
     - name: Checkout with submodules
       uses: actions/checkout@v3
       with:
         submodules: recursive
 
-    # Restore dependencies from cache
+    # Cache APT Packages
     - name: Cache APT Packages
-      uses: actions/cache@v3
+      uses: awalsh128/cache-apt-pkgs-action@v1.3.1
       with:
-        path: /var/cache/apt/archives
         key: ${{ runner.os }}-apt-cache-${{ hashFiles('.github/workflows/apt-packages.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-apt-cache-
-    
+
     # Install dependencies
     - name: Install required packages
       run: |
@@ -29,18 +25,12 @@ jobs:
         sudo apt-get install -y make gcc g++ libasio-dev nlohmann-json3-dev
       env:
         DEBIAN_FRONTEND: noninteractive
-    
+
     - name: Clone Lib Commune
       run: git clone https://github.com/robotronik/librairie-commune.git ../librairie-commune
-          
+
     - name: make tests
       run: make tests
+
     - name: make
       run: make
-    
-    - name: Save APT Cache
-      if: success()
-      uses: actions/cache@v3
-      with:
-        path: /var/cache/apt/archives
-        key: ${{ runner.os }}-apt-cache-${{ github.run_id }}
