@@ -12,25 +12,16 @@ jobs:
       with:
         submodules: recursive
 
-    # Cache APT Packages
-    - name: Cache APT Packages
+    # Cache and install APT Packages
+    - name: Cache and Install APT Packages
       uses: awalsh128/cache-apt-pkgs-action@v1.4.3
       with:
-        key: ${{ runner.os }}-apt-cache-${{ hashFiles('.github/workflows/apt-packages.txt') }}
-
-    # Install dependencies
-    - name: Install required packages
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y make gcc g++ libasio-dev nlohmann-json3-dev
-      env:
-        DEBIAN_FRONTEND: noninteractive
+        packages: make gcc g++ libasio-dev nlohmann-json3-dev
 
     - name: Clone Lib Commune
       run: git clone https://github.com/robotronik/librairie-commune.git ../librairie-commune
 
-    - name: make tests
-      run: make tests
-
-    - name: make
-      run: make
+    - name: Build and run tests
+      run: |
+        make tests
+        make
