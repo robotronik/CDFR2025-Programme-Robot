@@ -12,12 +12,23 @@ jobs:
       uses: actions/checkout@v3
       with:
         submodules: recursive
+
+    # Restore dependencies from cache
+    - name: Cache APT Packages
+      uses: actions/cache@v3
+      with:
+        path: /var/cache/apt/archives
+        key: ${{ runner.os }}-apt-cache-${{ hashFiles('.github/workflows/apt-packages.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-apt-cache-
     
     # Install dependencies
     - name: Install required packages
       run: |
         sudo apt-get update
         sudo apt-get install -y make gcc g++ libasio-dev nlohmann-json3-dev
+      env:
+        DEBIAN_FRONTEND: noninteractive
     
     - name: Clone Lib Commune
       run: git clone https://github.com/robotronik/librairie-commune.git ../librairie-commune
@@ -27,8 +38,9 @@ jobs:
     - name: make
       run: make
     
-    - name: Cache APT Packages
+    - name: Save APT Cache
+      if: success()
       uses: actions/cache@v3
       with:
         path: /var/cache/apt/archives
-        key: ${{ runner.os }}-apt-cache
+        key: ${{ runner.os }}-apt-cache-${{ github.run_id }}
