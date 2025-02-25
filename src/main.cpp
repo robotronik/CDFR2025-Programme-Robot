@@ -19,7 +19,7 @@
 
 // #define EMULATE_CAM
 // #define DISABLE_LIDAR
-// #define TEST_API_ONLY
+#define TEST_API_ONLY
 #define DISABLE_LIDAR_BEACONS
 // #define EMULATE_I2C
 
@@ -253,11 +253,16 @@ int StartSequence()
     int i = 0;
     while(!ctrl_c_pressed){
         sleep(0.1);
-#ifndef DISABLE_LIDAR
-        getData(lidarData, lidar_count);
-#endif
+//#ifndef DISABLE_LIDAR
+        //getData(lidarData, lidar_count);
+//#endif
         if (i % 1000 == 0){
-            arucoCam1.getPos();
+            int x; int y; int t;
+            if (arucoCam1.getPos(x,y,t)){
+                tableStatus.robot.pos.x = x;
+                tableStatus.robot.pos.y = y;
+                tableStatus.robot.pos.theta = t;
+            }
         }
         if (i % 10000 == 0){
             // randomly change the position of highway obstacles
@@ -272,8 +277,8 @@ int StartSequence()
             tableStatus.pos_opponent.y = obs_obj_opponent.pos.y;
 
             // randomly change the position of the robot
-            tableStatus.robot.pos.x = rand() % 1500 - 750;
-            tableStatus.robot.pos.y = rand() % 2200 - 1100;
+            // tableStatus.robot.pos.x = rand() % 1500 - 750;
+            // tableStatus.robot.pos.y = rand() % 2200 - 1100;
 
             // goto a random position
             navigationGoTo(rand() % 1500 - 750, rand() % 2200 - 1100, 0, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, true);
