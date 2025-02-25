@@ -273,7 +273,7 @@ int StartSequence()
 #endif
 
     // TODO Remove (For testing)
-    TestRevolver();
+    // TestRevolver();
 
     currentState = INIT;
     nextState = INIT;
