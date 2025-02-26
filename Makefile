@@ -196,10 +196,10 @@ deploy_tests: check build_arm_lidarLib $(ARM_TEST_TARGET) copy_lidar_arm
 	ssh $(PI_USER)@$(PI_HOST) '(cd $(PI_DIR)/$(ARMBINDIR) && ./tests)'
 
 deploy_install: deploy copy_install_sh
-	ssh $(PI_USER)@$(PI_HOST) '(cd $(PI_DIR)/$(ARMBINDIR) && ./autoRunInstaller.sh --install programCDFR)'
+	ssh $(PI_USER)@$(PI_HOST) '(cd $(PI_DIR)/$(ARMBINDIR) && sudo ./autoRunInstaller.sh --install programCDFR)'
 
 deploy_uninstall: copy_install_sh
-	ssh $(PI_USER)@$(PI_HOST) '(cd $(PI_DIR)/$(ARMBINDIR) && ./autoRunInstaller.sh --uninstall programCDFR)'
+	ssh $(PI_USER)@$(PI_HOST) '(cd $(PI_DIR)/$(ARMBINDIR) && sudo ./autoRunInstaller.sh --uninstall programCDFR)'
 
 run: deploy
 	ssh $(PI_USER)@$(PI_HOST) '$(PI_DIR)/$(ARM_TARGET)'
