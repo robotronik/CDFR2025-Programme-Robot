@@ -14,10 +14,12 @@
 #include "utils/logger.hpp"
 #include "restAPI/restAPI.hpp"
 #include "navigation/highways.h"
+#include "vision/ArucoCam.hpp"
 #include "actions/revolver.hpp" // TODO Remove (For testing)
 
+// #define EMULATE_CAM
 // #define DISABLE_LIDAR
-// #define TEST_API_ONLY
+#define TEST_API_ONLY
 #define DISABLE_LIDAR_BEACONS
 // #define EMULATE_I2C
 
@@ -35,6 +37,12 @@ Arduino arduino(-1);
 #endif
 
 Lidar lidar;
+
+#ifndef EMULATE_CAM
+ArucoCam arucoCam1(0, "data/brio3.yaml");
+#else
+ArucoCam arucoCam1(-1, "data/cam0.yml");
+#endif
 
 main_State_t currentState;
 main_State_t nextState;
@@ -239,13 +247,23 @@ int StartSequence()
 
 #ifdef TEST_API_ONLY
     TestAPIServer();
+    sleep(4);
     // Wait for program termination
+    LOG_DEBUG("Starting main debug loop");
     int i = 0;
     while(!ctrl_c_pressed){
         sleep(0.1);
-#ifndef DISABLE_LIDAR
-        getData(lidarData, lidar_count);
-#endif
+//#ifndef DISABLE_LIDAR
+        //getData(lidarData, lidar_count);
+//#endif
+        if (i % 1000 == 0){
+            int x; int y; int t;
+            if (arucoCam1.getPos(x,y,t)){
+                tableStatus.robot.pos.x = x;
+                tableStatus.robot.pos.y = y;
+                tableStatus.robot.pos.theta = t;
+            }
+        }
         if (i % 10000 == 0){
             // randomly change the position of highway obstacles
             for (int i = 0; i < 1; i++){
@@ -259,8 +277,8 @@ int StartSequence()
             tableStatus.pos_opponent.y = obs_obj_opponent.pos.y;
 
             // randomly change the position of the robot
-            tableStatus.robot.pos.x = rand() % 1500 - 750;
-            tableStatus.robot.pos.y = rand() % 2200 - 1100;
+            // tableStatus.robot.pos.x = rand() % 1500 - 750;
+            // tableStatus.robot.pos.y = rand() % 2200 - 1100;
 
             // goto a random position
             navigationGoTo(rand() % 1500 - 750, rand() % 2200 - 1100, 0, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, true);
