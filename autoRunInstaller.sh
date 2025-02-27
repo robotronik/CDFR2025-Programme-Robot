@@ -58,6 +58,9 @@ WantedBy=multi-user.target
     # Recharge systemd pour prendre en compte les modifications
     sudo systemctl daemon-reload
 
+    # Unmask the service if it's masked
+    sudo systemctl unmask "${program_name}.service"
+
     # Active le service pour qu'il démarre automatiquement au démarrage
     sudo systemctl enable "${program_name}.service"
 
