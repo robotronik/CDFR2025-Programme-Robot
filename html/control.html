@@ -147,6 +147,9 @@
         </div>
     </div>
 
+    <!-- Error messages will go here (bottom of the page) -->
+    <div id="alertPlaceholder"></div>
+
     <script>
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
@@ -213,7 +216,7 @@
             })                
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
-                alert(error);
+                appendAlert(error, 'danger');
             });
         }
         
@@ -247,7 +250,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
-                alert(error);
+                appendAlert(error, 'danger');
             });
         }
 
@@ -281,7 +284,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
-                alert(error);
+                appendAlert(error, 'danger');
             });
         }
 
@@ -309,7 +312,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
-                alert(error);
+                appendAlert(error, 'danger');
             });
         }
         
@@ -336,7 +339,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
-                alert(error);
+                appendAlert(error, 'danger');
             });
         }
 
@@ -363,7 +366,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
-                alert(error);
+                appendAlert(error, 'danger');
             });
         }
 
@@ -390,7 +393,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
-                alert(error);
+                appendAlert(error, 'danger');
             });
         }
 
@@ -415,9 +418,27 @@
             })
             .catch((error) => {
                 console.error('Error:', error); // Handle errors
-                alert(error);
+                appendAlert(error, 'danger');
             });
         }
+
+        // Live alert implementation 
+        const alertPlaceholder = document.getElementById('alertPlaceholder')
+        function appendAlert(message, type) {
+            const wrapper = document.createElement('div')
+            wrapper.innerHTML = [
+            `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+            `   <div>${message}</div>`,
+            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+            '</div>'
+            ].join('')
+            setTimeout(function() {
+                wrapper.classList.add('fade');
+                setTimeout(function() {wrapper.remove();}, 1000); 
+            }, 5000)
+            alertPlaceholder.append(wrapper)
+        }
+
     </script>
 
     <!-- Bootstrap JS and dependencies -->
