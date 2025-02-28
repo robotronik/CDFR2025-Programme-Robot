@@ -17,7 +17,7 @@ pid_t startPythonProgram(char** args);
 void stopPythonProgram(pid_t pid);
 bool restAPI_GET(const std::string &url, const std::string &resquest, json &response);
 
-ArucoCam::ArucoCam(int cam_number, char* calibration_file_path) {
+ArucoCam::ArucoCam(int cam_number, const char* calibration_file_path) {
     id = cam_number;
     if (id < 0) {
         pid=-1;
@@ -28,7 +28,7 @@ ArucoCam::ArucoCam(int cam_number, char* calibration_file_path) {
     char *args[] = {
         (char *)"python3",
         (char *)"detect_aruco.py",
-        calibration_file_path,
+        (char *)calibration_file_path,
         (char *)"--api-port",
         (char *)std::to_string(PORT_OFFSET + id).c_str(),
         (char *)"--cam",

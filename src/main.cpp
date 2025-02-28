@@ -17,9 +17,9 @@
 #include "vision/ArucoCam.hpp"
 #include "actions/revolver.hpp" // TODO Remove (For testing)
 
-// #define EMULATE_CAM
+#define EMULATE_CAM
 // #define DISABLE_LIDAR
-#define TEST_API_ONLY
+// #define TEST_API_ONLY
 #define DISABLE_LIDAR_BEACONS
 // #define EMULATE_I2C
 
@@ -41,7 +41,7 @@ Lidar lidar;
 #ifndef EMULATE_CAM
 ArucoCam arucoCam1(0, "data/brio3.yaml");
 #else
-ArucoCam arucoCam1(-1, "data/cam0.yml");
+ArucoCam arucoCam1(-1, "");
 #endif
 
 main_State_t currentState;

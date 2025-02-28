@@ -178,16 +178,19 @@ position_float_t sol_eq_2cercle(position_float_t A, double RA, position_float_t 
     // Calcul des coordonnées du point d'intersection P2
     double a = (RA * RA - RB * RB + d * d) / (2 * d);
     double h = sqrt(RA * RA - a * a);
-    double x2 = A.x + a * (B.x - A.x) / d;
-    double y2 = A.y + a * (B.y - A.y) / d;
+    float x2 = A.x + (float)(a * (B.x - A.x) / d);
+    float y2 = A.y + (float)(a * (B.y - A.y) / d);
 
     // Points d'intersection
-    position_float_t P1 = {x2 + h * (B.y - A.y) / d, y2 - h * (B.x - A.x) / d};
-    position_float_t P2 = {x2 - h * (B.y - A.y) / d, y2 + h * (B.x - A.x) / d};
+    position_float_t P1 = {x2 + (float)(h * (B.y - A.y) / d), 
+                            y2 - (float)(h * (B.x - A.x) / d)};
+    position_float_t P2 = {x2 - (float)(h * (B.y - A.y) / d), 
+                            y2 + (float)(h * (B.x - A.x) / d)};
 
     if (in_table(P2)) return P2;
     if (in_table(P1)) return P1;
     //else {printf("\nles deux sont sur la table");}
+    return P2; // Si les deux sont sur la table
 }
 
 position_float_t position_estime(double alpha12, double alpha23, double alpha31, double angle_poto2, int d01, int d02,int d03) {       
@@ -206,14 +209,18 @@ position_float_t position_estime(double alpha12, double alpha23, double alpha31,
     position_float_t M = {(bal_1.x + bal_2.x) / 2, (bal_1.y + bal_2.y) / 2}; // Calcul du milieu du segment AB
     double d = sqrt((bal_2.x - bal_1.x) * (bal_2.x - bal_1.x) + (bal_2.y - bal_1.y) * (bal_2.y - bal_1.y)); // Calcul de la distance entre A et B
     double h = sqrt(R1 * R1 - (d / 2) * (d / 2)); // Calcul de la distance du milieu au centre
-    position_float_t C = {M.x - h * (bal_2.y - bal_1.y) / d, M.y + h * (bal_2.x - bal_1.x) / d}; // Calcul des centres possibles
-    position_float_t C11 = {M.x + h * (bal_2.y - bal_1.y) / d, M.y - h * (bal_2.x - bal_1.x) / d}; // Calcul des centres possibles
+    position_float_t C = {M.x - (float)(h * (bal_2.y - bal_1.y) / d), 
+                            M.y + (float)(h * (bal_2.x - bal_1.x) / d)}; // Calcul des centres possibles
+    position_float_t C11 = {M.x + (float)(h * (bal_2.y - bal_1.y) / d), 
+                            M.y - (float)(h * (bal_2.x - bal_1.x) / d)}; // Calcul des centres possibles
 
     position_float_t M2 = {(bal_3.x + bal_2.x) / 2, (bal_3.y + bal_2.y) / 2}; // Calcul du milieu du segment AB
     double d2 = sqrt((bal_2.x - bal_3.x) * (bal_2.x - bal_3.x) + (bal_2.y - bal_3.y) * (bal_2.y - bal_3.y)); // Calcul de la distance entre A et B
     double h2 = sqrt(R2 * R2 - (d2 / 2) * (d2 / 2)); // Calcul de la distance du milieu au centre
-    position_float_t C2 = {M2.x - h2 * (bal_2.y - bal_3.y) / d2, M2.y + h2* (bal_2.x - bal_3.x) / d2}; // Calcul des centres possibles
-    position_float_t C22 = {M2.x + h2 * (bal_2.y - bal_3.y) / d2, M2.y - h2* (bal_2.x - bal_3.x) / d2}; // Calcul des centres possibles
+    position_float_t C2 = {M2.x - (float)(h2 * (bal_2.y - bal_3.y) / d2), 
+                            M2.y + (float)(h2* (bal_2.x - bal_3.x) / d2)}; // Calcul des centres possibles
+    position_float_t C22 = {M2.x + (float)(h2 * (bal_2.y - bal_3.y) / d2), 
+                            M2.y - (float)(h2* (bal_2.x - bal_3.x) / d2)}; // Calcul des centres possibles
 
     position_float_t robot[4];
     robot[0] = sol_eq_2cercle(C,R1,C2,R2);
@@ -373,30 +380,40 @@ void init_position_balise(lidarAnalize_t* data, int count, position_t *position)
         double d_3_1 = distance_2_pts(array[index_poto3]->moy_dist, array[index_poto3]->moy_angle, array[index_poto1]->moy_dist, array[index_poto1]->moy_angle);
         distance = fabs(d_1_2-poto_1_2) + fabs(d_2_3-poto_2_3) + fabs(d_3_1-poto_3_1);
         
-        deg1 = array[index_poto1]->moy_angle;deg2 = array[index_poto2]->moy_angle;deg3 = array[index_poto3]->moy_angle;
-        if ((deg1 < deg3 && deg3< deg2) or (deg3 < deg2 && deg2 < deg1)or (deg2<deg1&& deg1<deg3));
-        else {int temp = index_poto1;index_poto1 = index_poto2;index_poto2 = temp;}
+        deg1 = array[index_poto1]->moy_angle;
+        deg2 = array[index_poto2]->moy_angle;
+        deg3 = array[index_poto3]->moy_angle;
+
+        if ((deg1 < deg3 && deg3< deg2) || (deg3 < deg2 && deg2 < deg1) || (deg2<deg1&& deg1<deg3));
+        else {
+            int temp = index_poto1;
+            index_poto1 = index_poto2;
+            index_poto2 = temp;
+        }
         //printf("\n D1 = %f / D2 = %f / D3 = %f / d_1_2 = %f / d_2_3 = %f / d_3_1 = %f / distance = %f",d1,d2,d3, d_1_2, d_2_3, d_3_1,distance);
         
-        if (distance > 100) {return;}
+        if (distance > 100) 
+            return;
         double angle1,angle2, angle3;
         angle1 = array[index_poto1]->moy_angle - array[index_poto2]->moy_angle;
         angle2 = array[index_poto2]->moy_angle - array[index_poto3]->moy_angle;
         angle3 = array[index_poto3]->moy_angle - array[index_poto1]->moy_angle;
-        if (angle1 <0) angle1 += 360;if (angle2 < 0) angle2 += 360; if (angle3 < 0) angle3 += 360;
-
+        if (angle1 <0) 
+            angle1 += 360;
+        if (angle2 < 0)
+            angle2 += 360;
+        if (angle3 < 0)
+            angle3 += 360;
         
         printf("\n angle = %f / %f / %f / somme = %f", angle1, angle3, angle2, angle1 + angle2 + angle3 - 360);
         //position_float_t pos_robot = position_estime(angle1,angle2,angle3,array[index_poto2]->moy_angle,array[index_poto1]->moy_dist,array[index_poto2]->moy_dist,array[index_poto3]->moy_dist);
         position_float_t pos_robot = position_estime2(angle1*M_PI/180,angle3*M_PI/180,angle2*M_PI/180);
         
         printf("\n X = %f / y = %f / angle = %f\n\n", pos_robot.x,pos_robot.y, pos_robot.angle);
-
-    
     }
     // Libération de la mémoire
-    for (int i = 0; i < rows; ++i) {
-        delete array[i];}
+    for (int i = 0; i < rows; ++i)
+        delete array[i];
     delete[] array;
 }
 
