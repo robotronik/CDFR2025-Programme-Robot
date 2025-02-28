@@ -107,16 +107,16 @@ bool run_lidar_opponent_test(std::string testName, std::string data_file_name, p
     convertAngularToAxial(lidarData, lidar_count, &robot_pos, 50);
 
     if (position_opponentV2(lidarData, lidar_count, robot_pos, &pos_opponent)){
-        std::cout << testName << " Found opponent_pos\t= {\tx=" << pos_opponent.x << ",\ty=" << pos_opponent.y << " }" << std::endl;
-        std::cout << testName << " Expects opponent_pos\t= {\tx=" << expected_opponent_pos.x << ",\ty=" << expected_opponent_pos.y << " }" << std::endl;
+        LOG_INFO(testName, " Found opponent_pos\t= {\tx=", pos_opponent.x, ",\ty=", pos_opponent.y, " }");
+        LOG_INFO(testName, " Expects opponent_pos\t= {\tx=", expected_opponent_pos.x, ",\ty=", expected_opponent_pos.y, " }");
         test_passed = std::abs(pos_opponent.x - expected_opponent_pos.x) < tolerance &&
                     std::abs(pos_opponent.y - expected_opponent_pos.y) < tolerance;
     }
     else{        
-        std::cout << testName << " Did not find any opponent" << std::endl;
+        LOG_INFO(testName, " Did not find any opponent");
         test_passed = !has_opponent;
     }
-    std::cout << testName << (test_passed ? " passed!" : " failed!") << std::endl;
+    LOG_INFO(testName, (test_passed ? " passed!" : " failed!"));
     return test_passed;
 }
 bool run_lidar_beacons_test(std::string testName, std::string data_file_name, position_t expected_robot_pos, colorTeam_t expected_color) {
@@ -146,9 +146,9 @@ bool run_lidar_beacons_test(std::string testName, std::string data_file_name, po
                 std::abs(delta_angle(robot_pos.theta, expected_robot_pos.theta)) < angle_tolerance &&
                 color_team != NONE && color_team == expected_color;
 
-    std::cout << testName << " Found robot_pos\t= { x=" << robot_pos.x << ",\ty=" << robot_pos.y << ",\ttheta=" << robot_pos.theta <<" }" << std::endl;
-    std::cout << testName << " Expects robot_pos\t= { x=" << expected_robot_pos.x << ",\ty=" << expected_robot_pos.y << ",\ttheta=" << expected_robot_pos.theta <<" }" << std::endl;
-    std::cout << testName << (test_passed ? " passed!" : " failed!") << std::endl;
+    LOG_INFO(testName, " Found robot_pos\t= { x=", robot_pos.x, ",\ty=", robot_pos.y, ",\ttheta=", robot_pos.theta," }");
+    LOG_INFO(testName, " Expects robot_pos\t= { x=", expected_robot_pos.x, ",\ty=", expected_robot_pos.y, ",\ttheta=", expected_robot_pos.theta," }");
+    LOG_INFO(testName, (test_passed ? " passed!" : " failed!"));
     return test_passed;
 }
 
