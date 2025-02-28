@@ -190,6 +190,7 @@ position_float_t sol_eq_2cercle(position_float_t A, double RA, position_float_t 
     if (in_table(P2)) return P2;
     if (in_table(P1)) return P1;
     //else {printf("\nles deux sont sur la table");}
+    return P2; // Si les deux sont sur la table
 }
 
 position_float_t position_estime(double alpha12, double alpha23, double alpha31, double angle_poto2, int d01, int d02,int d03) {       
