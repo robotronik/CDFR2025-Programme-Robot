@@ -129,6 +129,22 @@ et mettre
 dtoverlay=vc4-kms-dsi-waveshare-panel,8_8_inch
 ```
 
+
+If you’re running the Raspberry Pi OS with its default desktop, you can add your command to the autostart file so it launches once the X session starts.
+
+Edit the Autostart File:
+Open (or create if it doesn’t exist) the file:
+
+```bash
+/home/pi/.config/lxsession/LXDE-pi/autostart
+```
+Add Your Command:
+
+```bash
+@/usr/bin/chromium-browser --kiosk http://0.0.0.0:8080/robot --incognito --disable-extensions
+```
+Save and Reboot
+
 ## Actions and Actuators
 
 (in code, theyre called banner, stocks, columns, platforms and tribunes)
