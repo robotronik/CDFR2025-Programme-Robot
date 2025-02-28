@@ -304,8 +304,8 @@ double point_to_segment_distance(highway_point p, highway_point v, highway_point
     t = fmax(0, fmin(1, t));
 
     highway_point projection = {
-        .x = v.x + t * (w.x - v.x),
-        .y = v.y + t * (w.y - v.y)
+        .x = v.x + (int)(t * (w.x - v.x)),
+        .y = v.y + (int)(t * (w.y - v.y))
     };
 
     return distance(p, projection);
