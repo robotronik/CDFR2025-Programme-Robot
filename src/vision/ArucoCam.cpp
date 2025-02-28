@@ -28,7 +28,7 @@ ArucoCam::ArucoCam(int cam_number, const char* calibration_file_path) {
     char *args[] = {
         (char *)"python3",
         (char *)"detect_aruco.py",
-        calibration_file_path,
+        (char *)calibration_file_path,
         (char *)"--api-port",
         (char *)std::to_string(PORT_OFFSET + id).c_str(),
         (char *)"--cam",
