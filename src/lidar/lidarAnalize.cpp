@@ -178,8 +178,8 @@ position_float_t sol_eq_2cercle(position_float_t A, double RA, position_float_t 
     // Calcul des coordonnées du point d'intersection P2
     double a = (RA * RA - RB * RB + d * d) / (2 * d);
     double h = sqrt(RA * RA - a * a);
-    double x2 = A.x + a * (B.x - A.x) / d;
-    double y2 = A.y + a * (B.y - A.y) / d;
+    float x2 = A.x + (float)(a * (B.x - A.x) / d);
+    float y2 = A.y + (float)(a * (B.y - A.y) / d);
 
     // Points d'intersection
     position_float_t P1 = {x2 + (float)(h * (B.y - A.y) / d), 

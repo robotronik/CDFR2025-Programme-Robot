@@ -6,11 +6,15 @@
 #include "defs/structs.hpp"
 #include "defs/constante.h"
 
+#define LIDAR_UNIT_TEST(x) numTests++; if(!(x)) {LOG_WARNING("Test failed on line ", __LINE__ );} else {numPassed++;}
+
 bool run_lidar_opponent_test(std::string testName, std::string data_file_name, position_t robot_pos, position_t expected_opponent_pos, bool has_opponent);
 bool run_lidar_beacons_test(std::string testName, std::string data_file_name, position_t expected_robot_pos, colorTeam_t expected_color);
 int loadLidarJson(std::string filename, lidarAnalize_t* lidarData);
 
 bool test_lidar_opponent() {
+    int numPassed = 0;
+    int numTests = 0;
     position_t robot_pos = {0, 0, 0};
     position_t expected_opponent_pos = {0, 0, 0};
     // Test 1
@@ -20,8 +24,7 @@ bool test_lidar_opponent() {
         robot_pos.theta = 0;
         expected_opponent_pos.x = 340;
         expected_opponent_pos.y = 340;    
-        if (!run_lidar_opponent_test("Lidar Opponent Case 1", "lidar/opponent42cm45degLeft.json", robot_pos, expected_opponent_pos, true))
-            return false;
+        LIDAR_UNIT_TEST(!run_lidar_opponent_test("Lidar Opponent Case 1", "lidar/opponent42cm45degLeft.json", robot_pos, expected_opponent_pos, true))
     }
 
     // Test 2
@@ -31,8 +34,7 @@ bool test_lidar_opponent() {
         robot_pos.theta = 0;
         expected_opponent_pos.x = 300;
         expected_opponent_pos.y = 0;  
-        if (!run_lidar_opponent_test("Lidar Opponent Case 2", "lidar/opponent30cmFront.json", robot_pos, expected_opponent_pos, true))
-            return false;
+        LIDAR_UNIT_TEST(!run_lidar_opponent_test("Lidar Opponent Case 2", "lidar/opponent30cmFront.json", robot_pos, expected_opponent_pos, true))
     }
 
     // Test 3
@@ -41,8 +43,7 @@ bool test_lidar_opponent() {
         robot_pos.x = 0;
         robot_pos.y = 0;
         robot_pos.theta = 0;    
-        if (!run_lidar_opponent_test("Lidar Opponent Case 3", "lidar/opponentNone.json", robot_pos, expected_opponent_pos, false))
-            return false;
+        LIDAR_UNIT_TEST(!run_lidar_opponent_test("Lidar Opponent Case 3", "lidar/opponentNone.json", robot_pos, expected_opponent_pos, false))
     }
 
     // Test 4
@@ -52,8 +53,7 @@ bool test_lidar_opponent() {
         robot_pos.theta = 90;
         expected_opponent_pos.x = 200;
         expected_opponent_pos.y = 1350;
-        if (!run_lidar_opponent_test("Lidar Opponent Case 4", "lidar/opponent190cmFront.json", robot_pos, expected_opponent_pos, true))
-            return false;
+        LIDAR_UNIT_TEST(!run_lidar_opponent_test("Lidar Opponent Case 4", "lidar/opponent190cmFront.json", robot_pos, expected_opponent_pos, true))
     }
 
     // Test 5
@@ -63,39 +63,34 @@ bool test_lidar_opponent() {
         robot_pos.theta = 0;
         expected_opponent_pos.x = 0;
         expected_opponent_pos.y = -1500;
-        if (!run_lidar_opponent_test("Lidar Opponent Case 5", "lidar/opponent190cm90degRight.json", robot_pos, expected_opponent_pos, true))
-            return false;
+        LIDAR_UNIT_TEST(!run_lidar_opponent_test("Lidar Opponent Case 5", "lidar/opponent190cm90degRight.json", robot_pos, expected_opponent_pos, true))
     }
-    return true;
+    return numPassed == numTests;
 }
 
 bool test_lidar_beacons() {
+    int numPassed = 0;
+    int numTests = 0;
     // test the transform_coordinates function
     //double x, y, t;
     //transform_coordinates(100, 0, 0, 0, 0, -45, &x, &y, &t);
     //printf("\n\n\npos is %lf , %lf\n\n\n", x, y);
     //return true;
 
-
     position_t expected_robot_pos = {0, 0, 0};
-    // Test 1
     {
         expected_robot_pos.x = 0;
         expected_robot_pos.y = 0;
         expected_robot_pos.theta = 0;  
-        if (!run_lidar_beacons_test("Lidar Beacons Case 1", "lidar/beaconsCenterBlue.json", expected_robot_pos, BLUE));
-            //return false;
+        LIDAR_UNIT_TEST(!run_lidar_beacons_test("Lidar Beacons Case 1", "lidar/beaconsCenterBlue.json", expected_robot_pos, BLUE))
     }
-    // Test 2
     {
         expected_robot_pos.x = -400;
         expected_robot_pos.y = 0;
         expected_robot_pos.theta = 0;  
-        if (!run_lidar_beacons_test("Lidar Beacons Case 2", "lidar/beacons40cmUpBlue.json", expected_robot_pos, BLUE))
-            return false;
+        LIDAR_UNIT_TEST(!run_lidar_beacons_test("Lidar Beacons Case 2", "lidar/beacons40cmUpBlue.json", expected_robot_pos, BLUE))
     }
-
-    return true;
+    return numPassed == numTests;
 }
 
 bool run_lidar_opponent_test(std::string testName, std::string data_file_name, position_t robot_pos, position_t expected_opponent_pos, bool has_opponent) {

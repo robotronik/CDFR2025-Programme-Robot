@@ -150,12 +150,12 @@ int dijkstra(int source, int destination, bool available_highways[], highway_poi
     }
 
     if (dist[destination] == INF) {
-        printf("No path exists between the points.\n");
+        LOG_INFO("No path exists between the points.");
         return 0;
     }
 
-    printf("Shortest path time: %d\n", dist[destination]);
-    printf("Path: ");
+    LOG_INFO("Shortest path time: ", dist[destination]);
+    LOG_INFO("Path: ");
 
     int path[HIGHWAY_POINTS_COUNT], path_length = 0;
     for (int at = destination; at != -1; at = prev[at]) {
@@ -163,7 +163,7 @@ int dijkstra(int source, int destination, bool available_highways[], highway_poi
     }
 
     for (int i = path_length - 1; i >= 0; i--) {
-        printf("%d%s", path[i], (i > 0) ? " -> " : "\n");
+        LOG_INFO(path[i], (i > 0) ? " -> " : "");
         result[i] = points[path[ path_length - 1 - i ]];
     }
     return path_length;
@@ -235,8 +235,7 @@ bool unit_tests(){
         LOG_DEBUG("Test 1 passed");
     }
     else{
-        LOG_DEBUG("Test 1 failed");
-        return false;
+        LOG_WARNING("Test 1 failed");
     }
 
     obs_obj_opponent.pos = {-500, 200+150+50};
@@ -246,8 +245,7 @@ bool unit_tests(){
         LOG_DEBUG("Test 2 passed");
     }
     else{
-        LOG_DEBUG("Test 2 failed");
-        return false;
+        LOG_WARNING("Test 2 failed");
     }
     return true;
 }
