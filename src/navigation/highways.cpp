@@ -163,7 +163,7 @@ int dijkstra(int source, int destination, bool available_highways[], highway_poi
     }
 
     for (int i = path_length - 1; i >= 0; i--) {
-        LOG_INFO(path[i], (i > 0) ? " -> " : "");
+        std::cout << path[i] << (i > 0) ? " -> " : "";
         result[i] = points[path[ path_length - 1 - i ]];
     }
     return path_length;
@@ -279,7 +279,7 @@ bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line){
     case highway_obstruction_object_type::Square:
         return (does_square_touch_highway(*obs, line));    
     default:
-        printf("Not yet implemented obstacle type\n");
+        LOG_ERROR("Not yet implemented obstacle type");
         return false;
         break;
     }
