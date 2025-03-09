@@ -120,30 +120,33 @@ void navigationOpponentDetection(){
     double margin = 10.0; 
 
     // calculate the stuff we need to detect a collision (we put ourselves in the robot's reference frame)
-    double opponentDistance = sqrt(pow(tableStatus.pos_opponent.x - tableStatus.robot.pos.y, 2) + pow(tableStatus.pos_opponent.y - tableStatus.robot.pos.y, 2));
+    int delta_x = tableStatus.pos_opponent.x - tableStatus.robot.pos.x;
+    int delta_y = tableStatus.pos_opponent.y - tableStatus.robot.pos.y;
+    
+    // double AngleTowards(position_t from, position_t to){
+    //     
+    // }
+
+    // double Distance(position_t from, position_t to){
+
+    double opponentDistance = sqrt(pow(delta_x, 2) + pow(delta_y, 2));
     double targetAngle = atan2(tableStatus.robot.target.y - tableStatus.robot.pos.y, tableStatus.robot.target.x - tableStatus.robot.pos.x);
-    double opponentAngle = atan2(tableStatus.pos_opponent.y - tableStatus.robot.pos.y, tableStatus.pos_opponent.x - tableStatus.robot.pos.x);
-    double angleInterval = atan((opponentRadius + margin)/opponentDistance); 
+    double opponentAngle = atan2(delta_y, delta_x);
+    // We calculate the percieved angle of the opponent, and the angle interval in which we are endangered
+    double angleInterval = atan2((opponentRadius + margin), opponentDistance); 
     
     bool isEndangered = false;
-    switch ((Direction)tableStatus.robot.direction_side)
-    {
-        case Direction::FORWARD:
-            if((targetAngle < opponentAngle + angleInterval) && (targetAngle > opponentAngle - angleInterval)) // we aren't moving towards the opponent
-                isEndangered = false;
-            else 
-                isEndangered = tableStatus.robot.braking_distance > opponentDistance - opponentRadius - margin; // we are moving towards the opponent, check whether our target is accessible or not
-            break;
-        case Direction::BACKWARD:
-            if((targetAngle < opponentAngle + angleInterval) && (targetAngle > opponentAngle - angleInterval)) // we aren't moving towards the opponent
-                isEndangered = false;
-            else 
-                isEndangered = tableStatus.robot.braking_distance > opponentDistance - opponentRadius - margin; // we are moving towards the opponent, check whether our target is accessible or not
-            break;
-        case Direction::NONE: // we are not actively moving
-            break;
-        default:
-            break;
+
+    double min_angle = opponentAngle - angleInterval;
+    if (min_angle < -M_PI) min_angle += 2*M_PI; // wrap around
+    double max_angle = opponentAngle + angleInterval;
+    if (max_angle > M_PI) max_angle -= 2*M_PI;
+
+    if (tableStatus.robot.braking_distance > opponentDistance - opponentRadius - margin) {
+        isEndangered = (targetAngle < max_angle) && (targetAngle > min_angle); // if the target is in the interval, we are endangered
+    }
+    else {
+        isEndangered = false;
     }
 
     // stop the robot if it is endangered
