@@ -163,7 +163,7 @@ int dijkstra(int source, int destination, bool available_highways[], highway_poi
     }
 
     for (int i = path_length - 1; i >= 0; i--) {
-        std::cout << path[i] << (i > 0) ? " -> " : "";
+        std::cout << path[i] << ((i > 0) ? " -> " : "");
         result[i] = points[path[ path_length - 1 - i ]];
     }
     return path_length;
