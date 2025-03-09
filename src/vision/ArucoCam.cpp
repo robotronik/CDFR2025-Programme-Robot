@@ -21,6 +21,7 @@ ArucoCam::ArucoCam(int cam_number, const char* calibration_file_path) {
     id = cam_number;
     if (id < 0) {
         pid=-1;
+        status = true;
         LOG_INFO("Emulating ArucoCam");
         return;
     }
@@ -60,12 +61,12 @@ bool ArucoCam::getPos(int & x, int & y, int & theta) {
         return false;
     }
 
-    LOG_DEBUG("Fetching position from ArucoCam ", id);
+    // LOG_DEBUG("Fetching position from ArucoCam ", id);
     // Calls /position rest api endpoint of the ArucoCam API
     // Returns true if the call was successful, false otherwise
     if (id < 0) {
         // TODO change this to return a random position
-        return true;
+        return false;
     }
     json response;
     if (restAPI_GET(url, "/position", response) == false) {
