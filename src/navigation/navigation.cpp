@@ -133,7 +133,6 @@ void navigationOpponentDetection(){
     bool isEndangered = false;
 
     if (dir != Direction::NONE){
-        double opponentRadius = 25.0; //TODO
         // Using the braking distance to calculate a point in front of the robot andh checking if the opponent is in the way
         position_t brakingPoint = tableStatus.robot.pos;
         double brakingDistance = tableStatus.robot.braking_distance + ROBOT_WIDTH / 2;
@@ -147,7 +146,7 @@ void navigationOpponentDetection(){
         // Check if the opponent is in the way
         isEndangered = point_to_segment_distance(tableStatus.pos_opponent, 
                                                 tableStatus.robot.pos, brakingPoint) 
-                                        <= opponentRadius + ROBOT_WIDTH / 2;
+                                        <= OPPONENT_ROBOT_RADIUS + ROBOT_WIDTH / 2;
     }
 
     // stop the robot if it is endangered

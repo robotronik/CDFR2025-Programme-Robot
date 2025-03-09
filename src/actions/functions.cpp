@@ -241,7 +241,6 @@ bool m_isPointInsideRectangle(float px, float py, float cx, float cy, float w, f
 }
 
 void opponentInAction(position_t position){ //TODO : Check if this is correct
-    const int OPPONENT_ROBOT_RADIUS = 200; //200mm
     for (int i = 0; i < STOCK_COUNT; i++){
         if (tableStatus.avail_stocks[i] == false)
             continue;

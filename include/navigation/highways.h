@@ -8,10 +8,6 @@ using json = nlohmann::json;
 
 #define INF INT_MAX
 
-//Robot width in mm
-#define ROBOT_WIDTH 300
-
-
 typedef struct{
     int x, y;
 } highway_point;

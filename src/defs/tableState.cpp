@@ -27,7 +27,7 @@ void TableState::reset(){
 
 int TableState::getScore()
 {
-    int totalScore = 1;
+    int totalScore = 1; //TODO
     for (int i = 0; i < 10; i++){
         switch (builtTribuneHeights[i])
         {
