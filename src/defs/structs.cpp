@@ -1,6 +1,20 @@
 #include "defs/structs.hpp"
 #include <math.h>
 
+
+// Define a function to calculate the angle in rads from and to a position_t
+double position_angle(position_t from, position_t to){
+    // Calculates the angle between the two points
+    return atan2(to.y - from.y, to.x - from.x);
+}
+
+// Define a function to calculate the distance from and to a position_t
+double position_distance(position_t from, position_t to){
+    // Calculates the position between the two points
+    return sqrt(pow(to.x - from.x, 2) + pow(to.y - from.y, 2));
+}
+
+
 //Define serialization for position_t
 void to_json(json& j, const position_t& p) {
     j = json{

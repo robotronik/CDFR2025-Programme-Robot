@@ -109,44 +109,45 @@ void navigation_path_json(json& j){
     }
 }
 
+
+
+// Function to calculate the shortest distance from a point to a line segment
+double point_to_segment_distance(position_t center, position_t p1, position_t p2) {
+    double l2 = position_distance(p1, p2) * position_distance(p1, p2);
+    if (l2 == 0.0) return position_distance(center, p1);
+
+    double t = ((center.x - p1.x) * (p2.x - p1.x) + (center.y - p1.y) * (p2.y - p1.y)) / l2;
+    t = fmax(0, fmin(1, t));
+
+    position_t projection = {
+        .x = p1.x + (int)(t * (p2.x - p1.x)),
+        .y = p1.y + (int)(t * (p2.y - p1.y))
+    };
+
+    return position_distance(center, projection);
+}
+
 void navigationOpponentDetection(){
-    // This is where it disables the robot in case it might collide with the opponent
-    // Called from main, start of main fsm
 
-    // perhaps it would be possible to predict the opponent's movement as well for more accurate detection?
-
-    // TODO find real values (approximate the opponent with a circle of radius opponent_width, and give ourselves a safety margin (our own's robot radius?))
-    double opponentRadius = 10.0; 
-    double margin = 10.0; 
-
-    // calculate the stuff we need to detect a collision (we put ourselves in the robot's reference frame)
-    int delta_x = tableStatus.pos_opponent.x - tableStatus.robot.pos.x;
-    int delta_y = tableStatus.pos_opponent.y - tableStatus.robot.pos.y;
-    
-    // double AngleTowards(position_t from, position_t to){
-    //     
-    // }
-
-    // double Distance(position_t from, position_t to){
-
-    double opponentDistance = sqrt(pow(delta_x, 2) + pow(delta_y, 2));
-    double targetAngle = atan2(tableStatus.robot.target.y - tableStatus.robot.pos.y, tableStatus.robot.target.x - tableStatus.robot.pos.x);
-    double opponentAngle = atan2(delta_y, delta_x);
-    // We calculate the percieved angle of the opponent, and the angle interval in which we are endangered
-    double angleInterval = atan2((opponentRadius + margin), opponentDistance); 
-    
+    Direction dir = (Direction)(tableStatus.robot.direction_side);
     bool isEndangered = false;
 
-    double min_angle = opponentAngle - angleInterval;
-    if (min_angle < -M_PI) min_angle += 2*M_PI; // wrap around
-    double max_angle = opponentAngle + angleInterval;
-    if (max_angle > M_PI) max_angle -= 2*M_PI;
+    if (dir != Direction::NONE){
+        double opponentRadius = 25.0; //TODO
+        // Using the braking distance to calculate a point in front of the robot andh checking if the opponent is in the way
+        position_t brakingPoint = tableStatus.robot.pos;
+        double brakingDistance = tableStatus.robot.braking_distance + ROBOT_WIDTH / 2;
+        if (dir == Direction::BACKWARD){
+            brakingDistance = -brakingDistance;
+        } 
 
-    if (tableStatus.robot.braking_distance > opponentDistance - opponentRadius - margin) {
-        isEndangered = (targetAngle < max_angle) && (targetAngle > min_angle); // if the target is in the interval, we are endangered
-    }
-    else {
-        isEndangered = false;
+        brakingPoint.x += brakingDistance * cos((double)(tableStatus.robot.pos.theta) * DEG_TO_RAD);
+        brakingPoint.y += brakingDistance * sin((double)(tableStatus.robot.pos.theta) * DEG_TO_RAD);
+
+        // Check if the opponent is in the way
+        isEndangered = point_to_segment_distance(tableStatus.pos_opponent, 
+                                                tableStatus.robot.pos, brakingPoint) 
+                                        <= opponentRadius + ROBOT_WIDTH / 2;
     }
 
     // stop the robot if it is endangered
