@@ -289,7 +289,7 @@ bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line){
 
 
 // Function to calculate the distance between two points
-double distance(highway_point a, highway_point b) {
+double inline distance(highway_point a, highway_point b) {
     return sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
 }
 

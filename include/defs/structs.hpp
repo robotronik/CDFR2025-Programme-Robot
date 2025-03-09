@@ -59,5 +59,3 @@ typedef struct
 
 // Define serialization for robot_t
 void to_json(json& j, const robot_t& p);
-
-double position_distance(position_t p1, position_t p2);
