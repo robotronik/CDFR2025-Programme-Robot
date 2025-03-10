@@ -47,8 +47,9 @@ WantedBy=multi-user.target
 
     # Vérifie si le service existe déjà
     if [ -f "$service_file" ]; then
-        echo "Le service existe déjà : $service_file"
-        exit 1
+        echo "Le service existe déjà : $service_file . Il sera redémmaré"
+        sudo systemctl restart "${program_name}.service"
+        exit 0
     fi
 
     # Écrit le contenu dans le fichier de service
@@ -57,9 +58,6 @@ WantedBy=multi-user.target
 
     # Recharge systemd pour prendre en compte les modifications
     sudo systemctl daemon-reload
-
-    # Unmask the service if it's masked
-    sudo systemctl unmask "${program_name}.service"
 
     # Active le service pour qu'il démarre automatiquement au démarrage
     sudo systemctl enable "${program_name}.service"
