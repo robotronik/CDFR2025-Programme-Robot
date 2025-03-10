@@ -78,7 +78,7 @@ bool movePlatformLifts(bool inside){
     if (previousInside != inside){
         startTime = _millis(); // Reset the timer
         previousInside = inside;
-        arduino.moveServo(PLATFORMS_LIFT_LEFT_SERVO_NUM, inside ? 90 : 0); // TODO : Check if this is correct
+        arduino.moveServo(PLATFORMS_LIFT_LEFT_SERVO_NUM, inside ? 140 : 50);
         arduino.moveServo(PLATFORMS_LIFT_RIGHT_SERVO_NUM, inside ? 0 : 90);
     }
     return (_millis() > startTime + 1000); // delay
@@ -90,7 +90,7 @@ bool moveTribunePusher(bool outside){
     if (previousOutside != outside){
         startTime = _millis(); // Reset the timer
         previousOutside = outside;
-        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, outside ? 180 : 0); // TODO : Check if this is correct
+        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, outside ? 200 : 0); // TODO : Check if this is correct
     }
     return (_millis() > startTime + 2000); // delay
 }
@@ -274,7 +274,7 @@ void switchTeamSide(colorTeam_t color){
         case YELLOW:
             LOG_INFO("Switching to YELLOW");
             asserv.set_coordinates(-770, 1390, -90);
-            arduino.RGB_Blinking(255, 255, 0);
+            arduino.RGB_Blinking(255, 127, 0);
             break;
         default:
             break;
