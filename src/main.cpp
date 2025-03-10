@@ -136,8 +136,8 @@ int main(int argc, char *argv[])
                 lidar.startSpin();
             }
 
-            colorTeam_t color = readColorSensorSwitch();
-            switchTeamSide(color);
+            // colorTeam_t color = readColorSensorSwitch();
+            // switchTeamSide(color);
 
             if (readLatchSensor())
                 nextState = RUN;
