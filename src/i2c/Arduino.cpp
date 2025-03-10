@@ -18,7 +18,7 @@ Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
 void Arduino::moveServo(int ServoID, int position) {
     LOG_DEBUG("Move servo #", ServoID, " to ", position);
     if (i2cFile == -1) return; // Emulation
-    if (position < 0 || position > 180) {
+    if (position < 0 || position > 250) {
         LOG_ERROR("Servo position out of range");
         return;
     }
