@@ -162,14 +162,14 @@ Defenies dans constante.h
 
 ## RGB Light signals
 
-🔵 **SOLID:**  
+**SOLID:**  
 - 🟢 Green: The robot has finished the match  
 
-⚡ **BLINKING:**  
+**BLINKING:**  
 - 🔴 Red: The program has failed. Restart the robot.  
 - 🔵 Blue: The robot is ready to start as blue  
 - 🟡 Yellow: The robot is ready to start as yellow  
 - 🟣 Purple: The robot is in manual control mode  
 
-🌈 **RAINBOW:**  
-- The robot is waiting for user input
+**RAINBOW:**  
+- 🌈 The robot is waiting for user input
