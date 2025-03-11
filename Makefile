@@ -49,7 +49,7 @@ TEST_OBJ = $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_TEST)/%.o,$(SRC_TEST))
 DEPENDS := $(shell find obj -type f -name '*.d')
 
 
-.PHONY: all clean tests clean-all deploy run
+.PHONY: all clean tests clean-all deploy run deploy-install deploy-uninstall deploy-tests
 
 all: check $(BINDIR) build_lidarLib $(TARGET) $(TEST_TARGET) copy_html copy_lidar copy_aruco
 	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && sudo ./programCDFR)' pour exécuter le programme."
@@ -189,18 +189,18 @@ deploy: check build_arm_lidarLib $(ARM_TARGET) copy_html_arm copy_install_sh cop
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
 
-deploy_tests: check build_arm_lidarLib $(ARM_TEST_TARGET) copy_lidar_arm
+deploy-tests: check build_arm_lidarLib $(ARM_TEST_TARGET) copy_lidar_arm
 	@echo "--------------------------------- Exécution des tests... ---------------------------------"
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
 	ssh $(PI_USER)@$(PI_HOST) '(cd $(PI_DIR)/$(ARMBINDIR) && ./tests)'
 
-deploy_install: deploy copy_install_sh
+deploy-install: deploy copy_install_sh
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
 	ssh $(PI_USER)@$(PI_HOST) '(cd $(PI_DIR)/$(ARMBINDIR) && sudo ./autoRunInstaller.sh --install programCDFR)'
 
-deploy_uninstall: copy_install_sh
+deploy-uninstall: copy_install_sh
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
 	ssh $(PI_USER)@$(PI_HOST) '(cd $(PI_DIR)/$(ARMBINDIR) && sudo ./autoRunInstaller.sh --uninstall programCDFR)'
