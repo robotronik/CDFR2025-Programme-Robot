@@ -9,7 +9,6 @@
 #define LIDAR_UNIT_TEST(x) numTests++; if(!(x)) {LOG_WARNING("Test failed on line ", __LINE__ );} else {numPassed++;}
 
 bool run_lidar_opponent_test(std::string testName, std::string data_file_name, position_t robot_pos, position_t expected_opponent_pos, bool has_opponent);
-bool run_lidar_beacons_test(std::string testName, std::string data_file_name, position_t expected_robot_pos, colorTeam_t expected_color);
 int loadLidarJson(std::string filename, lidarAnalize_t* lidarData);
 
 bool test_lidar_opponent() {
@@ -68,31 +67,6 @@ bool test_lidar_opponent() {
     return numPassed == numTests;
 }
 
-bool test_lidar_beacons() {
-    int numPassed = 0;
-    int numTests = 0;
-    // test the transform_coordinates function
-    //double x, y, t;
-    //transform_coordinates(100, 0, 0, 0, 0, -45, &x, &y, &t);
-    //printf("\n\n\npos is %lf , %lf\n\n\n", x, y);
-    //return true;
-
-    position_t expected_robot_pos = {0, 0, 0};
-    {
-        expected_robot_pos.x = 0;
-        expected_robot_pos.y = 0;
-        expected_robot_pos.theta = 0;  
-        LIDAR_UNIT_TEST(run_lidar_beacons_test("Lidar Beacons Case 1", "lidar/beaconsCenterBlue.json", expected_robot_pos, BLUE))
-    }
-    {
-        expected_robot_pos.x = -400;
-        expected_robot_pos.y = 0;
-        expected_robot_pos.theta = 0;  
-        LIDAR_UNIT_TEST(run_lidar_beacons_test("Lidar Beacons Case 2", "lidar/beacons40cmUpBlue.json", expected_robot_pos, BLUE))
-    }
-    return numPassed == numTests;
-}
-
 bool run_lidar_opponent_test(std::string testName, std::string data_file_name, position_t robot_pos, position_t expected_opponent_pos, bool has_opponent) {
     lidarAnalize_t lidarData[SIZEDATALIDAR];
     position_t pos_opponent;
@@ -104,7 +78,7 @@ bool run_lidar_opponent_test(std::string testName, std::string data_file_name, p
     if (lidar_count < 0)
         return false;
 
-    convertAngularToAxial(lidarData, lidar_count, &robot_pos, 50);
+    convertAngularToAxial(lidarData, lidar_count, robot_pos, 50);
 
     if (position_opponentV2(lidarData, lidar_count, robot_pos, &pos_opponent)){
         LOG_INFO(testName, " Found opponent_pos\t= {\tx=", pos_opponent.x, ",\ty=", pos_opponent.y, " }");
@@ -119,39 +93,6 @@ bool run_lidar_opponent_test(std::string testName, std::string data_file_name, p
     LOG_INFO(testName, (test_passed ? " passed!" : " failed!"));
     return test_passed;
 }
-bool run_lidar_beacons_test(std::string testName, std::string data_file_name, position_t expected_robot_pos, colorTeam_t expected_color) {
-    lidarAnalize_t lidarData[SIZEDATALIDAR];
-    bool test_passed = false;
-    int tolerance = 100; //mm tolerance on each axis
-    int angle_tolerance = 15; //degrees of tolerance
-
-    position_t robot_pos;
-    colorTeam_t color_team;
-
-    // Load the json data into lidarData
-    int lidar_count = loadLidarJson(data_file_name, lidarData);
-    if (lidar_count < 0)
-        return false;
-
-    //Try method 2
-    test_passed = position_robot_beacons(lidarData, lidar_count, &robot_pos, NONE, &color_team);
-
-    //convertAngularToAxial(lidarData, lidar_count, &robot_pos, -100);
-    //Try method 1
-    //init_position_balise(lidarData, lidar_count, &robot_pos);
-
-    test_passed = test_passed && 
-                std::abs(robot_pos.x - expected_robot_pos.x) < tolerance &&
-                std::abs(robot_pos.y - expected_robot_pos.y) < tolerance &&
-                std::abs(delta_angle(robot_pos.theta, expected_robot_pos.theta)) < angle_tolerance &&
-                color_team != NONE && color_team == expected_color;
-
-    LOG_INFO(testName, " Found robot_pos\t= { x=", robot_pos.x, ",\ty=", robot_pos.y, ",\ttheta=", robot_pos.theta," }");
-    LOG_INFO(testName, " Expects robot_pos\t= { x=", expected_robot_pos.x, ",\ty=", expected_robot_pos.y, ",\ttheta=", expected_robot_pos.theta," }");
-    LOG_INFO(testName, (test_passed ? " passed!" : " failed!"));
-    return test_passed;
-}
-
 // Returns lidar count
 int loadLidarJson(std::string filename, lidarAnalize_t* lidarData) {
     std::ifstream file(filename);

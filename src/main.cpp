@@ -54,7 +54,7 @@ std::thread api_server_thread;
 
 // Prototypes
 int StartSequence();
-void GetLidarV2();
+void GetLidar();
 void EndSequence();
 
 // Signal Management
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
             if (currentState != INIT)
             {
 #ifndef DISABLE_LIDAR
-                GetLidarV2();
+                GetLidar();
                 if (currentState == RUN || currentState == MANUAL)
                     navigationOpponentDetection();
 #endif
@@ -307,64 +307,11 @@ int StartSequence()
 
 void GetLidar()
 {
-    // Averages the position of the opponent over a few scans
-    static position_t pos_opponent_avg_sum = {0, 0, 0};
-    static int pos_opponent_avg_count = 0, count_pos = 0;
-
-    if (lidar.getData())
-    {
-        position_t position = tableStatus.robot.pos;
-        position_t pos_opponent = position;
-        convertAngularToAxial(lidar.data, lidar.count, &position, -100);
-        //init_position_balise(lidar.data, lidar_count, &position);
-        convertAngularToAxial(lidar.data, lidar.count, &position, 50);
-        if (position_opponent(lidar.data, lidar.count, position, &pos_opponent)){
-            pos_opponent_avg_sum.x += pos_opponent.x;
-            pos_opponent_avg_sum.y += pos_opponent.y;
-            pos_opponent_avg_count++;
-            if (pos_opponent_avg_count == 5)
-            {
-                // Calculate the average position
-                pos_opponent.x = pos_opponent_avg_sum.x / pos_opponent_avg_count;
-                pos_opponent.y = pos_opponent_avg_sum.y / pos_opponent_avg_count;
-
-                double dist;
-                // Calculate the distance the opponent moved
-                dist = position_distance(tableStatus.pos_opponent, pos_opponent);
-
-                // Save the position to tableStatus
-                tableStatus.pos_opponent.x = pos_opponent.x;
-                tableStatus.pos_opponent.y = pos_opponent.y;
-
-                // Reset the average counters
-                pos_opponent_avg_count = 0;
-                pos_opponent_avg_sum.x = 0;
-                pos_opponent_avg_sum.y = 0;
-
-                // Execute if opponent has not moved too much
-                if (dist < 250)
-                {
-                    opponentInAction(pos_opponent);
-                }
-            }
-        }
-
-
-        if (count_pos == 10)
-            count_pos = 0;
-        count_pos++;
-
-        //int16_t braking_distance = asserv.get_braking_distance();
-        //tableStatus.robot.collide = collide(lidarData, lidar_count, braking_distance);
-    }
-}
-void GetLidarV2()
-{
     // Implements a low passfilter
     // Simple exponential moving average (EMA)
     
     // Smoothing factor (0 < alpha < 1)
-    const float alpha = 0.5f; // Adjust this value for more or less smoothing on the opponent robot posititon
+    const float alpha = 0.6f; // Adjust this value for more or less smoothing on the opponent robot posititon
 
     static position_t pos_opponent_filtered = {0, 0, 0};
     static bool first_reading = true;
@@ -372,16 +319,7 @@ void GetLidarV2()
     if (lidar.getData())
     {
         position_t position = tableStatus.robot.pos;
-        // TODO : Add offset to lidar robot pos
-#ifndef DISABLE_LIDAR_BEACONS
-        colorTeam_t color;
-        if (position_robot_beacons(lidar.data, lidar.count, &position, tableStatus.robot.colorTeam, &color)){
-            LOG_GREEN_INFO("Successfully found the robot's position using beacons");
-            LOG_GREEN_INFO("X = ", position.x," Y = ", position.y, " theta = ", position.theta);
-            // TODO, apply that new position to the tableStatus robot pos and the asserv
-        }
-#endif
-        convertAngularToAxial(lidar.data, lidar.count, &position, 50);
+        convertAngularToAxial(lidar.data, lidar.count, position, 50);
         
         position_t pos_opponent;
         if (position_opponentV2(lidar.data, lidar.count, position, &pos_opponent)){

@@ -141,7 +141,6 @@ void StartAPIServer(){
             limitedLidarData.push_back(lidar.data[i]);
         }
         response["data"] = limitedLidarData;
-        response["detection_debug"] = beacon_detection;
         return crow::response(response.dump());
     });
 
