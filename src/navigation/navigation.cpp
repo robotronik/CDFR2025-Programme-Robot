@@ -152,10 +152,12 @@ void navigationOpponentDetection(){
     // stop the robot if it is endangered
     if(isEndangered && !is_robot_stalled){
         asserv.pause();
+        asserv.set_brake_state(true);
         is_robot_stalled = true;
         robot_stall_start_time = _millis();
     }
     else if(!isEndangered && is_robot_stalled){
+        asserv.set_brake_state(false);
         asserv.resume();
         is_robot_stalled = false;
     }
