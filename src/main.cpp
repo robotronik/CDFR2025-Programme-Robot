@@ -371,7 +371,7 @@ void GetLidarV2()
 
     if (lidar.getData())
     {
-        position_t position;
+        position_t position = tableStatus.robot.pos;
         // TODO : Add offset to lidar robot pos
 #ifndef DISABLE_LIDAR_BEACONS
         colorTeam_t color;
@@ -379,9 +379,6 @@ void GetLidarV2()
             LOG_GREEN_INFO("Successfully found the robot's position using beacons");
             LOG_GREEN_INFO("X = ", position.x," Y = ", position.y, " theta = ", position.theta);
             // TODO, apply that new position to the tableStatus robot pos and the asserv
-        }
-        else{
-            position = tableStatus.robot.pos;
         }
 #endif
         convertAngularToAxial(lidar.data, lidar.count, &position, 50);
