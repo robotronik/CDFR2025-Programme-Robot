@@ -24,6 +24,7 @@ int getStockPositions(int stockN, position_t availPos[4]);
 bool movePlatformLifts(bool inside);
 bool moveTribunePusher(bool outside);
 bool moveServoFloorColumns(bool up);
+bool moveClaws(bool close);
 
 // Stepper Control
 bool movePlatformElevator(int level);

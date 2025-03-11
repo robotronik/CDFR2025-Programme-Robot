@@ -90,7 +90,7 @@ bool moveTribunePusher(bool outside){
     if (previousOutside != outside){
         startTime = _millis(); // Reset the timer
         previousOutside = outside;
-        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, outside ? 200 : 0); // TODO : Check if this is correct
+        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, outside ? 180 : 0);
     }
     return (_millis() > startTime + 2000); // delay
 }
@@ -108,6 +108,17 @@ bool moveServoFloorColumns(bool up){
     return (_millis() > startTime + 1000); // delay
 }
 
+bool moveClaws(bool close){
+    static unsigned long startTime = _millis();
+    static bool previousClose = !close;
+    if (previousClose != close){
+        startTime = _millis(); // Reset the timer
+        previousClose = close;
+        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, close ? 100 : 180); // TODO : Check if this is correct
+    }
+    return (_millis() > startTime + 2000); // delay
+}
+
 // ------------------------------------------------------
 //                   STEPPER CONTROL
 // ------------------------------------------------------
@@ -121,9 +132,9 @@ bool movePlatformElevator(int level){
     switch (level)
     {
     case 0:
-        target = 0; break;
-    case 1:
         target = 1000; break;
+    case 1:
+        target = 2000; break;
     case 2:
         target = 4000; break;
     }
@@ -197,7 +208,8 @@ bool homeActuators(){
     movePlatformLifts(true) &
     movePlatformElevator(0) &
     moveTribunePusher(false) &
-    moveTribuneElevator(false) 
+    moveTribuneElevator(false) &
+    moveClaws(false)
     );
 }
 void enableActuators(){
