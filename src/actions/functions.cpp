@@ -46,19 +46,15 @@ bool takeStockPlatforms(){
     switch (state)
     {
     case 0:
-        if (movePlatformLifts(true) & movePlatformElevator(0))// Move the platforms lifts inside
+        if (movePlatformLifts(true) & movePlatformElevator(0))// Move the platforms lifts inside and move elevator down
             state ++;
         break;
 
     case 1:
-        if (movePlatformLifts(false)) // Move the platforms lifts outside
+        if (movePlatformLifts(false) & movePlatformElevator(2)) // Move the platforms lifts outside and move elevator up
             state ++;
-        break;
-    case 2:
-        if (movePlatformElevator(2)){ // Move the elevator up
             state = 0;
             return true;
-        }
         break;
     }
     return false;
@@ -111,7 +107,7 @@ bool moveClaws(bool close){
     if (previousClose != close){
         startTime = _millis(); // Reset the timer
         previousClose = close;
-        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, close ? 100 : 180); // TODO : Check if this is correct
+        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, close ? 0 : 90);
     }
     return (_millis() > startTime + 2000); // delay
 }
@@ -133,7 +129,7 @@ bool movePlatformElevator(int level){
     case 1:
         target = 3000; break;
     case 2:
-        target = 9000; break;
+        target = 10000; break;
     }
     if (previousLevel != level){
         previousLevel = level;
