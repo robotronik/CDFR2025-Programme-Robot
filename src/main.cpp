@@ -20,7 +20,6 @@
 #define EMULATE_CAM
 // #define DISABLE_LIDAR
 // #define TEST_API_ONLY
-#define DISABLE_LIDAR_BEACONS
 // #define EMULATE_I2C
 
 
