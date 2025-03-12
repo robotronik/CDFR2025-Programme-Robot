@@ -135,7 +135,7 @@ void navigationOpponentDetection(){
     if (dir != Direction::NONE){
         // Using the braking distance to calculate a point in front of the robot andh checking if the opponent is in the way
         position_t brakingPoint = tableStatus.robot.pos;
-        double brakingDistance = tableStatus.robot.braking_distance + ROBOT_WIDTH / 2;
+        double brakingDistance = 50 + ROBOT_WIDTH / 2; //tableStatus.robot.braking_distance
         if (dir == Direction::BACKWARD){
             brakingDistance = -brakingDistance;
         } 
