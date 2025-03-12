@@ -344,6 +344,40 @@ void StartAPIServer(){
         return crow::response(response.dump(4));
     });
 
+    // Define a route for a POST request that sets a target position using highways
+    CROW_ROUTE(app, "/set_target_coordinates_highway").methods(crow::HTTPMethod::POST)([](const crow::request& req){
+        auto req_data = json::parse(req.body);
+
+        if (currentState != MANUAL){
+            json response;
+            response["message"] = "Cannot change the coordinates when not in MANUAL mode";
+            return crow::response(400, response.dump(4));
+        }
+
+        int req_x_value = tableStatus.robot.pos.x;
+        if (req_data.contains("x"))
+            req_x_value = req_data["x"];
+            
+        int req_y_value = tableStatus.robot.pos.y;
+        if (req_data.contains("y"))
+            req_y_value = req_data["y"];
+
+        // Apply the values
+        if (req_data.contains("theta")){
+            int req_theta_value = req_data["theta"];
+            LOG_INFO("Manual ctrl : Requested set_target_coordinates_highway, x=", req_x_value, " y=", req_y_value, " theta=", req_theta_value);
+            navigationGoTo(req_x_value, req_y_value, req_theta_value, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, true);
+        }
+        else{
+            LOG_INFO("Manual ctrl : Requested set_target_coordinates_highway, x=", req_x_value, " y=", req_y_value);
+            navigationGoToNoTurn(req_x_value, req_y_value, Direction::FORWARD, Rotation::SHORTEST, true);
+        }
+
+        json response;
+        response["message"] = "Successfull";
+        return crow::response(response.dump(4));
+    });
+
     // Define a route for a POST request that move by a certain amount in mm
     CROW_ROUTE(app, "/set_move").methods(crow::HTTPMethod::POST)([](const crow::request& req){
         auto req_data = json::parse(req.body);
