@@ -101,13 +101,28 @@ bool moveServoFloorColumns(bool up){
     return (_millis() > startTime + 1000); // delay
 }
 
-bool moveClaws(bool close){
+// 0 : Fully open
+// 1 : Straight
+// 2 : closed
+bool moveClaws(int level){
     static unsigned long startTime = _millis();
-    static bool previousClose = !close;
-    if (previousClose != close){
+    static int previouslevel = !level;
+    if (previouslevel != level){
         startTime = _millis(); // Reset the timer
-        previousClose = close;
-        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, close ? 0 : 90);
+        previouslevel = level;
+
+        int target = 0;
+        switch (level)
+        {
+        case 0:
+            target = 135; break;
+        case 1:
+            target = 90; break;
+        case 2:
+            target = 0; break;
+        }
+
+        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, target);
     }
     return (_millis() > startTime + 2000); // delay
 }
@@ -202,7 +217,7 @@ bool homeActuators(){
     movePlatformElevator(0) &
     moveTribunePusher(false) &
     moveTribuneElevator(false) &
-    moveClaws(false)
+    moveClaws(0)
     );
 }
 void enableActuators(){
