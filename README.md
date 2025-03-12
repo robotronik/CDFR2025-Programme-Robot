@@ -27,6 +27,12 @@ sudo apt-get install g++-aarch64-linux-gnu
 ```
 no need to install libi2c-dev_4.3-2
 
+Pour debug
+
+```bash
+sudo apt install gdbserver
+```
+
 ## Installation
 
 1. Ne clonez pas ce dépôt seul !! Clonez le dépôt CDFR : 
