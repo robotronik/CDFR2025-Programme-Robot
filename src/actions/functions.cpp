@@ -115,14 +115,14 @@ bool moveClaws(int level){
         switch (level)
         {
         case 0:
-            target = 135; break;
+            target = 170; break;
         case 1:
-            target = 90; break;
+            target = 105; break;
         case 2:
-            target = 0; break;
+            target = 25; break;
         }
 
-        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, target);
+        arduino.moveServo(TRIBUNES_CLAWS_SERVO_NUM, target);
     }
     return (_millis() > startTime + 2000); // delay
 }
@@ -217,7 +217,7 @@ bool homeActuators(){
     movePlatformElevator(0) &
     moveTribunePusher(false) &
     moveTribuneElevator(false) &
-    moveClaws(0)
+    moveClaws(1) //0
     );
 }
 void enableActuators(){
