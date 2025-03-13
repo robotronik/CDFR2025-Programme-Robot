@@ -438,9 +438,13 @@ void StartAPIServer(){
 
         int req_value = req_data["value"];
         int req_id = req_data["id"];
+        int req_speed = req_data["speed"];
 
         //Apply the value
-        arduino.moveServo(req_id, req_value);
+        if (req_speed != 0)
+            arduino.moveServoSpeed(req_id, req_value, req_speed);
+        else
+            arduino.moveServo(req_id, req_value);
 
         json response;
         response["message"] = "Successfull";

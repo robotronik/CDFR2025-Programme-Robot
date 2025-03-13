@@ -126,6 +126,7 @@ int main(int argc, char *argv[])
         {
             if (initState){
                 LOG_GREEN_INFO("WAITSTART");  
+                //TODO clear asserv buffer
                 enableActuators();
                 arduino.setStepper(0, 1);
                 arduino.setStepper(0, 2);

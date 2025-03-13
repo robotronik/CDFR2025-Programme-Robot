@@ -110,11 +110,12 @@
         </div>
 
         <div class="label-section">
-            Turn a Servo to an absolute value [0, 270]
+            Turn a Servo to an absolute value [0, 270] (Leave speed empty for instant)
         </div>
         <div class="row mb-3">
             <div class="col">
                 <input id="servo-value" type="number" class="form-control" placeholder="value">
+                <input id="servo-speed" type="number" class="form-control" placeholder="speed">
             </div>
             <div class="col">
                 <select id="servo-select" class="form-select" aria-label="Servo Number">
@@ -396,13 +397,16 @@
 
         const set_servo_select = document.getElementById("servo-select");
         const set_servo_value = document.getElementById("servo-value");
+        const set_servo_speed = document.getElementById("servo-speed");
         function sendSetServo() {
             fetch('/set_servo', {
                 method: 'POST', // HTTP method
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
-                body: JSON.stringify({ value: Number(set_servo_value.value), id: Number(set_servo_select.value) })
+                body: JSON.stringify({ value: Number(set_servo_value.value), 
+                                        id: Number(set_servo_select.value) , 
+                                        speed: Number(set_servo_speed.value) })
             })
             .then(response => {
                 if (!response.ok) {

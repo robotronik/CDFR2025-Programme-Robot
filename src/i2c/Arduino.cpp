@@ -18,15 +18,33 @@ Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
 void Arduino::moveServo(int ServoID, int position) {
     LOG_DEBUG("Move servo #", ServoID, " to ", position);
     if (i2cFile == -1) return; // Emulation
-    if (position < 0 || position > 250) {
+    if (position < 0 || position > 270) {
         LOG_ERROR("Servo position out of range");
         return;
     }
-    uint8_t message [2];
+    uint8_t message [5];
     uint8_t *ptr = message;
     WriteUInt8(&ptr, ServoID);
-    WriteUInt8(&ptr, position); // These could be simplified but for reading clarity
-    if (I2cSendData(CMD_MOVE_SERVO, message, 2))
+    WriteUInt16(&ptr, position);
+    WriteUInt16(&ptr, 0); // Speed (instant)
+    if (I2cSendData(CMD_MOVE_SERVO, message, 5))
+        LOG_ERROR("Couldn't move servo");
+}
+
+// Speed in degs/s
+void Arduino::moveServoSpeed(int ServoID, int position, int speed) {
+    LOG_DEBUG("Move servo #", ServoID, " to ", position, " with speed ", speed);
+    if (i2cFile == -1) return; // Emulation
+    if (position < 0 || position > 270) {
+        LOG_ERROR("Servo position out of range");
+        return;
+    }
+    uint8_t message [5];
+    uint8_t *ptr = message;
+    WriteUInt8(&ptr, ServoID);
+    WriteUInt16(&ptr, position);
+    WriteUInt16(&ptr, speed);
+    if (I2cSendData(CMD_MOVE_SERVO, message, 5))
         LOG_ERROR("Couldn't move servo");
 }
 
