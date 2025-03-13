@@ -6,7 +6,8 @@
 #include "utils/logger.hpp"
 #include "lidar/lidarAnalize.h"
 
-static bool is_robot_stalled;
+static bool is_robot_stalled = false;
+static bool is_robot_slowed = false;
 static unsigned long robot_stall_start_time;
 typedef std::size_t nav_hash;
 static nav_hash currentInstructionHash;
@@ -114,6 +115,7 @@ void navigationOpponentDetection(){
 
     Direction dir = (Direction)(tableStatus.robot.direction_side);
     bool isEndangered = false;
+    bool isCareful = false;
 
     if (dir != Direction::NONE){
         // Using the braking distance to calculate a point in front of the robot andh checking if the opponent is in the way
@@ -123,8 +125,9 @@ void navigationOpponentDetection(){
         }
         // Check if the opponent is in the way
         isEndangered = opponent_collide_lidar(lidar.data, lidar.count, ROBOT_WIDTH, brakingDistance, OPPONENT_ROBOT_RADIUS);
+        LOG_INFO("isEndangered ", isEndangered);
+        isCareful = opponent_collide_lidar(lidar.data, lidar.count, ROBOT_WIDTH, brakingDistance, OPPONENT_ROBOT_RADIUS * 1.5);
     }
-
     // stop the robot if it is endangered
     if(isEndangered && !is_robot_stalled){
         asserv.pause();
@@ -132,10 +135,18 @@ void navigationOpponentDetection(){
         is_robot_stalled = true;
         robot_stall_start_time = _millis();
     }
+    else if (isCareful && !is_robot_slowed){
+        // asserv.set_linear_max_speed(mid)
+        is_robot_slowed = true;
+    }
     else if(!isEndangered && is_robot_stalled){
         asserv.set_brake_state(false);
         asserv.resume();
         is_robot_stalled = false;
+    }
+    else if (!isCareful && is_robot_slowed){
+        // asserv.set_linear_max_speed(max)
+        is_robot_slowed = false;
     }
 }
 

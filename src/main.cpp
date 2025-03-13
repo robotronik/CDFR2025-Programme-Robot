@@ -124,7 +124,6 @@ int main(int argc, char *argv[])
         {
             if (initState){
                 LOG_GREEN_INFO("WAITSTART");  
-                //TODO clear asserv buffer
                 enableActuators();
                 arduino.setStepper(0, 1);
                 arduino.setStepper(0, 2);
@@ -183,6 +182,8 @@ int main(int argc, char *argv[])
                 LOG_GREEN_INFO("FIN");
                 arduino.RGB_Solid(0, 255, 0);
                 disableActuators();
+                // Clear command buffer
+                asserv.stop();
             }
             lidar.stopSpin();
 
@@ -364,7 +365,11 @@ void EndSequence()
 
     arduino.RGB_Solid(0, 0, 0); // OFF
 
-    while(!homeActuators()){delay(100);};
+    for(int i = 0; i < 40; i++){
+        if (homeActuators())
+            break;
+        delay(100);
+    };
     disableActuators();
 #endif // EMULATE_I2C
 
