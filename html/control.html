@@ -57,25 +57,10 @@
                 <input id="target-theta" type="number" class="form-control" placeholder="theta (degs)">
             </div>
             <div class="col">
-                <button type="button" class="btn btn-success w-100" onclick="sendSetTargetCoordinates()">Go</button>
-            </div>
-        </div>
-        
-        <div class="label-section">
-            Move the robot to absolute coordinates using Highways
-        </div>
-        <div class="row mb-3">
-            <div class="col">
-                <input id="target-h-x" type="number" class="form-control" placeholder="x (mm)">
+                <button type="button" class="btn btn-success w-100" onclick="sendSetTargetCoordinates()">Go Direct</button>
             </div>
             <div class="col">
-                <input id="target-h-y" type="number" class="form-control" placeholder="y (mm)">
-            </div>
-            <div class="col">
-                <input id="target-h-theta" type="number" class="form-control" placeholder="theta (degs)">
-            </div>
-            <div class="col">
-                <button type="button" class="btn btn-success w-100" onclick="sendSetTargetCoordinatesHighways()">Go</button>
+                <button type="button" class="btn btn-success w-100" onclick="sendSetTargetCoordinatesHighways()">Go Highways</button>
             </div>
         </div>
 
@@ -309,20 +294,16 @@
             });
         }
 
-        const set_target_h_x_inputfield = document.getElementById("target-h-x");
-        const set_target_h_y_inputfield = document.getElementById("target-h-y");
-        const set_target_h_theta_inputfield = document.getElementById("target-h-theta");
-
-        function sendSetTargetCoordinates() {
-            fetch('/set_target_coordinates', {
+        function sendSetTargetCoordinatesHighways() {
+            fetch('/set_target_coordinates_highway', {
                 method: 'POST', // HTTP method
                 headers: {
                     'Content-Type': 'application/json' // Define the content type as JSON
                 },
                 body: JSON.stringify({
-                    x: set_target_h_x_inputfield.value.trim() !== '' ? Number(set_target_h_x_inputfield.value) : undefined,
-                    y: set_target_h_y_inputfield.value.trim() !== '' ? Number(set_target_h_y_inputfield.value) : undefined,
-                    theta: set_target_h_theta_inputfield.value.trim() !== '' ? Number(set_target_h_theta_inputfield.value) : undefined
+                    x: set_target_x_inputfield.value.trim() !== '' ? Number(set_target_x_inputfield.value) : undefined,
+                    y: set_target_y_inputfield.value.trim() !== '' ? Number(set_target_y_inputfield.value) : undefined,
+                    theta: set_target_theta_inputfield.value.trim() !== '' ? Number(set_target_theta_inputfield.value) : undefined
                 })
             })
             .then(response => {
