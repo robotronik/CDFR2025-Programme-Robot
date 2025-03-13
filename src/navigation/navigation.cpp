@@ -125,26 +125,29 @@ void navigationOpponentDetection(){
         }
         // Check if the opponent is in the way
         isEndangered = opponent_collide_lidar(lidar.data, lidar.count, ROBOT_WIDTH, brakingDistance, OPPONENT_ROBOT_RADIUS);
-        LOG_INFO("isEndangered ", isEndangered);
         isCareful = opponent_collide_lidar(lidar.data, lidar.count, ROBOT_WIDTH, brakingDistance, OPPONENT_ROBOT_RADIUS * 1.5);
     }
     // stop the robot if it is endangered
     if(isEndangered && !is_robot_stalled){
+        LOG_GREEN_INFO("Opponent is in the way, stopping the robot");
         asserv.pause();
         asserv.set_brake_state(true);
         is_robot_stalled = true;
         robot_stall_start_time = _millis();
     }
     else if (isCareful && !is_robot_slowed){
+        LOG_GREEN_INFO("Opponent is too close, slowing down the robot");
         // asserv.set_linear_max_speed(mid)
         is_robot_slowed = true;
     }
     else if(!isEndangered && is_robot_stalled){
+        LOG_GREEN_INFO("Opponent is no longer in the way, resuming the robot");
         asserv.set_brake_state(false);
         asserv.resume();
         is_robot_stalled = false;
     }
     else if (!isCareful && is_robot_slowed){
+        LOG_GREEN_INFO("Opponent is no longer too close, resuming the robot");
         // asserv.set_linear_max_speed(max)
         is_robot_slowed = false;
     }
