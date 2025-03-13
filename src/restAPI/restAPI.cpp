@@ -487,6 +487,7 @@ void StartAPIServer(){
         // Apply the value
         if      (req_value == "takeStockPlatforms")     manual_currentFunc = takeStockPlatforms;
         else if (req_value == "constructSingleTribune") manual_currentFunc = constructSingleTribune;
+        else if (req_value == "liftSingleTribune")      manual_currentFunc = liftSingleTribune;
         else {
             json response;
             response["message"] = "Invalid action requested";

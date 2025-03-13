@@ -15,6 +15,7 @@ void setStockAsRemoved(int num);
 // Basic functions (FSM)
 bool takeStockPlatforms();
 bool constructSingleTribune();
+bool liftSingleTribune();
 
 // Related to stock management
 void getAvailableStockPositions(); // TODO finish

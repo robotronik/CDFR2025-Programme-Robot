@@ -60,6 +60,32 @@ bool takeStockPlatforms(){
     return false;
 }
 
+bool liftSingleTribune(){
+    static int state = 1;
+    switch (state)
+    {
+    case 1:
+        if (moveTribuneElevator(true) & moveClaws(1))
+            state ++;
+        break;
+    case 2:
+        if (moveTribuneElevator(false))
+            state ++;
+        break;
+    case 3:
+        if (moveClaws(2))
+            state++;
+        break;
+    case 4:
+        if (moveTribuneElevator(true)){
+            state = 1;
+            return true;
+        }
+        break;
+    }
+    return false;
+}
+
 // ------------------------------------------------------
 //                   SERVO CONTROL
 // ------------------------------------------------------
