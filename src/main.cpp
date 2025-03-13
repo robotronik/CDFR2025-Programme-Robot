@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
             // colorTeam_t color = readColorSensorSwitch();
             // switchTeamSide(color);
 
-            if (readLatchSensor())
+            if (readLatchSensor() && tableStatus.robot.colorTeam != NONE)
                 nextState = RUN;
             if (manual_ctrl)
                 nextState = MANUAL;
