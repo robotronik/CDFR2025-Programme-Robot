@@ -97,8 +97,6 @@ int main(int argc, char *argv[])
             {
 #ifndef DISABLE_LIDAR
                 GetLidar();
-                if (currentState == RUN || currentState == MANUAL)
-                    navigationOpponentDetection();
 #endif
             }
         }
@@ -321,6 +319,9 @@ void GetLidar()
         position_t position = tableStatus.robot.pos;
         convertAngularToAxial(lidar.data, lidar.count, position, 50);
         
+        if (currentState == RUN || currentState == MANUAL)
+            navigationOpponentDetection();
+        
         position_t pos_opponent;
         if (position_opponentV2(lidar.data, lidar.count, position, &pos_opponent)){
             // If it's the first reading, initialize the filtered position
@@ -342,6 +343,7 @@ void GetLidar()
             tableStatus.pos_opponent.y = pos_opponent_filtered.y;
 
             opponentInAction(pos_opponent_filtered);
+            
         }
     }
 }

@@ -4,6 +4,7 @@
 #include "main.hpp"
 #include "defs/constante.h" // DISTANCESTOP and DISTANCESTART
 #include "utils/logger.hpp"
+#include "lidar/lidarAnalize.h"
 
 static bool is_robot_stalled;
 static unsigned long robot_stall_start_time;
@@ -109,24 +110,6 @@ void navigation_path_json(json& j){
     }
 }
 
-
-
-// Function to calculate the shortest distance from a point to a line segment
-double point_to_segment_distance(position_t center, position_t p1, position_t p2) {
-    double l2 = position_distance(p1, p2) * position_distance(p1, p2);
-    if (l2 == 0.0) return position_distance(center, p1);
-
-    double t = ((center.x - p1.x) * (p2.x - p1.x) + (center.y - p1.y) * (p2.y - p1.y)) / l2;
-    t = fmax(0, fmin(1, t));
-
-    position_t projection = {
-        .x = p1.x + (int)(t * (p2.x - p1.x)),
-        .y = p1.y + (int)(t * (p2.y - p1.y))
-    };
-
-    return position_distance(center, projection);
-}
-
 void navigationOpponentDetection(){
 
     Direction dir = (Direction)(tableStatus.robot.direction_side);
@@ -134,19 +117,12 @@ void navigationOpponentDetection(){
 
     if (dir != Direction::NONE){
         // Using the braking distance to calculate a point in front of the robot andh checking if the opponent is in the way
-        position_t brakingPoint = tableStatus.robot.pos;
         double brakingDistance = 50 + ROBOT_WIDTH / 2; //tableStatus.robot.braking_distance
         if (dir == Direction::BACKWARD){
             brakingDistance = -brakingDistance;
-        } 
-
-        brakingPoint.x += brakingDistance * cos((double)(tableStatus.robot.pos.theta) * DEG_TO_RAD);
-        brakingPoint.y += brakingDistance * sin((double)(tableStatus.robot.pos.theta) * DEG_TO_RAD);
-
+        }
         // Check if the opponent is in the way
-        isEndangered = point_to_segment_distance(tableStatus.pos_opponent, 
-                                                tableStatus.robot.pos, brakingPoint) 
-                                        <= OPPONENT_ROBOT_RADIUS + ROBOT_WIDTH / 2;
+        isEndangered = opponent_collide_lidar(lidar.data, lidar.count, ROBOT_WIDTH, brakingDistance, OPPONENT_ROBOT_RADIUS);
     }
 
     // stop the robot if it is endangered
