@@ -67,7 +67,7 @@ inline void log(LogLevel level, const std::string& functionName, const int line,
     logStream << colorCode
             << currentTimeFormatted() << " "
             << std::left << std::setw(10) << ("[" + getLevelString(level) + "]") // Fixed width for log level
-            << std::left << std::setw(30) << ("[" + functionName + ":" + line + "]") << "  " // Fixed width for function name
+            << std::left << std::setw(30) << ("[" + functionName + ":" + std::to_string(line) + "]") << "  " // Fixed width for function name
             << oss.str()
             << resetCode << std::endl;
 
