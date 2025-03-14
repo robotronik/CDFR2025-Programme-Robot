@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <nlohmann/json.hpp>
+#include <utils/json.hpp>
 #include "lidar/lidarAnalize.h"
 //#include "lidar/Lidar.hpp"
 #include "defs/structs.hpp"
