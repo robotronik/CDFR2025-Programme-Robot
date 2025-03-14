@@ -54,7 +54,7 @@ inline void appendMessage(std::ostringstream& oss, const T& value, const Args&..
 }
 
 template<typename... Args>
-inline void log(LogLevel level, const std::string& functionName, const std::string& line, const std::string& message, const Args&... args) {
+inline void log(LogLevel level, const std::string& functionName, int line, const std::string& message, const Args&... args) {
     if (level < CURRENT_LOG_LEVEL)
         return;
     std::ostringstream oss;
