@@ -12,7 +12,7 @@
 #include "actions/functions.h" //for state machine functions
 
 #include "restAPI/crow.hpp"
-#include "nlohmann/json.hpp" // For handling JSON
+#include "utils/json.hpp" // For handling JSON
 using json = nlohmann::json;
 
 #define API_PORT 8080
