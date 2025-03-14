@@ -1,7 +1,7 @@
 #pragma once
 
 #include "i2c/Asserv.hpp"
-#include <nlohmann/json.hpp>
+#include <utils/json.hpp>
 using json = nlohmann::json;
 
 #define NAV_MAX_STALL_TIME_MS 5000

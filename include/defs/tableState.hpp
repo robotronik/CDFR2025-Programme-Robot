@@ -1,7 +1,7 @@
 #pragma once
 #include "defs/structs.hpp"
 #include "defs/constante.h"
-#include <nlohmann/json.hpp>
+#include <utils/json.hpp>
 using json = nlohmann::json;
 
 class TableState

@@ -6,7 +6,7 @@
 #include "defs/structs.hpp"
 #include "math.h"
 #include "utils/logger.hpp"
-#include <nlohmann/json.hpp>
+#include <utils/json.hpp>
 using json = nlohmann::json;
 
 void convertAngularToAxial(lidarAnalize_t* data, int count, position_t position, int narrow);
