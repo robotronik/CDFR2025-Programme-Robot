@@ -22,8 +22,8 @@ void getAvailableStockPositions(); // TODO finish
 int getStockPositions(int stockN, position_t availPos[4]);
 
 // Servo Control
-bool movePlatformLifts(bool inside);
-bool moveTribunePusher(bool outside);
+bool movePlatformLifts(bool inside, bool slow = false);
+bool moveTribunePusher(bool outside, bool slow = false);
 bool moveServoFloorColumns(bool up);
 bool moveClaws(int level);
 

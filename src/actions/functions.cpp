@@ -26,7 +26,7 @@ bool constructSingleTribune(){
             state ++;
         break;
     case 3:
-        if (movePlatformLifts(false) & moveTribunePusher(true)){
+        if (movePlatformLifts(false, true) & moveTribunePusher(true, true)){
             state++;
         }
         break;
@@ -92,25 +92,25 @@ bool liftSingleTribune(){
 // ------------------------------------------------------
 
 // This shit is clean af
-bool movePlatformLifts(bool inside){
+bool movePlatformLifts(bool inside, bool slow){
     static unsigned long startTime = _millis();
     static bool previousInside = !inside;
     if (previousInside != inside){
         startTime = _millis(); // Reset the timer
         previousInside = inside;
-        arduino.moveServo(PLATFORMS_LIFT_LEFT_SERVO_NUM, inside ? 140 : 75);
-        arduino.moveServo(PLATFORMS_LIFT_RIGHT_SERVO_NUM, inside ? 0 : 70);
+        arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, inside ? 140 : 75, slow ? 60 : 0);
+        arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM, inside ? 0 : 70, slow ? 60 : 0);
     }
     return (_millis() > startTime + 1000); // delay
 }
 
-bool moveTribunePusher(bool outside){
+bool moveTribunePusher(bool outside, bool slow){
     static unsigned long startTime = _millis();
     static bool previousOutside = !outside;
     if (previousOutside != outside){
         startTime = _millis(); // Reset the timer
         previousOutside = outside;
-        arduino.moveServo(TRIBUNES_PUSH_SERVO_NUM, outside ? 180 : 0);
+        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, outside ? 180 : 0, slow ? 60 : 0);
     }
     return (_millis() > startTime + 2000); // delay
 }
@@ -186,10 +186,10 @@ bool movePlatformElevator(int level){
 bool moveTribuneElevator(bool high){
     static bool previousHigh = !high;
 
-    int target = high ? 2000 : 0;
+    int target = high ? 2000 : 0; // TODO : Check if this is correct
     if (previousHigh != high){
         previousHigh = high;
-        arduino.moveStepper(target, TRIBUNES_ELEVATOR_STEPPER_NUM); // TODO : Check if this is correct
+        arduino.moveStepper(target, TRIBUNES_ELEVATOR_STEPPER_NUM);
     }
     int32_t currentValue;
     if (!arduino.getStepper(currentValue, TRIBUNES_ELEVATOR_STEPPER_NUM)) return false;
