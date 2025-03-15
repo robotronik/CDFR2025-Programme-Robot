@@ -247,7 +247,7 @@ int StartSequence()
 #ifdef TEST_API_ONLY
     TestAPIServer();
     sleep(4);
-    // Wait for program termination
+    init_highways();
     LOG_DEBUG("Starting main debug loop");
     int i = 0;
     while(!ctrl_c_pressed){
@@ -265,10 +265,8 @@ int StartSequence()
         }
         if (i % 10000 == 0){
             // randomly change the position of highway obstacles
-            for (int i = 0; i < 1; i++){
-                obs_obj_stocks[i].pos.x = rand() % 1500 - 750;
-                obs_obj_stocks[i].pos.y = rand() % 2200 - 1100;
-            }
+            for (int i = 0; i < 10; i++)
+                obs_obj_stocks[i].present = rand() % 2;
             // and the pos of the opponent obstacle
             obs_obj_opponent.pos.x = rand() % 1500 - 750;
             obs_obj_opponent.pos.y = rand() % 2200 - 1100;
