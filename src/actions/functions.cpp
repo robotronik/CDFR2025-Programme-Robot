@@ -50,11 +50,12 @@ bool takeStockPlatforms(){
             state ++;
         break;
 
-    case 1:
-        if (movePlatformLifts(false) & movePlatformElevator(2)) // Move the platforms lifts outside and move elevator up
-            state ++;
+    case 1: 
+        // Move the platforms lifts outside and move elevator up
+        if (movePlatformLifts(false) & movePlatformElevator(2)){
             state = 0;
             return true;
+        }
         break;
     }
     return false;
