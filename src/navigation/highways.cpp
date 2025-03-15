@@ -260,7 +260,7 @@ void get_available_highways(bool av_highways_arr[]){
 
 // Pointer to a line
 bool any_obstacle_on_highway(highway_line * line){
-    for(int stock_i = 0; stock_i < 1; stock_i++){
+    for(int stock_i = 0; stock_i < STOCK_COUNT; stock_i++){
         if (obstacle_on_highway(obs_obj_stocks + stock_i, line)) return true;
     }
     return (obstacle_on_highway(&obs_obj_opponent, line));
