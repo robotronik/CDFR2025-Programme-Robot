@@ -182,8 +182,8 @@ Defenies dans constante.h
 
 ## Check List Match
 - Position robot
-- ascensseur position basse
-- ascensseur pince position basse
-- couleur choisie (vérfie on live table)
-- stratégie choisie
-- prêt démarrage
+- Ascensseur position basse
+- Ascensseur pince position basse
+- Couleur choisie (vérfie on live table)
+- Stratégie choisie
+- Prêt démarrage
