@@ -67,7 +67,7 @@ void highway_segments_json(json& j){
 }
 void highway_obstacles_json(json& j){
     j = json::array();
-    for(int stock_i = 0; stock_i < 1; stock_i++){
+    for(int stock_i = 0; stock_i < STOCK_COUNT; stock_i++){
         j.push_back(obs_obj_stocks[stock_i]);
     }
     j.push_back(obs_obj_opponent);
