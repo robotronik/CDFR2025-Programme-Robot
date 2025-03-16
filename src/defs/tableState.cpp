@@ -5,7 +5,6 @@
 TableState::TableState(){
     pos_opponent.x = 0; pos_opponent.y = 0;
     robot.pos = {0, 0, 0};
-    robot.colorTeam = NONE;
 
     reset();
 }
@@ -13,6 +12,7 @@ TableState::TableState(){
 TableState::~TableState(){}
 
 void TableState::reset(){
+    robot.colorTeam = NONE;
     /* data show must go on*/
     for(int i = 0; i<STOCK_COUNT;i++){
         avail_stocks[i] = true;

@@ -131,6 +131,9 @@ int main(int argc, char *argv[])
                 arduino.setStepper(0, 4);
                 homeActuators();
                 lidar.startSpin();
+
+                if (tableStatus.robot.colorTeam == NONE)
+                    arduino.RGB_Blinking(255, 0, 0); // Red Blinking
             }
 
             // colorTeam_t color = readColorSensorSwitch();
