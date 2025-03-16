@@ -53,6 +53,7 @@ bool ActionFSM::RunFSM(){
     //****************************************************************
     case FSM_ACTION_DEPLOY_BANNER:
         runState = FSM_ACTION_NAV_HOME;
+        tableStatus.done_banderole = true;
         break;
     //****************************************************************
     case FSM_ACTION_NAV_HOME:
