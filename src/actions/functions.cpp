@@ -18,7 +18,7 @@ bool constructSingleTribune(){
     switch (state)
     {
     case 1:
-        if (movePlatformLifts(true))
+        if (movePlatformLifts(0))
             state ++;
         break;
     case 2:
@@ -26,12 +26,12 @@ bool constructSingleTribune(){
             state ++;
         break;
     case 3:
-        if (movePlatformLifts(false, true) & moveTribunePusher(true, true)){
+        if (movePlatformLifts(2, true) & moveTribunePusher(true, true)){
             state++;
         }
         break;
     case 4:
-        if (movePlatformLifts(true) & moveTribunePusher(false)){
+        if (movePlatformLifts(1) & moveTribunePusher(false) & movePlatformElevator(0)){
             state = 1;
             return true;
         }
@@ -46,13 +46,13 @@ bool takeStockPlatforms(){
     switch (state)
     {
     case 0:
-        if (movePlatformLifts(true) & movePlatformElevator(0))// Move the platforms lifts inside and move elevator down
+        if (movePlatformLifts(0) & movePlatformElevator(0))// Move the platforms lifts inside and move elevator down
             state ++;
         break;
 
     case 1: 
         // Move the platforms lifts outside and move elevator up
-        if (movePlatformLifts(false) & movePlatformElevator(2)){
+        if (movePlatformLifts(1) & movePlatformElevator(2)){
             state = 0;
             return true;
         }
@@ -92,14 +92,38 @@ bool liftSingleTribune(){
 // ------------------------------------------------------
 
 // This shit is clean af
-bool movePlatformLifts(bool inside, bool slow){
+// pos = 0: inside, 1: middle, 2: outside
+bool movePlatformLifts(int pos, bool slow){
     static unsigned long startTime = _millis();
-    static bool previousInside = !inside;
-    if (previousInside != inside){
+    static int previousPos = !pos;
+    int target_left = 0;
+    int target_right = 0;
+    switch (pos)
+    {
+    case 0:
+        target_left = 140;
+        target_right= 0; 
+        break;
+    case 1:
+        target_left = 75;
+        target_right= 70; 
+        break;
+    case 2:
+        target_left = 60;
+        target_right= 90; 
+        break;
+    }
+    if (previousPos != pos){
         startTime = _millis(); // Reset the timer
-        previousInside = inside;
-        arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, inside ? 140 : 75, slow ? 60 : 0);
-        arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM, inside ? 0 : 70, slow ? 60 : 0);
+        previousPos = pos;
+        if (slow){
+            arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left, 35);
+            arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right,35);
+        }
+        else{
+            arduino.moveServo(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left);
+            arduino.moveServo(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right);
+        }
     }
     return (_millis() > startTime + 1000); // delay
 }
@@ -240,7 +264,7 @@ bool moveHighColumnsRevolverAbs(int N){
 // Returns true if actuators are home
 bool homeActuators(){
     return (
-    movePlatformLifts(true) &
+    movePlatformLifts(0) &
     movePlatformElevator(0) &
     moveTribunePusher(false) &
     moveTribuneElevator(false) &

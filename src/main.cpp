@@ -187,6 +187,9 @@ int main(int argc, char *argv[])
                 disableActuators();
                 // Clear command buffer
                 asserv.stop();
+                // Clear manual_func
+                manual_currentFunc = NULL;
+                lidar.stopSpin();
             }
 
             if (!readLatchSensor())
