@@ -188,7 +188,6 @@ int main(int argc, char *argv[])
                 // Clear command buffer
                 asserv.stop();
             }
-            lidar.stopSpin();
 
             if (!readLatchSensor())
                 nextState = INIT;
