@@ -31,7 +31,7 @@ bool constructSingleTribune(){
         }
         break;
     case 4:
-        if (movePlatformLifts(1) & moveTribunePusher(false) & movePlatformElevator(0)){
+        if (moveTribunePusher(false)){
             state = 1;
             return true;
         }
@@ -109,8 +109,8 @@ bool movePlatformLifts(int pos, bool slow){
         target_right= 70; 
         break;
     case 2:
-        target_left = 60;
-        target_right= 90; 
+        target_left = 42;
+        target_right= 95; 
         break;
     }
     if (previousPos != pos){
@@ -125,7 +125,7 @@ bool movePlatformLifts(int pos, bool slow){
             arduino.moveServo(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right);
         }
     }
-    return (_millis() > startTime + 1000); // delay
+    return (_millis() > startTime + 4000); // delay
 }
 
 bool moveTribunePusher(bool outside, bool slow){
@@ -136,7 +136,7 @@ bool moveTribunePusher(bool outside, bool slow){
         previousOutside = outside;
         arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, outside ? 180 : 0, slow ? 60 : 0);
     }
-    return (_millis() > startTime + 2000); // delay
+    return (_millis() > startTime + 4000); // delay
 }
 
 // Move level to the floor up or down (high or low)
