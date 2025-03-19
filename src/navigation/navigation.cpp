@@ -21,11 +21,11 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
     nav_hash hashValue = createHash(x, y, theta, direction, rotationLookAt, rotation);
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
-    if (is_robot_stalled && !useHighways){
+    if (hashValue == currentInstructionHash && is_robot_stalled && !useHighways){
         ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_PAUSED : NAV_ERROR;
         return ireturn;
     }
-    else if (is_robot_stalled && useHighways){
+    else if (hashValue == currentInstructionHash && is_robot_stalled && useHighways){
         LOG_WARNING("Robot is stalled, but using highways to recalculate path");
         currentInstructionHash = 0; // Reset the hash to recalculate the path
     }
@@ -39,6 +39,7 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
                 return NAV_ERROR;
             }else{
                 asserv.stop();
+                asserv.set_brake_state(false);
                 for (int i = 0; i < currentPathLenght; i++){
                     asserv.go_to_point(currentPath[i].x,currentPath[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
                 }
@@ -63,11 +64,11 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
     nav_hash hashValue = createHash(x, y, 0, direction, rotationLookAt, (Rotation)0);
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
-    if (is_robot_stalled && !useHighways){
+    if (hashValue == currentInstructionHash && is_robot_stalled && !useHighways){
         ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_PAUSED : NAV_ERROR;
         return ireturn;
     }
-    else if (is_robot_stalled && useHighways){
+    else if (hashValue == currentInstructionHash && is_robot_stalled && useHighways){
         LOG_WARNING("Robot is stalled, but using highways to recalculate path");
         currentInstructionHash = 0; // Reset the hash to recalculate the path
     }
@@ -91,6 +92,7 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
         }
         else{
             asserv.stop();
+            asserv.set_brake_state(false);
             asserv.go_to_point(x,y, rotationLookAt, direction);
             currentPath[0] = {x,y};
             currentPathLenght = 1;

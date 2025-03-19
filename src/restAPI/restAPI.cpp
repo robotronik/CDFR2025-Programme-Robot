@@ -331,12 +331,11 @@ void StartAPIServer(){
         if (req_data.contains("theta")){
             int req_theta_value = req_data["theta"];
             LOG_INFO("Manual ctrl : Requested set_target_coordinates, x=", req_x_value, " y=", req_y_value, " theta=", req_theta_value);
-            asserv.go_to_point(req_x_value,req_y_value);
-            asserv.consigne_angulaire(req_theta_value, Rotation::SHORTEST);
+            navigationGoTo(req_x_value, req_y_value, tableStatus.robot.pos.theta, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, false);
         }
         else{
             LOG_INFO("Manual ctrl : Requested set_target_coordinates, x=", req_x_value, " y=", req_y_value);
-            asserv.go_to_point(req_x_value,req_y_value);
+            navigationGoToNoTurn(req_x_value, req_y_value, Direction::FORWARD, Rotation::SHORTEST, false);
         }
 
         json response;
@@ -396,8 +395,7 @@ void StartAPIServer(){
         LOG_INFO("Manual ctrl : Requested set_move, value=", req_value);
 
         // Apply the value
-        asserv.go_to_point(newXvalue,newYvalue, Rotation::SHORTEST, req_value > 0 ? Direction::FORWARD : Direction::BACKWARD);
-
+        navigationGoToNoTurn(newXvalue, newYvalue, req_value < 0 ? Direction::BACKWARD : Direction::FORWARD, Rotation::SHORTEST, false);
 
         json response;
         response["message"] = "Successfull";
@@ -417,6 +415,7 @@ void StartAPIServer(){
         int req_value = req_data["value"];
 
         // Apply the value
+        asserv.stop();
         asserv.consigne_angulaire(tableStatus.robot.pos.theta + req_value, Rotation::SHORTEST);
 
         LOG_INFO("Manual ctrl : Requested set_rotate, value=", req_value);
