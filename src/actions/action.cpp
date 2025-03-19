@@ -71,6 +71,7 @@ bool ActionFSM::RunFSM(){
 ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
     position_t stockPos = STOCK_POSITION_ARRAY[num];
     int off = STOCK_OFFSET_MAPPING[num][offset];
+    if (off < 0) return FSM_RETURN_ERROR;
     position_t stockOff = STOCK_OFFSETS[off];
     stock_direction_t stock_dir = STOCK_DIRECTION[num][offset]; // FORWARDS OR BACKWARDS
     Direction stock_nav_dir      = stock_dir == FORWARDS ? Direction::FORWARD : Direction::BACKWARD;
@@ -78,7 +79,8 @@ ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
     nav_return_t nav_ret;
     switch (takeSingleStockState){
     case FSM_SINGLESTOCK_NAV:
-        nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, true);
+        // TODO Highways should be enabled
+        nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, false);
         if (RevolverPrepareLowBarrel(stock_intake_dir) && (nav_ret == NAV_DONE)){
             takeSingleStockState = FSM_SINGLESTOCK_MOVE;
         }
