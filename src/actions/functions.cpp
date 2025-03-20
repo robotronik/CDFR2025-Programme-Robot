@@ -31,7 +31,7 @@ bool constructSingleTribune(){
         }
         break;
     case 4:
-        if (moveTribunePusher(false)){
+        if (movePlatformLifts(1, false) & moveTribunePusher(false)){
             state = 1;
             return true;
         }
@@ -225,7 +225,7 @@ bool moveLowColumnsRevolverAbs(int N){
     static int previousN = 0;
 
     float gearTheets = 13; // Theets per rotation
-    float stepperSteps = 200 * 8; // 8 microstepping
+    float stepperSteps = 200 * 16; // 16 microstepping
     float intervalBetweenN = 3.5; // Theets between N
     int absSteps = (int)((stepperSteps * intervalBetweenN * N) / gearTheets);
 
@@ -243,7 +243,7 @@ bool moveHighColumnsRevolverAbs(int N){
     static int previousN = 0;
 
     float gearTheets = 13; // Theets per rotation
-    float stepperSteps = 200 * 8; // 8 microstepping
+    float stepperSteps = 200 * 16; // 16 microstepping
     float intervalBetweenN = 3.5; // Theets between N
     int absSteps = (int)((stepperSteps * intervalBetweenN * N) / gearTheets);
 
