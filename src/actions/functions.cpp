@@ -229,6 +229,8 @@ bool moveLowColumnsRevolverAbs(int N){
     float intervalBetweenN = 3.5; // Theets between N
     int absSteps = (int)((stepperSteps * intervalBetweenN * N) / gearTheets);
 
+    LOG_DEBUG("Moving low revolver to ", N, ", steps pos:", absSteps);
+
     if (previousN != N){
         previousN = N;
         arduino.moveStepper(absSteps, COLOMNS_REVOLVER_LOW_STEPPER_NUM);
@@ -247,6 +249,8 @@ bool moveHighColumnsRevolverAbs(int N){
     float intervalBetweenN = 3.5; // Theets between N
     int absSteps = (int)((stepperSteps * intervalBetweenN * N) / gearTheets);
 
+    LOG_DEBUG("Moving high revolver to ", N, ", steps pos:", absSteps);
+
     if (previousN != N){
         previousN = N;
         arduino.moveStepper(absSteps, COLOMNS_REVOLVER_HIGH_STEPPER_NUM);
@@ -263,9 +267,9 @@ bool moveHighColumnsRevolverAbs(int N){
 
 // Returns true if actuators are home
 bool homeActuators(){
+    arduino.moveStepper(0, PLATFORMS_ELEVATOR_STEPPER_NUM);
     return (
     movePlatformLifts(0) &
-    movePlatformElevator(0) &
     moveTribunePusher(false) &
     moveTribuneElevator(false) &
     moveClaws(1) //0
@@ -351,7 +355,7 @@ void switchTeamSide(colorTeam_t color){
             //asserv.set_coordinates(200, 1500-140, 90);
             asserv.set_coordinates(50, 1500-140, -90);
 
-            arduino.RGB_Blinking(255, 127, 0);
+            arduino.RGB_Blinking(255, 56, 0);
             break;
         default:
             break;
