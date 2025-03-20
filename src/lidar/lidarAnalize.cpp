@@ -148,7 +148,7 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
 
 
     if (blob_count < 1){
-        LOG_DEBUG("Did not find any opponent blob");
+        // LOG_DEBUG("Did not find any opponent blob");
         return false;
     }
 
@@ -166,7 +166,7 @@ bool position_opponentV2(lidarAnalize_t* data, int count, position_t robot_pos, 
         //LOG_GREEN_INFO("Blob fits the requirements");
 
         if (opponent_idx != -1){
-            LOG_WARNING("Too many opponents blobs were found, stopping");
+            // LOG_WARNING("Too many opponents blobs were found, stopping");
             return false;
         }
         // Blob considered as opponent 

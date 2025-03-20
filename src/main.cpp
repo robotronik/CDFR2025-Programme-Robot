@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
             // LOG_GREEN_INFO("Robot target : { x = ", x," y = ", y, " theta = ", theta, " }");
             tableStatus.robot.direction_side = (int)asserv.get_direction_side();
 
-            if (currentState != INIT)
+            if (currentState != INIT && currentState != FIN)
             {
 #ifndef DISABLE_LIDAR
                 GetLidar();

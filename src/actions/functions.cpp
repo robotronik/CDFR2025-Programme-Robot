@@ -339,12 +339,18 @@ void switchTeamSide(colorTeam_t color){
         {
         case BLUE:
             LOG_INFO("Switching to BLUE");
-            asserv.set_coordinates(-770, -1390, 90);
+
+            //asserv.set_coordinates(200, -(1500-140), -90);
+            asserv.set_coordinates(50, -(1500-140), 90);
+
             arduino.RGB_Blinking(0, 0, 255);
             break;
         case YELLOW:
             LOG_INFO("Switching to YELLOW");
-            asserv.set_coordinates(-770, 1390, -90);
+
+            //asserv.set_coordinates(200, 1500-140, 90);
+            asserv.set_coordinates(50, 1500-140, -90);
+
             arduino.RGB_Blinking(255, 127, 0);
             break;
         default:

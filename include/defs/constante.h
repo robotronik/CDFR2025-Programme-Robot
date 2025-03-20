@@ -50,15 +50,15 @@ const position_t STOCK_POSITION_ARRAY[] = {{-725, 675, 0}, {-325, 1425, 90}, {60
 
 // Offset of the robot from the stocks
 const position_t STOCK_OFFSETS[] = {
-    { COL_OFFSET_STOCK,-NO_COL_OFFSET_STOCK,-90},  //0 : Offset for horizontal droite bas
-    { COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK, 90},  //1 : Offset for horizontal droite haut
-    {-COL_OFFSET_STOCK,-NO_COL_OFFSET_STOCK,-90},  //2 : Offset for horizontal gauche bas
-    {-COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK, 90},  //3 : Offset for horizontal gauche haut
+    { NO_COL_OFFSET_STOCK, COL_OFFSET_STOCK,-90},  //0 : Offset for horizontal droite bas  fwrd
+    {-NO_COL_OFFSET_STOCK, COL_OFFSET_STOCK, 90},  //1 : Offset for horizontal droite haut bwrd
+    { NO_COL_OFFSET_STOCK,-COL_OFFSET_STOCK,-90},  //2 : Offset for horizontal gauche bas  bwrd
+    {-NO_COL_OFFSET_STOCK,-COL_OFFSET_STOCK, 90},  //3 : Offset for horizontal gauche haut fwrd
 
-    { NO_COL_OFFSET_STOCK,-COL_OFFSET_STOCK, 0},   //4 : Offset for vertical droite bas
-    { NO_COL_OFFSET_STOCK, COL_OFFSET_STOCK, 0},   //5 : Offset for vertical droite haut
-    {-NO_COL_OFFSET_STOCK,-COL_OFFSET_STOCK, 180}, //6 : Offset for vertical gauche bas
-    {-NO_COL_OFFSET_STOCK, COL_OFFSET_STOCK, 180}, //7 : Offset for vertical gauche haut
+    { COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK, 0},   //4 : Offset for vertical droite bas    bwrd
+    {-COL_OFFSET_STOCK, NO_COL_OFFSET_STOCK, 0},   //5 : Offset for vertical droite haut   fwrd
+    { COL_OFFSET_STOCK,-NO_COL_OFFSET_STOCK, 180}, //6 : Offset for vertical gauche bas    fwrd
+    {-COL_OFFSET_STOCK,-NO_COL_OFFSET_STOCK, 180}, //7 : Offset for vertical gauche haut   bwrd
 }; 
 const int STOCK_OFFSET_MAPPING[10][4] = {
     {0, -1, -1,-1}, // Stock 0 utilise les offsets 0
@@ -85,13 +85,13 @@ const stock_direction_t STOCK_DIRECTION[10][4] = {
     {FORWARDS, BACKWARDS, NO, NO},
     {FORWARDS, BACKWARDS, NO, NO},
     {BACKWARDS, FORWARDS, NO, NO},
-    {BACKWARDS, FORWARDS, FORWARDS, BACKWARDS},
+    {FORWARDS, BACKWARDS, BACKWARDS, FORWARDS},
 
-    {FORWARDS, NO, NO, NO},
+    {BACKWARDS, NO, NO, NO},
     {BACKWARDS, FORWARDS, NO, NO},
     {BACKWARDS, FORWARDS, NO, NO},
     {BACKWARDS, FORWARDS, NO, NO},
-    {BACKWARDS, FORWARDS, FORWARDS, BACKWARDS},
+    {FORWARDS, BACKWARDS, BACKWARDS, FORWARDS},
 };
 
 const int STOCK_COUNT = 10;

@@ -28,7 +28,8 @@ bool ActionFSM::RunFSM(){
     {
     //****************************************************************
     case FSM_ACTION_GATHER:
-        ret = TakeSingleStockFSM(0, 0); //TODO choose the stock
+        // ret = TakeSingleStockFSM(5, 0); //TODO choose the stock
+        ret = TakeSingleStockFSM(9, 2); //TODO choose the stock
         if (ret == FSM_RETURN_DONE){
             if (true) // TODO Done collecting
                 runState = FSM_ACTION_BUILD;
@@ -74,8 +75,8 @@ ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
     if (off < 0) return FSM_RETURN_ERROR;
     position_t stockOff = STOCK_OFFSETS[off];
     stock_direction_t stock_dir = STOCK_DIRECTION[num][offset]; // FORWARDS OR BACKWARDS
-    Direction stock_nav_dir      = stock_dir == FORWARDS ? Direction::FORWARD : Direction::BACKWARD;
-    direction_t stock_intake_dir = stock_dir == FORWARDS ? FROM_LEFT : FROM_RIGHT;
+    Direction stock_nav_dir      = (stock_dir == FORWARDS) ? Direction::FORWARD : Direction::BACKWARD;
+    direction_t stock_intake_dir = (stock_dir == FORWARDS) ? FROM_LEFT : FROM_RIGHT;
     nav_return_t nav_ret;
     switch (takeSingleStockState){
     case FSM_SINGLESTOCK_NAV:
