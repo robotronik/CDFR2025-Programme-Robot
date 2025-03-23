@@ -29,9 +29,12 @@ bool moveClaws(int level);
 
 // Stepper Control
 bool movePlatformElevator(int level);
-bool moveTribuneElevator(bool high);
 bool moveLowColumnsRevolverAbs(int N);
 bool moveHighColumnsRevolverAbs(int N);
+
+// DC Motor Control
+bool moveTribuneElevator();
+void stopTribuneElevator();
 
 // Input sensors
 colorTeam_t readColorSensorSwitch();

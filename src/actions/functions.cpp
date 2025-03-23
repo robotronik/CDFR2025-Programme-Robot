@@ -66,11 +66,11 @@ bool liftSingleTribune(){
     switch (state)
     {
     case 1:
-        if (moveTribuneElevator(true) & moveClaws(1))
+        if (moveClaws(1))
             state ++;
         break;
     case 2:
-        if (moveTribuneElevator(false))
+        if (moveTribuneElevator())
             state ++;
         break;
     case 3:
@@ -78,7 +78,7 @@ bool liftSingleTribune(){
             state++;
         break;
     case 4:
-        if (moveTribuneElevator(true)){
+        if (/*moveTribuneElevator()*/true){
             state = 1;
             return true;
         }
@@ -207,7 +207,8 @@ bool movePlatformElevator(int level){
 }
 
 // Moves the tribune elevator to a predefined level
-bool moveTribuneElevator(bool high){
+bool moveTribuneElevator(){
+    /*
     static bool previousHigh = !high;
 
     int target = high ? 2000 : 0; // TODO : Check if this is correct
@@ -218,6 +219,13 @@ bool moveTribuneElevator(bool high){
     int32_t currentValue;
     if (!arduino.getStepper(currentValue, TRIBUNES_ELEVATOR_STEPPER_NUM)) return false;
     return (currentValue == target);
+    */
+    arduino.moveMotorDC(80, 15);
+    return true;
+}
+
+void stopTribuneElevator(){
+    arduino.stopMotorDC();
 }
 
 // Move the lower revolver to an absolute position by N relative to the pusher
@@ -268,10 +276,10 @@ bool moveHighColumnsRevolverAbs(int N){
 // Returns true if actuators are home
 bool homeActuators(){
     arduino.moveStepper(0, PLATFORMS_ELEVATOR_STEPPER_NUM);
+    stopTribuneElevator();
     return (
     movePlatformLifts(0) &
     moveTribunePusher(false) &
-    moveTribuneElevator(false) &
     moveClaws(1) //0
     );
 }

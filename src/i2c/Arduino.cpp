@@ -12,6 +12,9 @@ Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
 #define CMD_MOVE_STEPPER 0x07
 #define CMD_SET_STEPPER 0x08
 #define CMD_GET_STEPPER 0x09
+#define CMD_SET_MOSFET 0x0A
+#define CMD_MOVE_DC_MOTOR 0x0B
+#define CMD_STOP_DC_MOTOR 0x0C
 
 
 // [0;180]
@@ -146,4 +149,26 @@ void Arduino::RGB_Rainbow(int LED_ID){
 void Arduino::SetLidarPWM(uint8_t val){
     if (I2cSendData(CMD_PWM_LIDAR, &val, 1))
         LOG_ERROR("Couldn't set Lidar PWM");
+}
+
+
+void Arduino::moveMotorDC(uint8_t speed, uint8_t holding){
+    LOG_DEBUG("Moving DC Motor ");
+    if (i2cFile == -1) return; // Emulation
+    uint8_t message [3];
+    uint8_t *ptr = message;
+    WriteUInt8(&ptr, 1);
+    WriteUInt8(&ptr, speed);
+    WriteUInt8(&ptr, holding);
+    if (I2cSendData(CMD_MOVE_DC_MOTOR, message, 3))
+        LOG_ERROR("Couldn't move DC Motor");
+}
+void Arduino::stopMotorDC(){
+    LOG_DEBUG("Stopping DC Motor ");
+    if (i2cFile == -1) return; // Emulation
+    uint8_t message [1];
+    uint8_t *ptr = message;
+    WriteUInt8(&ptr, 1);
+    if (I2cSendData(CMD_STOP_DC_MOTOR, message, 1))
+        LOG_ERROR("Couldn't stop DC Motor");
 }
