@@ -183,13 +183,15 @@ bool moveClaws(int level){
 // ------------------------------------------------------
 
 // Moves the platforms elevator to a predefined level
-// 0:lowest, 1:middle, 2:highest
+// -1:startpos, 0:lowest, 1:middle, 2:highest
 bool movePlatformElevator(int level){
-    static int previousLevel = -1;
+    static int previousLevel = -100;
 
     int target = 0;
     switch (level)
     {
+    case -1:
+        target = 0; break;
     case 0:
         target = 500; break;
     case 1:
@@ -275,12 +277,12 @@ bool moveHighColumnsRevolverAbs(int N){
 
 // Returns true if actuators are home
 bool homeActuators(){
-    arduino.moveStepper(0, PLATFORMS_ELEVATOR_STEPPER_NUM);
     stopTribuneElevator();
     return (
     movePlatformLifts(0) &
     moveTribunePusher(false) &
-    moveClaws(1) //0
+    moveClaws(1) & //0
+    movePlatformElevator(-1)
     );
 }
 void enableActuators(){
@@ -291,11 +293,13 @@ void enableActuators(){
     asserv.set_brake_state(false); 
 }
 void disableActuators(){
+    stopTribuneElevator();
     for (int i = 0; i < 4; i++){
         arduino.disableStepper(i);
     }
     asserv.set_motor_state(false);
     asserv.set_brake_state(true); 
+    asserv.stop();
 }
 
 
@@ -353,7 +357,7 @@ void switchTeamSide(colorTeam_t color){
             LOG_INFO("Switching to BLUE");
 
             //asserv.set_coordinates(200, -(1500-140), -90);
-            asserv.set_coordinates(50, -(1500-140), 90);
+            asserv.set_coordinates(73, -(1500-225), 90);
 
             arduino.RGB_Blinking(0, 0, 255);
             break;
@@ -361,7 +365,7 @@ void switchTeamSide(colorTeam_t color){
             LOG_INFO("Switching to YELLOW");
 
             //asserv.set_coordinates(200, 1500-140, 90);
-            asserv.set_coordinates(50, 1500-140, -90);
+            asserv.set_coordinates(73, 1500-225, -90);
 
             arduino.RGB_Blinking(255, 56, 0);
             break;

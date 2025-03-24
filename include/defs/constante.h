@@ -41,8 +41,8 @@
 #define SPEED_STOCK 8000 // Motor speed for collecting stock (mm/s)
 #define STEPPER_SPEED 1000 // Stepper motor speed for collecting stock (steps/s)
 
-#define COL_OFFSET_STOCK 380
-#define NO_COL_OFFSET_STOCK 180 
+#define COL_OFFSET_STOCK 410
+#define NO_COL_OFFSET_STOCK 145
 
 // Angle is either 0 for horizontal stock of 90 for vertical
 const position_t STOCK_POSITION_ARRAY[] = {{-725, 675, 0}, {-325, 1425, 90}, {600, 1425, 90}, {750, 725, 0}, {50, 400, 0}, 

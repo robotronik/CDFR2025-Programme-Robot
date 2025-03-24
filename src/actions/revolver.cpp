@@ -126,6 +126,7 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished sens 1 = mo
 
 // Load a Stock according to the direction. Barrel needs to be prepared. Called for loading stock
 bool RevolverLoadStock(direction_t dir){
+    // TODO fsm action 
     static int i = 0;
     int intake_pos = (dir == FROM_RIGHT) ? 4 : 1;
     int rotation = (dir == FROM_RIGHT) ? -1 : 1; // position ajout column, Sens de rotation

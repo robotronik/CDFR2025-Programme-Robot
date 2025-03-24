@@ -56,7 +56,8 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
         }
     }
     else{
-        ireturn = asserv.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
+        ireturn = (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
+                     ? NAV_DONE : NAV_IN_PROCESS;
     }
     return ireturn;
 }
@@ -103,7 +104,8 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
         }
     }
     else{
-        ireturn = asserv.get_moving_is_done() ? NAV_DONE : NAV_IN_PROCESS;
+        ireturn = (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
+                     ? NAV_DONE : NAV_IN_PROCESS;
     }
     return ireturn;
 }

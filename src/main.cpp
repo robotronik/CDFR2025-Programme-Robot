@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
             }
             bool finished = action.RunFSM();
 
-            if (_millis() > tableStatus.startTime + 90000 || finished)
+            if (_millis() > tableStatus.startTime + 30000 || finished) //100000
                 nextState = FIN;
             break;
         }
@@ -192,8 +192,10 @@ int main(int argc, char *argv[])
                 lidar.stopSpin();
             }
 
-            if (!readLatchSensor())
-                nextState = INIT;
+            if (!readLatchSensor()){
+                enableActuators();
+                ctrl_c_pressed = true; // nextState = INIT;
+            }
             break;
         }
         //****************************************************************
