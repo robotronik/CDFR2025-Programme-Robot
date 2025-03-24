@@ -94,7 +94,7 @@ ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
             nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y - stockOff.y/6, stock_nav_dir, Rotation::SHORTEST, false);
         else // Vertical stock
             nav_ret = navigationGoToNoTurn(stockPos.x - stockOff.x/6, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
-        if ((nav_ret == NAV_DONE) & RevolverLoadStock(stock_intake_dir)){
+        if ((nav_ret == NAV_DONE) & RevolverLoadStock(stock_intake_dir, num)){
             takeSingleStockState = FSM_SINGLESTOCK_COLLECT;
         }
         else if (nav_ret == NAV_ERROR){

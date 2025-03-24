@@ -15,7 +15,7 @@ bool isRevolverEmpty();
 // RevolverPrepareLowBarrel : Prepare the low barrel for incoming stock
 bool RevolverPrepareLowBarrel(direction_t dir);
 // RevolverLoadStock : Adds the 4 columns of stock to the revolver
-bool RevolverLoadStock(direction_t dir);
+bool RevolverLoadStock(direction_t dir, int num);
 
 // RevolverRelease : RevolverRelease the barrel
 bool RevolverRelease();

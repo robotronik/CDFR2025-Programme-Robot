@@ -125,26 +125,28 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished sens 1 = mo
 // -------------------------------------------------
 
 // Load a Stock according to the direction. Barrel needs to be prepared. Called for loading stock
-bool RevolverLoadStock(direction_t dir){
-    // TODO fsm action 
-    static int i = 0;
+bool RevolverLoadStock(direction_t dir, int num){
+    static int prev_num = -1;
+    static bool done = false;
     int intake_pos = (dir == FROM_RIGHT) ? 4 : 1;
     int rotation = (dir == FROM_RIGHT) ? -1 : 1; // position ajout column, Sens de rotation
     
-    if (SpinLowBarrel(rotation)){
-        LOG_INFO("Loaded a column from ", (dir == FROM_RIGHT) ? "Right" : "Left");
-        if (lowArr[intake_pos]) 
-            throw std::runtime_error("Cant load stock into a already used position!");
-        lowArr[intake_pos] = true;
-        DisplayBarrel();
-        lowBarrelCount++;
-        i++;
-        if (i == 4){
-            i = 0;
-            return true;
-        }
+    if (prev_num != num) {
+        done = false;
+        prev_num = num;
     }
-    return false;
+    if (!done && SpinLowBarrel(rotation*4)){
+        LOG_INFO("Loaded a column from ", (dir == FROM_RIGHT) ? "Right" : "Left");
+        for (int i = 0; i < 4; i++) {
+            if (lowArr[intake_pos + i * rotation]) 
+                throw std::runtime_error("Cant load stock into a already used position!");
+            lowArr[intake_pos + i * rotation] = true;
+        }
+        DisplayBarrel();
+        lowBarrelCount += 4;
+        done = true;
+    }
+    return done;
 }
 
 // Function that manages the storage of the first level. Returns true when done preparing for intake of stock from direction
@@ -218,11 +220,11 @@ bool ReleaseLow() {
 // Test Functions
 // -------------------------------------------------
 
-void TestTakeAction(direction_t dir){
+void TestTakeAction(direction_t dir, int numm){
     if (isRevolverFull())
         return;
     while (!RevolverPrepareLowBarrel(dir));
-    while (!RevolverLoadStock(dir));
+    while (!RevolverLoadStock(dir, numm));
     DisplayBarrel();
 }
 
@@ -232,12 +234,12 @@ void TestRevolver(){
 
     emulateActuators = true;
 
-    TestTakeAction(FROM_RIGHT);
-    TestTakeAction(FROM_LEFT);
-    TestTakeAction(FROM_RIGHT);
-    TestTakeAction(FROM_LEFT);
-    TestTakeAction(FROM_RIGHT);
-    TestTakeAction(FROM_LEFT);
+    TestTakeAction(FROM_RIGHT, 0);
+    TestTakeAction(FROM_LEFT, 1);
+    TestTakeAction(FROM_RIGHT, 2);
+    TestTakeAction(FROM_LEFT, 3);
+    TestTakeAction(FROM_RIGHT, 4);
+    TestTakeAction(FROM_LEFT, 5);
     while (!isRevolverEmpty())
         RevolverRelease();
 
