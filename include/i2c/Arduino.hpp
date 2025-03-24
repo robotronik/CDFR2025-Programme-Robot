@@ -15,6 +15,7 @@ class Arduino : public I2CDevice {
     void moveServoSpeed(int ServoID, int position, int speed);
     bool readSensor(int SensorID, bool& value);
     void moveStepper(int32_t absPosition, int StepperID);
+    void setStepperSpeed(int StepperID, int speed);
     void setStepper(int32_t absPosition, int StepperID);
     bool getStepper(int32_t& absPosition, int StepperID);
     void enableStepper(int StepperID);
