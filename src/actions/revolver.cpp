@@ -74,26 +74,25 @@ void ShiftArray(bool arr[], int n, int size) {
     free(temp);
 }
 
-
 // Spin the barrel by n positions (positive or negative) returns true when done
 bool SpinLowBarrel(int n) {
-    static bool init = false;
     static int lowBarrelShiftTarget = 0;
-    if (n==0)
+    
+    if (n == 0)
         return true;
-    if (!init){
-        LOG_INFO("Spin Low Barrel by n=", n, (n > 0) ? " Clockwise" : " Anticlockwise");
-        lowBarrelShiftTarget = lowBarrelShift + n;
-        init = true;
-    }
-    if (emulateActuators || moveLowColumnsRevolverAbs(lowBarrelShiftTarget)){
+
+    // Recalcule toujours la cible et initialise
+    LOG_INFO("Spin Low Barrel by n=", n, (n > 0) ? " Clockwise" : " Anticlockwise");
+    lowBarrelShiftTarget = lowBarrelShift + n;
+
+    if (emulateActuators || moveLowColumnsRevolverAbs(lowBarrelShiftTarget)) {
         ShiftArray(lowArr, n, SIZE_LOW);
-        lowBarrelShift += lowBarrelShiftTarget;
-        init = false;
+        lowBarrelShift = lowBarrelShiftTarget;
         return true;
     }
     return false;
 }
+
 //return the shift needed to put first or last 1 to desired position
 int ShiftListNumber(bool list[], int desired_position, bool choose_first) {//choose_first = 1 pour mettre le premier 1, 0 pour mettre le dernier 1
     int n = 14, first = -1, last = -1;

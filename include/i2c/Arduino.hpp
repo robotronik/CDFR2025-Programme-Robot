@@ -24,6 +24,8 @@ class Arduino : public I2CDevice {
     void RGB_Blinking(uint8_t R, uint8_t G, uint8_t B, int LED_ID = 1);
     void RGB_Rainbow(int LED_ID = 1);
     void SetLidarPWM(uint8_t val);
+    void moveMotorDC(uint8_t speed, uint8_t holding);
+    void stopMotorDC();
 private:
     void RGB(int LED_ID, uint8_t mode, uint8_t r, uint8_t g, uint8_t b);
 };
