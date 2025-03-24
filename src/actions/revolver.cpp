@@ -81,27 +81,24 @@ void ShiftArray(bool arr[], int n, int size) {
 }
 
 // Spin the barrel by n positions (positive or negative) returns true when done
-bool SpinHighBarrel(int n) {
-    static bool init = false;
-    static int highBarrelShiftTarget = 0;
-    if (n==0)
+bool SpinLowBarrel(int n) {
+    static int lowBarrelShiftTarget = 0;
+    
+    if (n == 0)
         return true;
-    if (!init){
-        LOG_INFO("Spin High Barrel by n=", n, (n > 0) ? " Clockwise" : " Anticlockwise");
-        highBarrelShiftTarget = highBarrelShift + n;
-        init = true;
-    }
-    if (emulateActuators || moveHighColumnsRevolverAbs(highBarrelShiftTarget)){
-        ShiftArray(highArr, n, SIZE_HIGH);
-        for (int i = 1; i <= 4; i++) { // Case 1 2 3 4 High barrel
-            if (highArr[i]) LOG_ERROR("High barrel : Illegal position");
-        }
-        highBarrelShift += highBarrelShiftTarget;
-        init = false;
+
+    // Recalcule toujours la cible et initialise
+    LOG_INFO("Spin Low Barrel by n=", n, (n > 0) ? " Clockwise" : " Anticlockwise");
+    lowBarrelShiftTarget = lowBarrelShift + n;
+
+    if (emulateActuators || moveLowColumnsRevolverAbs(lowBarrelShiftTarget)) {
+        ShiftArray(lowArr, n, SIZE_LOW);
+        lowBarrelShift = lowBarrelShiftTarget;
         return true;
     }
     return false;
 }
+
 
 // Spin the barrel by n positions (positive or negative) returns true when done
 bool SpinLowBarrel(int n) {
