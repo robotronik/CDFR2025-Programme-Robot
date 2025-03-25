@@ -63,14 +63,18 @@ bool takeStockPlatforms(){
 
 bool liftSingleTribune(){
     static int state = 1;
+    static unsigned long startTime = _millis();
     switch (state)
     {
     case 1:
-        if (moveClaws(1))
+        if (moveClaws(1)){
+            moveTribuneElevator();
+            startTime = _millis();
             state ++;
+        }
         break;
     case 2:
-        if (moveTribuneElevator())
+        if (_millis() > startTime + 1500)
             state ++;
         break;
     case 3:
@@ -78,7 +82,7 @@ bool liftSingleTribune(){
             state++;
         break;
     case 4:
-        if (/*moveTribuneElevator()*/true){
+        if (_millis() > startTime + 4000){
             state = 1;
             return true;
         }
@@ -222,7 +226,7 @@ bool moveTribuneElevator(){
     if (!arduino.getStepper(currentValue, TRIBUNES_ELEVATOR_STEPPER_NUM)) return false;
     return (currentValue == target);
     */
-    arduino.moveMotorDC(80, 15);
+    arduino.moveMotorDC(255, 30);
     return true;
 }
 
