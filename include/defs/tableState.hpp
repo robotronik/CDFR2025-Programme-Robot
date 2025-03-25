@@ -19,6 +19,8 @@ public:
     unsigned long startTime;
     robot_t robot;
 
+    int strategy;
+
     /* data Show Must Go On*/
     bool avail_stocks[STOCK_COUNT];     // Is stock available
     bool done_banderole;               // Is action done

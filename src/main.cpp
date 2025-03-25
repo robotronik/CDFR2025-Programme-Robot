@@ -347,9 +347,8 @@ void GetLidar()
             // Save the filtered position to tableStatus
             tableStatus.pos_opponent.x = pos_opponent_filtered.x;
             tableStatus.pos_opponent.y = pos_opponent_filtered.y;
-
-            opponentInAction(pos_opponent_filtered);
-            
+            if ((currentState == RUN || currentState == MANUAL) && (_millis() > tableStatus.startTime + 2000))
+                opponentInAction(pos_opponent_filtered);            
         }
     }
 }

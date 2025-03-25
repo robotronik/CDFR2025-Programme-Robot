@@ -6,6 +6,7 @@
 #include "lidar/Lidar.hpp"
 #include "defs/constante.h"
 #include "i2c/Arduino.hpp"
+#include "actions/strats.hpp"
 #include <math.h>
 
 // ------------------------------------------------------
@@ -319,7 +320,7 @@ void setStockAsRemoved(int num){
 
 bool returnToHome(){
     int home_x = -500;
-    int home_y = tableStatus.robot.colorTeam == BLUE ? 1100 : -1100;
+    int home_y = (tableStatus.robot.colorTeam == BLUE) ? 1100 : -1100;
     nav_return_t res = navigationGoToNoTurn(home_x, home_y);
     return res == NAV_DONE && isRobotInArrivalZone(tableStatus.robot.pos);
 }
@@ -359,28 +360,37 @@ void switchTeamSide(colorTeam_t color){
         {
         case BLUE:
             LOG_INFO("Switching to BLUE");
-
-            //asserv.set_coordinates(200, -(1500-140), -90);
-            asserv.set_coordinates(73, -(1500-225), 90);
-
             arduino.RGB_Blinking(0, 0, 255);
             break;
         case YELLOW:
             LOG_INFO("Switching to YELLOW");
-
-            //asserv.set_coordinates(200, 1500-140, 90);
-            asserv.set_coordinates(73, 1500-225, -90);
-
             arduino.RGB_Blinking(255, 56, 0);
             break;
         default:
             break;
         }
+
+        position_t pos = StratStartingPos();
+        asserv.set_coordinates(pos.x, pos.y, pos.theta);
     }
 }
-
-void getAvailableStockPositions(){
+void switchStrategy(int strategy){
+    if (currentState == RUN) return;
+    if (strategy < 1 || strategy > 4){
+        LOG_ERROR("Invalid strategy");
+        return;
+    }
+    if (strategy != tableStatus.strategy){
+        LOG_INFO("Strategy switch detected");
+        tableStatus.strategy = strategy;
+        position_t pos = StratStartingPos();
+        asserv.set_coordinates(pos.x, pos.y, pos.theta);
+    }
+}
+void getBestAvailableStock(){
     // Returns all the stocks available and their position
+    // TODO list all the available stocks and their positions
+    // then choose the best one
     for (int i = 0; i < STOCK_COUNT; i++){
         if (!tableStatus.avail_stocks[i])
             continue;
@@ -389,16 +399,15 @@ void getAvailableStockPositions(){
         if (tableStatus.robot.colorTeam == YELLOW && i == PROTECTED_BLUE_STOCK)
             continue;
 
-        position_t availPos[4];
-        int count = getStockPositions(i, availPos);
-        LOG_DEBUG("Stock ", i, " available positions: ", count);
+        int res = getBestStockPositionOff(i, tableStatus.robot.pos);
     }
 }
 
 // Returns the count of the available positions 
-int getStockPositions(int stockN, position_t availPos[4]){
-    int availCount = 0;
-
+int getBestStockPositionOff(int stockN, position_t fromPos){
+    int bestIndex = 0;
+    // Calculate the best position (closest to the robot)
+    float minDist = 1000000;
     for (int n = 0; n < 4; n++){
         int map = STOCK_OFFSET_MAPPING[stockN][n];
         if (map < 0) continue;
@@ -407,11 +416,16 @@ int getStockPositions(int stockN, position_t availPos[4]){
         finalPos.x += offset.x;
         finalPos.y += offset.y;
         finalPos.theta = offset.theta;
+        
+        // Calculate the distance between the robot and the stock
+        float dist = position_distance(fromPos, finalPos);
+        if (dist < minDist){
+            minDist = dist;
+            bestIndex = n;
+        }
 
-        availPos[availCount] = finalPos;
-        availCount ++;
     }
-    return availCount;
+    return bestIndex;
 }
 
 bool isRobotInArrivalZone(position_t position){

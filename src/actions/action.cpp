@@ -5,6 +5,7 @@
 #include "main.hpp"
 #include "navigation/navigation.h"
 #include "actions/functions.h"
+#include "actions/strats.hpp"
 #include "defs/tableState.hpp"
 #include "defs/constante.h"
 #include "actions/revolver.hpp"
@@ -28,14 +29,13 @@ bool ActionFSM::RunFSM(){
     {
     //****************************************************************
     case FSM_ACTION_GATHER:
-        // ret = TakeSingleStockFSM(5, 0); //TODO choose the stock
-        ret = TakeSingleStockFSM(9, 2); //TODO choose the stock
-        if (ret == FSM_RETURN_DONE){
-            if (true) // TODO Done collecting
-                runState = FSM_ACTION_BUILD;
-            // else choose another stock
+        int stockNum, stockOffset;
+        if (!StratGather(stockNum, stockOffset)){
+            runState = FSM_ACTION_BUILD;
+            break;
         }
-        else if (ret == FSM_RETURN_ERROR){
+        ret = TakeSingleStockFSM(stockNum, stockOffset);
+        if (ret == FSM_RETURN_ERROR){
             LOG_ERROR("Couldn't take stock");
             // TODO Handle error
         }

@@ -10,6 +10,7 @@ void disableActuators();
 bool isRobotInArrivalZone(position_t position);
 void opponentInAction(position_t position);
 void switchTeamSide(colorTeam_t color);
+void switchStrategy(int strategy);
 void setStockAsRemoved(int num);
 
 // Basic functions (FSM)
@@ -18,8 +19,8 @@ bool constructSingleTribune();
 bool liftSingleTribune();
 
 // Related to stock management
-void getAvailableStockPositions(); // TODO finish
-int getStockPositions(int stockN, position_t availPos[4]);
+void getBestAvailableStock(); // TODO finish
+int getBestStockPositionOff(int stockN, position_t fromPos);
 
 // Servo Control
 bool movePlatformLifts(int pos, bool slow = false);
