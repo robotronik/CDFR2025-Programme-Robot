@@ -18,7 +18,7 @@ ActionFSM::~ActionFSM(){}
 
 void ActionFSM::Reset(){
     runState = FSM_ACTION_GATHER;
-    takeSingleStockState = FSM_SINGLESTOCK_NAV;
+    gatherStockState = FSM_GATHER_NAV;
     constructAllTribunesState = FSM_CONSTRUCT_NAV;
     initRevolver();
 }
@@ -29,13 +29,11 @@ bool ActionFSM::RunFSM(){
     {
     //****************************************************************
     case FSM_ACTION_GATHER:
-        int stockNum, stockOffset;
-        if (!StratGather(stockNum, stockOffset)){
+        ret = GatherStock();
+        if (ret == FSM_RETURN_DONE){
             runState = FSM_ACTION_BUILD;
-            break;
         }
-        ret = TakeSingleStockFSM(stockNum, stockOffset);
-        if (ret == FSM_RETURN_ERROR){
+        else if (ret == FSM_RETURN_ERROR){
             LOG_ERROR("Couldn't take stock");
             // TODO Handle error
         }
@@ -69,7 +67,16 @@ bool ActionFSM::RunFSM(){
     return false;
 }
 
-ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
+ReturnFSM_t ActionFSM::GatherStock(){
+
+    static int num = -1;
+    static int offset;
+    if (num == -1){
+        if (!StratGather(num, offset)){
+            return FSM_RETURN_DONE;
+        }
+    }
+
     position_t stockPos = STOCK_POSITION_ARRAY[num];
     int off = STOCK_OFFSET_MAPPING[num][offset];
     if (off < 0) return FSM_RETURN_ERROR;
@@ -78,35 +85,36 @@ ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
     Direction stock_nav_dir      = (stock_dir == FORWARDS) ? Direction::FORWARD : Direction::BACKWARD;
     direction_t stock_intake_dir = (stock_dir == FORWARDS) ? FROM_LEFT : FROM_RIGHT;
     nav_return_t nav_ret;
-    switch (takeSingleStockState){
-    case FSM_SINGLESTOCK_NAV:
+    switch (gatherStockState){
+    case FSM_GATHER_NAV:
         // TODO Highways should be enabled
         nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, false);
         if (RevolverPrepareLowBarrel(stock_intake_dir) && (nav_ret == NAV_DONE)){
-            takeSingleStockState = FSM_SINGLESTOCK_MOVE;
+            gatherStockState = FSM_GATHER_MOVE;
         }
         else if (nav_ret == NAV_ERROR){
             return FSM_RETURN_ERROR;
         }
         break;
-    case FSM_SINGLESTOCK_MOVE:
+    case FSM_GATHER_MOVE:
         if (stockPos.theta == 0) // Horizontal stock
             nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y - stockOff.y/6, stock_nav_dir, Rotation::SHORTEST, false);
         else // Vertical stock
             nav_ret = navigationGoToNoTurn(stockPos.x - stockOff.x/6, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
         if ((nav_ret == NAV_DONE) & RevolverLoadStock(stock_intake_dir, num)){
-            takeSingleStockState = FSM_SINGLESTOCK_COLLECT;
+            gatherStockState = FSM_GATHER_COLLECT;
         }
         else if (nav_ret == NAV_ERROR){
             return FSM_RETURN_ERROR;
         }
         break;
-    case FSM_SINGLESTOCK_COLLECT:
+    case FSM_GATHER_COLLECT:
         // Collect the stock
         if (takeStockPlatforms()){
-            takeSingleStockState = FSM_SINGLESTOCK_NAV;
+            gatherStockState = FSM_GATHER_NAV;
             setStockAsRemoved(num);
-            return FSM_RETURN_DONE;
+            num = -1;
+            return FSM_RETURN_WORKING;
         }
         break;
     }

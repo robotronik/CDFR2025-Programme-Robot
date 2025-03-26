@@ -16,7 +16,7 @@ public:
     bool RunFSM();
 
 private:
-    ReturnFSM_t TakeSingleStockFSM(int num, int offset); // Num of the stock
+    ReturnFSM_t GatherStock();
     ReturnFSM_t ConstructAllTribunesFSM(int zone); // Num of the zone
 
     typedef enum
@@ -31,12 +31,12 @@ private:
 
     typedef enum
     {
-        FSM_SINGLESTOCK_NAV,
-        FSM_SINGLESTOCK_MOVE,
-        FSM_SINGLESTOCK_COLLECT
-    } StateTakeSingleStock_t;
+        FSM_GATHER_NAV,
+        FSM_GATHER_MOVE,
+        FSM_GATHER_COLLECT
+    } StateGatherStock_t;
 
-    StateTakeSingleStock_t takeSingleStockState = FSM_SINGLESTOCK_NAV;
+    StateGatherStock_t gatherStockState = FSM_GATHER_NAV;
 
     typedef enum
     {
