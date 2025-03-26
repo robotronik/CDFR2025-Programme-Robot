@@ -88,7 +88,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
     switch (gatherStockState){
     case FSM_GATHER_NAV:
         // TODO Highways should be enabled
-        nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, false);
+        nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
         if (RevolverPrepareLowBarrel(stock_intake_dir) && (nav_ret == NAV_DONE)){
             gatherStockState = FSM_GATHER_MOVE;
         }
