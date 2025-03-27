@@ -84,7 +84,7 @@ inline bool StratGather(int& stockNum, int& stockOffset){
     LOG_GREEN_INFO("No stock available");
     return false;
 }
-inline void StratBuild(int& zone){
+inline void StratConstruct(int& zone){
     // Returns the zone to build
     colorTeam_t color = tableStatus.robot.colorTeam;
     int strategy = tableStatus.strategy;

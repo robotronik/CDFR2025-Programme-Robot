@@ -30,9 +30,8 @@ bool ActionFSM::RunFSM(){
     //****************************************************************
     case FSM_ACTION_GATHER:
         ret = GatherStock();
-        if (ret == FSM_RETURN_DONE){
+        if (ret == FSM_RETURN_DONE)
             runState = FSM_ACTION_BUILD;
-        }
         else if (ret == FSM_RETURN_ERROR){
             LOG_ERROR("Couldn't take stock");
             // TODO Handle error
@@ -40,10 +39,9 @@ bool ActionFSM::RunFSM(){
         break;
     //****************************************************************
     case FSM_ACTION_BUILD:
-        ret = ConstructAllTribunesFSM(0); //TODO choose the zone
-        if (ret == FSM_RETURN_DONE){
+        ret = ConstructAllTribunesFSM(); //TODO choose the zone
+        if (ret == FSM_RETURN_DONE)
             runState = FSM_ACTION_NAV_HOME;
-        }
         else if (ret == FSM_RETURN_ERROR){
             LOG_ERROR("Couldn't build tribune");
             // TODO Handle error
@@ -122,8 +120,22 @@ ReturnFSM_t ActionFSM::GatherStock(){
     }
     return FSM_RETURN_WORKING;
 }
-ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(int zone){
+ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
     static int num = 0; // Keep track of the tribune were building
+    static int zoneNum = -1; // Keep track of the zone were building in
+
+    if (zoneNum == -1){
+        StratConstruct(zoneNum);
+    }
+
+    /*
+    position_t baseBuildPos = TRIBUNE_CONSTRUCT_POSITION[zoneNum];
+    // Offset the build pos by 120mm * num
+    int offset = 120 * num;
+    baseBuildPos.x += 0;
+    baseBuildPos.y += (tableStatus.robot.colorTeam == BLUE) ? -offset : +offset;
+    */
+   
     switch (constructAllTribunesState){
     case FSM_CONSTRUCT_NAV:
         // Nav to the tribune building location (zone)

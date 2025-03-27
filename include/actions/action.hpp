@@ -17,7 +17,7 @@ public:
 
 private:
     ReturnFSM_t GatherStock();
-    ReturnFSM_t ConstructAllTribunesFSM(int zone); // Num of the zone
+    ReturnFSM_t ConstructAllTribunesFSM();
 
     typedef enum
     {
