@@ -86,6 +86,7 @@ inline bool StratGather(int& stockNum, int& stockOffset){
         }
         i++;
     }
+    LOG_GREEN_INFO("No stock available");
     return false;
 }
 inline void StratBuild(int& zone){
