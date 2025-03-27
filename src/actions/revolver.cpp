@@ -56,7 +56,7 @@ void DisplayBarrel(){
 // -------------------------------------------------
 bool isRevolverFull(){
     if (lowBarrelCount + 4 > SIZE_LOW) {
-        LOG_ERROR("No more space in revolver !");
+        LOG_WARNING("No more space in revolver !");
         return true;
     }
     return false;
