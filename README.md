@@ -93,8 +93,8 @@ et activer l'I2C et la communicaton série dans Interface Options
 
 Pour voir le service (useful commands)
 ```bash
-journalctl -b -u programCDFR
-journalctl -u programCDFR -f
+journalctl -b -u programCDFR --output=cat
+journalctl -u programCDFR -f --output=cat
 
 systemctl list-units --type=service
 
