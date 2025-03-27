@@ -55,7 +55,7 @@ void DisplayBarrel(){
 // Functions to handle revolver
 // -------------------------------------------------
 bool isRevolverFull(){
-    if (lowBarrelCount == SIZE_LOW) {
+    if (lowBarrelCount + 4 > SIZE_LOW) {
         LOG_ERROR("No more space in revolver !");
         return true;
     }
@@ -151,7 +151,7 @@ bool RevolverLoadStock(direction_t dir, int num){
 
 // Function that manages the storage of the first level. Returns true when done preparing for intake of stock from direction
 bool RevolverPrepareLowBarrel(direction_t dir){
-    // LOG_INFO("Prerare Low Barrel direction : ",((dir==FROM_RIGHT) ? "right" : "left"));
+    LOG_INFO("Prerare Low Barrel direction : ",((dir==FROM_RIGHT) ? "right" : "left"));
     if (lowBarrelCount == 0) return true; //no columns in Lowbarrel so position is good
 
     if (!SpinLowBarrel(ShiftListNumber(lowArr, dir ? 4 : 1, dir==FROM_LEFT))) 

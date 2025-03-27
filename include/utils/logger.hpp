@@ -53,9 +53,14 @@ inline void appendMessage(std::ostringstream& oss, const T& value, const Args&..
     appendMessage(oss, args...);
 }
 
+static std::string previousMessage;
+static unsigned long previousMessageTime;
+
 template<typename... Args>
 inline void log(LogLevel level, const std::string& functionName, const int line, const std::string& message, const Args&... args) {
     if (level < CURRENT_LOG_LEVEL)
+        return;
+    if (message == previousMessage && _millis() / 1000 == previousMessageTime)
         return;
     std::ostringstream oss;
     appendMessage(oss, message, args...);
@@ -74,6 +79,9 @@ inline void log(LogLevel level, const std::string& functionName, const int line,
     // Print the fully constructed log message in one operation.
     std::cout << logStream.str();
     std::cout.flush();  // Explicit flush to ensure immediate writing
+
+    previousMessageTime = _millis() / 1000;
+    previousMessage = message;
 }
 
 } // namespace SimpleLogger
