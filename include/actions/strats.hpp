@@ -29,13 +29,8 @@ inline position_t StratStartingPos(){
     case 4:
         pos = {0, 0, 0}; break;
     }
-    if (color == YELLOW){
-        pos.y = -pos.y;
-        if (pos.theta >= 0)
-            pos.theta = 180 - pos.theta;
-        else
-            pos.theta = -180 - pos.theta;
-    }
+    if (color == YELLOW)
+        position_robot_flip(pos);
     return pos;
 }
 inline bool StratGather(int& stockNum, int& stockOffset){
