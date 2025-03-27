@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
             }
             bool finished = action.RunFSM();
 
-            if (_millis() > tableStatus.startTime + 30000 || finished) //100000
+            if (_millis() > tableStatus.startTime + 100000 || finished)
                 nextState = FIN;
             break;
         }
