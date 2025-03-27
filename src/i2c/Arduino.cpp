@@ -30,8 +30,12 @@ void Arduino::moveServo(int ServoID, int position) {
     WriteUInt8(&ptr, ServoID);
     WriteUInt16(&ptr, position);
     WriteUInt16(&ptr, 0); // Speed (instant)
-    if (I2cSendData(CMD_MOVE_SERVO, message, 5))
-        LOG_ERROR("Couldn't move servo");
+    if (I2cSendData(CMD_MOVE_SERVO, message, 5)){
+        LOG_ERROR("Couldn't move servo, retrying once");
+        if (I2cSendData(CMD_MOVE_SERVO, message, 5)){
+            LOG_ERROR("Couldn't move servo twice, aborting !!!!!!");
+        }
+    }
 }
 
 // Speed in degs/s
@@ -68,15 +72,23 @@ bool Arduino::readSensor(int SensorID, bool& value){
 void Arduino::enableStepper(int StepperID) {
     LOG_DEBUG("Enable Stepper #", StepperID);
     if (i2cFile == -1) return; // Emulation
-    if (I2cSendData(CMD_ENABLE_STEPPER, (uint8_t*)&StepperID, 1))
-        LOG_ERROR("Couldn't enable Stepper");
+    if (I2cSendData(CMD_ENABLE_STEPPER, (uint8_t*)&StepperID, 1)){
+        LOG_ERROR("Couldn't enable Stepper, retrying once");
+        if (I2cSendData(CMD_ENABLE_STEPPER, (uint8_t*)&StepperID, 1)){
+            LOG_ERROR("Couldn't enable Stepper twice, aborting !!!!!!");
+        }
+    }
 }
 
 void Arduino::disableStepper(int StepperID) {
     LOG_DEBUG("Disable Stepper #", StepperID);
     if (i2cFile == -1) return; // Emulation
-    if (I2cSendData(CMD_DISABLE_STEPPER, (uint8_t*)&StepperID, 1))
-        LOG_ERROR("Couldn't disable Stepper");
+    if (I2cSendData(CMD_DISABLE_STEPPER, (uint8_t*)&StepperID, 1)){
+        LOG_ERROR("Couldn't disable Stepper, retrying once");
+        if (I2cSendData(CMD_DISABLE_STEPPER, (uint8_t*)&StepperID, 1)){
+            LOG_ERROR("Couldn't disable Stepper twice, aborting !!!!!!");
+        }
+    }
 }
 
 void Arduino::moveStepper(int32_t absPosition, int StepperID) {
@@ -86,8 +98,12 @@ void Arduino::moveStepper(int32_t absPosition, int StepperID) {
     uint8_t *ptr = message;
     WriteUInt8(&ptr, StepperID);
     WriteInt32(&ptr, absPosition);
-    if (I2cSendData(CMD_MOVE_STEPPER, message, 5))
-        LOG_ERROR("Couldn't move Stepper");
+    if (I2cSendData(CMD_MOVE_STEPPER, message, 5)){
+        LOG_ERROR("Couldn't move Stepper, retrying once");
+        if (I2cSendData(CMD_MOVE_STEPPER, message, 5)){
+            LOG_ERROR("Couldn't move Stepper twice, aborting !!!!!!");
+        }
+    }
 }
 
 void Arduino::setStepperSpeed(int StepperID, int speed) { //TODO : does it works ?
@@ -109,8 +125,12 @@ void Arduino::setStepper(int32_t absPosition, int StepperID){
     uint8_t *ptr = message;
     WriteUInt8(&ptr, StepperID);
     WriteInt32(&ptr, absPosition);
-    if (I2cSendData(CMD_SET_STEPPER, message, 5))
-        LOG_ERROR("Couldn't set Stepper");
+    if (I2cSendData(CMD_SET_STEPPER, message, 5)){
+        LOG_ERROR("Couldn't set Stepper, retrying once");
+        if (I2cSendData(CMD_SET_STEPPER, message, 5)){
+            LOG_ERROR("Couldn't set Stepper twice, aborting !!!!!!");
+        }
+    }
 }
 
 bool Arduino::getStepper(int32_t& absPosition, int StepperID){
@@ -171,8 +191,12 @@ void Arduino::moveMotorDC(uint8_t speed, uint8_t holding){
     WriteUInt8(&ptr, 1);
     WriteUInt8(&ptr, speed);
     WriteUInt8(&ptr, holding);
-    if (I2cSendData(CMD_MOVE_DC_MOTOR, message, 3))
-        LOG_ERROR("Couldn't move DC Motor");
+    if (I2cSendData(CMD_MOVE_DC_MOTOR, message, 3)){
+        LOG_ERROR("Couldn't move DC Motor, retrying once");
+        if (I2cSendData(CMD_MOVE_DC_MOTOR, message, 3)){
+            LOG_ERROR("Couldn't move DC Motor twice, aborting !!!!!!");
+        }
+    }
 }
 void Arduino::stopMotorDC(){
     //LOG_DEBUG("Stopping DC Motor ");
