@@ -45,16 +45,16 @@ inline bool StratGather(int& stockNum, int& stockOffset){
 
     // Depending on the strategy, it looks for the first available stock in a list of stocks
     // and returns the stock number and the offset
-    int stocks[9];
+    int todo_stocks[9];
     int num;
     // TODO add a maximum timer after wich the robot should stop looking for a stock
     switch (strategy)
     {
     case 1:
-        stocks[0] = 9;
-        stocks[1] = 4;
-        stocks[2] = 2;
-        stocks[3] = 3;
+        todo_stocks[0] = 9;
+        todo_stocks[1] = 4;
+        todo_stocks[2] = 2;
+        todo_stocks[3] = 3;
         num = 4;
         break;
     case 2:
@@ -70,12 +70,12 @@ inline bool StratGather(int& stockNum, int& stockOffset){
     if (color == YELLOW){
         // Invert the stocks
         for (int i = 0; i < num; i++)
-            stocks[i] = (stocks[i] + STOCK_COUNT/2) % STOCK_COUNT;
+            todo_stocks[i] = (todo_stocks[i] + STOCK_COUNT/2) % STOCK_COUNT;
     }
     int i = 0;
     while (i < num){
-        if (tableStatus.avail_stocks[stocks[i]]){
-            stockNum = stocks[i];
+        if (tableStatus.avail_stocks[todo_stocks[i]]){
+            stockNum = todo_stocks[i];
             stockOffset = getBestStockPositionOff(stockNum, tableStatus.robot.pos);
             return true;
         }
