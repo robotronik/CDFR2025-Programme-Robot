@@ -94,6 +94,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
             gatherStockState = FSM_GATHER_MOVE;
         }
         else if (nav_ret == NAV_ERROR){
+            // TODO get another stock
             return FSM_RETURN_ERROR;
         }
         break;
