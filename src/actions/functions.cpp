@@ -135,19 +135,6 @@ bool moveTribunePusher(bool outside, bool slow){
     return (_millis() > startTime + 4000); // delay
 }
 
-// Move level to the floor up or down (high or low)
-bool moveServoFloorColumns(bool up){
-    static unsigned long startTime = _millis();
-    static bool previousUp = !up;
-    if (previousUp != up){
-        startTime = _millis(); // Reset the timer
-        previousUp = up;
-        arduino.moveServo(COLUMNS_LIFT_LEFT_SERVO_NUM, up ? 90 : 0); // TODO : Check if this is correct
-        arduino.moveServo(COLUMNS_LIFT_RIGHT_SERVO_NUM, up ? 0 : 90);
-    }
-    return (_millis() > startTime + 1000); // delay
-}
-
 // 0 : Fully open
 // 1 : Straight
 // 2 : closed
@@ -203,6 +190,18 @@ bool movePlatformElevator(int level){
     if (!arduino.getStepper(currentValue, PLATFORMS_ELEVATOR_STEPPER_NUM)) return false; // TODO Might need to change this (throw error)
     return (currentValue == target);
 }
+bool moveColumnsElevator(bool up){
+    static bool previousLevel = !up;
+
+    int target = up ? 13000 : 0;
+    if (previousLevel != up){
+        previousLevel = up;
+        arduino.moveStepper(target, COLOMNS_ELEVATOR_STEPPER_NUM);
+    }
+    int32_t currentValue;
+    if (!arduino.getStepper(currentValue, COLOMNS_ELEVATOR_STEPPER_NUM)) return false; // TODO Might need to change this (throw error)
+    return (currentValue == target);
+}
 
 // Moves the tribune elevator to a predefined level
 bool moveTribuneElevator(){
@@ -243,26 +242,6 @@ bool moveLowColumnsRevolverAbs(int N){
     }
     int32_t currentValue;
     if (!arduino.getStepper(currentValue, COLOMNS_REVOLVER_LOW_STEPPER_NUM)) return false;
-    return (currentValue == absSteps);
-}
-
-// Move the higher revolver to an absolute position by N relative to the elevator
-bool moveHighColumnsRevolverAbs(int N){
-    static int previousN = 0;
-
-    float gearTheets = 13; // Theets per rotation
-    float stepperSteps = 200 * 16; // 16 microstepping
-    float intervalBetweenN = 3.5; // Theets between N
-    int absSteps = (int)((stepperSteps * intervalBetweenN * N) / gearTheets);
-
-    LOG_DEBUG("Moving high revolver to ", N, ", steps pos:", absSteps);
-
-    if (previousN != N){
-        previousN = N;
-        arduino.moveStepper(absSteps, COLOMNS_REVOLVER_HIGH_STEPPER_NUM);
-    }
-    int32_t currentValue;
-    if (!arduino.getStepper(currentValue, COLOMNS_REVOLVER_HIGH_STEPPER_NUM)) return false;
     return (currentValue == absSteps);
 }
 

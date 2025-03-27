@@ -20,9 +20,9 @@
 
 // Define the nums of the arduino for the STEPPERS
 #define PLATFORMS_ELEVATOR_STEPPER_NUM    1
-// #define TRIBUNES_ELEVATOR_STEPPER_NUM     2
+#define COLOMNS_ELEVATOR_STEPPER_NUM      2
 #define COLOMNS_REVOLVER_LOW_STEPPER_NUM  3
-#define COLOMNS_REVOLVER_HIGH_STEPPER_NUM 4
+// #define STEPPER_NUM_4                  4
 // Define the nums of the arduino for the SERVOS
 #define TRIBUNES_PUSH_SERVO_NUM           1
 #define PLATFORMS_LIFT_LEFT_SERVO_NUM     2
@@ -35,8 +35,8 @@
 #define BUTTON_SENSOR_NUM                 1
 #define LATCH_SENSOR_NUM                  2
 #define COLOR_SENSOR_NUM                  3
-#define PUSHER_LEFT_SENSOR_NUM            4
-#define PUSHER_RIGHT_SENSOR_NUM           5
+#define PUSHER_LEFT_SENSOR_NUM            7
+#define PUSHER_RIGHT_SENSOR_NUM           6
 
 #define SPEED_STOCK 8000 // Motor speed for collecting stock (mm/s)
 #define STEPPER_SPEED 1000 // Stepper motor speed for collecting stock (steps/s)

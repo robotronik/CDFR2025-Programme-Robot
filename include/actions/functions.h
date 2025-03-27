@@ -25,13 +25,12 @@ int getBestStockPositionOff(int stockN, position_t fromPos);
 // Servo Control
 bool movePlatformLifts(int pos, bool slow = false);
 bool moveTribunePusher(bool outside, bool slow = false);
-bool moveServoFloorColumns(bool up);
 bool moveClaws(int level);
 
 // Stepper Control
 bool movePlatformElevator(int level);
+bool moveColumnsElevator(bool up);
 bool moveLowColumnsRevolverAbs(int N);
-bool moveHighColumnsRevolverAbs(int N);
 
 // DC Motor Control
 bool moveTribuneElevator();

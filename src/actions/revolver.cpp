@@ -2,11 +2,11 @@
 #include "utils/logger.hpp"
 #include "actions/functions.h"
 #include <exception>
-#define SIZE_LOW 14
+#define REVOLVER_SIZE 14
 
 bool emulateActuators = false;
 
-bool lowArr[SIZE_LOW] = {0};   // false = Empty,  true = Occupied
+bool lowArr[REVOLVER_SIZE] = {0};   // false = Empty,  true = Occupied
 int lowBarrelCount = 0;
 int lowBarrelShift = 0;
 
@@ -20,7 +20,7 @@ bool isRevolverEmpty();
 
 // Initialize the revolver when the game starts
 void initRevolver(){
-    for (int i = 0; i < SIZE_LOW; i++)
+    for (int i = 0; i < REVOLVER_SIZE; i++)
         lowArr[i] = 0;
     lowBarrelCount = 0;
     lowBarrelShift  = 0;
@@ -55,7 +55,7 @@ void DisplayBarrel(){
 // Functions to handle revolver
 // -------------------------------------------------
 bool isRevolverFull(){
-    if (lowBarrelCount + 4 > SIZE_LOW) {
+    if (lowBarrelCount + 4 > REVOLVER_SIZE) {
         LOG_WARNING("No more space in revolver !");
         return true;
     }
@@ -86,7 +86,7 @@ bool SpinLowBarrel(int n) {
     lowBarrelShiftTarget = lowBarrelShift + n;
 
     if (emulateActuators || moveLowColumnsRevolverAbs(lowBarrelShiftTarget)) {
-        ShiftArray(lowArr, n, SIZE_LOW);
+        ShiftArray(lowArr, n, REVOLVER_SIZE);
         lowBarrelShift = lowBarrelShiftTarget;
         return true;
     }
@@ -172,6 +172,7 @@ bool RevolverPrepareLowBarrel(direction_t dir){
         return false;
     }
 
+    // TODO Call moveColumnsElevator
     
     return true;
 }
