@@ -131,6 +131,11 @@ bool RevolverLoadStock(direction_t dir, int num){
     int intake_pos = (dir == FROM_RIGHT) ? 4 : 1;
     int rotation = (dir == FROM_RIGHT) ? -1 : 1; // position ajout column, Sens de rotation
     
+    if (isRevolverFull()){
+        LOG_ERROR("Revolver is full, cant load stock");
+        return true;
+    }
+
     if (prev_num != num) {
         done = false;
         prev_num = num;
