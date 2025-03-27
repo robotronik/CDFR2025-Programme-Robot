@@ -22,7 +22,7 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
     if (hashValue == currentInstructionHash && is_robot_stalled && !useHighways){
-        ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_PAUSED : NAV_ERROR;
+        ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_ERROR : NAV_PAUSED;
         return ireturn;
     }
     else if (hashValue == currentInstructionHash && is_robot_stalled && useHighways){
@@ -67,7 +67,7 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
     if (hashValue == currentInstructionHash && is_robot_stalled && !useHighways){
-        ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_PAUSED : NAV_ERROR;
+        ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_ERROR : NAV_PAUSED;
         return ireturn;
     }
     else if (hashValue == currentInstructionHash && is_robot_stalled && useHighways){
