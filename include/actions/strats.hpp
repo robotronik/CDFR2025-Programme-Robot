@@ -1,6 +1,7 @@
 #pragma once
 #include "main.hpp"
 #include "utils/logger.hpp"
+#include "actions/revolver.hpp"
 
 inline void check(colorTeam_t color, int strategy){
     // Check if the color and strategy are valid
@@ -42,6 +43,10 @@ inline bool StratGather(int& stockNum, int& stockOffset){
     colorTeam_t color = tableStatus.robot.colorTeam;
     int strategy = tableStatus.strategy;
     check(color, strategy);
+
+    // If barrel is full, return false
+    if (isRevolverFull())
+        return false;
 
     // Depending on the strategy, it looks for the first available stock in a list of stocks
     // and returns the stock number and the offset
