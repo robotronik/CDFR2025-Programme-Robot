@@ -257,7 +257,8 @@ bool homeActuators(){
     movePlatformLifts(0) &
     moveTribunePusher(false) &
     moveClaws(1) & //0
-    movePlatformElevator(-1)
+    movePlatformElevator(-1) &
+    moveColumnsElevator(false)
     );
 }
 void enableActuators(){
