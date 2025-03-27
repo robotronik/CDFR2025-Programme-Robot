@@ -30,7 +30,10 @@ inline position_t StratStartingPos(){
     }
     if (color == YELLOW){
         pos.y = -pos.y;
-        pos.theta = -pos.theta;
+        if (pos.theta >= 0)
+            pos.theta = 180 - pos.theta;
+        else
+            pos.theta = -180 - pos.theta;
     }
     return pos;
 }
