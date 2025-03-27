@@ -80,7 +80,7 @@ void Arduino::disableStepper(int StepperID) {
 }
 
 void Arduino::moveStepper(int32_t absPosition, int StepperID) {
-    LOG_DEBUG("Move Stepper #", StepperID, " to ", absPosition);
+    //LOG_DEBUG("Move Stepper #", StepperID, " to ", absPosition);
     if (i2cFile == -1) return; // Emulation
     uint8_t message [5];
     uint8_t *ptr = message;
@@ -91,7 +91,7 @@ void Arduino::moveStepper(int32_t absPosition, int StepperID) {
 }
 
 void Arduino::setStepperSpeed(int StepperID, int speed) { //TODO : does it works ?
-    LOG_DEBUG("Set Stepper #", StepperID, " speed to ", speed);
+    //LOG_DEBUG("Set Stepper #", StepperID, " speed to ", speed);
     if (i2cFile == -1) return; // Emulation
     uint8_t message[3];
     uint8_t* ptr = message;
@@ -114,7 +114,7 @@ void Arduino::setStepper(int32_t absPosition, int StepperID){
 }
 
 bool Arduino::getStepper(int32_t& absPosition, int StepperID){
-    LOG_DEBUG("Get Stepper #", StepperID);
+    //LOG_DEBUG("Get Stepper #", StepperID);
     if (i2cFile == -1) {absPosition = 0; return true;} // Emulation
     uint8_t data[4];
     if (I2cSendBlockReceiveData(CMD_GET_STEPPER, (uint8_t*)&StepperID, 1, data, 4))
@@ -164,7 +164,7 @@ void Arduino::SetLidarPWM(uint8_t val){
 
 
 void Arduino::moveMotorDC(uint8_t speed, uint8_t holding){
-    LOG_DEBUG("Moving DC Motor ");
+    //LOG_DEBUG("Moving DC Motor ");
     if (i2cFile == -1) return; // Emulation
     uint8_t message [3];
     uint8_t *ptr = message;
@@ -175,7 +175,7 @@ void Arduino::moveMotorDC(uint8_t speed, uint8_t holding){
         LOG_ERROR("Couldn't move DC Motor");
 }
 void Arduino::stopMotorDC(){
-    LOG_DEBUG("Stopping DC Motor ");
+    //LOG_DEBUG("Stopping DC Motor ");
     if (i2cFile == -1) return; // Emulation
     uint8_t message [1];
     uint8_t *ptr = message;
