@@ -21,7 +21,7 @@ inline position_t StratStartingPos(){
     switch (strategy)
     {
     case 1:
-        pos = {73, -1500+225, 90}; break;
+        pos = {125, -1500+75 + NO_COL_OFFSET_STOCK, 0}; break;
     case 2:
         pos = {200, -1500+140, -90}; break;
     case 3:
@@ -47,21 +47,37 @@ inline bool StratGather(int& stockNum, int& stockOffset){
     // and returns the stock number and the offset
     int todo_stocks[9];
     int num;
-    // TODO add a maximum timer after wich the robot should stop looking for a stock
+    if (tableStatus.startTime + 45000 < _millis())
+        return false;
     switch (strategy)
     {
-    case 1:
-        todo_stocks[0] = 9;
-        todo_stocks[1] = 4;
-        todo_stocks[2] = 2;
-        todo_stocks[3] = 3;
+    case 1: //prend le long du mur puis de l'autre coté (adversaire coté banderôle)
+        todo_stocks[0] = 7;
+        todo_stocks[1] = 6;
+        todo_stocks[2] = 9;
+        todo_stocks[3] = 4;
+        todo_stocks[4] = 1; //faire si 9 pris par adversaire
+        todo_stocks[5] = 2;
+        todo_stocks[6] = 3;
+        num = 7;
+        break;
+    case 2: //fais le tour en "longeant" le bord (si adversaire dans les backstages)
+        todo_stocks[0] = 7;
+        todo_stocks[1] = 8;
+        todo_stocks[2] = 3;
+        todo_stocks[3] = 2;
+        todo_stocks[4] = 1;
+        todo_stocks[5] = 0;
+        num = 6;
+        break;
+    case 3: //Safe one, petit tour de notre coté
+        todo_stocks[0] = 3;
+        todo_stocks[1] = 2;
+        todo_stocks[2] = 1;
+        todo_stocks[3] = 0;
+        //todo_stocks[4] = 4;
+        
         num = 4;
-        break;
-    case 2:
-        num = 0;
-        break;
-    case 3:
-        num = 0;
         break;
     case 4:
         num = 0;
