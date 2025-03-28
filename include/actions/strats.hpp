@@ -55,11 +55,10 @@ inline bool StratGather(int& stockNum, int& stockOffset){
         todo_stocks[0] = 7;
         todo_stocks[1] = 6;
         todo_stocks[2] = 9;
-        todo_stocks[3] = 4;
-        todo_stocks[4] = 1; //faire si 9 pris par adversaire
+        todo_stocks[4] = 4;
         todo_stocks[5] = 2;
         todo_stocks[6] = 3;
-        num = 7;
+        num = 6;
         break;
     case 2: //fais le tour en "longeant" le bord (si adversaire dans les backstages)
         todo_stocks[0] = 7;
@@ -80,7 +79,17 @@ inline bool StratGather(int& stockNum, int& stockOffset){
         num = 4;
         break;
     case 4:
-        num = 0;
+        int middleIndex = 2;
+        todo_stocks[0] = 7;
+        todo_stocks[1] = 6;
+        for (int stock : {9, 4, 1, 0}) { // Ajouter les 2 stocks intermédiaires disponibles (9 → 4 → 1 → 0)
+            if (tableStatus.avail_stocks[stock] && middleIndex < 4) {
+                todo_stocks[middleIndex++] = stock;
+            }
+        }
+        todo_stocks[4] = 2;
+        todo_stocks[5] = 3;
+        num = 6;
         break;
     }
     if (color == YELLOW){
