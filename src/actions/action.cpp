@@ -154,7 +154,14 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         }
         break;
     case FSM_CONSTRUCT_MOVE:
-        // Place the robot to a tribune building location
+        nav_ret = navigationGoToNoTurn(buildPos.x - 500, buildPos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
+        if (nav_ret == NAV_DONE){
+            constructAllTribunesState = FSM_CONSTRUCT_NAV;
+        }
+        else if (nav_ret == NAV_ERROR){
+            // TODO get another stock
+            return FSM_RETURN_ERROR;
+        }
         break;
     case FSM_CONSTRUCT_PREPREVOLVER:
         if (RevolverRelease()){
@@ -178,11 +185,15 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         break;
     case FSM_CONSTRUCT_EXIT:
         // Get out the way to make sure we dont destroy shit
-        // if nav_done
-        //   constructAllTribunesState = FSM_CONSTRUCT_NAV;
-        //   return true;
-        constructAllTribunesState = FSM_CONSTRUCT_NAV;
-        return FSM_RETURN_DONE;
+        nav_ret = navigationGoToNoTurn(buildPos.x - 500, buildPos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
+        if (nav_ret == NAV_DONE){
+            constructAllTribunesState = FSM_CONSTRUCT_NAV;
+            return FSM_RETURN_DONE;
+        }
+        else if (nav_ret == NAV_ERROR){
+            // TODO get another stock
+            return FSM_RETURN_ERROR;
+        }
         break;
     }
     return FSM_RETURN_WORKING;
