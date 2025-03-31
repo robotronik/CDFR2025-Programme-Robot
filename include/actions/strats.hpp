@@ -98,7 +98,7 @@ inline void StratConstruct(int& zone){
 // bool StratDeployBanner();
 // bool StratNavHome();
 
-void StratTimes(unsigned long& maxGather, unsigned long& maxBuild){
+inline void StratTimes(unsigned long& maxGather, unsigned long& maxBuild){
     // Returns the maximum time to gather and build
     // Returns the time in ms
     // Remember, a match lasts 100s;
