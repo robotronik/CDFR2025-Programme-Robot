@@ -42,7 +42,7 @@ bool ActionFSM::RunFSM(){
         break;
     //****************************************************************
     case FSM_ACTION_BUILD:
-        ret = ConstructAllTribunesFSM(); //TODO choose the zone
+        ret = ConstructAllTribunesFSM();
         if (ret == FSM_RETURN_DONE)
             runState = FSM_ACTION_NAV_HOME;
         else if (ret == FSM_RETURN_ERROR){
@@ -57,11 +57,9 @@ bool ActionFSM::RunFSM(){
         break;
     //****************************************************************
     case FSM_ACTION_NAV_HOME:
-        // Maybe do something like
-        // get close to home then move in if theres less than 3s left to the clock
         if (returnToHome()){
             runState = FSM_ACTION_GATHER;
-            return true; //Robot is done
+            return true; // Robot is done
         }
         break;
     }
