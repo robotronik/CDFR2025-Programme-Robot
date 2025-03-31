@@ -25,6 +25,9 @@ void ActionFSM::Reset(){
 
 bool ActionFSM::RunFSM(){
     ReturnFSM_t ret;
+    unsigned long ms = _millis();
+    unsigned long maxGather, maxBuild;
+    StratTimes(maxGather, maxBuild);
     switch (runState)
     {
     //****************************************************************
@@ -128,17 +131,27 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         StratConstruct(zoneNum);
     }
 
-    /*
-    position_t baseBuildPos = TRIBUNE_CONSTRUCT_POSITION[zoneNum];
     // Offset the build pos by 120mm * num
+    position_t buildPos = TRIBUNE_CONSTRUCT_POSITION[zoneNum];
     int offset = 120 * num;
-    baseBuildPos.x += 0;
-    baseBuildPos.y += (tableStatus.robot.colorTeam == BLUE) ? -offset : +offset;
-    */
+    buildPos.x += 0;
+    buildPos.y += offset;
+    if (tableStatus.robot.colorTeam == YELLOW)
+        position_robot_flip(buildPos);
    
+    nav_return_t nav_ret;
     switch (constructAllTribunesState){
     case FSM_CONSTRUCT_NAV:
         // Nav to the tribune building location (zone)
+        // TODO Highways should be enabled
+        nav_ret = navigationGoTo(buildPos.x, buildPos.y, buildPos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
+        if (nav_ret == NAV_DONE){
+            constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
+        }
+        else if (nav_ret == NAV_ERROR){
+            // TODO get another stock
+            return FSM_RETURN_ERROR;
+        }
         break;
     case FSM_CONSTRUCT_MOVE:
         // Place the robot to a tribune building location
