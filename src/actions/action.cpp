@@ -132,8 +132,9 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
     }
 
     // Offset the build pos by 120mm * num
+    const int tribunesOffset = 120;
     position_t buildPos = TRIBUNE_CONSTRUCT_POSITION[zoneNum];
-    int offset = 120 * num;
+    int offset = tribunesOffset * num;
     buildPos.x += 0;
     buildPos.y += offset;
     if (tableStatus.robot.colorTeam == YELLOW)
