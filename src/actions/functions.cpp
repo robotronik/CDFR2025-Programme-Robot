@@ -413,12 +413,6 @@ bool isRobotInArrivalZone(position_t position){
 //                    INPUT SENSOR
 // ------------------------------------------------------
 
-colorTeam_t readColorSensorSwitch(){
-    bool sensor = 0;
-    if (!arduino.readSensor(COLOR_SENSOR_NUM, sensor)) return NONE;
-    return sensor ? YELLOW : BLUE;
-}
-
 // Returns true if button sensor was high for the last N calls
 bool readButtonSensor(){
     static int count = 0;
