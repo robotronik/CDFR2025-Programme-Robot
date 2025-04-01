@@ -62,6 +62,7 @@ bool isRevolverFull(){
     return false;
 }
 bool isRevolverEmpty(){
+    // TODO Add more logic to handle lost columns
     return (lowBarrelCount <= 1);
 }
 void ShiftArray(bool arr[], int n, int size) {
@@ -162,18 +163,12 @@ bool RevolverPrepareLowBarrel(direction_t dir){
     if (!SpinLowBarrel(ShiftListNumber(lowArr, dir ? 4 : 1, dir==FROM_LEFT))) 
         return false;
 
-        // TODO Check on that
-
-    int N = (dir == FROM_RIGHT) ? 2 : -2;
-    if(lowBarrelCount == 12) {
-        if (!SpinLowBarrel(N))
-            return false;
-        MoveColumns(dir, 1);      //si on fait preparelowbarrel en boucle, movecolums diminue le nb de boite ds lowbarrelCount et donc on finit pas la boucle et fait pas spinbarrel
+    // TODO Check on that
+    if(lowBarrelCount >= 12) {
+        LOG_WARNING("Lower revolver is full, I'll raise the elevator");
         return false;
-    }
-
-    // TODO Call moveColumnsElevator
-    
+        // TODO Call moveColumnsElevator        
+    }    
     return true;
 }
 

@@ -29,12 +29,11 @@
 #define PLATFORMS_LIFT_RIGHT_SERVO_NUM    3
 #define TRIBUNES_CLAWS_SERVO_NUM          4
 #define BANNER_RELEASE_SERVO_NUM          5
-#define COLUMNS_LIFT_LEFT_SERVO_NUM       6
-#define COLUMNS_LIFT_RIGHT_SERVO_NUM      7
+// #define SERVO_NUM_6                    6
+// #define SERVO_NUM_7                    7
 // Define the nums of the arduino for the SENSORS
 #define BUTTON_SENSOR_NUM                 1
 #define LATCH_SENSOR_NUM                  2
-#define COLOR_SENSOR_NUM                  3
 #define PUSHER_LEFT_SENSOR_NUM            7
 #define PUSHER_RIGHT_SENSOR_NUM           6
 
