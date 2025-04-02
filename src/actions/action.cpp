@@ -176,13 +176,19 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         if (constructSingleTribune()){
             tableStatus.builtTribuneHeights[num]++;
             if (isRevolverEmpty() || tableStatus.robot.plank_count == 0) {
+                if (tableStatus.robot.plank_count == 0)
+                    LOG_GREEN_INFO("No more planks left, exiting");
+                else if (isRevolverEmpty())
+                    LOG_GREEN_INFO("No more revolver stock left, exiting");
                 constructAllTribunesState = FSM_CONSTRUCT_EXIT;
             }
             else if (tableStatus.builtTribuneHeights[num] == 3){
+                LOG_GREEN_INFO("Tribune #", num, " is done");
                 constructAllTribunesState = FSM_CONSTRUCT_MOVE;
                 num++;
             }
             else {
+                LOG_GREEN_INFO("Tribune #", num, " is at height ", tableStatus.builtTribuneHeights[num]);
                 constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
             }
         }
