@@ -163,6 +163,10 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         }
         break;
     case FSM_CONSTRUCT_PREPREVOLVER:
+        if (isRevolverEmpty()){
+            constructAllTribunesState = FSM_CONSTRUCT_EXIT;
+            return FSM_RETURN_WORKING;
+        }
         if (RevolverRelease()){
             constructAllTribunesState = FSM_CONSTRUCT_BUILD;
         }
