@@ -15,6 +15,8 @@ Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
 #define CMD_SET_MOSFET 0x0A
 #define CMD_MOVE_DC_MOTOR 0x0B
 #define CMD_STOP_DC_MOTOR 0x0C
+#define CMD_GET_DC_MOTOR 0x0D
+#define CMD_GET_SERVO 0x0E
 
 
 // [0;180]
@@ -47,6 +49,19 @@ void Arduino::moveServoSpeed(int ServoID, int position, int speed) {
     WriteUInt16(&ptr, position);
     WriteUInt16(&ptr, speed);
     I2cSendData(CMD_MOVE_SERVO, message, 5);
+}
+
+bool Arduino::getServo(int ServoID, int& position){
+    //LOG_DEBUG("Get servo #", ServoID);
+    if (i2cFile == -1) {position = 0; return true;}; // Emulation
+    // position is a int16_t
+    uint8_t data[2];
+    if (I2cSendBlockReceiveData(CMD_GET_SERVO, (uint8_t*)&ServoID, 1, data, 2))
+        return false;
+    uint8_t* ptr = data;
+    position = ReadInt16(&ptr);
+    // LOG_DEBUG("Servo #", ServoID, " is at ", position);
+    return true;
 }
 
 bool Arduino::readSensor(int SensorID, bool& value){

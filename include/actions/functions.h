@@ -17,6 +17,7 @@ void setStockAsRemoved(int num);
 bool takeStockPlatforms();
 bool constructSingleTribune();
 bool liftSingleTribune();
+bool deployBanner();
 
 // Related to stock management
 void getBestAvailableStock(); // TODO finish
@@ -26,6 +27,7 @@ int getBestStockPositionOff(int stockN, position_t fromPos);
 bool movePlatformLifts(int pos, bool slow = false);
 bool moveTribunePusher(bool outside, bool slow = false);
 bool moveClaws(int level);
+bool moveBannerDeploy(bool outside);
 
 // Stepper Control
 bool movePlatformElevator(int level);
