@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
                 tableStatus.reset();
                 arduino.RGB_Rainbow();
             }
-            if (readButtonSensor() && !readLatchSensor())
+            if (readButtonSensor() & !readLatchSensor())
                 nextState = WAITSTART;
             break;
         }
