@@ -145,6 +145,7 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         // Nav to the tribune building location (zone)
         // TODO Highways should be enabled
         nav_ret = navigationGoTo(buildPos.x, buildPos.y, buildPos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
+        liftSingleTribune();
         if (nav_ret == NAV_DONE){
             constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
         }

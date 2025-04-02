@@ -32,7 +32,7 @@ bool constructSingleTribune(){
         }
         break;
     case 4:
-        if (movePlatformLifts(1, false) & moveTribunePusher(false)){
+        if (movePlatformLifts(1, false) & moveTribunePusher(false) & liftSingleTribune()){
             state = 1;
             return true;
         }
