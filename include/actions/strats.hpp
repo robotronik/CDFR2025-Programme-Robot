@@ -51,7 +51,7 @@ inline bool StratGather(int& stockNum, int& stockOffset){
         return false;
     switch (strategy)
     {
-    case 1: //prend le long du mur puis de l'autre coté (adversaire coté banderôle)
+    case 1: // Prends le long du mur puis de l'autre cote (adversaire cote banderole)
         todo_stocks[0] = 7;
         todo_stocks[1] = 6;
         todo_stocks[2] = 9;
@@ -60,7 +60,7 @@ inline bool StratGather(int& stockNum, int& stockOffset){
         todo_stocks[5] = 3;
         num = 6;
         break;
-    case 2: //fais le tour en "longeant" le bord (si adversaire dans les backstages)
+    case 2: // Fais le tour en "longeant" le bord (si adversaire dans les backstages)
         todo_stocks[0] = 7;
         todo_stocks[1] = 8;
         todo_stocks[2] = 3;
@@ -69,12 +69,12 @@ inline bool StratGather(int& stockNum, int& stockOffset){
         todo_stocks[5] = 0;
         num = 6;
         break;
-    case 3: //Safe one, petit tour de notre coté
+    case 3: // Safe one, petit tour de notre cote
         todo_stocks[0] = 3;
         todo_stocks[1] = 2;
         todo_stocks[2] = 1;
-        todo_stocks[3] = 0;
-        //todo_stocks[4] = 4;
+        //todo_stocks[3] = 0;
+        todo_stocks[3] = 4;
         
         num = 4;
         break;
@@ -82,7 +82,7 @@ inline bool StratGather(int& stockNum, int& stockOffset){
         int middleIndex = 2;
         todo_stocks[0] = 7;
         todo_stocks[1] = 6;
-        for (int stock : {9, 4, 1, 0}) { // Ajouter les 2 stocks intermédiaires disponibles (9 → 4 → 1 → 0)
+        for (int stock : {9, 4, 1, 0}) { // Ajouter les 2 stocks intermediaires disponibles (9 → 4 → 1 → 0)
             if (tableStatus.avail_stocks[stock] && middleIndex < 4) {
                 todo_stocks[middleIndex++] = stock;
             }
