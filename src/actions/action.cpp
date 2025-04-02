@@ -114,6 +114,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
         if (takeStockPlatforms()){
             gatherStockState = FSM_GATHER_NAV;
             setStockAsRemoved(num);
+            tableStatus.robot.plank_count += 2;
             num = -1;
             return FSM_RETURN_WORKING;
         }
