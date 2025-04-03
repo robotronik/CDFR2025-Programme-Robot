@@ -32,7 +32,7 @@ bool constructSingleTribune(){
         }
         break;
     case 4:
-        if (movePlatformLifts(1, false) & moveTribunePusher(false)){
+        if (movePlatformLifts(1, false) & moveTribunePusher(false) & liftSingleTribune()){
             state = 1;
             return true;
         }
@@ -82,6 +82,24 @@ bool liftSingleTribune(){
     }
     return false;
 }
+bool deployBanner(){
+    static int state = 1;
+    switch (state)
+    {
+    case 1:
+        if (moveBannerDeploy(true)){
+            state++;
+        }
+        break;
+    case 2:
+        if (moveBannerDeploy(false)){
+            state = 1;
+            return true;
+        }
+        break;
+    }
+    return false;
+}
 
 // ------------------------------------------------------
 //                   SERVO CONTROL
@@ -90,7 +108,6 @@ bool liftSingleTribune(){
 // This shit is clean af
 // pos = 0: inside, 1: middle, 2: outside
 bool movePlatformLifts(int pos, bool slow){
-    static unsigned long startTime = _millis();
     static int previousPos = !pos;
     int target_left = 0;
     int target_right = 0;
@@ -110,29 +127,26 @@ bool movePlatformLifts(int pos, bool slow){
         break;
     }
     if (previousPos != pos){
-        startTime = _millis(); // Reset the timer
         previousPos = pos;
-        if (slow){
-            arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left, 35);
-            arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right,35);
-        }
-        else{
-            arduino.moveServo(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left);
-            arduino.moveServo(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right);
-        }
+        int speed = slow ? 60 : 200;
+        arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left, speed);
+        arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right,speed);
     }
-    return (_millis() > startTime + 4000); // delay
+    int current_left = 0;
+    if (!arduino.getServo(PLATFORMS_LIFT_LEFT_SERVO_NUM, current_left)) return false;
+    return current_left == target_left;
 }
 
 bool moveTribunePusher(bool outside, bool slow){
-    static unsigned long startTime = _millis();
     static bool previousOutside = !outside;
+    int target = outside ? 180 : 0;
     if (previousOutside != outside){
-        startTime = _millis(); // Reset the timer
         previousOutside = outside;
-        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, outside ? 180 : 0, slow ? 60 : 0);
+        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 60 : 200);
     }
-    return (_millis() > startTime + 4000); // delay
+    int current = 0;
+    if (!arduino.getServo(TRIBUNES_PUSH_SERVO_NUM, current)) return false;
+    return current == target;
 }
 
 // 0 : Fully open
@@ -141,24 +155,41 @@ bool moveTribunePusher(bool outside, bool slow){
 bool moveClaws(int level){
     static unsigned long startTime = _millis();
     static int previouslevel = !level;
+
+    int target = 0;
+    switch (level)
+    {
+    case 0:
+        target = 170; break;
+    case 1:
+        target = 105; break;
+    case 2:
+        target = 25; break;
+    }
+
     if (previouslevel != level){
         startTime = _millis(); // Reset the timer
         previouslevel = level;
-
-        int target = 0;
-        switch (level)
-        {
-        case 0:
-            target = 170; break;
-        case 1:
-            target = 105; break;
-        case 2:
-            target = 25; break;
-        }
-
-        arduino.moveServo(TRIBUNES_CLAWS_SERVO_NUM, target);
+        arduino.moveServoSpeed(TRIBUNES_CLAWS_SERVO_NUM, target, 200);
     }
-    return (_millis() > startTime + 2000); // delay
+    int current = 0;
+    if (!arduino.getServo(TRIBUNES_CLAWS_SERVO_NUM, current)) return false;
+    return current == target;
+}
+
+bool moveBannerDeploy(bool outside){
+    return true; // TODO REMOVE AFTER SERVO NM
+
+
+    static bool previousOutside = !outside;
+    int target = outside ? 180 : 0;
+    if (previousOutside != outside){
+        previousOutside = outside;
+        arduino.moveServo(-1, target); //TODO SERVO NUM
+    }
+    int current = 0;
+    if (!arduino.getServo(-1, current)) return false; //TODO SERVO NUM
+    return current == target;
 }
 
 // ------------------------------------------------------
@@ -290,7 +321,8 @@ void setStockAsRemoved(int num){
 }
 
 bool returnToHome(){
-    int home_x = -500;
+    unsigned long time = _millis() - tableStatus.startTime;
+    int home_x = (time < 95000) ? -300 : -600;
     int home_y = (tableStatus.robot.colorTeam == BLUE) ? 1100 : -1100;
     nav_return_t res = navigationGoToNoTurn(home_x, home_y);
     return res == NAV_DONE && isRobotInArrivalZone(tableStatus.robot.pos);
@@ -412,12 +444,6 @@ bool isRobotInArrivalZone(position_t position){
 // ------------------------------------------------------
 //                    INPUT SENSOR
 // ------------------------------------------------------
-
-colorTeam_t readColorSensorSwitch(){
-    bool sensor = 0;
-    if (!arduino.readSensor(COLOR_SENSOR_NUM, sensor)) return NONE;
-    return sensor ? YELLOW : BLUE;
-}
 
 // Returns true if button sensor was high for the last N calls
 bool readButtonSensor(){

@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/../librairie-commune/**",
-                "${workspaceFolder}/../librairie-commune/include"
+                "${workspaceFolder}/../librairie-commune/include",
+                "${workspaceFolder}/../cdfr2024-programme-Actionneur/include/common"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

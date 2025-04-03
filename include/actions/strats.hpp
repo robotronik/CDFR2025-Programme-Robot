@@ -122,3 +122,35 @@ inline void StratConstruct(int& zone){
 }
 // bool StratDeployBanner();
 // bool StratNavHome();
+
+inline void StratTimes(unsigned long& maxGather, unsigned long& maxBuild){
+    // Returns the maximum time to gather and build
+    // Returns the time in ms
+    // Remember, a match lasts 100s;
+    colorTeam_t color = tableStatus.robot.colorTeam;
+    int strategy = tableStatus.strategy;
+    check(color, strategy);
+    maxGather = 0;
+    maxBuild = 0;
+    switch (strategy)
+    {
+    case 1:
+        maxGather = 50;
+        maxBuild = 90;
+        break;
+    case 2:
+        maxGather = 50;
+        maxBuild = 90;
+        break;
+    case 3:
+        maxGather = 50;
+        maxBuild = 90;
+        break;
+    case 4: 
+        maxGather = 50;
+        maxBuild = 90;
+        break;
+    }
+    maxGather *= 1000;
+    maxBuild *= 1000;
+}

@@ -25,6 +25,9 @@ void ActionFSM::Reset(){
 
 bool ActionFSM::RunFSM(){
     ReturnFSM_t ret;
+    unsigned long ms = _millis();
+    unsigned long maxGather, maxBuild;
+    StratTimes(maxGather, maxBuild);
     switch (runState)
     {
     //****************************************************************
@@ -39,7 +42,7 @@ bool ActionFSM::RunFSM(){
         break;
     //****************************************************************
     case FSM_ACTION_BUILD:
-        ret = ConstructAllTribunesFSM(); //TODO choose the zone
+        ret = ConstructAllTribunesFSM();
         if (ret == FSM_RETURN_DONE)
             runState = FSM_ACTION_NAV_HOME;
         else if (ret == FSM_RETURN_ERROR){
@@ -54,11 +57,9 @@ bool ActionFSM::RunFSM(){
         break;
     //****************************************************************
     case FSM_ACTION_NAV_HOME:
-        // Maybe do something like
-        // get close to home then move in if theres less than 3s left to the clock
         if (returnToHome()){
             runState = FSM_ACTION_GATHER;
-            return true; //Robot is done
+            return true; // Robot is done
         }
         break;
     }
@@ -113,6 +114,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
         if (takeStockPlatforms()){
             gatherStockState = FSM_GATHER_NAV;
             setStockAsRemoved(num);
+            tableStatus.robot.plank_count += 2;
             num = -1;
             return FSM_RETURN_WORKING;
         }
@@ -128,22 +130,45 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         StratConstruct(zoneNum);
     }
 
-    /*
-    position_t baseBuildPos = TRIBUNE_CONSTRUCT_POSITION[zoneNum];
     // Offset the build pos by 120mm * num
-    int offset = 120 * num;
-    baseBuildPos.x += 0;
-    baseBuildPos.y += (tableStatus.robot.colorTeam == BLUE) ? -offset : +offset;
-    */
+    const int tribunesOffset = 120;
+    position_t buildPos = TRIBUNE_CONSTRUCT_POSITION[zoneNum];
+    int offset = tribunesOffset * num;
+    buildPos.x += 0;
+    buildPos.y += offset;
+    if (tableStatus.robot.colorTeam == YELLOW)
+        position_robot_flip(buildPos);
    
+    nav_return_t nav_ret;
     switch (constructAllTribunesState){
     case FSM_CONSTRUCT_NAV:
         // Nav to the tribune building location (zone)
+        // TODO Highways should be enabled
+        nav_ret = navigationGoTo(buildPos.x, buildPos.y, buildPos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
+        liftSingleTribune();
+        if (nav_ret == NAV_DONE){
+            constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
+        }
+        else if (nav_ret == NAV_ERROR){
+            // TODO get another stock
+            return FSM_RETURN_ERROR;
+        }
         break;
     case FSM_CONSTRUCT_MOVE:
-        // Place the robot to a tribune building location
+        nav_ret = navigationGoToNoTurn(buildPos.x - 500, buildPos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
+        if (nav_ret == NAV_DONE){
+            constructAllTribunesState = FSM_CONSTRUCT_NAV;
+        }
+        else if (nav_ret == NAV_ERROR){
+            // TODO get another stock
+            return FSM_RETURN_ERROR;
+        }
         break;
     case FSM_CONSTRUCT_PREPREVOLVER:
+        if (isRevolverEmpty()){
+            constructAllTribunesState = FSM_CONSTRUCT_EXIT;
+            return FSM_RETURN_WORKING;
+        }
         if (RevolverRelease()){
             constructAllTribunesState = FSM_CONSTRUCT_BUILD;
         }
@@ -152,24 +177,34 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         if (constructSingleTribune()){
             tableStatus.builtTribuneHeights[num]++;
             if (isRevolverEmpty() || tableStatus.robot.plank_count == 0) {
+                if (tableStatus.robot.plank_count == 0)
+                    LOG_GREEN_INFO("No more planks left, exiting");
+                else if (isRevolverEmpty())
+                    LOG_GREEN_INFO("No more revolver stock left, exiting");
                 constructAllTribunesState = FSM_CONSTRUCT_EXIT;
             }
             else if (tableStatus.builtTribuneHeights[num] == 3){
+                LOG_GREEN_INFO("Tribune #", num, " is done");
                 constructAllTribunesState = FSM_CONSTRUCT_MOVE;
                 num++;
             }
             else {
+                LOG_GREEN_INFO("Tribune #", num, " is at height ", tableStatus.builtTribuneHeights[num]);
                 constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
             }
         }
         break;
     case FSM_CONSTRUCT_EXIT:
         // Get out the way to make sure we dont destroy shit
-        // if nav_done
-        //   constructAllTribunesState = FSM_CONSTRUCT_NAV;
-        //   return true;
-        constructAllTribunesState = FSM_CONSTRUCT_NAV;
-        return FSM_RETURN_DONE;
+        nav_ret = navigationGoToNoTurn(buildPos.x - 500, buildPos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
+        if (nav_ret == NAV_DONE){
+            constructAllTribunesState = FSM_CONSTRUCT_NAV;
+            return FSM_RETURN_DONE;
+        }
+        else if (nav_ret == NAV_ERROR){
+            // TODO get another stock
+            return FSM_RETURN_ERROR;
+        }
         break;
     }
     return FSM_RETURN_WORKING;
