@@ -165,14 +165,25 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         }
         break;
     case FSM_CONSTRUCT_PREPREVOLVER:
+    {
+        static bool revolverReady = false;
+        static bool liftReady = tableStatus.builtTribuneHeights[num] == 0;
         if (isRevolverEmpty()){
+            // TODO Replace the lift down
             constructAllTribunesState = FSM_CONSTRUCT_EXIT;
             return FSM_RETURN_WORKING;
         }
-        if (RevolverRelease()){
+        if (!revolverReady)
+            revolverReady = RevolverRelease();
+        if (!liftReady)
+            liftReady = liftSingleTribune();
+        if (revolverReady && liftReady){
             constructAllTribunesState = FSM_CONSTRUCT_BUILD;
+            liftReady = false;
+            revolverReady = tableStatus.builtTribuneHeights[num] == 2;
         }
         break;
+    }
     case FSM_CONSTRUCT_BUILD:
         if (constructSingleTribune()){
             tableStatus.builtTribuneHeights[num]++;

@@ -32,7 +32,7 @@ bool constructSingleTribune(){
         }
         break;
     case 4:
-        if (movePlatformLifts(1, false) & moveTribunePusher(false) & liftSingleTribune()){
+        if (movePlatformLifts(1, false) & moveTribunePusher(false) & moveClaws(1)){
             state = 1;
             return true;
         }
@@ -66,7 +66,7 @@ bool liftSingleTribune(){
         }
         break;
     case 2:
-        if (_millis() > startTime + 1500)
+        if (_millis() > startTime + 2500)
             state ++;
         break;
     case 3:
@@ -74,7 +74,7 @@ bool liftSingleTribune(){
             state++;
         break;
     case 4:
-        if (_millis() > startTime + 4000){
+        if (_millis() > startTime + 7000){
             state = 1;
             return true;
         }
