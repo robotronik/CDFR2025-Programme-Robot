@@ -1,189 +1,223 @@
-# CDFR2025-Programme-Robot
+# 🤖 CDFR2025-Programme-Robot
 
-Bienvenue dans le projet CDFR2025-Programme-Robot ! Ce projet vise à développer un programme pour contrôler un robot dans le cadre du CDFR 2025.
+Welcome to the **CDFR2025-Programme-Robot** project!
 
-## Description
+This project aims to develop a program to control a robot for the CDFR 2025 event.
 
-Ce programme est conçu pour permettre au robot d'accomplir différentes tâches, telles que la navigation, la collecte de données, etc. Le code est structuré de manière modulaire et extensible pour faciliter l'ajout de fonctionnalités supplémentaires.
+## 📖 Description
 
-## Fonctionnalités
+This program enables the robot to perform various tasks such as navigation, data collection, and more using a modular and extensible design.
 
-- **Navigation**: Le robot peut se déplacer dans son environnement en utilisant des algorithmes de navigation.
-- **Collecte de données**: Le robot peut collecter et stocker des données provenant de capteurs embarqués.
-- **Communication**: Le programme prend en charge la communication avec d'autres systèmes ou dispositifs.
+## 🚀 Features
 
-## Prérequis
+- **Navigation**: The robot can move through its environment using dedicated algorithms.
+- **Data Collection**: The robot gathers and stores data from onboard sensors.
+- **Communication**: The program supports communication with other systems or devices.
 
-Avant d'exécuter le programme, assurez-vous d'avoir installé les dépendances suivantes :
+## 🔧 Prerequisites
+
+Before running the program, make sure you have installed the following dependencies:
 
 ```bash
 sudo apt-get install make gcc g++ python3-venv libasio-dev
 ```
 
-Les dépendances supplémentaires requises pour compiler sur arm (RasbPi)
+For ARM (Raspberry Pi) compilation, install:
 
 ```bash
 sudo apt-get install g++-aarch64-linux-gnu
 ```
-no need to install libi2c-dev_4.3-2
 
-Pour debug
+*Note:* You do not need to install `libi2c-dev_4.3-2`.
+
+For debugging, install:
 
 ```bash
 sudo apt install gdbserver
 ```
 
-## Installation
+## 📥 Installation
 
-1. Ne clonez pas ce dépôt seul !! Clonez le dépôt CDFR : 
-```bash
-git clone git@github.com:robotronik/CDFR.git --recursive
-```
-2. puis rendez vous ici dans CDFR2025
+1. **Do not clone this repository by itself!**  
+   Instead, clone the main CDFR repository with the `--recursive` flag to include all submodules:
 
-```bash
-cd informatique/CDFR2025-Programme-Robot/ 
-```
-3. Pour finir, vous pouvez passer sur la branche main et pull avant de travailler pour vous mettre à jour.
-```bash
-git checkout main
-git pull 
-```
+   ```bash
+   git clone git@github.com:robotronik/CDFR.git --recursive
+   ```
 
-## Compilation
+2. Navigate to the CDFR2025-Programme-Robot directory:
 
-Simplement lancer la commande pour compiler le programme
+   ```bash
+   cd informatique/CDFR2025-Programme-Robot/
+   ```
+
+3. Switch to the `main` branch and update the project:
+
+   ```bash
+   git checkout main
+   git pull
+   ```
+
+## 💻 Compilation
+
+To compile the program on your machine, simply run:
 
 ```bash
 make
 ```
 
-Pour lancer les tests faire
+To run tests:
 
 ```bash
 make tests
 ```
 
-Et finalement, pour nettoyer faire
+To clean the build files:
 
 ```bash
 make clean
 ```
 
-## Compilation pour RasbPi
+## 🛠️ Compilation for Raspberry Pi
 
-Assurez vous d'avoir les dépendances requises pour compiler sur arm.
-Simplement lancer la commande pour compiler le programme pour ARM et l'installer sur le RasbPi.
-Pour se connecter en ssh au RasbPi sans avoir à utiliser de mot de passe, utiliser
+Ensure you have the necessary dependencies for ARM compilation.
+
+To compile and deploy the program on your Raspberry Pi, first set up SSH key authentication. To copy your SSH key to the Raspberry Pi (replace `pi@192.168.1.47` with your Raspberry Pi’s address):
+
+```bash
 ssh-copy-id pi@192.168.1.47
+```
+
+Then compile and deploy with:
 
 ```bash
 make deploy
 ```
 
-Pour nettoyer faire
+To clean up, run:
 
 ```bash
 make clean-all
 ```
 
-Sur un nouveau Raspi, il faut configurer avec
-sudo raspi-config
-et activer l'I2C et la communicaton série dans Interface Options
+On a new Raspberry Pi, configure I2C and serial communication via:
 
-Pour voir le service (useful commands)
+```bash
+sudo raspi-config
+```
+
+## 🔍 Service Monitoring and Restart
+
+To view the service logs:
+
 ```bash
 journalctl -b -u programCDFR --output=cat
 journalctl -u programCDFR -f --output=cat
+```
 
+To list the active services:
+
+```bash
 systemctl list-units --type=service
+```
 
+To reload the service configuration and restart the program:
+
+```bash
 sudo systemctl daemon-reload
 sudo systemctl restart programCDFR
 ```
 
-## Debugging on a Raspberry Pi with VS Code
+## 🐞 Debugging on Raspberry Pi with VS Code
 
-Connect your PC to the same Wi-Fi as the Raspberry Pi.
-Change the address in launch.json and task.json to match the robot address.
-Press F5 in VS Code to start debugging.
-You can now set breakpoints and use all the debugging tools available in VS Code for remote debugging on the Raspberry Pi.
+1. Connect your PC to the same Wi-Fi network as the Raspberry Pi.
+2. Update the IP address in `launch.json` and `task.json` to match your robot's address.
+3. Press F5 in VS Code to start remote debugging, set breakpoints, and utilize VS Code's debugging tools.
 
-## Accessibilité au site (restAPI)
+## 🌐 Website Access (REST API)
 
-Soyez sur le même internet local que le robot. Le programme doit être lancé.
-Allez sur cette adresse dans un navigateur : http://raspitronik.local:8080
+Ensure that both the robot and the program are running and that you are on the same local network. Then, open your browser and go to:
 
-## Ecran tactile sur le robot
+```url
+http://raspitronik.local:8080
+```
 
-Lancer les commandes pour démmarer chromium sur la page locale du robot
+## 📺 Touchscreen on the Robot
+
+To launch Chromium in kiosk mode on the robot, execute:
+
 ```bash
 sudo apt-get install xorg openbox chromium-browser
 sudo apt install xorg openbox -y
 export DISPLAY=:0
 sudo startx /usr/bin/chromium-browser --noerrdialogs --kiosk http:0.0.0.0:8080/robot --incognito --disable-extensions --no-sandbox
-ou
+```
+
+Alternatively, use:
+
+```bash
 /usr/bin/chromium-browser --kiosk http:0.0.0.0:8080/robot --incognito --disable-extensions
 ```
 
-Configuration de lecran long
+For configuring a long display, edit the configuration file:
+
 ```bash
 sudo nano /boot/firmware/config.txt
 ```
-et mettre 
+
+And add the following line:
+
 ```bash
 dtoverlay=vc4-kms-dsi-waveshare-panel,8_8_inch
 ```
 
+If you are running the Raspberry Pi OS with the default desktop, you can add the command to the autostart file so it launches when the X session starts:
 
-If you’re running the Raspberry Pi OS with its default desktop, you can add your command to the autostart file so it launches once the X session starts.
+1. Open (or create if it doesn’t exist) the autostart file:
 
-Edit the Autostart File:
-Open (or create if it doesn’t exist) the file:
+   ```bash
+   /home/pi/.config/lxsession/LXDE-pi/autostart
+   ```
 
-```bash
-/home/pi/.config/lxsession/LXDE-pi/autostart
-```
-Add Your Command:
+2. Add the following command:
 
-```bash
-@/usr/bin/chromium-browser --kiosk http://0.0.0.0:8080/robot --incognito --disable-extensions
-```
-Save and Reboot
+   ```bash
+   @/usr/bin/chromium-browser --kiosk http://0.0.0.0:8080/robot --incognito --disable-extensions
+   ```
 
-## Actions and Actuators
+3. Save the file and reboot the system.
 
-(in code, theyre called banner, stocks, columns, platforms and tribunes)
+## ⚙️ Actions and Actuators
 
-Defenies dans constante.h
-- Stepper 1 - Elevateur à planches
-- Stepper 2 - Elevateur à étages
-- Stepper 3 - Rail du bas
-- Stepper 4 - Rail du haut
-- Servo 1 - Push étage tribune
-- Servo 2 - Souleveur à planches gauche
-- Servo 3 - Souleveur à planches droite
-- Servo 4 - Pinces
-- servo 5 - Banière
+In the code, these elements are referred to as *banner*, *stocks*, *columns*, *platforms*, and *tribunes*. Defined in `constante.h`:
 
-## RGB Light signals
+- **Stepper 1**: Platforms elevator
+- **Stepper 2**: Multi-level elevator
+- **Stepper 3**: Lower revolver
+- **Servo 1**: Tribunes pusher
+- **Servo 2**: Left platforms lifter
+- **Servo 3**: Right platforms lifter
+- **Servo 4**: Clamps
+- **Servo 5**: Banner
+- **DC Motor 1**: Tribunes elevator
 
-**SOLID:**  
-- 🟢 Green: The robot has finished the match  
+## 🌈 RGB Light Signals
 
-**BLINKING:**  
-- 🔴 Red: The program has failed. Restart the robot.  
-- 🔵 Blue: The robot is ready to start as blue  
-- 🟡 Yellow: The robot is ready to start as yellow  
-- 🟣 Purple: The robot is in manual control mode  
+- **SOLID**:
+  - 🟢 *Green*: The robot has finished the match.
+- **BLINKING**:
+  - 🔴 *Red*: The program has failed. Restart the robot.
+  - 🔵 *Blue*: The robot is ready to start as blue.
+  - 🟡 *Yellow*: The robot is ready to start as yellow.
+  - 🟣 *Purple*: The robot is in manual control mode.
+- **RAINBOW**:
+  - 🌈 The robot is waiting for user input.
 
-**RAINBOW:**  
-- 🌈 The robot is waiting for user input
+## ✅ Match Checklist
 
-## Check List Match
-- Position robot
-- Ascensseur position basse
-- Ascensseur pince position basse
-- Couleur choisie (vérfie on live table)
-- Stratégie choisie
-- Prêt démarrage
+- Position the robot.
+- Elevator at the bottom position.
+- Clamp at the bottom position.
+- Choose color.
+- Select strategy (verify on the live table).
+- Ready to start.
