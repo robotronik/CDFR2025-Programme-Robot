@@ -1,23 +1,22 @@
 #include "i2c/Arduino.hpp"
 #include "utils/logger.hpp"
+#include "protocol.h"
 
-Arduino::Arduino(int slave_address) : I2CDevice (slave_address){}
-
-#define CMD_MOVE_SERVO 0x01
-#define CMD_READ_SENSOR 0x02
-#define CMD_ENABLE_STEPPER 0x03
-#define CMD_DISABLE_STEPPER 0x04
-#define CMD_RGB_LED 0x05
-#define CMD_PWM_LIDAR 0x06
-#define CMD_MOVE_STEPPER 0x07
-#define CMD_SET_STEPPER 0x08
-#define CMD_GET_STEPPER 0x09
-#define CMD_SET_MOSFET 0x0A
-#define CMD_MOVE_DC_MOTOR 0x0B
-#define CMD_STOP_DC_MOTOR 0x0C
-#define CMD_GET_DC_MOTOR 0x0D
-#define CMD_GET_SERVO 0x0E
-
+Arduino::Arduino(int slave_address) : I2CDevice (slave_address){
+    // Check if the device has the same protocol version
+    if (i2cFile == -1) return; // Emulation
+    uint8_t version;
+    uint8_t message[] = {0};
+    if (I2cSendBlockReceiveData(CMD_GET_VERSION, message, 1, &version, 1) != 0) {
+        LOG_ERROR("Failed to read protocol version");
+        return;
+    }
+    if (version != API_VERSION) {
+        LOG_ERROR("Protocol version mismatch, expected ", API_VERSION, " but got ", version);
+        return;
+    } 
+    LOG_GREEN_INFO("Protocol version ", version, " is compatible");
+}
 
 // [0;180]
 void Arduino::moveServo(int ServoID, int position) {
@@ -107,7 +106,7 @@ void Arduino::setStepperSpeed(int StepperID, int speed) { //TODO : does it works
     uint8_t* ptr = message;
     WriteUInt8(&ptr, StepperID);
     WriteUInt16(&ptr, speed);
-    I2cSendData(CMD_SET_STEPPER, message, 3);
+    I2cSendData(CMD_SET_STEPPER_SPEED, message, 3);
 }
 
 
@@ -165,7 +164,7 @@ void Arduino::RGB_Rainbow(int LED_ID){
 }
 
 void Arduino::SetLidarPWM(uint8_t val){
-    if (I2cSendData(CMD_PWM_LIDAR, &val, 1))
+    if (I2cSendData(CMD_SET_PWM_LIDAR, &val, 1))
         LOG_ERROR("Couldn't set Lidar PWM");
 }
 

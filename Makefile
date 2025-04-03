@@ -8,6 +8,7 @@ INCLUDE_DIR += -Irplidar_sdk/sdk/include
 INCLUDE_DIR += -Irplidar_sdk/sdk/src
 INCLUDE_DIR += -I../librairie-commune/common/include
 INCLUDE_DIR += -I../librairie-commune/master/include
+INCLUDE_DIR += -I../cdfr2024-programme-Actionneur/include/common
 INCLUDE_DIR += -IWiringPi/wiringPi
 
 BINDIR = bin
