@@ -122,8 +122,8 @@ bool movePlatformLifts(int pos, bool slow){
         target_right= 70; 
         break;
     case 2:
-        target_left = 42;
-        target_right= 95; 
+        target_left = 50;
+        target_right= 90; 
         break;
     }
     if (previousPos != pos){
@@ -139,10 +139,10 @@ bool movePlatformLifts(int pos, bool slow){
 
 bool moveTribunePusher(bool outside, bool slow){
     static bool previousOutside = !outside;
-    int target = outside ? 180 : 0;
+    int target = outside ? 170 : 0;
     if (previousOutside != outside){
         previousOutside = outside;
-        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 60 : 200);
+        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 100 : 200);
     }
     int current = 0;
     if (!arduino.getServo(TRIBUNES_PUSH_SERVO_NUM, current)) return false;
@@ -164,13 +164,13 @@ bool moveClaws(int level){
     case 1:
         target = 105; break;
     case 2:
-        target = 25; break;
+        target = 0; break;
     }
 
     if (previouslevel != level){
         startTime = _millis(); // Reset the timer
         previouslevel = level;
-        arduino.moveServoSpeed(TRIBUNES_CLAWS_SERVO_NUM, target, 200);
+        arduino.moveServoSpeed(TRIBUNES_CLAWS_SERVO_NUM, target, 400);
     }
     int current = 0;
     if (!arduino.getServo(TRIBUNES_CLAWS_SERVO_NUM, current)) return false;
@@ -236,19 +236,7 @@ bool moveColumnsElevator(bool up){
 
 // Moves the tribune elevator to a predefined level
 bool moveTribuneElevator(){
-    /*
-    static bool previousHigh = !high;
-
-    int target = high ? 2000 : 0; // TODO : Check if this is correct
-    if (previousHigh != high){
-        previousHigh = high;
-        arduino.moveStepper(target, TRIBUNES_ELEVATOR_STEPPER_NUM);
-    }
-    int32_t currentValue;
-    if (!arduino.getStepper(currentValue, TRIBUNES_ELEVATOR_STEPPER_NUM)) return false;
-    return (currentValue == target);
-    */
-    arduino.moveMotorDC(255, 30);
+    arduino.moveMotorDC(50, 30);
     return true;
 }
 
