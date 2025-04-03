@@ -74,7 +74,7 @@ bool liftSingleTribune(){
             state++;
         break;
     case 4:
-        if (_millis() > startTime + 7000){
+        if (_millis() > startTime + 5500){
             state = 1;
             return true;
         }
@@ -139,7 +139,7 @@ bool movePlatformLifts(int pos, bool slow){
 
 bool moveTribunePusher(bool outside, bool slow){
     static bool previousOutside = !outside;
-    int target = outside ? 170 : 0;
+    int target = outside ? 10 : 180;
     if (previousOutside != outside){
         previousOutside = outside;
         arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 100 : 200);
