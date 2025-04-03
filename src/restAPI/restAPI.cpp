@@ -152,7 +152,7 @@ void StartAPIServer(){
         response["team"] = tableStatus.robot.colorTeam;
         response["score"] = tableStatus.getScore();
         response["time"] = _millis() - tableStatus.startTime;
-        // TODO : Strategy number
+        response["strategy"] = tableStatus.strategy;
         return crow::response(response.dump(4));
     });
 
@@ -249,7 +249,7 @@ void StartAPIServer(){
             return crow::response(400, response.dump(4));
         }
 
-        //TODO : Apply the strat
+        switchStrategy(req_strat);
 
         json response;
         response["message"] = "Successfull";

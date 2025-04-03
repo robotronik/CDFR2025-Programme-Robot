@@ -5,6 +5,7 @@
 #include "main.hpp"
 #include "navigation/navigation.h"
 #include "actions/functions.h"
+#include "actions/strats.hpp"
 #include "defs/tableState.hpp"
 #include "defs/constante.h"
 #include "actions/revolver.hpp"
@@ -17,24 +18,23 @@ ActionFSM::~ActionFSM(){}
 
 void ActionFSM::Reset(){
     runState = FSM_ACTION_GATHER;
-    takeSingleStockState = FSM_SINGLESTOCK_NAV;
+    gatherStockState = FSM_GATHER_NAV;
     constructAllTribunesState = FSM_CONSTRUCT_NAV;
     initRevolver();
 }
 
 bool ActionFSM::RunFSM(){
     ReturnFSM_t ret;
+    unsigned long ms = _millis();
+    unsigned long maxGather, maxBuild;
+    StratTimes(maxGather, maxBuild);
     switch (runState)
     {
     //****************************************************************
     case FSM_ACTION_GATHER:
-        // ret = TakeSingleStockFSM(5, 0); //TODO choose the stock
-        ret = TakeSingleStockFSM(9, 2); //TODO choose the stock
-        if (ret == FSM_RETURN_DONE){
-            if (true) // TODO Done collecting
-                runState = FSM_ACTION_BUILD;
-            // else choose another stock
-        }
+        ret = GatherStock();
+        if (ret == FSM_RETURN_DONE)
+            runState = FSM_ACTION_BUILD;
         else if (ret == FSM_RETURN_ERROR){
             LOG_ERROR("Couldn't take stock");
             // TODO Handle error
@@ -42,10 +42,9 @@ bool ActionFSM::RunFSM(){
         break;
     //****************************************************************
     case FSM_ACTION_BUILD:
-        ret = ConstructAllTribunesFSM(0); //TODO choose the zone
-        if (ret == FSM_RETURN_DONE){
+        ret = ConstructAllTribunesFSM();
+        if (ret == FSM_RETURN_DONE)
             runState = FSM_ACTION_NAV_HOME;
-        }
         else if (ret == FSM_RETURN_ERROR){
             LOG_ERROR("Couldn't build tribune");
             // TODO Handle error
@@ -58,18 +57,26 @@ bool ActionFSM::RunFSM(){
         break;
     //****************************************************************
     case FSM_ACTION_NAV_HOME:
-        // Maybe do something like
-        // get close to home then move in if theres less than 3s left to the clock
         if (returnToHome()){
             runState = FSM_ACTION_GATHER;
-            return true; //Robot is done
+            return true; // Robot is done
         }
         break;
     }
     return false;
 }
 
-ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
+
+ReturnFSM_t ActionFSM::GatherStock(){
+
+    static int num = -1;
+    static int offset;
+    if (num == -1){
+        if (!StratGather(num, offset)){
+            return FSM_RETURN_DONE;
+        }
+    }
+
     position_t stockPos = STOCK_POSITION_ARRAY[num];
     int off = STOCK_OFFSET_MAPPING[num][offset];
     if (off < 0) return FSM_RETURN_ERROR;
@@ -78,50 +85,90 @@ ReturnFSM_t ActionFSM::TakeSingleStockFSM(int num, int offset){
     Direction stock_nav_dir      = (stock_dir == FORWARDS) ? Direction::FORWARD : Direction::BACKWARD;
     direction_t stock_intake_dir = (stock_dir == FORWARDS) ? FROM_LEFT : FROM_RIGHT;
     nav_return_t nav_ret;
-    switch (takeSingleStockState){
-    case FSM_SINGLESTOCK_NAV:
+    switch (gatherStockState){
+    case FSM_GATHER_NAV:
         // TODO Highways should be enabled
-        nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, false);
+        nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
         if (RevolverPrepareLowBarrel(stock_intake_dir) && (nav_ret == NAV_DONE)){
-            takeSingleStockState = FSM_SINGLESTOCK_MOVE;
+            gatherStockState = FSM_GATHER_MOVE;
         }
         else if (nav_ret == NAV_ERROR){
+            // TODO get another stock
             return FSM_RETURN_ERROR;
         }
         break;
-    case FSM_SINGLESTOCK_MOVE:
+    case FSM_GATHER_MOVE:
         if (stockPos.theta == 0) // Horizontal stock
-            nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y, stock_nav_dir, Rotation::SHORTEST, false);
+            nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y - stockOff.y/6, stock_nav_dir, Rotation::SHORTEST, false);
         else // Vertical stock
-            nav_ret = navigationGoToNoTurn(stockPos.x, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
-        if ((nav_ret == NAV_DONE) & RevolverLoadStock(stock_intake_dir)){
-            takeSingleStockState = FSM_SINGLESTOCK_COLLECT;
+            nav_ret = navigationGoToNoTurn(stockPos.x - stockOff.x/6, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
+        if ((nav_ret == NAV_DONE) & RevolverLoadStock(stock_intake_dir, num)){
+            gatherStockState = FSM_GATHER_COLLECT;
         }
         else if (nav_ret == NAV_ERROR){
             return FSM_RETURN_ERROR;
         }
         break;
-    case FSM_SINGLESTOCK_COLLECT:
+    case FSM_GATHER_COLLECT:
         // Collect the stock
         if (takeStockPlatforms()){
-            takeSingleStockState = FSM_SINGLESTOCK_NAV;
+            gatherStockState = FSM_GATHER_NAV;
             setStockAsRemoved(num);
-            return FSM_RETURN_DONE;
+            tableStatus.robot.plank_count += 2;
+            num = -1;
+            return FSM_RETURN_WORKING;
         }
         break;
     }
     return FSM_RETURN_WORKING;
 }
-ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(int zone){
+ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
     static int num = 0; // Keep track of the tribune were building
+    static int zoneNum = -1; // Keep track of the zone were building in
+
+    if (zoneNum == -1){
+        StratConstruct(zoneNum);
+    }
+
+    // Offset the build pos by 120mm * num
+    const int tribunesOffset = 120;
+    position_t buildPos = TRIBUNE_CONSTRUCT_POSITION[zoneNum];
+    int offset = tribunesOffset * num;
+    buildPos.x += 0;
+    buildPos.y += offset;
+    if (tableStatus.robot.colorTeam == YELLOW)
+        position_robot_flip(buildPos);
+   
+    nav_return_t nav_ret;
     switch (constructAllTribunesState){
     case FSM_CONSTRUCT_NAV:
         // Nav to the tribune building location (zone)
+        // TODO Highways should be enabled
+        nav_ret = navigationGoTo(buildPos.x, buildPos.y, buildPos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
+        liftSingleTribune();
+        if (nav_ret == NAV_DONE){
+            constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
+        }
+        else if (nav_ret == NAV_ERROR){
+            // TODO get another stock
+            return FSM_RETURN_ERROR;
+        }
         break;
     case FSM_CONSTRUCT_MOVE:
-        // Place the robot to a tribune building location
+        nav_ret = navigationGoToNoTurn(buildPos.x - 500, buildPos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
+        if (nav_ret == NAV_DONE){
+            constructAllTribunesState = FSM_CONSTRUCT_NAV;
+        }
+        else if (nav_ret == NAV_ERROR){
+            // TODO get another stock
+            return FSM_RETURN_ERROR;
+        }
         break;
     case FSM_CONSTRUCT_PREPREVOLVER:
+        if (isRevolverEmpty()){
+            constructAllTribunesState = FSM_CONSTRUCT_EXIT;
+            return FSM_RETURN_WORKING;
+        }
         if (RevolverRelease()){
             constructAllTribunesState = FSM_CONSTRUCT_BUILD;
         }
@@ -130,24 +177,34 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(int zone){
         if (constructSingleTribune()){
             tableStatus.builtTribuneHeights[num]++;
             if (isRevolverEmpty() || tableStatus.robot.plank_count == 0) {
+                if (tableStatus.robot.plank_count == 0)
+                    LOG_GREEN_INFO("No more planks left, exiting");
+                else if (isRevolverEmpty())
+                    LOG_GREEN_INFO("No more revolver stock left, exiting");
                 constructAllTribunesState = FSM_CONSTRUCT_EXIT;
             }
             else if (tableStatus.builtTribuneHeights[num] == 3){
+                LOG_GREEN_INFO("Tribune #", num, " is done");
                 constructAllTribunesState = FSM_CONSTRUCT_MOVE;
                 num++;
             }
             else {
+                LOG_GREEN_INFO("Tribune #", num, " is at height ", tableStatus.builtTribuneHeights[num]);
                 constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
             }
         }
         break;
     case FSM_CONSTRUCT_EXIT:
         // Get out the way to make sure we dont destroy shit
-        // if nav_done
-        //   constructAllTribunesState = FSM_CONSTRUCT_NAV;
-        //   return true;
-        constructAllTribunesState = FSM_CONSTRUCT_NAV;
-        return FSM_RETURN_DONE;
+        nav_ret = navigationGoToNoTurn(buildPos.x - 500, buildPos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
+        if (nav_ret == NAV_DONE){
+            constructAllTribunesState = FSM_CONSTRUCT_NAV;
+            return FSM_RETURN_DONE;
+        }
+        else if (nav_ret == NAV_ERROR){
+            // TODO get another stock
+            return FSM_RETURN_ERROR;
+        }
         break;
     }
     return FSM_RETURN_WORKING;

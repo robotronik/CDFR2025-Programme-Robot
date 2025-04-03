@@ -5,6 +5,8 @@
 TableState::TableState(){
     pos_opponent.x = 0; pos_opponent.y = 0;
     robot.pos = {0, 0, 0};
+    robot.colorTeam = NONE;
+    strategy = 1;
 
     reset();
 }
@@ -12,7 +14,7 @@ TableState::TableState(){
 TableState::~TableState(){}
 
 void TableState::reset(){
-    robot.colorTeam = NONE;
+    
     /* data show must go on*/
     for(int i = 0; i<STOCK_COUNT;i++){
         avail_stocks[i] = true;
@@ -27,7 +29,7 @@ void TableState::reset(){
 
 int TableState::getScore()
 {
-    int totalScore = 1; //TODO
+    int totalScore = 0;
     for (int i = 0; i < 10; i++){
         switch (builtTribuneHeights[i])
         {
@@ -62,6 +64,7 @@ void to_json(json& j, const TableState& ts) {
         {"done_banderole", ts.done_banderole},
         {"pos_opponent", ts.pos_opponent},
         {"startTime", ts.startTime},
-        {"robot", ts.robot}
+        {"robot", ts.robot},
+        {"strategy", ts.strategy}
     };
 }

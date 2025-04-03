@@ -19,6 +19,8 @@ double position_angle(position_t from, position_t to);
 // Define a function to calculate the distance from and to a position_t
 double position_distance(position_t from, position_t to);
 
+void position_robot_flip(position_t& pos);
+
 typedef struct {
     float x;
     float y;

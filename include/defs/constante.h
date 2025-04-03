@@ -20,29 +20,28 @@
 
 // Define the nums of the arduino for the STEPPERS
 #define PLATFORMS_ELEVATOR_STEPPER_NUM    1
-// #define TRIBUNES_ELEVATOR_STEPPER_NUM     2
+#define COLOMNS_ELEVATOR_STEPPER_NUM      2
 #define COLOMNS_REVOLVER_LOW_STEPPER_NUM  3
-#define COLOMNS_REVOLVER_HIGH_STEPPER_NUM 4
+// #define STEPPER_NUM_4                  4
 // Define the nums of the arduino for the SERVOS
 #define TRIBUNES_PUSH_SERVO_NUM           1
 #define PLATFORMS_LIFT_LEFT_SERVO_NUM     2
 #define PLATFORMS_LIFT_RIGHT_SERVO_NUM    3
 #define TRIBUNES_CLAWS_SERVO_NUM          4
 #define BANNER_RELEASE_SERVO_NUM          5
-#define COLUMNS_LIFT_LEFT_SERVO_NUM       6
-#define COLUMNS_LIFT_RIGHT_SERVO_NUM      7
+// #define SERVO_NUM_6                    6
+// #define SERVO_NUM_7                    7
 // Define the nums of the arduino for the SENSORS
 #define BUTTON_SENSOR_NUM                 1
 #define LATCH_SENSOR_NUM                  2
-#define COLOR_SENSOR_NUM                  3
-#define PUSHER_LEFT_SENSOR_NUM            4
-#define PUSHER_RIGHT_SENSOR_NUM           5
+#define PUSHER_LEFT_SENSOR_NUM            7
+#define PUSHER_RIGHT_SENSOR_NUM           6
 
 #define SPEED_STOCK 8000 // Motor speed for collecting stock (mm/s)
 #define STEPPER_SPEED 1000 // Stepper motor speed for collecting stock (steps/s)
 
-#define COL_OFFSET_STOCK 380
-#define NO_COL_OFFSET_STOCK 180 
+#define COL_OFFSET_STOCK 410
+#define NO_COL_OFFSET_STOCK 145
 
 // Angle is either 0 for horizontal stock of 90 for vertical
 const position_t STOCK_POSITION_ARRAY[] = {{-725, 675, 0}, {-325, 1425, 90}, {600, 1425, 90}, {750, 725, 0}, {50, 400, 0}, 
@@ -97,3 +96,5 @@ const stock_direction_t STOCK_DIRECTION[10][4] = {
 const int STOCK_COUNT = 10;
 const int PROTECTED_BLUE_STOCK = 0;
 const int PROTECTED_YELLOW_STOCK = 5;
+
+const position_t TRIBUNE_CONSTRUCT_POSITION[] = {{700, 300, 0}, };

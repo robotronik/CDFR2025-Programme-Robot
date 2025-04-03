@@ -219,6 +219,7 @@
                 scoreLabel.innerHTML = data["score"];
 
                 toggleColor(data["team"]);
+                toggleStrat(data["strategy"]);
             } catch (error) {
                 console.error('Failed to fetch data:', error);
             }

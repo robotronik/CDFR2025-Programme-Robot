@@ -14,6 +14,14 @@ double position_distance(position_t from, position_t to){
     return sqrt(pow(to.x - from.x, 2) + pow(to.y - from.y, 2));
 }
 
+void position_robot_flip(position_t& pos){
+    pos.y = -pos.y;
+    if (pos.theta >= 0)
+        pos.theta = 180 - pos.theta;
+    else
+        pos.theta = -180 - pos.theta;
+}
+
 
 //Define serialization for position_t
 void to_json(json& j, const position_t& p) {

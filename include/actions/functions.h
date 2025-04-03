@@ -10,27 +10,29 @@ void disableActuators();
 bool isRobotInArrivalZone(position_t position);
 void opponentInAction(position_t position);
 void switchTeamSide(colorTeam_t color);
+void switchStrategy(int strategy);
 void setStockAsRemoved(int num);
 
 // Basic functions (FSM)
 bool takeStockPlatforms();
 bool constructSingleTribune();
 bool liftSingleTribune();
+bool deployBanner();
 
 // Related to stock management
-void getAvailableStockPositions(); // TODO finish
-int getStockPositions(int stockN, position_t availPos[4]);
+void getBestAvailableStock(); // TODO finish
+int getBestStockPositionOff(int stockN, position_t fromPos);
 
 // Servo Control
 bool movePlatformLifts(int pos, bool slow = false);
 bool moveTribunePusher(bool outside, bool slow = false);
-bool moveServoFloorColumns(bool up);
 bool moveClaws(int level);
+bool moveBannerDeploy(bool outside);
 
 // Stepper Control
 bool movePlatformElevator(int level);
+bool moveColumnsElevator(bool up);
 bool moveLowColumnsRevolverAbs(int N);
-bool moveHighColumnsRevolverAbs(int N);
 
 // DC Motor Control
 bool moveTribuneElevator();

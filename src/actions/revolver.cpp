@@ -2,11 +2,11 @@
 #include "utils/logger.hpp"
 #include "actions/functions.h"
 #include <exception>
-#define SIZE_LOW 14
+#define REVOLVER_SIZE 14
 
 bool emulateActuators = false;
 
-bool lowArr[SIZE_LOW] = {0};   // false = Empty,  true = Occupied
+bool lowArr[REVOLVER_SIZE] = {0};   // false = Empty,  true = Occupied
 int lowBarrelCount = 0;
 int lowBarrelShift = 0;
 
@@ -20,7 +20,7 @@ bool isRevolverEmpty();
 
 // Initialize the revolver when the game starts
 void initRevolver(){
-    for (int i = 0; i < SIZE_LOW; i++)
+    for (int i = 0; i < REVOLVER_SIZE; i++)
         lowArr[i] = 0;
     lowBarrelCount = 0;
     lowBarrelShift  = 0;
@@ -55,13 +55,14 @@ void DisplayBarrel(){
 // Functions to handle revolver
 // -------------------------------------------------
 bool isRevolverFull(){
-    if (lowBarrelCount == SIZE_LOW) {
-        LOG_ERROR("No more space in revolver !");
+    if (lowBarrelCount + 4 > REVOLVER_SIZE) {
+        LOG_WARNING("No more space in revolver !");
         return true;
     }
     return false;
 }
 bool isRevolverEmpty(){
+    // TODO Add more logic to handle lost columns
     return (lowBarrelCount <= 1);
 }
 void ShiftArray(bool arr[], int n, int size) {
@@ -86,7 +87,7 @@ bool SpinLowBarrel(int n) {
     lowBarrelShiftTarget = lowBarrelShift + n;
 
     if (emulateActuators || moveLowColumnsRevolverAbs(lowBarrelShiftTarget)) {
-        ShiftArray(lowArr, n, SIZE_LOW);
+        ShiftArray(lowArr, n, REVOLVER_SIZE);
         lowBarrelShift = lowBarrelShiftTarget;
         return true;
     }
@@ -125,25 +126,33 @@ bool MoveColumns(int direction, int sens) { //return 1 when finished sens 1 = mo
 // -------------------------------------------------
 
 // Load a Stock according to the direction. Barrel needs to be prepared. Called for loading stock
-bool RevolverLoadStock(direction_t dir){
-    static int i = 0;
+bool RevolverLoadStock(direction_t dir, int num){
+    static int prev_num = -1;
+    static bool done = false;
     int intake_pos = (dir == FROM_RIGHT) ? 4 : 1;
     int rotation = (dir == FROM_RIGHT) ? -1 : 1; // position ajout column, Sens de rotation
     
-    if (SpinLowBarrel(rotation)){
-        LOG_INFO("Loaded a column from ", (dir == FROM_RIGHT) ? "Right" : "Left");
-        if (lowArr[intake_pos]) 
-            throw std::runtime_error("Cant load stock into a already used position!");
-        lowArr[intake_pos] = true;
-        DisplayBarrel();
-        lowBarrelCount++;
-        i++;
-        if (i == 4){
-            i = 0;
-            return true;
-        }
+    if (isRevolverFull()){
+        LOG_ERROR("Revolver is full, cant load stock");
+        return true;
     }
-    return false;
+
+    if (prev_num != num) {
+        done = false;
+        prev_num = num;
+    }
+    if (!done && SpinLowBarrel(rotation*4)){
+        LOG_INFO("Loaded a column from ", (dir == FROM_RIGHT) ? "Right" : "Left");
+        for (int i = 0; i < 4; i++) {
+            if (lowArr[intake_pos + i * rotation]) 
+                throw std::runtime_error("Cant load stock into a already used position!");
+            lowArr[intake_pos + i * rotation] = true;
+        }
+        DisplayBarrel();
+        lowBarrelCount += 4;
+        done = true;
+    }
+    return done;
 }
 
 // Function that manages the storage of the first level. Returns true when done preparing for intake of stock from direction
@@ -154,17 +163,12 @@ bool RevolverPrepareLowBarrel(direction_t dir){
     if (!SpinLowBarrel(ShiftListNumber(lowArr, dir ? 4 : 1, dir==FROM_LEFT))) 
         return false;
 
-        // TODO Check on that
-
-    int N = (dir == FROM_RIGHT) ? 2 : -2;
-    if(lowBarrelCount == 12) {
-        if (!SpinLowBarrel(N))
-            return false;
-        MoveColumns(dir, 1);      //si on fait preparelowbarrel en boucle, movecolums diminue le nb de boite ds lowbarrelCount et donc on finit pas la boucle et fait pas spinbarrel
+    // TODO Check on that
+    if(lowBarrelCount >= 12) {
+        LOG_WARNING("Lower revolver is full, I'll raise the elevator");
         return false;
-    }
-
-    
+        // TODO Call moveColumnsElevator        
+    }    
     return true;
 }
 
@@ -187,7 +191,9 @@ bool ReleaseLow() {
             LOG_INFO("No columns to release");
         } 
         else if (lowArr[2] && lowArr[3]) {
-            if (emulateActuators || readPusherSensors()){
+            readPusherSensors();
+            LOG_WARNING("Ignoring columns sensors");
+            if (emulateActuators || true){// || readPusherSensors()){    TODO Put back
                 LOG_INFO("Pusher sensors ok");
                 lowArr[2] = 0; // left
                 lowArr[3] = 0; // right
@@ -217,11 +223,11 @@ bool ReleaseLow() {
 // Test Functions
 // -------------------------------------------------
 
-void TestTakeAction(direction_t dir){
+void TestTakeAction(direction_t dir, int numm){
     if (isRevolverFull())
         return;
     while (!RevolverPrepareLowBarrel(dir));
-    while (!RevolverLoadStock(dir));
+    while (!RevolverLoadStock(dir, numm));
     DisplayBarrel();
 }
 
@@ -231,12 +237,12 @@ void TestRevolver(){
 
     emulateActuators = true;
 
-    TestTakeAction(FROM_RIGHT);
-    TestTakeAction(FROM_LEFT);
-    TestTakeAction(FROM_RIGHT);
-    TestTakeAction(FROM_LEFT);
-    TestTakeAction(FROM_RIGHT);
-    TestTakeAction(FROM_LEFT);
+    TestTakeAction(FROM_RIGHT, 0);
+    TestTakeAction(FROM_LEFT, 1);
+    TestTakeAction(FROM_RIGHT, 2);
+    TestTakeAction(FROM_LEFT, 3);
+    TestTakeAction(FROM_RIGHT, 4);
+    TestTakeAction(FROM_LEFT, 5);
     while (!isRevolverEmpty())
         RevolverRelease();
 

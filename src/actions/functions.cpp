@@ -6,6 +6,7 @@
 #include "lidar/Lidar.hpp"
 #include "defs/constante.h"
 #include "i2c/Arduino.hpp"
+#include "actions/strats.hpp"
 #include <math.h>
 
 // ------------------------------------------------------
@@ -31,7 +32,7 @@ bool constructSingleTribune(){
         }
         break;
     case 4:
-        if (movePlatformLifts(1, false) & moveTribunePusher(false)){
+        if (movePlatformLifts(1, false) & moveTribunePusher(false) & liftSingleTribune()){
             state = 1;
             return true;
         }
@@ -42,35 +43,30 @@ bool constructSingleTribune(){
 
 // function to take platforms from a stock
 bool takeStockPlatforms(){
-    static int state = 0;
-    switch (state)
-    {
-    case 0:
-        if (movePlatformLifts(0) & movePlatformElevator(0))// Move the platforms lifts inside and move elevator down
-            state ++;
-        break;
-
-    case 1: 
+    // Move the platforms lifts inside and move elevator down
+    if (movePlatformLifts(0) & movePlatformElevator(0)){
         // Move the platforms lifts outside and move elevator up
-        if (movePlatformLifts(1) & movePlatformElevator(2)){
-            state = 0;
-            return true;
-        }
-        break;
+        movePlatformLifts(1);
+        movePlatformElevator(2);
+        return true;
     }
     return false;
 }
 
 bool liftSingleTribune(){
     static int state = 1;
+    static unsigned long startTime = _millis();
     switch (state)
     {
     case 1:
-        if (moveClaws(1))
+        if (moveClaws(1)){
+            moveTribuneElevator();
+            startTime = _millis();
             state ++;
+        }
         break;
     case 2:
-        if (moveTribuneElevator())
+        if (_millis() > startTime + 1500)
             state ++;
         break;
     case 3:
@@ -78,7 +74,25 @@ bool liftSingleTribune(){
             state++;
         break;
     case 4:
-        if (/*moveTribuneElevator()*/true){
+        if (_millis() > startTime + 4000){
+            state = 1;
+            return true;
+        }
+        break;
+    }
+    return false;
+}
+bool deployBanner(){
+    static int state = 1;
+    switch (state)
+    {
+    case 1:
+        if (moveBannerDeploy(true)){
+            state++;
+        }
+        break;
+    case 2:
+        if (moveBannerDeploy(false)){
             state = 1;
             return true;
         }
@@ -94,7 +108,6 @@ bool liftSingleTribune(){
 // This shit is clean af
 // pos = 0: inside, 1: middle, 2: outside
 bool movePlatformLifts(int pos, bool slow){
-    static unsigned long startTime = _millis();
     static int previousPos = !pos;
     int target_left = 0;
     int target_right = 0;
@@ -114,42 +127,26 @@ bool movePlatformLifts(int pos, bool slow){
         break;
     }
     if (previousPos != pos){
-        startTime = _millis(); // Reset the timer
         previousPos = pos;
-        if (slow){
-            arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left, 35);
-            arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right,35);
-        }
-        else{
-            arduino.moveServo(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left);
-            arduino.moveServo(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right);
-        }
+        int speed = slow ? 60 : 200;
+        arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left, speed);
+        arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right,speed);
     }
-    return (_millis() > startTime + 4000); // delay
+    int current_left = 0;
+    if (!arduino.getServo(PLATFORMS_LIFT_LEFT_SERVO_NUM, current_left)) return false;
+    return current_left == target_left;
 }
 
 bool moveTribunePusher(bool outside, bool slow){
-    static unsigned long startTime = _millis();
     static bool previousOutside = !outside;
+    int target = outside ? 180 : 0;
     if (previousOutside != outside){
-        startTime = _millis(); // Reset the timer
         previousOutside = outside;
-        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, outside ? 180 : 0, slow ? 60 : 0);
+        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 60 : 200);
     }
-    return (_millis() > startTime + 4000); // delay
-}
-
-// Move level to the floor up or down (high or low)
-bool moveServoFloorColumns(bool up){
-    static unsigned long startTime = _millis();
-    static bool previousUp = !up;
-    if (previousUp != up){
-        startTime = _millis(); // Reset the timer
-        previousUp = up;
-        arduino.moveServo(COLUMNS_LIFT_LEFT_SERVO_NUM, up ? 90 : 0); // TODO : Check if this is correct
-        arduino.moveServo(COLUMNS_LIFT_RIGHT_SERVO_NUM, up ? 0 : 90);
-    }
-    return (_millis() > startTime + 1000); // delay
+    int current = 0;
+    if (!arduino.getServo(TRIBUNES_PUSH_SERVO_NUM, current)) return false;
+    return current == target;
 }
 
 // 0 : Fully open
@@ -158,24 +155,41 @@ bool moveServoFloorColumns(bool up){
 bool moveClaws(int level){
     static unsigned long startTime = _millis();
     static int previouslevel = !level;
+
+    int target = 0;
+    switch (level)
+    {
+    case 0:
+        target = 170; break;
+    case 1:
+        target = 105; break;
+    case 2:
+        target = 25; break;
+    }
+
     if (previouslevel != level){
         startTime = _millis(); // Reset the timer
         previouslevel = level;
-
-        int target = 0;
-        switch (level)
-        {
-        case 0:
-            target = 170; break;
-        case 1:
-            target = 105; break;
-        case 2:
-            target = 25; break;
-        }
-
-        arduino.moveServo(TRIBUNES_CLAWS_SERVO_NUM, target);
+        arduino.moveServoSpeed(TRIBUNES_CLAWS_SERVO_NUM, target, 200);
     }
-    return (_millis() > startTime + 2000); // delay
+    int current = 0;
+    if (!arduino.getServo(TRIBUNES_CLAWS_SERVO_NUM, current)) return false;
+    return current == target;
+}
+
+bool moveBannerDeploy(bool outside){
+    return true; // TODO REMOVE AFTER SERVO NM
+
+
+    static bool previousOutside = !outside;
+    int target = outside ? 180 : 0;
+    if (previousOutside != outside){
+        previousOutside = outside;
+        arduino.moveServo(-1, target); //TODO SERVO NUM
+    }
+    int current = 0;
+    if (!arduino.getServo(-1, current)) return false; //TODO SERVO NUM
+    return current == target;
 }
 
 // ------------------------------------------------------
@@ -183,13 +197,15 @@ bool moveClaws(int level){
 // ------------------------------------------------------
 
 // Moves the platforms elevator to a predefined level
-// 0:lowest, 1:middle, 2:highest
+// -1:startpos, 0:lowest, 1:middle, 2:highest
 bool movePlatformElevator(int level){
-    static int previousLevel = -1;
+    static int previousLevel = -100;
 
     int target = 0;
     switch (level)
     {
+    case -1:
+        target = 0; break;
     case 0:
         target = 500; break;
     case 1:
@@ -203,6 +219,18 @@ bool movePlatformElevator(int level){
     }
     int32_t currentValue;
     if (!arduino.getStepper(currentValue, PLATFORMS_ELEVATOR_STEPPER_NUM)) return false; // TODO Might need to change this (throw error)
+    return (currentValue == target);
+}
+bool moveColumnsElevator(bool up){
+    static bool previousLevel = !up;
+
+    int target = up ? 13000 : 0;
+    if (previousLevel != up){
+        previousLevel = up;
+        arduino.moveStepper(target, COLOMNS_ELEVATOR_STEPPER_NUM);
+    }
+    int32_t currentValue;
+    if (!arduino.getStepper(currentValue, COLOMNS_ELEVATOR_STEPPER_NUM)) return false; // TODO Might need to change this (throw error)
     return (currentValue == target);
 }
 
@@ -220,7 +248,7 @@ bool moveTribuneElevator(){
     if (!arduino.getStepper(currentValue, TRIBUNES_ELEVATOR_STEPPER_NUM)) return false;
     return (currentValue == target);
     */
-    arduino.moveMotorDC(80, 15);
+    arduino.moveMotorDC(255, 30);
     return true;
 }
 
@@ -248,26 +276,6 @@ bool moveLowColumnsRevolverAbs(int N){
     return (currentValue == absSteps);
 }
 
-// Move the higher revolver to an absolute position by N relative to the elevator
-bool moveHighColumnsRevolverAbs(int N){
-    static int previousN = 0;
-
-    float gearTheets = 13; // Theets per rotation
-    float stepperSteps = 200 * 16; // 16 microstepping
-    float intervalBetweenN = 3.5; // Theets between N
-    int absSteps = (int)((stepperSteps * intervalBetweenN * N) / gearTheets);
-
-    LOG_DEBUG("Moving high revolver to ", N, ", steps pos:", absSteps);
-
-    if (previousN != N){
-        previousN = N;
-        arduino.moveStepper(absSteps, COLOMNS_REVOLVER_HIGH_STEPPER_NUM);
-    }
-    int32_t currentValue;
-    if (!arduino.getStepper(currentValue, COLOMNS_REVOLVER_HIGH_STEPPER_NUM)) return false;
-    return (currentValue == absSteps);
-}
-
 // ------------------------------------------------------
 //                GLOBAL SET/RES CONTROL
 // ------------------------------------------------------
@@ -275,12 +283,13 @@ bool moveHighColumnsRevolverAbs(int N){
 
 // Returns true if actuators are home
 bool homeActuators(){
-    arduino.moveStepper(0, PLATFORMS_ELEVATOR_STEPPER_NUM);
     stopTribuneElevator();
     return (
     movePlatformLifts(0) &
     moveTribunePusher(false) &
-    moveClaws(1) //0
+    moveClaws(1) & //0
+    movePlatformElevator(-1) &
+    moveColumnsElevator(false)
     );
 }
 void enableActuators(){
@@ -291,11 +300,13 @@ void enableActuators(){
     asserv.set_brake_state(false); 
 }
 void disableActuators(){
+    stopTribuneElevator();
     for (int i = 0; i < 4; i++){
         arduino.disableStepper(i);
     }
     asserv.set_motor_state(false);
     asserv.set_brake_state(true); 
+    asserv.stop();
 }
 
 
@@ -310,8 +321,9 @@ void setStockAsRemoved(int num){
 }
 
 bool returnToHome(){
-    int home_x = -500;
-    int home_y = tableStatus.robot.colorTeam == BLUE ? 1100 : -1100;
+    unsigned long time = _millis() - tableStatus.startTime;
+    int home_x = (time < 95000) ? -300 : -600;
+    int home_y = (tableStatus.robot.colorTeam == BLUE) ? 1100 : -1100;
     nav_return_t res = navigationGoToNoTurn(home_x, home_y);
     return res == NAV_DONE && isRobotInArrivalZone(tableStatus.robot.pos);
 }
@@ -351,28 +363,37 @@ void switchTeamSide(colorTeam_t color){
         {
         case BLUE:
             LOG_INFO("Switching to BLUE");
-
-            //asserv.set_coordinates(200, -(1500-140), -90);
-            asserv.set_coordinates(50, -(1500-140), 90);
-
             arduino.RGB_Blinking(0, 0, 255);
             break;
         case YELLOW:
             LOG_INFO("Switching to YELLOW");
-
-            //asserv.set_coordinates(200, 1500-140, 90);
-            asserv.set_coordinates(50, 1500-140, -90);
-
             arduino.RGB_Blinking(255, 56, 0);
             break;
         default:
             break;
         }
+
+        position_t pos = StratStartingPos();
+        asserv.set_coordinates(pos.x, pos.y, pos.theta);
     }
 }
-
-void getAvailableStockPositions(){
+void switchStrategy(int strategy){
+    if (currentState == RUN) return;
+    if (strategy < 1 || strategy > 4){
+        LOG_ERROR("Invalid strategy");
+        return;
+    }
+    if (strategy != tableStatus.strategy){
+        LOG_INFO("Strategy switch detected");
+        tableStatus.strategy = strategy;
+        position_t pos = StratStartingPos();
+        asserv.set_coordinates(pos.x, pos.y, pos.theta);
+    }
+}
+void getBestAvailableStock(){
     // Returns all the stocks available and their position
+    // TODO list all the available stocks and their positions
+    // then choose the best one
     for (int i = 0; i < STOCK_COUNT; i++){
         if (!tableStatus.avail_stocks[i])
             continue;
@@ -381,16 +402,15 @@ void getAvailableStockPositions(){
         if (tableStatus.robot.colorTeam == YELLOW && i == PROTECTED_BLUE_STOCK)
             continue;
 
-        position_t availPos[4];
-        int count = getStockPositions(i, availPos);
-        LOG_DEBUG("Stock ", i, " available positions: ", count);
+        int res = getBestStockPositionOff(i, tableStatus.robot.pos);
     }
 }
 
 // Returns the count of the available positions 
-int getStockPositions(int stockN, position_t availPos[4]){
-    int availCount = 0;
-
+int getBestStockPositionOff(int stockN, position_t fromPos){
+    int bestIndex = 0;
+    // Calculate the best position (closest to the robot)
+    float minDist = 1000000;
     for (int n = 0; n < 4; n++){
         int map = STOCK_OFFSET_MAPPING[stockN][n];
         if (map < 0) continue;
@@ -399,11 +419,16 @@ int getStockPositions(int stockN, position_t availPos[4]){
         finalPos.x += offset.x;
         finalPos.y += offset.y;
         finalPos.theta = offset.theta;
+        
+        // Calculate the distance between the robot and the stock
+        float dist = position_distance(fromPos, finalPos);
+        if (dist < minDist){
+            minDist = dist;
+            bestIndex = n;
+        }
 
-        availPos[availCount] = finalPos;
-        availCount ++;
     }
-    return availCount;
+    return bestIndex;
 }
 
 bool isRobotInArrivalZone(position_t position){
@@ -419,12 +444,6 @@ bool isRobotInArrivalZone(position_t position){
 // ------------------------------------------------------
 //                    INPUT SENSOR
 // ------------------------------------------------------
-
-colorTeam_t readColorSensorSwitch(){
-    bool sensor = 0;
-    if (!arduino.readSensor(COLOR_SENSOR_NUM, sensor)) return NONE;
-    return sensor ? YELLOW : BLUE;
-}
 
 // Returns true if button sensor was high for the last N calls
 bool readButtonSensor(){

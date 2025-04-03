@@ -43,58 +43,75 @@ I2CDevice::~I2CDevice(){
     }
 }
 
-int I2CDevice::I2cSendData (uint8_t command, uint8_t* data, int length){
+int I2CDevice::I2cSendData (uint8_t command, uint8_t* data, int length, int tries){
     if (i2cFile >= 0){
-        if(length != 0){
-            return (i2c_smbus_write_i2c_block_data(i2cFile, command, length, data));
+        for (int i = 0; i < tries; i++){
+            if(length != 0){
+                if (0 == i2c_smbus_write_i2c_block_data(i2cFile, command, length, data))
+                    return 0;
+            }
+            else{
+                if (0 == i2c_smbus_write_byte(i2cFile, command))
+                    return 0;
+            }
         }
-        else{
-            return (i2c_smbus_write_byte(i2cFile, command));
-        }
+        LOG_ERROR("I2C Send Data failed after ", tries, " tries");
+        return -1;
     }
-    return 0;
+    else
+        return 0;
 }
 
 
-int I2CDevice::I2cReceiveData (uint8_t command, uint8_t* data, int length){
+int I2CDevice::I2cReceiveData (uint8_t command, uint8_t* data, int length, int tries){
     if (i2cFile >= 0){
-        if (i2c_smbus_write_byte(i2cFile, command))
-            return -1;
-        i2c_smbus_read_byte(i2cFile);
-        if (read(i2cFile, data, length) != length)
-            return -1;
+        for (int i = 0; i < tries; i++){
+            if (i2c_smbus_write_byte(i2cFile, command))
+                continue;        
+            usleep(200); // wait for sensor to finish loading the output buffer data
+            i2c_smbus_read_byte(i2cFile);
+            if (read(i2cFile, data, length) != length)
+                continue;
+            return 0;
+        }
+        LOG_ERROR("I2C Send Data failed after ", tries, " tries");
+        return -1;
     }
     else{
         // Emulate I2C by return data full of 0x00
         for (int i = 0; i < length; i++){
             data[i] = 0x00;
         }
+        return 0;
     }
-    return 0;
 }
 
-int I2CDevice::I2cSendBlockReceiveData (uint8_t command, uint8_t* data, int length, uint8_t* out_data, int out_length){
-
+int I2CDevice::I2cSendBlockReceiveData (uint8_t command, uint8_t* data, int length, uint8_t* out_data, int out_length, int tries){
     if (i2cFile >= 0){
-        if(length != 0){
-            if (i2c_smbus_write_i2c_block_data(i2cFile, command, length, data))
-                return -1;
+        for (int i = 0; i < tries; i++){
+            if(length != 0){
+                if (i2c_smbus_write_i2c_block_data(i2cFile, command, length, data))
+                    continue;
+            }
+            else{
+                if (i2c_smbus_write_byte(i2cFile, command))
+                    continue;
+            }
+            usleep(200); // wait for sensor to finish loading the output buffer data
+            if (read(i2cFile, out_data, out_length) != out_length)
+                continue;
+            return 0;
         }
-        else{
-            if (i2c_smbus_write_byte(i2cFile, command))
-                return -1;
-        }
-        usleep(200); // wait for sensor to finish loading the output buffer data
-        if (read(i2cFile, out_data, out_length) != out_length)
-            return -1;
+        LOG_ERROR("I2C Send Data failed after ", tries, " tries");
+        return -1;
     }
     else{
         // Emulate I2C by return data full of 0x00
         for (int i = 0; i < out_length; i++){
             out_data[i] = 0x00;
         }
+        return 0;
     }
-    return 0;
 }
 
 // Pointer to an array pointer

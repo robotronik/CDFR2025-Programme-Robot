@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
                 tableStatus.reset();
                 arduino.RGB_Rainbow();
             }
-            if (readButtonSensor() && !readLatchSensor())
+            if (readButtonSensor() & !readLatchSensor())
                 nextState = WAITSTART;
             break;
         }
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
             }
             bool finished = action.RunFSM();
 
-            if (_millis() > tableStatus.startTime + 90000 || finished)
+            if (_millis() > tableStatus.startTime + 100000 || finished)
                 nextState = FIN;
             break;
         }
@@ -192,8 +192,10 @@ int main(int argc, char *argv[])
                 lidar.stopSpin();
             }
 
-            if (!readLatchSensor())
-                nextState = INIT;
+            if (!readLatchSensor()){
+                enableActuators();
+                ctrl_c_pressed = true; // nextState = INIT;
+            }
             break;
         }
         //****************************************************************
@@ -313,7 +315,7 @@ void GetLidar()
     // Simple exponential moving average (EMA)
     
     // Smoothing factor (0 < alpha < 1)
-    const float alpha = 0.6f; // Adjust this value for more or less smoothing on the opponent robot posititon
+    const float alpha = 0.3f; // Adjust this value for more or less smoothing on the opponent robot posititon
 
     static position_t pos_opponent_filtered = {0, 0, 0};
     static bool first_reading = true;
@@ -345,9 +347,8 @@ void GetLidar()
             // Save the filtered position to tableStatus
             tableStatus.pos_opponent.x = pos_opponent_filtered.x;
             tableStatus.pos_opponent.y = pos_opponent_filtered.y;
-
-            opponentInAction(pos_opponent_filtered);
-            
+            if ((currentState == RUN || currentState == MANUAL) && (_millis() > tableStatus.startTime + 2000))
+                opponentInAction(pos_opponent_filtered);            
         }
     }
 }
