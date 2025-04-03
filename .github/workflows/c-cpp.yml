@@ -22,6 +22,8 @@ jobs:
       run: git clone https://github.com/robotronik/librairie-commune.git ../librairie-commune
     - name: Clone Aruco OpenCV
       run: git clone https://github.com/robotronik/PythonArucoOpenCV.git ../PythonArucoOpenCV
+    - name: Clone Arduino
+      run: git clone https://github.com/robotronik/cdfr2024-programme-Actionneur ../cdfr2024-programme-Actionneur
 
     - name: Build and run tests
       run: |
