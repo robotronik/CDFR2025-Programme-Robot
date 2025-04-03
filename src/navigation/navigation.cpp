@@ -138,7 +138,7 @@ void navigationOpponentDetection(){
     // stop the robot if it is endangered
     if(isEndangered && !is_robot_stalled){
         LOG_GREEN_INFO("Opponent is in the way, stopping the robot");
-        asserv.pause();
+        // asserv.pause();
         //asserv.set_brake_state(true);
         is_robot_stalled = true;
         robot_stall_start_time = _millis();
@@ -151,7 +151,7 @@ void navigationOpponentDetection(){
     else if(!isEndangered && is_robot_stalled){
         LOG_GREEN_INFO("Opponent is no longer in the way, resuming the robot");
         //asserv.set_brake_state(false);
-        asserv.resume();
+        // asserv.resume();
         is_robot_stalled = false;
     }
     else if (!isCareful && is_robot_slowed){
