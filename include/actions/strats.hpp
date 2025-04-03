@@ -47,7 +47,7 @@ inline bool StratGather(int& stockNum, int& stockOffset){
     // and returns the stock number and the offset
     int todo_stocks[9];
     int num;
-    if (tableStatus.startTime + 45000 < _millis())
+    if (_millis() > tableStatus.startTime + 45000)
         return false;
     switch (strategy)
     {
