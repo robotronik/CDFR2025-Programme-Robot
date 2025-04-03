@@ -110,18 +110,6 @@ void Arduino::setStepperSpeed(int StepperID, int speed) { //TODO : does it works
     I2cSendData(CMD_SET_STEPPER, message, 3);
 }
 
-void Arduino::setStepperSpeed(int StepperID, int speed) { //TODO : does it works ?
-    LOG_DEBUG("Set Stepper #", StepperID, " speed to ", speed);
-    if (i2cFile == -1) return; // Emulation
-    uint8_t message[3];
-    uint8_t* ptr = message;
-    WriteUInt8(&ptr, StepperID);
-    WriteUInt16(&ptr, speed);
-    if (I2cSendData(CMD_SET_STEPPER, message, 3))
-        LOG_ERROR("Couldn't set Stepper speed");
-}
-
-
 void Arduino::setStepper(int32_t absPosition, int StepperID){
     LOG_DEBUG("Set Stepper #", StepperID, " to ", absPosition);
     if (i2cFile == -1) return; // Emulation
