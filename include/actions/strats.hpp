@@ -23,11 +23,11 @@ inline position_t StratStartingPos(){
     case 1:
         pos = {125, -1500+75 + NO_COL_OFFSET_STOCK, 0}; break;
     case 2:
-        pos = {200, -1500+140, -90}; break;
+        pos = {125, -1500+75 + NO_COL_OFFSET_STOCK, 0}; break;
     case 3:
         pos = {0, 0, 0}; break;
     case 4:
-        pos = {0, 0, 0}; break;
+        pos = {125, -1500+75 + NO_COL_OFFSET_STOCK, 0}; break;
     }
     if (color == YELLOW)
         position_robot_flip(pos);
