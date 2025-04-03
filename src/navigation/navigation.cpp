@@ -133,6 +133,7 @@ void navigationOpponentDetection(){
         // Check if the opponent is in the way
         isEndangered = opponent_collide_lidar(lidar.data, lidar.count, ROBOT_WIDTH, brakingDistance, OPPONENT_ROBOT_RADIUS);
         isCareful = opponent_collide_lidar(lidar.data, lidar.count, ROBOT_WIDTH, brakingDistance, OPPONENT_ROBOT_RADIUS * 1.5);
+        // LOG_DEBUG("isEndangered : ", isEndangered, " / isCareful : ", isCareful);
     }
     // stop the robot if it is endangered
     if(isEndangered && !is_robot_stalled){
