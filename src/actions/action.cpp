@@ -126,6 +126,9 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
     static int num = 0; // Keep track of the tribune were building
     static int zoneNum = -1; // Keep track of the zone were building in
 
+    static bool revolverReady = false;
+    static bool liftReady = false;
+
     if (zoneNum == -1){
         StratConstruct(zoneNum);
     }
@@ -145,8 +148,10 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         // Nav to the tribune building location (zone)
         // TODO Highways should be enabled
         nav_ret = navigationGoTo(buildPos.x, buildPos.y, buildPos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
-        liftSingleTribune();
+        if (!liftReady)
+            liftReady = liftSingleTribune();
         if (nav_ret == NAV_DONE){
+            revolverReady = false;
             constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
         }
         else if (nav_ret == NAV_ERROR){
@@ -165,14 +170,23 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         }
         break;
     case FSM_CONSTRUCT_PREPREVOLVER:
+    {
         if (isRevolverEmpty()){
+            // TODO Replace the lift down
             constructAllTribunesState = FSM_CONSTRUCT_EXIT;
             return FSM_RETURN_WORKING;
         }
-        if (RevolverRelease()){
+        if (!revolverReady)
+            revolverReady = RevolverRelease();
+        if (!liftReady)
+            liftReady = liftSingleTribune();
+        if (revolverReady && liftReady){
             constructAllTribunesState = FSM_CONSTRUCT_BUILD;
+            revolverReady = false;
+            liftReady = tableStatus.builtTribuneHeights[num] == 2;
         }
         break;
+    }
     case FSM_CONSTRUCT_BUILD:
         if (constructSingleTribune()){
             tableStatus.builtTribuneHeights[num]++;

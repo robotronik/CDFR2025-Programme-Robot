@@ -83,6 +83,11 @@ bool SpinLowBarrel(int n) {
         return true;
 
     // Recalcule toujours la cible et initialise
+    if (n < REVOLVER_SIZE / 2)
+        n += REVOLVER_SIZE;
+    if (n > REVOLVER_SIZE / 2)
+        n -= REVOLVER_SIZE;
+
     LOG_INFO("Spin Low Barrel by n=", n, (n > 0) ? " Clockwise" : " Anticlockwise");
     lowBarrelShiftTarget = lowBarrelShift + n;
 
