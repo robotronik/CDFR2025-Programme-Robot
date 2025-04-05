@@ -73,6 +73,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
     static int offset;
     if (num == -1){
         if (!StratGather(num, offset)){
+            LOG_INFO("No more stocks to take, exiting GatherStock");
             return FSM_RETURN_DONE;
         }
     }
@@ -92,8 +93,9 @@ ReturnFSM_t ActionFSM::GatherStock(){
         nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
         if (RevolverPrepareLowBarrel(stock_intake_dir) && (nav_ret == NAV_DONE)){
             gatherStockState = FSM_GATHER_MOVE;
-            asserv.set_linear_max_speed(160, 500, 500);
+            asserv.set_linear_max_speed(160, 300, 300);
             startTime = _millis();
+            LOG_INFO("Nav done and RevolverPrepareLowBarrel done for FSM_GATHER_NAV, going to FSM_GATHER_MOVE");
         }
         else if (nav_ret == NAV_ERROR){
             // TODO get another stock
@@ -112,7 +114,8 @@ ReturnFSM_t ActionFSM::GatherStock(){
             revolverDone = RevolverLoadStock(stock_intake_dir, num);
         if ((nav_ret == NAV_DONE) & revolverDone){
             gatherStockState = FSM_GATHER_COLLECT;
-            asserv.set_linear_max_speed(10000, 500, 500);
+            asserv.set_linear_max_speed(10000, 300, 300);
+            LOG_INFO("Nav done and revolver done for FSM_GATHER_MOVE, going to FSM_GATHER_COLLECT");
         }
         else if (nav_ret == NAV_ERROR){
             return FSM_RETURN_ERROR;
@@ -126,6 +129,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
             setStockAsRemoved(num);
             tableStatus.robot.plank_count += 2;
             num = -1;
+            LOG_INFO("taking stock for FSM_GATHER_COLLECT");
             return FSM_RETURN_WORKING;
         }
         break;
@@ -143,16 +147,15 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         StratConstruct(zoneNum);
     }
 
-    // Offset the build pos by 120mm * num
-    const int tribunesOffset = 120;
+    // Offset the build pos by 150mm * num
+    const int tribunesOffset = 150;
     position_t buildPos = TRIBUNE_CONSTRUCT_POSITION[zoneNum];
-    position_t prev_buildPos = buildPos;
     int offset = tribunesOffset * num;
-    int prev_offset = tribunesOffset * (num + 1);
     buildPos.y += offset;
-    prev_buildPos.y += prev_offset;
-    if (tableStatus.robot.colorTeam == YELLOW)
+    if (tableStatus.robot.colorTeam == YELLOW){
         position_robot_flip(buildPos);
+    }
+    static position_t real_build_pos;
    
     nav_return_t nav_ret;
     switch (constructAllTribunesState){
@@ -165,6 +168,8 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         if (nav_ret == NAV_DONE){
             revolverReady = false;
             constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
+            real_build_pos = tableStatus.robot.pos;
+            LOG_INFO("Nav done for FSM_CONSTRUCT_NAV, going to FSM_CONSTRUCT_PREPREVOLVER");
         }
         else if (nav_ret == NAV_ERROR){
             // TODO get another stock
@@ -172,9 +177,11 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         }
         break;
     case FSM_CONSTRUCT_MOVE:
-        nav_ret = navigationGoToNoTurn(prev_buildPos.x - 500, prev_buildPos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
+        
+        nav_ret = navigationGoToNoTurn(real_build_pos.x - 400, real_build_pos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
         if (nav_ret == NAV_DONE){
             constructAllTribunesState = FSM_CONSTRUCT_NAV;
+            LOG_INFO("Nav done for FSM_CONSTRUCT_MOVE, going to FSM_CONSTRUCT_NAV");
         }
         else if (nav_ret == NAV_ERROR){
             // TODO get another stock
@@ -186,6 +193,7 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         if (isRevolverEmpty()){
             // TODO Replace the lift down
             constructAllTribunesState = FSM_CONSTRUCT_EXIT;
+            LOG_INFO("Revolver Empty for FSM_CONSTRUCT_PREPREVOLVER, going to FSM_CONSTRUCT_EXIT");
             return FSM_RETURN_WORKING;
         }
         if (!revolverReady)
@@ -196,6 +204,7 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
             constructAllTribunesState = FSM_CONSTRUCT_BUILD;
             revolverReady = false;
             liftReady = tableStatus.builtTribuneHeights[num] == 2;
+            LOG_INFO("Revolver ready and lift ready for FSM_CONSTRUCT_PREPREVOLVER, going to FSM_CONSTRUCT_BUILD");
         }
         break;
     }
@@ -222,9 +231,10 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         break;
     case FSM_CONSTRUCT_EXIT:
         // Get out the way to make sure we dont destroy shit
-        nav_ret = navigationGoToNoTurn(prev_buildPos.x - 500, prev_buildPos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
+        nav_ret = navigationGoToNoTurn(real_build_pos.x - 400, real_build_pos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
         if (nav_ret == NAV_DONE){
             constructAllTribunesState = FSM_CONSTRUCT_NAV;
+            LOG_INFO("Nav done for FSM_CONSTRUCT_EXIT, exiting");
             return FSM_RETURN_DONE;
         }
         else if (nav_ret == NAV_ERROR){

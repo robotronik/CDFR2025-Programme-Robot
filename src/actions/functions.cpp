@@ -50,12 +50,26 @@ bool constructSingleTribune(){
 
 // function to take platforms from a stock
 bool takeStockPlatforms(){
-    // Move the platforms lifts inside and move elevator down
-    if (movePlatformLifts(0) & movePlatformElevator(0)){
-        // Move the platforms lifts outside and move elevator up
+    static int state = 1;
+    static unsigned long startTime;
+    switch (state)
+    {
+    case 1 :
+        // Move the platforms lifts inside and move elevator down
+        if (movePlatformLifts(0) & movePlatformElevator(0)){
+            // Move the platforms lifts outside and move elevator up
+            startTime = _millis();
+            state ++;
+        }
+        break;
+    case 2:
         movePlatformLifts(1);
         movePlatformElevator(2);
-        return true;
+        if (_millis() > startTime + 600){
+            state = 1;
+            return true;
+        }
+        break;
     }
     return false;
 }
@@ -73,7 +87,7 @@ bool liftSingleTribune(){
         }
         break;
     case 2:
-        if (_millis() > startTime + 3000)
+        if (_millis() > startTime + 2300)
             state ++;
         break;
     case 3:

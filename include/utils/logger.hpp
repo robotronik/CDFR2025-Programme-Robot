@@ -10,6 +10,7 @@
 #include "utils/utils.h"
 
 enum class LogLevel {
+    I2C,
     DEBUG,
     INFO,
     WARNING,
@@ -24,6 +25,7 @@ namespace SimpleLogger {
 
 inline std::string getLevelString(LogLevel level) {
     switch (level) {
+        case LogLevel::I2C:     return "I2C";
         case LogLevel::DEBUG:     return "DEBUG";
         case LogLevel::INFO:      return "INFO";
         case LogLevel::WARNING:   return "WARNING";
@@ -35,6 +37,7 @@ inline std::string getLevelString(LogLevel level) {
 
 inline std::string getColorCode(LogLevel level) {
     switch (level) {
+        case LogLevel::I2C:       return "\033[90m"; // Light gray
         case LogLevel::DEBUG:     return "\033[90m"; // Light gray
         case LogLevel::GREENINFO: return "\033[32m"; // Green
         case LogLevel::WARNING:   return "\033[33m"; // Yellow
@@ -107,7 +110,7 @@ inline void initLog(void){
 #define LOG_WARNING(message, ...)    SimpleLogger::log(LogLevel::WARNING,  __FILE__, __LINE__, message, ##__VA_ARGS__)
 #define LOG_ERROR(message, ...)      SimpleLogger::log(LogLevel::ERROR,    __FILE__, __LINE__, message, ##__VA_ARGS__)
 #define LOG_GREEN_INFO(message, ...) SimpleLogger::log(LogLevel::GREENINFO,__FILE__, __LINE__, message, ##__VA_ARGS__)
-#define LOG_ASSERV_SET_INFO(message, ...) SimpleLogger::log(LogLevel::GREENINFO,__FILE__, __LINE__, message, ##__VA_ARGS__)
-#define LOG_ASSERV_GET_INFO(message, ...) SimpleLogger::log(LogLevel::GREENINFO,__FILE__, __LINE__, message, ##__VA_ARGS__)
+#define LOG_ASSERV_SET_INFO(message, ...) SimpleLogger::log(LogLevel::I2C, __FILE__, __LINE__, message, ##__VA_ARGS__)
+#define LOG_ASSERV_GET_INFO(message, ...) SimpleLogger::log(LogLevel::I2C, __FILE__, __LINE__, message, ##__VA_ARGS__)
 
 #define LOG_INIT() initLog();
