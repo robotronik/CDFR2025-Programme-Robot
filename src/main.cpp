@@ -131,21 +131,6 @@ int main(int argc, char *argv[])
                 arduino.setStepper(0, 4);
                 homeActuators();
                 lidar.startSpin();
-
-                /*
-
-                // Test a lower asserv speed
-                int16_t max_speed_for, max_speed_back, max_acceleration_for, max_acceleration_back, max_deceleration_for, max_deceleration_back;
-                asserv.get_linear_position_control(max_speed_for, max_speed_back, max_acceleration_for, max_acceleration_back, max_deceleration_for, max_deceleration_back);
-                LOG_INFO("Config before change\n max_speed_for : ", max_speed_for, "\n max_speed_back : ", max_speed_back, "\n max_acceleration_for : ", max_acceleration_for, "\n max_acceleration_back : ", max_acceleration_back, "\n max_deceleration_for : ", max_deceleration_for, "\n max_deceleration_back : ", max_deceleration_back);
-                asserv.set_linear_max_speed(400, 500, 500);
-                // sleep
-                usleep(1000000);
-                asserv.get_linear_position_control(max_speed_for, max_speed_back, max_acceleration_for, max_acceleration_back, max_deceleration_for, max_deceleration_back);
-                LOG_INFO("Config after change\n max_speed_for : ", max_speed_for, "\n max_speed_back : ", max_speed_back, "\n max_acceleration_for : ", max_acceleration_for, "\n max_acceleration_back : ", max_acceleration_back, "\n max_deceleration_for : ", max_deceleration_for, "\n max_deceleration_back : ", max_deceleration_back);
-                
-                */
-
                 if (tableStatus.robot.colorTeam == NONE)
                     arduino.RGB_Blinking(255, 0, 0); // Red Blinking
             }

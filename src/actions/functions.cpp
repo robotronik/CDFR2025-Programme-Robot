@@ -16,6 +16,7 @@
 // function to construct a single tribune by placing a single platform and pushing the tribune
 bool constructSingleTribune(){
     static int state = 1;
+    static unsigned long startTime;
     switch (state)
     {
     case 1:
@@ -28,10 +29,16 @@ bool constructSingleTribune(){
         break;
     case 3:
         if (movePlatformLifts(2, true) & moveTribunePusher(true, true)){
+            startTime = _millis();
             state++;
         }
         break;
     case 4:
+        if (_millis() > startTime + 400){
+            state++;
+        }
+        break;
+    case 5:
         if (movePlatformLifts(1, false) & moveTribunePusher(false) & moveClaws(1)){
             state = 1;
             return true;
@@ -66,7 +73,7 @@ bool liftSingleTribune(){
         }
         break;
     case 2:
-        if (_millis() > startTime + 2500)
+        if (_millis() > startTime + 3000)
             state ++;
         break;
     case 3:
@@ -122,13 +129,13 @@ bool movePlatformLifts(int pos, bool slow){
         target_right= 70; 
         break;
     case 2:
-        target_left = 50;
-        target_right= 90; 
+        target_left = 35;
+        target_right= 100; 
         break;
     }
     if (previousPos != pos){
         previousPos = pos;
-        int speed = slow ? 60 : 200;
+        int speed = slow ? 100 : 400;
         arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left, speed);
         arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right,speed);
     }
@@ -139,10 +146,10 @@ bool movePlatformLifts(int pos, bool slow){
 
 bool moveTribunePusher(bool outside, bool slow){
     static bool previousOutside = !outside;
-    int target = outside ? 10 : 180;
+    int target = outside ? 0 : 90;
     if (previousOutside != outside){
         previousOutside = outside;
-        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 100 : 200);
+        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 100 : 400);
     }
     int current = 0;
     if (!arduino.getServo(TRIBUNES_PUSH_SERVO_NUM, current)) return false;
@@ -151,7 +158,8 @@ bool moveTribunePusher(bool outside, bool slow){
 
 // 0 : Fully open
 // 1 : Straight
-// 2 : closed
+// 2 : Closed
+// 3 : Collecting
 bool moveClaws(int level){
     static unsigned long startTime = _millis();
     static int previouslevel = !level;
@@ -160,11 +168,13 @@ bool moveClaws(int level){
     switch (level)
     {
     case 0:
-        target = 170; break;
+        target = 150; break;
     case 1:
-        target = 105; break;
+        target = 90; break;
     case 2:
         target = 0; break;
+    case 3:
+        target = 60; break;
     }
 
     if (previouslevel != level){
@@ -246,7 +256,7 @@ void stopTribuneElevator(){
 
 // Move the lower revolver to an absolute position by N relative to the pusher
 bool moveLowColumnsRevolverAbs(int N){
-    static int previousN = 0;
+    static int prevAbsSteps = 0;
 
     float gearTheets = 13; // Theets per rotation
     float stepperSteps = 200 * 16; // 16 microstepping
@@ -255,8 +265,8 @@ bool moveLowColumnsRevolverAbs(int N){
 
     LOG_DEBUG("Moving low revolver to ", N, ", steps pos:", absSteps);
 
-    if (previousN != N){
-        previousN = N;
+    if (prevAbsSteps != absSteps){
+        prevAbsSteps = absSteps;
         arduino.moveStepper(absSteps, COLOMNS_REVOLVER_LOW_STEPPER_NUM);
     }
     int32_t currentValue;
