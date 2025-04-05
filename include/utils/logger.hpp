@@ -107,5 +107,7 @@ inline void initLog(void){
 #define LOG_WARNING(message, ...)    SimpleLogger::log(LogLevel::WARNING,  __FILE__, __LINE__, message, ##__VA_ARGS__)
 #define LOG_ERROR(message, ...)      SimpleLogger::log(LogLevel::ERROR,    __FILE__, __LINE__, message, ##__VA_ARGS__)
 #define LOG_GREEN_INFO(message, ...) SimpleLogger::log(LogLevel::GREENINFO,__FILE__, __LINE__, message, ##__VA_ARGS__)
+#define LOG_ASSERV_SET_INFO(message, ...) SimpleLogger::log(LogLevel::GREENINFO,__FILE__, __LINE__, message, ##__VA_ARGS__)
+#define LOG_ASSERV_GET_INFO(message, ...) SimpleLogger::log(LogLevel::GREENINFO,__FILE__, __LINE__, message, ##__VA_ARGS__)
 
 #define LOG_INIT() initLog();
