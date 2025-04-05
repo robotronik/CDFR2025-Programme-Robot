@@ -127,6 +127,18 @@ To reload the service configuration and restart the program:
 sudo systemctl daemon-reload
 sudo systemctl restart programCDFR
 ```
+To ensure a backup of the logs
+
+```bash
+sudo nano /etc/systemd/journald.conf
+```
+and add
+```bash
+[Journal]
+Storage=persistent
+SyncIntervalSec=2s
+```
+
 
 ## 🐞 Debugging on Raspberry Pi with VS Code
 
