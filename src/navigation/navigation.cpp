@@ -138,25 +138,25 @@ void navigationOpponentDetection(){
     // stop the robot if it is endangered
     if(isEndangered && !is_robot_stalled){
         LOG_GREEN_INFO("Opponent is in the way, stopping the robot");
-        // asserv.pause();
+        asserv.pause();
         //asserv.set_brake_state(true);
         is_robot_stalled = true;
         robot_stall_start_time = _millis();
     }
     else if (isCareful && !is_robot_slowed){
         LOG_GREEN_INFO("Opponent is too close, slowing down the robot");
-        // asserv.set_linear_max_speed(mid)
+        // asserv.set_linear_position_control(mid);
         is_robot_slowed = true;
     }
     else if(!isEndangered && is_robot_stalled){
         LOG_GREEN_INFO("Opponent is no longer in the way, resuming the robot");
         //asserv.set_brake_state(false);
-        // asserv.resume();
+        asserv.resume();
         is_robot_stalled = false;
     }
     else if (!isCareful && is_robot_slowed){
         LOG_GREEN_INFO("Opponent is no longer too close, resuming the robot");
-        // asserv.set_linear_max_speed(max)
+        // asserv.set_linear_position_control(max);
         is_robot_slowed = false;
     }
 }
