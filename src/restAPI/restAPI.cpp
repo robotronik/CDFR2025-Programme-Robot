@@ -122,7 +122,7 @@ void StartAPIServer(){
         response["highway-obstacles"] = highway_obstacles;
         json current_navigation_path;
         navigation_path_json(current_navigation_path);
-        response["navigation-path"] = current_navigation_path;
+        response["navigation"] = current_navigation_path;
         
         response["target_pos"] = tableStatus.robot.target;
 
