@@ -7,6 +7,7 @@ TableState::TableState(){
     robot.pos = {0, 0, 0};
     robot.colorTeam = NONE;
     strategy = 1;
+    startTime = 0;
 
     reset();
 }
