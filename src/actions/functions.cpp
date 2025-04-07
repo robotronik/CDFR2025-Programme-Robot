@@ -26,19 +26,25 @@ bool constructSingleTribune(){
     case 2:
         if (movePlatformElevator(1))
             state ++;
+            startTime = _millis();
         break;
     case 3:
+        if (_millis() > startTime + 400){
+            state++;
+        }
+        break;
+    case 4:
         if (movePlatformLifts(2, true) & moveTribunePusher(true, true)){
             startTime = _millis();
             state++;
         }
         break;
-    case 4:
+    case 5:
         if (_millis() > startTime + 400){
             state++;
         }
         break;
-    case 5:
+    case 6:
         if (movePlatformLifts(1, false) & moveTribunePusher(false) & moveClaws(1)){
             state = 1;
             return true;
@@ -63,7 +69,7 @@ bool takeStockPlatforms(){
         }
         break;
     case 2:
-        movePlatformLifts(1);
+        movePlatformLifts(1,2);
         movePlatformElevator(2);
         if (_millis() > startTime + 600){
             state = 1;
@@ -128,7 +134,7 @@ bool deployBanner(){
 
 // This shit is clean af
 // pos = 0: inside, 1: middle, 2: outside
-bool movePlatformLifts(int pos, bool slow){
+bool movePlatformLifts(int pos, int slow){
     static int previousPos = !pos;
     int target_left = 0;
     int target_right = 0;
@@ -149,7 +155,9 @@ bool movePlatformLifts(int pos, bool slow){
     }
     if (previousPos != pos){
         previousPos = pos;
-        int speed = slow ? 100 : 400;
+        int speed;
+        if (slow == 0) speed = 400;
+        else speed = slow ? 75 : 40; //slow == 2 : 50
         arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left, speed);
         arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right,speed);
     }
@@ -163,7 +171,7 @@ bool moveTribunePusher(bool outside, bool slow){
     int target = outside ? 0 : 90;
     if (previousOutside != outside){
         previousOutside = outside;
-        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 100 : 400);
+        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 75 : 400);
     }
     int current = 0;
     if (!arduino.getServo(TRIBUNES_PUSH_SERVO_NUM, current)) return false;
@@ -186,9 +194,9 @@ bool moveClaws(int level){
     case 1:
         target = 90; break;
     case 2:
-        target = 0; break;
+        target = 10; break;
     case 3:
-        target = 60; break;
+        target = 70; break;
     }
 
     if (previouslevel != level){
@@ -231,9 +239,9 @@ bool movePlatformElevator(int level){
     case -1:
         target = 0; break;
     case 0:
-        target = 500; break;
+        target = 400; break;
     case 1:
-        target = 3000; break;
+        target = 4000; break;
     case 2:
         target = 10000; break;
     }
