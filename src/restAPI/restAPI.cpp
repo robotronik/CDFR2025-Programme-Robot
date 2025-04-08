@@ -151,7 +151,7 @@ void StartAPIServer(){
         response["status"] = currentState;
         response["team"] = tableStatus.robot.colorTeam;
         response["score"] = tableStatus.getScore();
-        response["time"] = _millis() - tableStatus.startTime;
+        response["time"] = (tableStatus.startTime == 0) ? 0 : (_millis() - tableStatus.startTime);
         response["strategy"] = tableStatus.strategy;
         return crow::response(response.dump(4));
     });
