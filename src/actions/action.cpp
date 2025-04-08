@@ -190,7 +190,7 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         break;
     case FSM_CONSTRUCT_PREPREVOLVER:
     {
-        if (isRevolverEmpty()){
+        if (!revolverReady && isRevolverEmpty()){
             // TODO Replace the lift down
             constructAllTribunesState = FSM_CONSTRUCT_EXIT;
             LOG_INFO("Revolver Empty for FSM_CONSTRUCT_PREPREVOLVER, going to FSM_CONSTRUCT_EXIT");
