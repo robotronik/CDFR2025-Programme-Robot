@@ -15,7 +15,7 @@
 #define RETURN_HOME 10 //Points for coming back home action
 #define MAX_SPEED 20000
 
-#define ROBOT_WIDTH 550
+#define ROBOT_WIDTH 500
 #define OPPONENT_ROBOT_RADIUS 250
 
 // Define the nums of the arduino for the STEPPERS

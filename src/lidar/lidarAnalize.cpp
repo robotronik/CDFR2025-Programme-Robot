@@ -218,10 +218,14 @@ bool opponent_collide_lidar(lidarAnalize_t* data, int count, int width, int dept
         // Check if the circle made by the lidar point and radius margin
         // overlaps with the rectangle made by width and depth
         int x = data[i].dist * cos(data[i].angle * DEG_TO_RAD); // front
-        int y = data[i].dist * sin(data[i].angle * DEG_TO_RAD); // sides
-        if ((y < 0 && depth > 0) || (y > 0 && depth < 0)) continue;
+        int y = -data[i].dist * sin(data[i].angle * DEG_TO_RAD); // sides
+        // skip points that are outside the robot's depth
+        if (x * depth < 0) continue;
 
-        if (x + margin >= -width/2 && x - margin <= width/2 && y + margin >= -depth/2 && y - margin <= depth/2){
+        if (x + margin >= -abs(depth) && 
+            x - margin <= abs(depth) && 
+            y + margin >= -width/2 && 
+            y - margin <= width/2){
             return true;
         }
     }
