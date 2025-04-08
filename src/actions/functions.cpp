@@ -64,17 +64,22 @@ bool takeStockPlatforms(){
         // Move the platforms lifts inside and move elevator down
         if (movePlatformLifts(0) & movePlatformElevator(0)){
             // Move the platforms lifts outside and move elevator up
-            startTime = _millis();
             state ++;
         }
         break;
     case 2:
-        movePlatformLifts(1,2);
-        movePlatformElevator(2);
-        if (_millis() > startTime + 600){
+        if (movePlatformLifts(3) & movePlatformElevator(1) & moveClaws(0)){
+            state++;
+        }
+        break;
+    case 3:
+        if (movePlatformLifts(1) & movePlatformElevator(2) ){
             state = 1;
+            moveClaws(3);
             return true;
         }
+        
+
         break;
     }
     return false;
@@ -145,12 +150,16 @@ bool movePlatformLifts(int pos, int slow){
         target_right= 0; 
         break;
     case 1:
-        target_left = 75;
+        target_left = 65;
         target_right= 70; 
         break;
     case 2:
         target_left = 35;
         target_right= 100; 
+        break;
+    case 3:
+        target_left = 100;
+        target_right= 40; 
         break;
     }
     if (previousPos != pos){
@@ -190,7 +199,7 @@ bool moveClaws(int level){
     switch (level)
     {
     case 0:
-        target = 150; break;
+        target = 100; break;
     case 1:
         target = 90; break;
     case 2:
@@ -241,7 +250,7 @@ bool movePlatformElevator(int level){
     case 0:
         target = 400; break;
     case 1:
-        target = 4000; break;
+        target = 3500; break;
     case 2:
         target = 10000; break;
     }
