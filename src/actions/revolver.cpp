@@ -182,7 +182,7 @@ bool RevolverPrepareLowBarrel(direction_t dir){
 // -------------------------------------------------
 
 bool RevolverRelease(){
-    LOG_INFO("RevolverRelease"); //prepare release low barrel
+    // LOG_INFO("RevolverRelease"); //prepare release low barrel
     return ReleaseLow();
 }
 
