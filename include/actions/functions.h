@@ -24,7 +24,7 @@ void getBestAvailableStock(); // TODO finish
 int getBestStockPositionOff(int stockN, position_t fromPos);
 
 // Servo Control
-bool movePlatformLifts(int pos, bool slow = 0);
+bool movePlatformLifts(int pos, bool slow = false);
 bool moveTribunePusher(bool outside, bool slow = false);
 bool moveClaws(int level);
 bool moveBannerDeploy(bool outside);
