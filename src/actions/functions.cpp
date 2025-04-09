@@ -139,7 +139,7 @@ bool deployBanner(){
 
 // This shit is clean af
 // pos = 0: inside, 1: middle, 2: outside
-bool movePlatformLifts(int pos, int slow){
+bool movePlatformLifts(int pos, bool slow){
     static int previousPos = !pos;
     int target_left = 0;
     int target_right = 0;
@@ -164,9 +164,7 @@ bool movePlatformLifts(int pos, int slow){
     }
     if (previousPos != pos){
         previousPos = pos;
-        int speed;
-        if (slow == 0) speed = 400;
-        else speed = slow ? 75 : 40; //slow == 2 : 50
+        int speed = slow ? 75 : 400;
         arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left, speed);
         arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right,speed);
     }
