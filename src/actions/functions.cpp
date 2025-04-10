@@ -73,13 +73,10 @@ bool takeStockPlatforms(){
         }
         break;
     case 3:
-        if (movePlatformLifts(1) & movePlatformElevator(2) ){
-            state = 1;
-            moveClaws(3);
-            return true;
-        }
-        
-
+        movePlatformLifts(1);
+        movePlatformElevator(2);
+        state = 1;
+        return true;
         break;
     }
     return false;
@@ -151,7 +148,7 @@ bool movePlatformLifts(int pos, bool slow){
         break;
     case 1:
         target_left = 65;
-        target_right= 70; 
+        target_right= 80; 
         break;
     case 2:
         target_left = 35;
@@ -175,7 +172,7 @@ bool movePlatformLifts(int pos, bool slow){
 
 bool moveTribunePusher(bool outside, bool slow){
     static bool previousOutside = !outside;
-    int target = outside ? 0 : 90;
+    int target = outside ? 0 : 110;
     if (previousOutside != outside){
         previousOutside = outside;
         arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 75 : 400);
@@ -250,7 +247,7 @@ bool movePlatformElevator(int level){
     case 1:
         target = 3500; break;
     case 2:
-        target = 10000; break;
+        target = 10500; break;
     }
     if (previousLevel != level){
         previousLevel = level;
