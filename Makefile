@@ -59,7 +59,9 @@ DEPENDS := $(shell find obj -type f -name '*.d')
 
 .PHONY: all clean tests clean-all deploy run deploy-install deploy-uninstall deploy-tests
 
-all: check $(BINDIR) build_lidarLib $(TARGET) $(TEST_TARGET) copy_html copy_lidar copy_aruco
+
+all:
+	$(MAKE) -j$(expr $(nproc) \- 2) check $(BINDIR) build_lidarLib $(TARGET) $(TEST_TARGET) copy_html copy_lidar copy_aruco
 	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && sudo ./programCDFR)' pour exécuter le programme."
 
 -include $(DEPENDS)
@@ -192,7 +194,8 @@ $(ARM_TEST_TARGET): $(ARM_OBJ_NO_MAIN) $(ARM_TEST_OBJ) | $(ARMBINDIR)
 	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
 
 # Deploy target
-deploy: check build_arm_lidarLib $(ARM_TARGET) copy_html_arm copy_install_sh copy_aruco_arm
+deploy:
+	$(MAKE) -j$(expr $(nproc) \- 2) check build_arm_lidarLib $(ARM_TARGET) copy_html_arm copy_install_sh copy_aruco_arm
 	@echo "--------------------------------- Deploiement vers le Raspberry Pi... ---------------------------------"
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)
