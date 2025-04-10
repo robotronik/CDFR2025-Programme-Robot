@@ -161,10 +161,11 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
     nav_return_t nav_ret;
     switch (constructAllTribunesState){
     case FSM_CONSTRUCT_NAV:
+        static unsigned long startTime = _millis();
         // Nav to the tribune building location (zone)
         // TODO Highways should be enabled
         nav_ret = navigationGoTo(buildPos.x, buildPos.y, buildPos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
-        if (!liftReady)
+        if (!liftReady & (_millis() > startTime + 1000))
             liftReady = liftSingleTribune();
         if (nav_ret == NAV_DONE){
             revolverReady = false;
