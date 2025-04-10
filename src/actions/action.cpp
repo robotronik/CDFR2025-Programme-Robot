@@ -167,6 +167,7 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         nav_ret = navigationGoTo(buildPos.x, buildPos.y, buildPos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
         if (!liftReady & (_millis() > startTime + 1000))
             liftReady = liftSingleTribune();
+            movePlatformElevator(3);
         if (nav_ret == NAV_DONE){
             revolverReady = false;
             constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
