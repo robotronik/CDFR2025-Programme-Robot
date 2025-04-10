@@ -40,7 +40,7 @@ bool constructSingleTribune(){
         }
         break;
     case 5:
-        if (_millis() > startTime + 400){
+        if (movePlatformElevator(3)){
             state++;
         }
         break;
@@ -245,9 +245,11 @@ bool movePlatformElevator(int level){
     case 0:
         target = 400; break;
     case 1:
-        target = 3500; break;
+        target = 4000; break;
     case 2:
-        target = 10500; break;
+        target = 11500; break;
+    case 3:
+        target = 5000; break;
     }
     if (previousLevel != level){
         previousLevel = level;
