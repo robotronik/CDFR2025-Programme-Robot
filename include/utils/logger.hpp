@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <map>
+#include <filesystem>
 #include <sys/stat.h>
 #include "utils/utils.h"
 
@@ -31,7 +32,24 @@ inline static std::map<std::string, int> logFiles;
 inline static bool initOnceFlag = false;
 inline static int globalLogNum = -1;
 
-inline void ensureLogDirectoryAndNumFile(const std::string& logDir = "log", const std::string& numLogFile = "log/numLog") {
+inline std::string getExecutablePath() {
+    char result[1000];
+    ssize_t count = readlink("/proc/self/exe", result, sizeof(result));
+    if (count == -1) {
+        throw std::runtime_error("Unable to determine executable path");
+    }
+    return std::filesystem::path(std::string(result, count)).parent_path().string();
+}
+
+inline std::string resolveLogPath(const std::string& path) {
+    std::filesystem::path p(path);
+    if (p.is_absolute()) {
+        return path;
+    }
+    return (getExecutablePath() / p).string();
+}
+
+inline void ensureLogDirectoryAndNumFile(const std::string& logDir, const std::string& numLogFile) {
     struct stat st;
     if (stat(logDir.c_str(), &st) != 0) {
         if (mkdir(logDir.c_str(), 0755) != 0) {
@@ -54,8 +72,9 @@ inline void ensureLogDirectoryAndNumFile(const std::string& logDir = "log", cons
     }
 }
 
-inline int readAndIncrementLogNum(const std::string& numFilePath = "log/numLog") {
-    ensureLogDirectoryAndNumFile("log",numFilePath);
+inline int readAndIncrementLogNum(const std::string& fullPath) {
+    std::string numFilePath = fullPath+"/numLog";
+    ensureLogDirectoryAndNumFile(fullPath,numFilePath);
     std::ifstream in(numFilePath);
     int num = 0;
     if (in >> num) {
@@ -67,19 +86,21 @@ inline int readAndIncrementLogNum(const std::string& numFilePath = "log/numLog")
     return num;
 }
 
-inline int getLogFileDescriptor(const std::string& baseName) {
+inline int getLogFileDescriptor(const std::string& baseName, const std::string& logPath = "log/") {
     auto it = logFiles.find(baseName);
     if (it != logFiles.end()) {
         return it->second;
     }
 
+    std::string fullPath = resolveLogPath(logPath);
+
     if(initOnceFlag == false){
-        globalLogNum = readAndIncrementLogNum();
+        globalLogNum = readAndIncrementLogNum(fullPath);
         initOnceFlag = true;
     }
 
     std::ostringstream oss;
-    oss << "log/" << baseName << "_" << globalLogNum << ".log";
+    oss << fullPath << baseName << "_" << globalLogNum << ".log";
     std::string fullName = oss.str();
 
     int fd = open(fullName.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
