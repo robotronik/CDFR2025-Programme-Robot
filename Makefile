@@ -156,7 +156,7 @@ ARM_TEST_OBJ = $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_ARM_TEST)/%.o,$(SRC_TEST
 $(OBJDIR_ARM)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR_ARM)
 	@mkdir -p $(dir $@)
 	@echo " ARM_CXX  $@"
-	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+	@$(ARM_CXX) $(CXXFLAGS) -D__CROSS_COMPILE_ARM__ -MMD -MP -c $< -o $@
 $(OBJDIR_ARM):
 	@echo " ARM_DIR  $@"
 	@mkdir -p $@
@@ -164,7 +164,7 @@ $(OBJDIR_ARM):
 $(OBJDIR_ARM_LIBCOM)/%.o: $(SRCDIR_LIBCOM)/%.cpp | $(OBJDIR_ARM_LIBCOM)
 	@mkdir -p $(dir $@)
 	@echo " ARM_CXX  $@"
-	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+	@$(ARM_CXX) $(CXXFLAGS) -D__CROSS_COMPILE_ARM__ -MMD -MP -c $< -o $@
 $(OBJDIR_ARM_LIBCOM):
 	@echo " ARM_DIR  $@"
 	@mkdir -p $@
@@ -173,7 +173,7 @@ $(OBJDIR_ARM_LIBCOM):
 $(OBJDIR_ARM_TEST)/%.o: $(SRCDIR_TEST)/%.cpp | $(OBJDIR_ARM_TEST)
 	@mkdir -p $(dir $@)
 	@echo " ARM_CXX  $@"
-	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+	@$(ARM_CXX) $(CXXFLAGS) -D__CROSS_COMPILE_ARM__ -MMD -MP -c $< -o $@
 $(OBJDIR_ARM_TEST):
 	@echo " ARM_DIR  $@"
 	@mkdir -p $@
@@ -187,11 +187,11 @@ $(ARMBINDIR):
 # Cross-compile and link for Raspberry Pi
 $(ARM_TARGET): $(ARM_OBJ) | $(ARMBINDIR)
 	@echo "--------------------------------- Compilation du programme principal... ---------------------------------"
-	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
+	$(ARM_CXX) $(CXXFLAGS) -D__CROSS_COMPILE_ARM__ -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
 
 $(ARM_TEST_TARGET): $(ARM_OBJ_NO_MAIN) $(ARM_TEST_OBJ) | $(ARMBINDIR)
 	@echo "--------------------------------- Compilation des tests... ---------------------------------"
-	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
+	$(ARM_CXX) $(CXXFLAGS) -D__CROSS_COMPILE_ARM__ -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
 
 # Deploy target
 deploy:

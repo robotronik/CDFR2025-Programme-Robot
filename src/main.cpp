@@ -18,9 +18,11 @@
 #include "actions/revolver.hpp" // TODO Remove (For testing)
 
 #define EMULATE_CAM
-// #define DISABLE_LIDAR
-// #define TEST_API_ONLY
-// #define EMULATE_I2C
+#ifndef __CROSS_COMPILE_ARM__
+    #define DISABLE_LIDAR
+    // #define TEST_API_ONLY
+    #define EMULATE_I2C
+#endif
 
 
 TableState tableStatus;

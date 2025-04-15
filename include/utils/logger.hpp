@@ -28,6 +28,12 @@ constexpr LogLevel CURRENT_LOG_LEVEL = LogLevel::DEBUG;
 
 namespace SimpleLogger {
 
+#ifdef __CROSS_COMPILE_ARM__
+    #define LOG_PATH "/home/robotronik/LOG_CDFR2025/"
+#else
+    #define LOG_PATH "log/"
+#endif
+
 inline static std::map<std::string, int> logFiles;
 inline static bool initOnceFlag = false;
 inline static int globalLogNum = -1;
@@ -114,7 +120,7 @@ inline int getLogFileDescriptor(const std::string& baseName, const std::string& 
 }
 
 inline void logToFile(const std::string& baseName, const std::string& message, bool forceSync) {
-    int fd = getLogFileDescriptor(baseName);
+    int fd = getLogFileDescriptor(baseName,LOG_PATH);
     if (fd == -1) return;
 
     std::string fullMessage = message + "\n";
