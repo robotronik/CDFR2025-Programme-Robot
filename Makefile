@@ -59,7 +59,9 @@ DEPENDS := $(shell find obj -type f -name '*.d')
 
 .PHONY: all clean tests clean-all deploy run deploy-install deploy-uninstall deploy-tests
 
-all: check $(BINDIR) build_lidarLib $(TARGET) $(TEST_TARGET) copy_html copy_lidar copy_aruco
+
+all:
+	$(MAKE) -j$(expr $(nproc) \- 2) check $(BINDIR) build_lidarLib $(TARGET) $(TEST_TARGET) copy_html copy_lidar copy_aruco
 	@echo "Compilation terminée. Exécutez '(cd $(BINDIR) && sudo ./programCDFR)' pour exécuter le programme."
 
 -include $(DEPENDS)
@@ -154,7 +156,7 @@ ARM_TEST_OBJ = $(patsubst $(SRCDIR_TEST)/%.cpp,$(OBJDIR_ARM_TEST)/%.o,$(SRC_TEST
 $(OBJDIR_ARM)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR_ARM)
 	@mkdir -p $(dir $@)
 	@echo " ARM_CXX  $@"
-	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+	@$(ARM_CXX) $(CXXFLAGS) -D__CROSS_COMPILE_ARM__ -MMD -MP -c $< -o $@
 $(OBJDIR_ARM):
 	@echo " ARM_DIR  $@"
 	@mkdir -p $@
@@ -162,7 +164,7 @@ $(OBJDIR_ARM):
 $(OBJDIR_ARM_LIBCOM)/%.o: $(SRCDIR_LIBCOM)/%.cpp | $(OBJDIR_ARM_LIBCOM)
 	@mkdir -p $(dir $@)
 	@echo " ARM_CXX  $@"
-	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+	@$(ARM_CXX) $(CXXFLAGS) -D__CROSS_COMPILE_ARM__ -MMD -MP -c $< -o $@
 $(OBJDIR_ARM_LIBCOM):
 	@echo " ARM_DIR  $@"
 	@mkdir -p $@
@@ -171,7 +173,7 @@ $(OBJDIR_ARM_LIBCOM):
 $(OBJDIR_ARM_TEST)/%.o: $(SRCDIR_TEST)/%.cpp | $(OBJDIR_ARM_TEST)
 	@mkdir -p $(dir $@)
 	@echo " ARM_CXX  $@"
-	@$(ARM_CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+	@$(ARM_CXX) $(CXXFLAGS) -D__CROSS_COMPILE_ARM__ -MMD -MP -c $< -o $@
 $(OBJDIR_ARM_TEST):
 	@echo " ARM_DIR  $@"
 	@mkdir -p $@
@@ -185,14 +187,15 @@ $(ARMBINDIR):
 # Cross-compile and link for Raspberry Pi
 $(ARM_TARGET): $(ARM_OBJ) | $(ARMBINDIR)
 	@echo "--------------------------------- Compilation du programme principal... ---------------------------------"
-	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
+	$(ARM_CXX) $(CXXFLAGS) -D__CROSS_COMPILE_ARM__ -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
 
 $(ARM_TEST_TARGET): $(ARM_OBJ_NO_MAIN) $(ARM_TEST_OBJ) | $(ARMBINDIR)
 	@echo "--------------------------------- Compilation des tests... ---------------------------------"
-	$(ARM_CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
+	$(ARM_CXX) $(CXXFLAGS) -D__CROSS_COMPILE_ARM__ -o $@ $^ $(LDFLAGS) $(LDLIBS) -Llib/aarch64-linux-gnu
 
 # Deploy target
-deploy: check build_arm_lidarLib $(ARM_TARGET) copy_html_arm copy_install_sh copy_aruco_arm
+deploy:
+	$(MAKE) -j$(expr $(nproc) \- 2) check build_arm_lidarLib $(ARM_TARGET) copy_html_arm copy_install_sh copy_aruco_arm
 	@echo "--------------------------------- Deploiement vers le Raspberry Pi... ---------------------------------"
 	ssh $(PI_USER)@$(PI_HOST) 'mkdir -p $(PI_DIR)'
 	rsync -av --progress ./$(ARMBINDIR) $(PI_USER)@$(PI_HOST):$(PI_DIR)

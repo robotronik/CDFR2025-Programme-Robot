@@ -18,6 +18,26 @@ Arduino::Arduino(int slave_address) : I2CDevice (slave_address){
     LOG_GREEN_INFO("Protocol version ", version, " is compatible");
 }
 
+void Arduino::setServoPower(bool power) {
+    uint8_t message [1];
+    uint8_t *ptr = message;
+    WriteUInt8(&ptr, power);
+    I2cSendData(CMD_POWER_SERVOS, message, 1);
+}
+
+void Arduino::enableServos() {
+    LOG_DEBUG("Enable Servos");
+    if (i2cFile == -1) return; // Emulation¸
+    setServoPower(true);
+}
+
+
+void Arduino::disableServos() {
+    LOG_DEBUG("Disable Servos");
+    if (i2cFile == -1) return; // Emulation
+    setServoPower(false);
+}
+
 // [0;180]
 void Arduino::moveServo(int ServoID, int position) {
     LOG_DEBUG("Move servo #", ServoID, " to ", position);
@@ -99,14 +119,14 @@ void Arduino::moveStepper(int32_t absPosition, int StepperID) {
     I2cSendData(CMD_MOVE_STEPPER, message, 5);
 }
 
-void Arduino::setStepperSpeed(int StepperID, int speed) { //TODO : does it works ?
+void Arduino::setStepperSpeed(int StepperID, int speed) {
     //LOG_DEBUG("Set Stepper #", StepperID, " speed to ", speed);
     if (i2cFile == -1) return; // Emulation
-    uint8_t message[3];
+    uint8_t message[5];
     uint8_t* ptr = message;
     WriteUInt8(&ptr, StepperID);
-    WriteUInt16(&ptr, speed);
-    I2cSendData(CMD_SET_STEPPER_SPEED, message, 3);
+    WriteInt32(&ptr, speed);
+    I2cSendData(CMD_SET_STEPPER_SPEED, message, 5);
 }
 
 void Arduino::setStepper(int32_t absPosition, int StepperID){

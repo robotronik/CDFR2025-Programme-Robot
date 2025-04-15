@@ -322,6 +322,7 @@ void enableActuators(){
     for (int i = 0; i < 4; i++){
         arduino.enableStepper(i);
     }
+    arduino.enableServos();
     asserv.set_motor_state(true);
     asserv.set_brake_state(false); 
 }
@@ -330,6 +331,7 @@ void disableActuators(){
     for (int i = 0; i < 4; i++){
         arduino.disableStepper(i);
     }
+    arduino.disableServos();
     asserv.set_motor_state(false);
     asserv.set_brake_state(true); 
     asserv.stop();

@@ -11,6 +11,8 @@ class Arduino : public I2CDevice {
     Arduino(int slave_address);
 
     // Functions return true if successfully executed
+    void enableServos();
+    void disableServos();
     void moveServo(int ServoID, int position);
     void moveServoSpeed(int ServoID, int position, int speed);
     bool getServo(int ServoID, int& position);
@@ -28,5 +30,6 @@ class Arduino : public I2CDevice {
     void moveMotorDC(uint8_t speed, uint8_t holding);
     void stopMotorDC();
 private:
+    void setServoPower(bool power);
     void RGB(int LED_ID, uint8_t mode, uint8_t r, uint8_t g, uint8_t b);
 };
