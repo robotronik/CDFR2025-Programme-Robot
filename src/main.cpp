@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
         {
             if (initState)
             {
+                LOG_MATCH_STATE(true);
                 LOG_GREEN_INFO("INIT");
                 init_highways();
                 disableActuators();
@@ -150,7 +151,7 @@ int main(int argc, char *argv[])
         case RUN:
         {
             if (initState){
-                LOG_GREEN_INFO("RUN"); 
+                LOG_GREEN_INFO("RUN");
                 tableStatus.reset();
                 tableStatus.startTime = _millis();
                 action.Reset();
@@ -184,6 +185,7 @@ int main(int argc, char *argv[])
         {
             if (initState){
                 LOG_GREEN_INFO("FIN");
+                LOG_MATCH_STATE(false);
                 arduino.RGB_Solid(0, 255, 0);
                 disableActuators();
                 // Clear command buffer

@@ -170,10 +170,14 @@
         </div>
 
         <div class="row mt-4">
-            <div class="col">
-                <!-- Placeholder for label -->
-                <div id="status-label" class="label-section">
-                    Placeholder for a label here 
+            <div class="col-md-4" style="width: 10%; position: relative;">
+                <div id="run-id" class="label-section text-center" style="position: absolute; bottom: 0; left: 1rem; font-size: 1rem; color: white;">
+                    #42
+                </div>
+            </div>
+            <div class="col-md-4" style="width: 90%;">
+                <div id="status-label" class="label-section text-center">
+                    Placeholder for a label here
                 </div>
             </div>
         </div>
@@ -205,7 +209,9 @@
                 const scoreLabel = document.getElementById("score-label");
                 const statusLabel = document.getElementById("status-label");
                 const timeLabel = document.getElementById("time-label");
+                const runid = document.getElementById("run-id");
 
+                runid.innerHTML = "#" + data["runid"];
 
                 let robotStatus = data["status"];
                 if (robotStatus == 0)

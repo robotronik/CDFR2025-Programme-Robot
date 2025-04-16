@@ -26,6 +26,10 @@ enum class LogLevel {
 // Only messages with a level equal to or above CURRENT_LOG_LEVEL will be printed.
 constexpr LogLevel CURRENT_LOG_LEVEL = LogLevel::DEBUG;
 
+extern std::map<std::string, int> logFiles;
+extern int globalLogNum;
+extern bool isInMatch;
+
 namespace SimpleLogger {
 
 #ifdef __CROSS_COMPILE_ARM__
@@ -34,9 +38,8 @@ namespace SimpleLogger {
     #define LOG_PATH "log/"
 #endif
 
-inline static std::map<std::string, int> logFiles;
-inline static bool initOnceFlag = false;
-inline static int globalLogNum = -1;
+void changeMatchState(bool match);
+
 
 inline std::string getExecutablePath() {
     char result[1000];
@@ -92,21 +95,22 @@ inline int readAndIncrementLogNum(const std::string& fullPath) {
     return num;
 }
 
+inline int getLogNumber(const std::string& logPath){
+    std::cout << "INNNNMATCH " << isInMatch << std::endl;
+    if (globalLogNum == -1 && isInMatch) {
+        globalLogNum = readAndIncrementLogNum(resolveLogPath(logPath));
+    }
+    return globalLogNum;
+}
+
 inline int getLogFileDescriptor(const std::string& baseName, const std::string& logPath = "log/") {
     auto it = logFiles.find(baseName);
     if (it != logFiles.end()) {
         return it->second;
     }
 
-    std::string fullPath = resolveLogPath(logPath);
-
-    if(initOnceFlag == false){
-        globalLogNum = readAndIncrementLogNum(fullPath);
-        initOnceFlag = true;
-    }
-
     std::ostringstream oss;
-    oss << fullPath << baseName << "_" << globalLogNum << ".log";
+    oss << resolveLogPath(logPath) << baseName << "_" << getLogNumber(logPath) << ".log";
     std::string fullName = oss.str();
 
     int fd = open(fullName.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
@@ -172,7 +176,7 @@ inline void log(LogLevel level, const std::string& functionName, const int line,
 
     bool stdOutNotValid = (level < CURRENT_LOG_LEVEL) || (message == previousMessage && _millis() / 1000 == previousMessageTime);
 
-    if(stdOutNotValid && file.empty())
+    if(stdOutNotValid && (file.empty() || !isInMatch))
         return;
 
     std::ostringstream oss;
@@ -235,3 +239,7 @@ inline void initLog(void){
 #define LOG_ASSERV_GET_INFO(message, ...) SimpleLogger::log(LogLevel::I2C, __FILE__, __LINE__, "Asserv", false, message, ##__VA_ARGS__)
 
 #define LOG_INIT() initLog();
+
+#define LOG_GET_NUMBER() SimpleLogger::getLogNumber(LOG_PATH)
+
+#define LOG_MATCH_STATE(stat) SimpleLogger::changeMatchState(stat)
