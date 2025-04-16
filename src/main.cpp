@@ -150,7 +150,8 @@ int main(int argc, char *argv[])
         case RUN:
         {
             if (initState){
-                LOG_GREEN_INFO("RUN"); 
+                log_asserv()->setLogStatus(stat);
+                LOG_GREEN_INFO("RUN");
                 tableStatus.reset();
                 tableStatus.startTime = _millis();
                 action.Reset();
@@ -184,6 +185,7 @@ int main(int argc, char *argv[])
         {
             if (initState){
                 LOG_GREEN_INFO("FIN");
+                log_asserv()->setLogStatus(stat);
                 arduino.RGB_Solid(0, 255, 0);
                 disableActuators();
                 // Clear command buffer
@@ -230,8 +232,6 @@ int main(int argc, char *argv[])
 
 int StartSequence()
 {
-    LOG_INIT();
-
     signal(SIGTERM, ctrlc);
     signal(SIGINT, ctrlc);
     // signal(SIGTSTP, ctrlz);

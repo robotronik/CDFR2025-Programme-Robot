@@ -153,6 +153,7 @@ void StartAPIServer(){
         response["score"] = tableStatus.getScore();
         response["time"] = (tableStatus.startTime == 0) ? 0 : (_millis() - tableStatus.startTime);
         response["strategy"] = tableStatus.strategy;
+        response["runid"] =  log_asserv()->getLogID();
         return crow::response(response.dump(4));
     });
 
