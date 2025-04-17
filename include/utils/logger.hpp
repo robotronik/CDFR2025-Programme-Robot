@@ -14,23 +14,11 @@
 #include <sys/stat.h>
 #include "utils/utils.h"
 
-enum class LogLevel {
-    I2C,
-    DEBUG,
-    INFO,
-    WARNING,
-    ERROR,
-    GREENINFO
-};
-
-// Only messages with a level equal to or above CURRENT_LOG_LEVEL will be printed.
-constexpr LogLevel CURRENT_LOG_LEVEL = LogLevel::DEBUG;
-
-extern std::map<std::string, int> logFiles;
-extern int globalLogNum;
-extern bool isInMatch;
-
-namespace SimpleLogger {
+#include <vector>
+#include <optional>
+#include <sstream>
+#include <string>
+#include <initializer_list>
 
 #ifdef __CROSS_COMPILE_ARM__
     #define LOG_PATH "/home/robotronik/LOG_CDFR2025/"
@@ -38,125 +26,94 @@ namespace SimpleLogger {
     #define LOG_PATH "log/"
 #endif
 
-void changeMatchState(bool match);
+enum class Color {
+    BLACK = 30,
+    RED = 31,
+    GREEN = 32,
+    YELLOW = 33,
+    BLUE = 34,
+    MAGENTA = 35,
+    CYAN = 36,
+    WHITE = 37,
+    GRAY = 90
+};
+
+enum class Background {
+    BLACK = 40,
+    RED = 41,
+    GREEN = 42,
+    YELLOW = 43,
+    BLUE = 44,
+    MAGENTA = 45,
+    CYAN = 46,
+    WHITE = 47
+};
+
+enum class Style {
+    RESET = 0,
+    BOLD = 1,
+    FAINT = 2,
+    ITALIC = 3,
+    UNDERLINE = 4,
+    BLINK = 5,
+    REVERSE = 7
+};
 
 
-inline std::string getExecutablePath() {
-    char result[1000];
-    ssize_t count = readlink("/proc/self/exe", result, sizeof(result));
-    if (count == -1) {
-        throw std::runtime_error("Unable to determine executable path");
-    }
-    return std::filesystem::path(std::string(result, count)).parent_path().string();
-}
+struct AnsiStyle {
+    std::optional<Color> color = std::nullopt;
+    std::optional<Background> background = std::nullopt;
+    std::vector<Style> styles = {};
 
-inline std::string resolveLogPath(const std::string& path) {
-    std::filesystem::path p(path);
-    if (p.is_absolute()) {
-        return path;
-    }
-    return (getExecutablePath() / p).string();
-}
+    AnsiStyle() = default;
 
-inline void ensureLogDirectoryAndNumFile(const std::string& logDir, const std::string& numLogFile) {
-    struct stat st;
-    if (stat(logDir.c_str(), &st) != 0) {
-        if (mkdir(logDir.c_str(), 0755) != 0) {
-            perror("Failed to create log directory");
-            exit(EXIT_FAILURE);
-        }
-        std::ofstream out(numLogFile);
-        if (!out) {
-            std::cerr << "Erreur : impossible de créer le fichier " << numLogFile << std::endl;
-            exit(EXIT_FAILURE);
-        }
-        out << 0;
-        out.close();
-    } else {
-        std::ifstream in(numLogFile);
-        if (!in) {
-            std::cerr << "Erreur : le dossier '" << logDir << "' existe mais pas le fichier 'numLog'. Abandon." << std::endl;
-            exit(EXIT_FAILURE);
-        }
-    }
-}
+    AnsiStyle(std::optional<Color> c,
+              std::optional<Background> bg = std::nullopt,
+              std::initializer_list<Style> s = {})
+        : color(c), background(bg), styles(s) {}
+};
 
-inline int readAndIncrementLogNum(const std::string& fullPath) {
-    std::string numFilePath = fullPath+"/numLog";
-    ensureLogDirectoryAndNumFile(fullPath,numFilePath);
-    std::ifstream in(numFilePath);
-    int num = 0;
-    if (in >> num) {
-        in.close();
-    }
+class logger
+{
+private:
+    static int globalLogNum;
+    bool logStatus = true;
+    std::string baseName;
+    int fileDescriptor = -1;
 
-    std::ofstream out(numFilePath, std::ios::trunc);
-    out << (num + 1);
-    return num;
-}
+    static std::string getExecutablePath();
+    static std::string resolveLogPath(const std::string& path);
+    static void        ensureLogDirectoryAndNumFile(const std::string& logDir, const std::string& numLogFile);
+    static int         readAndIncrementLogNum(const std::string& fullPath);
 
-inline int getLogNumber(const std::string& logPath){
-    std::cout << "INNNNMATCH " << isInMatch << std::endl;
-    if (globalLogNum == -1 && isInMatch) {
-        globalLogNum = readAndIncrementLogNum(resolveLogPath(logPath));
-    }
-    return globalLogNum;
-}
+    static std::string makeAnsiCode(
+        std::optional<Color> color = std::nullopt,
+        std::optional<Background> bg = std::nullopt,
+        const std::vector<Style>& styles = {}
+    );
 
-inline int getLogFileDescriptor(const std::string& baseName, const std::string& logPath = "log/") {
-    auto it = logFiles.find(baseName);
-    if (it != logFiles.end()) {
-        return it->second;
-    }
+    int getLogNumber();
+    int getLogFileDescriptor();
 
-    std::ostringstream oss;
-    oss << resolveLogPath(logPath) << baseName << "_" << getLogNumber(logPath) << ".log";
-    std::string fullName = oss.str();
+    void logToFile(const std::string& message, bool forceSync);
+    void logToOutput(const std::string& message);
+public:
+    logger(const std::string name, bool defaultlogStatus = true);
+    ~logger();
 
-    int fd = open(fullName.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
-    if (fd == -1) {
-        perror(("Failed to open log file: " + fullName).c_str());
-        return -1;
-    }
+    void log(bool logFile,
+         bool forceSync,
+         bool logOut,
+         const AnsiStyle& style,
+         const std::string& message);
 
-    logFiles[baseName] = fd;
-    return fd;
-}
+    int getLogID();
+    void setLogStatus(bool logS);
+};
 
-inline void logToFile(const std::string& baseName, const std::string& message, bool forceSync) {
-    int fd = getLogFileDescriptor(baseName,LOG_PATH);
-    if (fd == -1) return;
 
-    std::string fullMessage = message + "\n";
-    write(fd, fullMessage.c_str(), fullMessage.size());
+namespace SimpleLogger {
 
-    if (forceSync) {
-        fsync(fd);
-    }
-}
-
-inline std::string getLevelString(LogLevel level) {
-    switch (level) {
-        case LogLevel::I2C:     return "I2C";
-        case LogLevel::DEBUG:     return "DEBUG";
-        case LogLevel::INFO:      return "INFO";
-        case LogLevel::WARNING:   return "WARNING";
-        case LogLevel::ERROR:     return "ERROR";
-        case LogLevel::GREENINFO: return "INFO";
-        default:                  return "";
-    }
-}
-
-inline std::string getColorCode(LogLevel level) {
-    switch (level) {
-        case LogLevel::I2C:       return "\033[90m"; // Light gray
-        case LogLevel::DEBUG:     return "\033[90m"; // Light gray
-        case LogLevel::GREENINFO: return "\033[32m"; // Green
-        case LogLevel::WARNING:   return "\033[33m"; // Yellow
-        case LogLevel::ERROR:     return "\033[31m"; // Red
-        default:                  return "\033[0m";  // Default/Reset
-    }
-}
 
 // Base case for message appending: when there are no more arguments.
 inline void appendMessage(std::ostringstream& /*oss*/) {}
@@ -168,46 +125,19 @@ inline void appendMessage(std::ostringstream& oss, const T& value, const Args&..
     appendMessage(oss, args...);
 }
 
-static std::string previousMessage;
-static unsigned long previousMessageTime;
-
 template<typename... Args>
-inline void log(LogLevel level, const std::string& functionName, const int line, const std::string& file, bool force, const std::string& message, const Args&... args) {
-
-    bool stdOutNotValid = (level < CURRENT_LOG_LEVEL) || (message == previousMessage && _millis() / 1000 == previousMessageTime);
-
-    if(stdOutNotValid && (file.empty() || !isInMatch))
-        return;
+inline void log(logger loggerType, bool logFile, bool forceSync, bool logOut, const AnsiStyle& style,const std::string& typeLevel, const std::string& file, const int line, const std::string& message, const Args&... args) {
 
     std::ostringstream oss;
     appendMessage(oss, message, args...);
 
     std::ostringstream playLoad;
             playLoad << currentTimeFormatted() << " "
-            << std::left << std::setw(10) << ("[" + getLevelString(level) + "]") // Fixed width for log level
-            << std::left << std::setw(30) << ("[" + functionName + ":" + std::to_string(line) + "]") << "  " // Fixed width for function name
+            << std::left << std::setw(10) << ("[" + typeLevel + "]") // Fixed width for log level
+            << std::left << std::setw(30) << ("[" + file + ":" + std::to_string(line) + "]") << "  " // Fixed width for function name
             << oss.str();
 
-    if(!stdOutNotValid){
-        std::string colorCode = getColorCode(level);
-        std::string resetCode = "\033[0m";
-
-        std::ostringstream logStream;
-        logStream << colorCode
-                << playLoad.str()
-                << resetCode << std::endl;
-
-        // Print the fully constructed log message in one operation.
-        std::cout << logStream.str();
-        std::cout.flush();  // Explicit flush to ensure immediate writing
-
-        previousMessageTime = _millis() / 1000;
-        previousMessage = message;
-    }
-
-    if (!file.empty()) {
-        logToFile(file, playLoad.str(), force);
-    }
+    loggerType.log(logFile,forceSync,logOut,style,playLoad.str());
 }
 
 } // namespace SimpleLogger
@@ -227,19 +157,20 @@ inline void initLog(void){
     std::cout << "Start Time : " << currentTimeFormatted() << std::endl;
 }
 
-
+extern logger log_asserv;
+extern logger log_main;
 // Convenience macros that automatically pass the calling function's name.
-#define LOG_DEBUG(message, ...)      SimpleLogger::log(LogLevel::DEBUG,    __FILE__, __LINE__, "", false, message, ##__VA_ARGS__)
-#define LOG_INFO(message, ...)       SimpleLogger::log(LogLevel::INFO,     __FILE__, __LINE__, "", false, message, ##__VA_ARGS__)
-#define LOG_WARNING(message, ...)    SimpleLogger::log(LogLevel::WARNING,  __FILE__, __LINE__, "", false, message, ##__VA_ARGS__)
-#define LOG_ERROR(message, ...)      SimpleLogger::log(LogLevel::ERROR,    __FILE__, __LINE__, "", false, message, ##__VA_ARGS__)
-#define LOG_GREEN_INFO(message, ...) SimpleLogger::log(LogLevel::GREENINFO,__FILE__, __LINE__, "", false, message, ##__VA_ARGS__)
+#define LOG_DEBUG(message, ...)      SimpleLogger::log(log_main,true,false,true,AnsiStyle(Color::GREEN),"DEBUG", __FILE__, __LINE__, message, ##__VA_ARGS__)
+#define LOG_INFO(message, ...)       SimpleLogger::log(log_main,true,false,true,AnsiStyle(Color::GREEN),"INFO", __FILE__, __LINE__, message, ##__VA_ARGS__)
+#define LOG_WARNING(message, ...)    SimpleLogger::log(log_main,true,false,true,AnsiStyle(Color::GREEN),"WARNING", __FILE__, __LINE__, message, ##__VA_ARGS__)
+#define LOG_ERROR(message, ...)      SimpleLogger::log(log_main,true,false,true,AnsiStyle(Color::GREEN),"ERROR", __FILE__, __LINE__, message, ##__VA_ARGS__)
+#define LOG_GREEN_INFO(message, ...) SimpleLogger::log(log_main,true,false,true,AnsiStyle(Color::GREEN),"GREEN", __FILE__, __LINE__, message, ##__VA_ARGS__)
 
-#define LOG_ASSERV_SET_INFO(message, ...) SimpleLogger::log(LogLevel::I2C, __FILE__, __LINE__, "Asserv", true, message, ##__VA_ARGS__)
-#define LOG_ASSERV_GET_INFO(message, ...) SimpleLogger::log(LogLevel::I2C, __FILE__, __LINE__, "Asserv", false, message, ##__VA_ARGS__)
+#define LOG_ASSERV_SET_INFO(message, ...) SimpleLogger::log(log_asserv,true,true,false,AnsiStyle(Color::GREEN),"I2C", __FILE__, __LINE__, message, ##__VA_ARGS__)
+#define LOG_ASSERV_GET_INFO(message, ...) SimpleLogger::log(log_asserv,true,false,false,AnsiStyle(Color::GREEN),"I2C", __FILE__, __LINE__, message, ##__VA_ARGS__)
 
 #define LOG_INIT() initLog();
 
-#define LOG_GET_NUMBER() SimpleLogger::getLogNumber(LOG_PATH)
+#define LOG_GET_NUMBER() log_asserv.getLogID()
 
-#define LOG_MATCH_STATE(stat) SimpleLogger::changeMatchState(stat)
+#define LOG_MATCH_STATE(stat) log_asserv.setLogStatus(stat)
