@@ -27,6 +27,7 @@ bool obstacle_on_highway(highway_obstruction_object* obs, highway_line * line);
 
 //These are all of the objects
 highway_obstruction_object obs_obj_stocks[STOCK_COUNT];
+highway_obstruction_object obs_obj_build[4];
 highway_obstruction_object obs_obj_opponent = 
     {{500, 0}, true, 150, 0, highway_obstruction_object_type::Circle};
 
@@ -68,6 +69,9 @@ void highway_obstacles_json(json& j){
     j = json::array();
     for(int stock_i = 0; stock_i < STOCK_COUNT; stock_i++){
         j.push_back(obs_obj_stocks[stock_i]);
+    }
+    for(int i = 0; i < 4; i++){
+        j.push_back(obs_obj_build[i]);
     }
     j.push_back(obs_obj_opponent);
 }
@@ -191,6 +195,17 @@ void init_highways(){
         int h = STOCK_POSITION_ARRAY[i].theta == 90 ? 100 : 400;
         obs_obj_stocks[i] = {p, true, w/2, h/2, highway_obstruction_object_type::Rectangle};
     }
+
+    highway_point A1 = {TRIBUNE_BUILD_CENTER[0].x, TRIBUNE_BUILD_CENTER[0].y};
+    highway_point A2 = {TRIBUNE_BUILD_CENTER[1].x, TRIBUNE_BUILD_CENTER[1].y};
+    highway_point B1 = {TRIBUNE_BUILD_CENTER[0].x, -TRIBUNE_BUILD_CENTER[0].y};
+    highway_point B2 = {TRIBUNE_BUILD_CENTER[1].x, -TRIBUNE_BUILD_CENTER[1].y};
+    // blue build pos
+    obs_obj_build[0] = {A1, false, 200, 0, highway_obstruction_object_type::Square};
+    obs_obj_build[1] = {A2, false, 200, 0, highway_obstruction_object_type::Square};
+    // yellow build pos
+    obs_obj_build[2] = {B1, false, 200, 0, highway_obstruction_object_type::Square};
+    obs_obj_build[3] = {B2, false, 200, 0, highway_obstruction_object_type::Square};
 }
 // Returns the number of points in result[]. If error, returns 0
 // also adds target point at the end of result[]
@@ -260,7 +275,10 @@ void get_available_highways(bool av_highways_arr[]){
 // Pointer to a line
 bool any_obstacle_on_highway(highway_line * line){
     for(int stock_i = 0; stock_i < STOCK_COUNT; stock_i++){
-        if (obstacle_on_highway(obs_obj_stocks + stock_i, line)) return true;
+        //if (obstacle_on_highway(obs_obj_stocks + stock_i, line)) return true;
+    }
+    for(int i = 0; i < STOCK_COUNT; i++){
+        if (obstacle_on_highway(obs_obj_build + i, line)) return true;
     }
     return (obstacle_on_highway(&obs_obj_opponent, line));
 }

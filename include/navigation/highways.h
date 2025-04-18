@@ -44,6 +44,7 @@ void highway_obstacles_json(json& j);
 
 // obstruction defs
 extern highway_obstruction_object obs_obj_stocks[];
+extern highway_obstruction_object obs_obj_build[];
 extern highway_obstruction_object obs_obj_opponent;
 
 void init_highways();
