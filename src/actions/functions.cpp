@@ -363,13 +363,14 @@ void opponentInAction(position_t position){
         }
     }
     for (int i = 0; i < 2; i++){
-        if (tableStatus.avail_stocks[i] == false) // TODO Change this to opponent build pos
+        if (tableStatus.opponent_built[i] == true)
             continue;
         position_t build_pos = TRIBUNE_BUILD_CENTER[i];
         if (tableStatus.robot.colorTeam == BLUE)
             build_pos.y = -build_pos.y;
         if (m_isPointInsideRectangle(position.x, position.y, build_pos.x, build_pos.y, 400, 400)){
-            setStockAsRemoved(i); // TODO Set zone as built
+            tableStatus.opponent_built[i] = true;
+            obs_obj_build[i].present = true;
             LOG_GREEN_INFO("opponent has build in zone #", i, " / x = ", position.x , " / y = ", position.y);
             break;
         }
