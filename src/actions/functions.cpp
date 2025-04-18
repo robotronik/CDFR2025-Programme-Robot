@@ -34,17 +34,12 @@ bool constructSingleTribune(){
         }
         break;
     case 4:
-        if (movePlatformLifts(2, true) & moveTribunePusher(true, true)){
+        if (movePlatformLifts(2, true) & moveTribunePusher(true, true) & movePlatformElevator(3)){
             startTime = _millis();
             state++;
         }
         break;
     case 5:
-        if (movePlatformElevator(3)){
-            state++;
-        }
-        break;
-    case 6:
         if (movePlatformLifts(1, false) & moveTribunePusher(false) & moveClaws(1)){
             state = 1;
             return true;
@@ -95,7 +90,7 @@ bool liftSingleTribune(){
         }
         break;
     case 2:
-        if (_millis() > startTime + 2300)
+        if (_millis() > startTime + 650)
             state ++;
         break;
     case 3:
@@ -103,7 +98,7 @@ bool liftSingleTribune(){
             state++;
         break;
     case 4:
-        if (_millis() > startTime + 5500){
+        if (_millis() > startTime + 2000){
             state = 1;
             return true;
         }
@@ -147,8 +142,8 @@ bool movePlatformLifts(int pos, bool slow){
         target_right= 0; 
         break;
     case 1:
-        target_left = 65;
-        target_right= 80; 
+        target_left = 60;
+        target_right= 75; 
         break;
     case 2:
         target_left = 35;
@@ -198,7 +193,7 @@ bool moveClaws(int level){
     case 1:
         target = 90; break;
     case 2:
-        target = 10; break;
+        target = 5; break;
     case 3:
         target = 70; break;
     }
@@ -243,13 +238,13 @@ bool movePlatformElevator(int level){
     case -1:
         target = 0; break;
     case 0:
-        target = 400; break;
+        target = 700; break;
     case 1:
         target = 4000; break;
     case 2:
         target = 11500; break;
     case 3:
-        target = 5000; break;
+        target = 6000; break;
     }
     if (previousLevel != level){
         previousLevel = level;
@@ -274,7 +269,7 @@ bool moveColumnsElevator(bool up){
 
 // Moves the tribune elevator to a predefined level
 bool moveTribuneElevator(){
-    arduino.moveMotorDC(50, 30);
+    arduino.moveMotorDC(100, 30);
     return true;
 }
 
