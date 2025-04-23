@@ -180,10 +180,31 @@ std::string logger::makeAnsiCode(
 void logger::logToOutput(const std::string& message){
     if (stdOutInitValid == false) {
         stdOutInitValid = true;
-        std::cout << init(true);
+        logToOutput(init(true));
     }
+    std::stringstream ss(message);
+    std::string line;
+    while (std::getline(ss, line)) {
+        addLine(line);
+    }
+
     std::cout << message;
     std::cout.flush();
+}
+
+void logger::addLine(const std::string& line) {
+    lines.push_back(line);
+    if (lines.size() > MAX_LINES) {
+        lines.pop_front();
+    }
+}
+
+std::string logger::getLogToRobotScreen() {
+    std::ostringstream result;
+    for (const auto& line : lines) {
+        result << line << '\n';
+    }
+    return result.str();
 }
 
 void logger::log(bool logFile,

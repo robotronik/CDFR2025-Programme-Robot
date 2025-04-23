@@ -157,6 +157,16 @@ void StartAPIServer(){
         return crow::response(response.dump(4));
     });
 
+
+    CROW_ROUTE(app, "/get_log")
+    ([](){
+        //std::string test = "\x1b[1;31mTESTTAPI\x1b[0m\x1b[2;37mFaint Gray\x1b[0m\x1b[3;34mItalic Blue\x1b[0m\x1b[4;32mUnderlined Green\x1b[0m\x1b[7;30;47mReverse Black on White\x1b[0m\n\ntest";
+        std::string test = log_main()->getLogToRobotScreen();
+        json response;
+        response["log"] = test;
+        return crow::response(response.dump(4));
+    });
+
     // Define a route for an simple GET request that returns all of the information from the arduino
     CROW_ROUTE(app, "/get_arduino")
     ([](){

@@ -74,6 +74,7 @@ void ctrlz(int signal)
 
 int main(int argc, char *argv[])
 {
+    LOG_ERROR("LOGGGG : ",log_asserv()->getLogID());
     if (StartSequence() != 0)
         return -1;
 

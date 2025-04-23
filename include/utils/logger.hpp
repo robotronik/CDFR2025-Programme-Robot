@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <chrono>
 #include <ctime>
@@ -14,6 +13,7 @@
 #include <sys/stat.h>
 #include "utils/utils.h"
 
+#include <deque>
 #include <vector>
 #include <optional>
 #include <sstream>
@@ -82,6 +82,8 @@ private:
     std::string baseName;
     int fileDescriptor = -1;
     std::string timeString;
+    static constexpr size_t MAX_LINES = 40;
+    std::deque<std::string> lines;
 
     static std::string getExecutablePath();
     static std::string resolveLogPath(const std::string& path);
@@ -96,6 +98,7 @@ private:
 
     int getLogNumber();
     int getLogFileDescriptor();
+    void addLine(const std::string& line);
     std::string init(const bool withColor = false);
 
     void logToFile(const std::string& message, bool forceSync);
@@ -111,6 +114,7 @@ public:
          const std::string& message);
 
     int getLogID();
+    std::string getLogToRobotScreen();
     void setLogStatus(bool logS);
 };
 
