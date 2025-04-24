@@ -11,18 +11,132 @@
     <!-- Placeholder for the navbar -->
     <div id="navbar-placeholder"></div>
 
-    <h1 class="mt-4 text-white text-center">Logs from program WIP</h1>
+    <div style="font-family: monospace; white-space: pre-wrap;" class="console" id="log-id"></div>
 
     <!-- Bootstrap JS and dependencies -->
     <script src="js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Function to start the continuous robot data fetching loop
+        async function startContinuousRobotFetch() {
+            while (true) {  // Infinite loop
+                await getRobot();  // Wait for the data to be fetched
+                await sleep(100);
+            }
+        }
+
+        async function getRobot() {
+            try {
+                let response = await fetch('/get_log');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                let data = await response.json();
+
+                const logId = document.getElementById("log-id");
+                logId.innerHTML = parseANSI(data["log"]);
+
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+            }
+        }
+        // Start the continuous fetching loop
+        startContinuousRobotFetch();
+
+        const ANSI_CODES = {
+            styles: {
+                0: 'reset',
+                1: 'font-weight: bold',
+                2: 'opacity: 0.6',
+                3: 'font-style: italic',
+                4: 'text-decoration: underline',
+                7: 'reverse',
+            },
+            colors: {
+                30: 'color: black',
+                31: 'color: red',
+                32: 'color: green',
+                33: 'color: yellow',
+                34: 'color: blue',
+                35: 'color: magenta',
+                36: 'color: cyan',
+                37: 'color: white',
+                90: 'color: gray',
+            },
+            backgrounds: {
+                40: 'background-color: black',
+                41: 'background-color: red',
+                42: 'background-color: green',
+                43: 'background-color: yellow',
+                44: 'background-color: blue',
+                45: 'background-color: magenta',
+                46: 'background-color: cyan',
+                47: 'background-color: white',
+            }
+        };
+
+        function parseANSI(input) {
+            const stack = [];
+            return input.replace(/\x1b\[([0-9;]*)m/g, (_, seq) => {
+                const codes = seq.split(';').map(Number);
+                if (codes.includes(0)) {
+                    stack.length = 0;
+                    return '</span>';
+                }
+
+                const styleParts = [];
+                let textColor = '';
+                let bgColor = '';
+                let reverse = false;
+
+                codes.forEach(code => {
+                    const style = ANSI_CODES.styles[code];
+                    if (style === 'reverse') {
+                        reverse = true;
+                    } else if (style) {
+                        styleParts.push(style);
+                    } else if (ANSI_CODES.colors[code]) {
+                        textColor = ANSI_CODES.colors[code];
+                    } else if (ANSI_CODES.backgrounds[code]) {
+                        bgColor = ANSI_CODES.backgrounds[code];
+                    }
+                });
+
+                if (reverse) {
+                    // Switch text and background
+                    const temp = textColor;
+                    textColor = bgColor.replace('background-', '') || 'color: black';
+                    bgColor = temp.replace('color', 'background-color') || 'background-color: white';
+                }
+
+                if (textColor) styleParts.push(textColor);
+                if (bgColor) styleParts.push(bgColor);
+
+                const styleString = styleParts.join('; ');
+                stack.push(styleString);
+                return `<span style="${styleString}">`;
+            });
+        }
+
+        // const rawAnsiText = 
+        // `\x1b[1;31mBold Red\x1b[0m
+        // \x1b[2;37mFaint Gray\x1b[0m
+        // \x1b[3;34mItalic Blue\x1b[0m
+        // \x1b[4;32mUnderlined Green\x1b[0m
+        // \x1b[7;30;47mReverse Black on White\x1b[0m\n\ntest`;
+
+        // document.getElementById('console-output').innerHTML = parseANSI(rawAnsiText);
+
         // Load navbar from external file
         fetch('navbar.html')
             .then(response => response.text())
             .then(data => {
                 document.getElementById('navbar-placeholder').innerHTML = data;
-            });
+        });
     </script>
 
 </body>
