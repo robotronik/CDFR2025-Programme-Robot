@@ -26,6 +26,8 @@ void TableState::reset(){
     for (int i = 0; i < 10; i++){
         builtTribuneHeights[i] = 0;
     }
+    opponent_built[0] = false;
+    opponent_built[1] = false;
 }
 
 int TableState::getScore()
@@ -66,6 +68,8 @@ void to_json(json& j, const TableState& ts) {
         {"pos_opponent", ts.pos_opponent},
         {"startTime", ts.startTime},
         {"robot", ts.robot},
-        {"strategy", ts.strategy}
+        {"strategy", ts.strategy},
+        {"opponent_built", ts.opponent_built},
+        {"builtTribuneHeights", ts.builtTribuneHeights},
     };
 }
