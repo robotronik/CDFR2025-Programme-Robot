@@ -1,7 +1,6 @@
 #include "utils/logger.hpp"
 
 bool testLogger(){
-	LOG_INIT();
 	LOG_DEBUG("This is a debug message!");
 	LOG_INFO("This is an info message!");
 	LOG_GREEN_INFO("This is a green info message!");
