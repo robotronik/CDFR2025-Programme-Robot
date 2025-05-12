@@ -15,7 +15,7 @@
 #include "utils/json.hpp" // For handling JSON
 using json = nlohmann::json;
 
-#define API_PORT 8080
+#define API_PORT 80
 
 crow::response readHtmlFile(const std::string& path);
 std::string getContentType(const std::string& path);
