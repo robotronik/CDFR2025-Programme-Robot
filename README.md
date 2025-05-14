@@ -151,7 +151,7 @@ SyncIntervalSec=2s
 Ensure that both the robot and the program are running and that you are on the same local network. Then, open your browser and go to:
 
 ```url
-http://raspitronik.local:8080
+http://raspitronik.local
 ```
 
 ## 📺 Touchscreen on the Robot
@@ -162,13 +162,13 @@ To launch Chromium in kiosk mode on the robot, execute:
 sudo apt-get install xorg openbox chromium-browser
 sudo apt install xorg openbox -y
 export DISPLAY=:0
-sudo startx /usr/bin/chromium-browser --noerrdialogs --kiosk http:0.0.0.0:8080/robot --incognito --disable-extensions --no-sandbox
+sudo startx /usr/bin/chromium-browser --noerrdialogs --kiosk http:localhost/robot --incognito --disable-extensions --no-sandbox
 ```
 
 Alternatively, use:
 
 ```bash
-/usr/bin/chromium-browser --kiosk http:0.0.0.0:8080/robot --incognito --disable-extensions
+/usr/bin/chromium-browser --kiosk http:localhost/robot --incognito --disable-extensions
 ```
 
 For configuring a long display, edit the configuration file:
@@ -188,13 +188,13 @@ If you are running the Raspberry Pi OS with the default desktop, you can add the
 1. Open (or create if it doesn’t exist) the autostart file:
 
    ```bash
-   /home/pi/.config/lxsession/LXDE-pi/autostart
+   /home/pi/.config/autostart/kiosk.desktop
    ```
 
 2. Add the following command:
 
    ```bash
-   @/usr/bin/chromium-browser --kiosk http://0.0.0.0:8080/robot --incognito --disable-extensions
+   @/usr/bin/chromium-browser --kiosk http://localhost/robot --incognito --disable-extensions
    ```
 
 3. Save the file and reboot the system.

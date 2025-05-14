@@ -15,7 +15,7 @@
 #include "utils/json.hpp" // For handling JSON
 using json = nlohmann::json;
 
-#define API_PORT 8080
+#define API_PORT 80
 
 crow::response readHtmlFile(const std::string& path);
 std::string getContentType(const std::string& path);
@@ -153,6 +153,17 @@ void StartAPIServer(){
         response["score"] = tableStatus.getScore();
         response["time"] = (tableStatus.startTime == 0) ? 0 : (_millis() - tableStatus.startTime);
         response["strategy"] = tableStatus.strategy;
+        response["runid"] =  log_asserv()->getLogID();
+        return crow::response(response.dump(4));
+    });
+
+
+    CROW_ROUTE(app, "/get_log")
+    ([](){
+        //std::string test = "\x1b[1;31mTESTTAPI\x1b[0m\x1b[2;37mFaint Gray\x1b[0m\x1b[3;34mItalic Blue\x1b[0m\x1b[4;32mUnderlined Green\x1b[0m\x1b[7;30;47mReverse Black on White\x1b[0m\n\ntest";
+        std::string test = log_main()->getLogToRobotScreen();
+        json response;
+        response["log"] = test;
         return crow::response(response.dump(4));
     });
 
