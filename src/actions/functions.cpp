@@ -83,7 +83,8 @@ bool liftSingleTribune(){
     switch (state)
     {
     case 1:
-        if (moveClaws(1)){
+        moveClaws(1);
+        if (_millis() > startTime + 500){
             moveTribuneElevator();
             startTime = _millis();
             state ++;
@@ -244,7 +245,7 @@ bool movePlatformElevator(int level){
     case 2:
         target = 11500; break;
     case 3:
-        target = 6000; break;
+        target = 7000; break;
     }
     if (previousLevel != level){
         previousLevel = level;
