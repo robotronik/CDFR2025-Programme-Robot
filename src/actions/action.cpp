@@ -94,6 +94,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
         if (RevolverPrepareLowBarrel(stock_intake_dir) && (nav_ret == NAV_DONE)){
             gatherStockState = FSM_GATHER_MOVE;
             asserv.set_linear_max_speed(160, 300, 300);
+            moveClaws(3);
             startTime = _millis();
             LOG_INFO("Nav done and RevolverPrepareLowBarrel done for FSM_GATHER_NAV, going to FSM_GATHER_MOVE");
         }
@@ -160,11 +161,14 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
     nav_return_t nav_ret;
     switch (constructAllTribunesState){
     case FSM_CONSTRUCT_NAV:
+    {
+        static unsigned long startTime = _millis();
         // Nav to the tribune building location (zone)
         // TODO Highways should be enabled
         nav_ret = navigationGoTo(buildPos.x, buildPos.y, buildPos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
-        if (!liftReady)
+        if (!liftReady && (_millis() > startTime + 1000))
             liftReady = liftSingleTribune();
+            movePlatformElevator(3);
         if (nav_ret == NAV_DONE){
             revolverReady = false;
             constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
@@ -176,6 +180,7 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
             return FSM_RETURN_ERROR;
         }
         break;
+    }
     case FSM_CONSTRUCT_MOVE:
         
         nav_ret = navigationGoToNoTurn(real_build_pos.x - 400, real_build_pos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
