@@ -24,9 +24,10 @@ bool constructSingleTribune(){
             state ++;
         break;
     case 2:
-        if (movePlatformElevator(1))
+        if (movePlatformElevator(1)){
             state ++;
             startTime = _millis();
+        }
         break;
     case 3:
         if (_millis() > startTime + 400){
