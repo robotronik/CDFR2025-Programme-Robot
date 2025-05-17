@@ -23,6 +23,7 @@ public:
 
     /* data Show Must Go On*/
     bool avail_stocks[STOCK_COUNT];     // Is stock available
+    bool opponent_built[2];          // Is the opponent built in this zone
     bool done_banderole;               // Is action done
     int builtTribuneHeights[10];  // Heigh of the tribunes built by us
 };
