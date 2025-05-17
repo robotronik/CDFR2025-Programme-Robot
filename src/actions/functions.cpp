@@ -33,7 +33,7 @@ bool constructSingleTribuneP(int planks){
         }
         break;
     case 3:
-        if( movePlatformLifts(1, true) & moveTribunePusher(true, true) & movePlatformElevator(3, stepOffset)){
+        if( movePlatformLifts(1, true) & moveTribunePusher(2, true) & movePlatformElevator(3, stepOffset)){
             state++;
             startTime = _millis();
         }
@@ -44,7 +44,7 @@ bool constructSingleTribuneP(int planks){
         }
         break;
     case 5:
-        if (movePlatformLifts(1, false) & moveTribunePusher(false) & moveClaws(1)){
+        if (movePlatformLifts(1, false) & moveTribunePusher(0) & moveClaws(1)){
             state = 1;
             return true;
         }
@@ -235,11 +235,20 @@ bool movePlatformLifts(int pos, bool slow){
     return current_left == target_left;
 }
 
-bool moveTribunePusher(bool outside, bool slow){
-    static bool previousOutside = !outside;
-    int target = outside ? 0 : 110;
-    if (previousOutside != outside){
-        previousOutside = outside;
+bool moveTribunePusher(int pos, bool slow){
+    static int prevPos = !pos;
+    int target;
+    switch (pos)
+    {
+    case 0:
+        target = 0; break;
+    case 1:
+        target = 70; break;
+    case 2:
+        target = 110; break;
+    }
+    if (prevPos != pos){
+        prevPos = pos;
         arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 75 : 400);
     }
     int current = 0;
@@ -430,7 +439,7 @@ bool homeActuators(){
     stopTribuneElevator();
     return (
     movePlatformLifts(0) &
-    moveTribunePusher(false) &
+    moveTribunePusher(0) &
     moveClaws(1) & //0
     moveBannerDeploy(0, true) &
     moveBannerDeploy(0, false) &
