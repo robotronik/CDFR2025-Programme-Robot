@@ -209,18 +209,27 @@ bool moveClaws(int level){
     return current == target;
 }
 
-bool moveBannerDeploy(bool outside){
-    return true; // TODO REMOVE AFTER SERVO NM
-
-
-    static bool previousOutside = !outside;
-    int target = outside ? 180 : 0;
-    if (previousOutside != outside){
-        previousOutside = outside;
-        arduino.moveServo(-1, target); //TODO SERVO NUM
+// 0 : Fully inside
+// 1 : Weight deployed
+// 2 : Fully outside
+bool moveBannerDeploy(int position){
+    static int previousPosition = !position;
+    int target;
+    switch (position)
+    {
+        case 0:
+            target = 120; break;
+        case 1:
+            target = 160; break;
+        case 2:
+            target = 180; break;
+    }
+    if (previousPosition != position){
+        previousPosition = position;
+        arduino.moveServoSpeed(BANNER_RELEASE_SERVO_NUM, target, position == 1 ? 30 : 0);
     }
     int current = 0;
-    if (!arduino.getServo(-1, current)) return false; //TODO SERVO NUM
+    if (!arduino.getServo(BANNER_RELEASE_SERVO_NUM, current)) return false;
     return current == target;
 }
 
