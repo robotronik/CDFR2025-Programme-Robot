@@ -437,11 +437,9 @@ bool homeActuators(){
     movePlatformLifts(0) &
     moveTribunePusher(false) &
     moveClaws(1) & //0
-    movePlatformElevator(-1) &
-    moveColumnsElevator(false) &
     moveBannerDeploy(0, true) &
     moveBannerDeploy(0, false) &
-    moveColumnsElevator(1) &
+    moveColumnsElevator(0) &
     moveStringClaws(false)
     );
 }
