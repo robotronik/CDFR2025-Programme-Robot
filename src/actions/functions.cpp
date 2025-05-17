@@ -15,7 +15,7 @@
 
 // function to construct a single tribune by placing a single platform and pushing the tribune
 bool constructSingleTribune(){
-    return constructSingleTribuneP(0);
+    return constructSingleTribuneP(1);
 }
 bool constructSingleTribuneP(int planks){
     static int state = 1;

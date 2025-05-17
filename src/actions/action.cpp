@@ -214,7 +214,7 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         break;
     }
     case FSM_CONSTRUCT_BUILD:
-        if (constructSingleTribune()){
+        if (constructSingleTribuneP(tableStatus.robot.plank_count)){
             tableStatus.builtTribuneHeights[num]++;
             if (isRevolverEmpty() || tableStatus.robot.plank_count == 0) {
                 if (tableStatus.robot.plank_count == 0)
