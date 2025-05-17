@@ -24,7 +24,7 @@ bool constructSingleTribune(){
             state ++;
         break;
     case 2:
-        if (movePlatformElevator(1) & movePlatformLifts(0))
+        if (movePlatformElevator(1) & movePlatformLifts(0)){
             state ++;
             startTime = _millis();
         }
@@ -69,11 +69,6 @@ bool takeStockPlatforms(){
         }
         break;
     case 3:
-        if (movePlatformLifts(3) & movePlatformElevator(1) & moveClaws(0)){
-            state++;
-        }
-        break;
-    case 3:
         movePlatformLifts(1);
         movePlatformElevator(2);
         state = 1;
@@ -93,15 +88,12 @@ bool liftSingleTribune(){
     case 1:
         moveClaws(1);
         if (_millis() > startTime + 500){
-        moveClaws(1);
-        if (_millis() > startTime + 500){
             moveTribuneElevator();
             startTime = _millis();
             state ++;
         }
         break;
     case 2:
-        if (_millis() > startTime + 650)
         if (_millis() > startTime + 650)
             state ++;
         break;
@@ -110,7 +102,6 @@ bool liftSingleTribune(){
             state++;
         break;
     case 4:
-        if (_millis() > startTime + 2000){
         if (_millis() > startTime + 2000){
             state = 1;
             return true;
@@ -237,7 +228,6 @@ bool movePlatformLifts(int pos, bool slow){
     if (previousPos != pos){
         previousPos = pos;
         int speed = slow ? 75 : 400;
-        int speed = slow ? 75 : 400;
         arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left, speed);
         arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right,speed);
     }
@@ -249,10 +239,8 @@ bool movePlatformLifts(int pos, bool slow){
 bool moveTribunePusher(bool outside, bool slow){
     static bool previousOutside = !outside;
     int target = outside ? 0 : 110;
-    int target = outside ? 0 : 110;
     if (previousOutside != outside){
         previousOutside = outside;
-        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 75 : 400);
         arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 75 : 400);
     }
     int current = 0;
