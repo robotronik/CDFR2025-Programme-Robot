@@ -24,7 +24,7 @@ bool constructSingleTribuneP(int planks){
     switch (state)
     {
     case 1:
-        if (movePlatformElevator(4))
+        if (movePlatformElevator(3, stepOffset))
             state ++;
         break;
     case 2:
@@ -223,9 +223,6 @@ bool movePlatformLifts(int pos, bool slow){
         target_left = 110;
         target_right= 20; 
         break;
-    case 4: //un poil plus sortie
-    target_left = 105;
-    target_right= 25; 
     }
     if (previousPos != pos){
         previousPos = pos;
@@ -343,8 +340,7 @@ bool movePlatformElevator(int level, int offset){
         target = 11500; break; //haut sous blocage
     case 3: 
         target = 6000 + offset; break; // au dessus 1ère planche
-    case 4:
-        target = 6000; break; // blocage 1ère planche
+ 
     }
     if (previousLevel != level){
         previousLevel = level;
