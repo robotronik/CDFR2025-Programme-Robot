@@ -112,12 +112,17 @@ bool deployBanner(){
     switch (state)
     {
     case 1:
-        if (moveBannerDeploy(true)){
+        if (moveBannerDeploy(1)){
             state++;
         }
         break;
     case 2:
-        if (moveBannerDeploy(false)){
+        if (moveBannerDeploy(2)){
+            state++;
+        }
+        break;
+    case 3:
+        if (moveBannerDeploy(0)){
             state = 1;
             return true;
         }
@@ -320,7 +325,8 @@ bool homeActuators(){
     moveTribunePusher(false) &
     moveClaws(1) & //0
     movePlatformElevator(-1) &
-    moveColumnsElevator(false)
+    moveColumnsElevator(false) &
+    moveBannerDeploy(0)
     );
 }
 void enableActuators(){
