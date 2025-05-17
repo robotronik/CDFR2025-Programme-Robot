@@ -161,11 +161,12 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
     nav_return_t nav_ret;
     switch (constructAllTribunesState){
     case FSM_CONSTRUCT_NAV:
+    {
         static unsigned long startTime = _millis();
         // Nav to the tribune building location (zone)
         // TODO Highways should be enabled
         nav_ret = navigationGoTo(buildPos.x, buildPos.y, buildPos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
-        if (!liftReady & (_millis() > startTime + 1000))
+        if (!liftReady && (_millis() > startTime + 1000))
             liftReady = liftSingleTribune();
             movePlatformElevator(3);
         if (nav_ret == NAV_DONE){
@@ -179,6 +180,7 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
             return FSM_RETURN_ERROR;
         }
         break;
+    }
     case FSM_CONSTRUCT_MOVE:
         
         nav_ret = navigationGoToNoTurn(real_build_pos.x - 400, real_build_pos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
