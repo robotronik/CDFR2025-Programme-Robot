@@ -20,22 +20,21 @@ bool constructSingleTribune(){
     switch (state)
     {
     case 1:
-        if (movePlatformLifts(0))
+        if (movePlatformElevator(4))
             state ++;
         break;
     case 2:
-        if (movePlatformElevator(1))
+        if (movePlatformElevator(1) & movePlatformLifts(0))
             state ++;
-            startTime = _millis();
         break;
     case 3:
-        if (_millis() > startTime + 400){
+        if( movePlatformLifts(2, true) & moveTribunePusher(true, true) & movePlatformElevator(3)){
             state++;
+            startTime = _millis();
         }
         break;
     case 4:
-        if (movePlatformLifts(2, true) & moveTribunePusher(true, true) & movePlatformElevator(3)){
-            startTime = _millis();
+        if (_millis() > startTime + 300){
             state++;
         }
         break;
@@ -138,22 +137,25 @@ bool movePlatformLifts(int pos, bool slow){
     int target_right = 0;
     switch (pos)
     {
-    case 0:
+    case 0: //rentrée
         target_left = 140;
         target_right= 0; 
         break;
-    case 1:
+    case 1: //milieu
         target_left = 60;
         target_right= 75; 
         break;
-    case 2:
+    case 2: // totalement sortie
         target_left = 35;
         target_right= 100; 
         break;
-    case 3:
-        target_left = 100;
-        target_right= 40; 
+    case 3: //un petit peu sortie
+        target_left = 110;
+        target_right= 20; 
         break;
+    case 4: //un poil plus sortie
+    target_left = 105;
+    target_right= 25; 
     }
     if (previousPos != pos){
         previousPos = pos;
@@ -239,13 +241,15 @@ bool movePlatformElevator(int level){
     case -1:
         target = 0; break;
     case 0:
-        target = 700; break;
+        target = 700; break; //sous la 1ère planche
     case 1:
-        target = 4000; break;
+        target = 4000; break; //milieux 1ère planche
     case 2:
-        target = 11500; break;
-    case 3:
-        target = 7000; break;
+        target = 11500; break; //haut sous blocage
+    case 3: 
+        target = 7000; break; // au dessus 1ère planche
+    case 4:
+        target = 6000; break; // blocage 1ère planche
     }
     if (previousLevel != level){
         previousLevel = level;

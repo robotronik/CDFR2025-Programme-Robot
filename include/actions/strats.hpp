@@ -58,7 +58,7 @@ inline bool StratGather(int& stockNum, int& stockOffset){
         todo_stocks[3] = 4;
         todo_stocks[4] = 2;
         todo_stocks[5] = 3;
-        num = 6;
+        num = 2;
         break;
     case 2: // Fais le tour en "longeant" le bord (si adversaire dans les backstages)
         todo_stocks[0] = 7;
