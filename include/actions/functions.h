@@ -27,7 +27,7 @@ int getBestStockPositionOff(int stockN, position_t fromPos);
 bool movePlatformLifts(int pos, bool slow = false);
 bool moveTribunePusher(bool outside, bool slow = false);
 bool moveClaws(int level);
-bool moveBannerDeploy(bool outside, bool front);
+bool moveBannerDeploy(int position, bool front);
 
 // Stepper Control
 bool movePlatformElevator(int level);
