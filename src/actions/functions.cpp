@@ -109,12 +109,18 @@ bool liftSingleTribune(){
     return false;
 }
 bool deployBanner(bool front){
-    static int state = 1;
+    static int state = 0;
     switch (state)
     {
+    case 0:
+        if (moveColumnsElevator(2)){
+            state++;
+        }
+        break;
     case 1:
         if (moveBannerDeploy(1, front)){
             state++;
+            moveColumnsElevator(1);
         }
         break;
     case 2:
@@ -124,6 +130,53 @@ bool deployBanner(bool front){
         break;
     case 3:
         if (moveBannerDeploy(0, front)){
+            state = 0;
+            return true;
+        }
+        break;
+    }
+    return false;
+}
+
+bool liftAllColumns(){
+    static int state = 1;
+    switch (state)
+    {
+    case 1:
+        if (moveColumnsElevator(0) & moveStringClaws(true))
+            state++;
+        break;
+    case 2:
+        if (moveStringClaws(false))
+            state++;
+        break;
+    case 3:
+        if (moveColumnsElevator(3)){
+            state = 1;
+            return true;
+        }
+        break;
+    }
+    return false;
+}
+bool releaseAllColumns(){
+    static int state = 1;
+    switch (state)
+    {
+    case 1:
+        if (moveColumnsElevator(0))
+            state++;
+        break;
+    case 2:
+        if (moveStringClaws(true))
+            state++;
+        break;
+    case 3:
+        if (moveColumnsElevator(1))
+            state++;
+        break;
+    case 4:
+        if (moveStringClaws(false)){
             state = 1;
             return true;
         }
@@ -219,7 +272,8 @@ bool moveClaws(int level){
 // 1 : Weight deployed
 // 2 : Fully outside
 bool moveBannerDeploy(int position, bool front){
-    static int previousPosition = !position;
+    static int previousPositionFront = !position;
+    static int previousPositionBack = !position;
     int target;
     switch (position)
     {
@@ -230,12 +284,24 @@ bool moveBannerDeploy(int position, bool front){
         case 2:
             target = 180; break;
     }
-    if (previousPosition != position){
-        previousPosition = position;
-        arduino.moveServoSpeed(front ? BANNER_RELEASE_FRONT_SERVO_NUM : BANNER_RELEASE_BRACK_SERVO_NUM, target, position == 1 ? 30 : 0);
+    if ( (front && previousPositionFront != position) || (!front && previousPositionBack != position)){
+        if (front) previousPositionFront = position;
+        else previousPositionBack = position;
+        arduino.moveServoSpeed(front ? BANNER_RELEASE_FRONT_SERVO_NUM : BANNER_RELEASE_BACK_SERVO_NUM, target, position == 1 ? 30 : 300);
     }
     int current = 0;
-    if (!arduino.getServo(front ? BANNER_RELEASE_FRONT_SERVO_NUM : BANNER_RELEASE_BRACK_SERVO_NUM, current)) return false;
+    if (!arduino.getServo(front ? BANNER_RELEASE_FRONT_SERVO_NUM : BANNER_RELEASE_BACK_SERVO_NUM, current)) return false;
+    return current == target;
+}
+bool moveStringClaws(bool open){
+    static bool previousOpen = !open;
+    int target = open ? 180 : 0;
+    if (previousOpen != open){
+        previousOpen = open;
+        arduino.moveServoSpeed(STRING_CLAWS_SERVO_NUM, target, 200);
+    }
+    int current = 0;
+    if (!arduino.getServo(STRING_CLAWS_SERVO_NUM, current)) return false;
     return current == target;
 }
 
@@ -276,10 +342,10 @@ bool moveColumnsElevator(bool up){
     int target = up ? 13000 : 0;
     if (previousLevel != up){
         previousLevel = up;
-        arduino.moveStepper(target, COLOMNS_ELEVATOR_STEPPER_NUM);
+        arduino.moveStepper(target, COLUMNS_ELEVATOR_STEPPER_NUM);
     }
     int32_t currentValue;
-    if (!arduino.getStepper(currentValue, COLOMNS_ELEVATOR_STEPPER_NUM)) return false; // TODO Might need to change this (throw error)
+    if (!arduino.getStepper(currentValue, COLUMNS_ELEVATOR_STEPPER_NUM)) return false; // TODO Might need to change this (throw error)
     return (currentValue == target);
 }
 
@@ -306,11 +372,37 @@ bool moveLowColumnsRevolverAbs(int N){
 
     if (prevAbsSteps != absSteps){
         prevAbsSteps = absSteps;
-        arduino.moveStepper(absSteps, COLOMNS_REVOLVER_LOW_STEPPER_NUM);
+        arduino.moveStepper(absSteps, COLUMNS_REVOLVER_LOW_STEPPER_NUM);
     }
     int32_t currentValue;
-    if (!arduino.getStepper(currentValue, COLOMNS_REVOLVER_LOW_STEPPER_NUM)) return false;
+    if (!arduino.getStepper(currentValue, COLUMNS_REVOLVER_LOW_STEPPER_NUM)) return false;
     return (currentValue == absSteps);
+}
+
+// Moves the platforms elevator to a predefined level
+// 1:startpos, 0:lowest, 2:Banner release 3:highest
+bool moveColumnsElevator(int level){
+    static int previousLevel = -100;
+
+    int target = 0;
+    switch (level)
+    {
+    case 0:
+        target = 0; break;
+    case 1:
+        target = 4000; break;
+    case 2:
+        target = 8000; break;
+    case 3:
+        target = 20000; break;
+    }
+    if (previousLevel != level){
+        previousLevel = level;
+        arduino.moveStepper(target, COLUMNS_ELEVATOR_STEPPER_NUM);
+    }
+    int32_t currentValue;
+    if (!arduino.getStepper(currentValue, COLUMNS_ELEVATOR_STEPPER_NUM)) return false; // TODO Might need to change this (throw error)
+    return (currentValue == target);
 }
 
 // ------------------------------------------------------
@@ -328,7 +420,9 @@ bool homeActuators(){
     movePlatformElevator(-1) &
     moveColumnsElevator(false) &
     moveBannerDeploy(0, true) &
-    moveBannerDeploy(0, false)
+    moveBannerDeploy(0, false) &
+    moveColumnsElevator(1) &
+    moveStringClaws(false)
     );
 }
 void enableActuators(){

@@ -18,6 +18,8 @@ bool takeStockPlatforms();
 bool constructSingleTribune();
 bool liftSingleTribune();
 bool deployBanner(bool front);
+bool liftAllColumns();
+bool releaseAllColumns();
 
 // Related to stock management
 void getBestAvailableStock(); // TODO finish
@@ -28,11 +30,13 @@ bool movePlatformLifts(int pos, bool slow = false);
 bool moveTribunePusher(bool outside, bool slow = false);
 bool moveClaws(int level);
 bool moveBannerDeploy(int position, bool front);
+bool moveStringClaws(bool open);
 
 // Stepper Control
 bool movePlatformElevator(int level);
 bool moveColumnsElevator(bool up);
 bool moveLowColumnsRevolverAbs(int N);
+bool moveColumnsElevator(int level);
 
 // DC Motor Control
 bool moveTribuneElevator();
