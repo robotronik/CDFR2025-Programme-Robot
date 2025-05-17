@@ -17,6 +17,8 @@ void setStockAsRemoved(int num);
 bool takeStockPlatforms();
 bool constructSingleTribune();
 bool liftSingleTribune();
+bool deployBannerFront();
+bool deployBannerBack();
 bool deployBanner(bool front);
 bool liftAllColumns();
 bool releaseAllColumns();

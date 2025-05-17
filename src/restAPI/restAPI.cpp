@@ -498,6 +498,10 @@ void StartAPIServer(){
         if      (req_value == "takeStockPlatforms")     manual_currentFunc = takeStockPlatforms;
         else if (req_value == "constructSingleTribune") manual_currentFunc = constructSingleTribune;
         else if (req_value == "liftSingleTribune")      manual_currentFunc = liftSingleTribune;
+        else if (req_value == "deployBannerFront")       manual_currentFunc = deployBannerFront;
+        else if (req_value == "deployBannerBack")        manual_currentFunc = deployBannerBack;
+        else if (req_value == "liftAllColumns")          manual_currentFunc = liftAllColumns;
+        else if (req_value == "releaseAllColumns")       manual_currentFunc = releaseAllColumns;
         else {
             json response;
             response["message"] = "Invalid action requested";

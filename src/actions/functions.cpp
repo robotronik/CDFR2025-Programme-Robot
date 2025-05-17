@@ -108,6 +108,12 @@ bool liftSingleTribune(){
     }
     return false;
 }
+bool deployBannerFront(){
+    return deployBanner(true);
+}
+bool deployBannerBack(){
+    return deployBanner(false);
+}
 bool deployBanner(bool front){
     static int state = 0;
     switch (state)
