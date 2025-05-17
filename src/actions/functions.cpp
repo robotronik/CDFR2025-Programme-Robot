@@ -15,8 +15,12 @@
 
 // function to construct a single tribune by placing a single platform and pushing the tribune
 bool constructSingleTribune(){
+    return constructSingleTribuneP(1);
+}
+bool constructSingleTribuneP(int planks){
     static int state = 1;
     static unsigned long startTime;
+    const int stepOffset = planks * 100;
     switch (state)
     {
     case 1:
@@ -24,7 +28,7 @@ bool constructSingleTribune(){
             state ++;
         break;
     case 2:
-        if (movePlatformElevator(1) & movePlatformLifts(0)){
+        if (movePlatformElevator(1, stepOffset) & movePlatformLifts(0)){
             state ++;
             startTime = _millis();
         }
@@ -49,7 +53,6 @@ bool constructSingleTribune(){
     }
     return false;
 }
-
 // function to take platforms from a stock
 bool takeStockPlatforms(){
     static int state = 1;
@@ -325,7 +328,7 @@ bool moveStringClaws(bool open){
 
 // Moves the platforms elevator to a predefined level
 // -1:startpos, 0:lowest, 1:middle, 2:highest
-bool movePlatformElevator(int level){
+bool movePlatformElevator(int level, int offset){
     static int previousLevel = -100;
 
     int target = 0;
@@ -336,7 +339,7 @@ bool movePlatformElevator(int level){
     case 0:
         target = 700; break; //sous la 1ère planche
     case 1:
-        target = 4000; break; //milieux 1ère planche
+        target = 4000 + offset; break; //milieux 1ère planche
     case 2:
         target = 11500; break; //haut sous blocage
     case 3: 
