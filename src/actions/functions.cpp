@@ -107,22 +107,22 @@ bool liftSingleTribune(){
     }
     return false;
 }
-bool deployBanner(){
+bool deployBanner(bool front){
     static int state = 1;
     switch (state)
     {
     case 1:
-        if (moveBannerDeploy(1)){
+        if (moveBannerDeploy(1, front)){
             state++;
         }
         break;
     case 2:
-        if (moveBannerDeploy(2)){
+        if (moveBannerDeploy(2, front)){
             state++;
         }
         break;
     case 3:
-        if (moveBannerDeploy(0)){
+        if (moveBannerDeploy(0, front)){
             state = 1;
             return true;
         }
@@ -217,7 +217,7 @@ bool moveClaws(int level){
 // 0 : Fully inside
 // 1 : Weight deployed
 // 2 : Fully outside
-bool moveBannerDeploy(int position){
+bool moveBannerDeploy(int position, bool front){
     static int previousPosition = !position;
     int target;
     switch (position)
@@ -231,10 +231,10 @@ bool moveBannerDeploy(int position){
     }
     if (previousPosition != position){
         previousPosition = position;
-        arduino.moveServoSpeed(BANNER_RELEASE_SERVO_NUM, target, position == 1 ? 30 : 0);
+        arduino.moveServoSpeed(front ? BANNER_RELEASE_FRONT_SERVO_NUM : BANNER_RELEASE_BRACK_SERVO_NUM, target, position == 1 ? 30 : 0);
     }
     int current = 0;
-    if (!arduino.getServo(BANNER_RELEASE_SERVO_NUM, current)) return false;
+    if (!arduino.getServo(front ? BANNER_RELEASE_FRONT_SERVO_NUM : BANNER_RELEASE_BRACK_SERVO_NUM, current)) return false;
     return current == target;
 }
 
@@ -326,7 +326,8 @@ bool homeActuators(){
     moveClaws(1) & //0
     movePlatformElevator(-1) &
     moveColumnsElevator(false) &
-    moveBannerDeploy(0)
+    moveBannerDeploy(0, true) &
+    moveBannerDeploy(0, false)
     );
 }
 void enableActuators(){
