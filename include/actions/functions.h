@@ -16,6 +16,7 @@ void setStockAsRemoved(int num);
 // Basic functions (FSM)
 bool takeStockPlatforms();
 bool constructSingleTribune();
+bool constructSingleTribuneP(int planks);
 bool liftSingleTribune();
 bool deployBannerFront();
 bool deployBannerBack();
@@ -35,7 +36,7 @@ bool moveBannerDeploy(int position, bool front);
 bool moveStringClaws(bool open);
 
 // Stepper Control
-bool movePlatformElevator(int level);
+bool movePlatformElevator(int level, int offset = 0);
 bool moveColumnsElevator(bool up);
 bool moveLowColumnsRevolverAbs(int N);
 bool moveColumnsElevator(int level);
