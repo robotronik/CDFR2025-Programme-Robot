@@ -373,7 +373,7 @@ void EndSequence()
     arduino.RGB_Solid(0, 0, 0); // OFF
 
     for(int i = 0; i < 40; i++){
-        if (homeActuators() & movePlatformElevator(-1))
+        if (homeActuators() & moveColumnsElevator(0))
             break;
         delay(100);
     };
