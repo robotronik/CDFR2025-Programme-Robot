@@ -133,6 +133,7 @@ int main(int argc, char *argv[])
                 arduino.setStepper(0, 3);
                 arduino.setStepper(0, 4);
                 moveColumnsElevator(1);
+                movePlatformElevator(0);
                 homeActuators();
                 lidar.startSpin();
                 if (tableStatus.robot.colorTeam == NONE)
@@ -372,8 +373,8 @@ void EndSequence()
 
     arduino.RGB_Solid(0, 0, 0); // OFF
 
-    for(int i = 0; i < 40; i++){
-        if (homeActuators() & moveColumnsElevator(0))
+    for(int i = 0; i < 60; i++){
+        if (homeActuators() & moveColumnsElevator(0) & movePlatformElevator(-1))
             break;
         delay(100);
     };

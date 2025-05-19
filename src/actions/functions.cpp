@@ -15,45 +15,38 @@
 
 // function to construct a single tribune by placing a single platform and pushing the tribune
 bool constructSingleTribune(){
-    return constructSingleTribuneP(10);
+    return constructSingleTribuneP(1);
 }
 bool constructSingleTribuneP(int planks){
     static int state = 1;
     static unsigned long startTime;
-    const int stepOffset = planks * 350;
+    const int stepOffset = planks * 200;
     switch (state)
     {
     case 1:
-        if (movePlatformElevator(3, stepOffset))
-            state ++;
-        break;
-    case 2:
         if (movePlatformElevator(1) & movePlatformLifts(0)){
             state ++;
         }
         break;
-    case 3:
-        if( movePlatformLifts(1, true) & moveTribunePusher(1, true) & movePlatformElevator(3, stepOffset)){
+    case 2:
+        if (movePlatformLifts(3, true) & movePlatformElevator(4) & moveTribunePusher(1, true)){
             state++;
         }
         break;
-    case 4:
-        if( movePlatformLifts(2, true) & moveTribunePusher(2, true)){
+    case 3:
+        if( movePlatformLifts(2, true) & moveTribunePusher(2, true) & movePlatformElevator(3, stepOffset)){
             state++;
             startTime = _millis();
         }
         break;
-    case 5:
+    case 4:
         if (_millis() > startTime + 500){
-            state++;
+            if (movePlatformLifts(1, false) & moveTribunePusher(0) & moveClaws(1)){
+                state = 1;
+                return true;
+            }
+            break;
         }
-        break;
-    case 6:
-        if (movePlatformLifts(1, false) & moveTribunePusher(0) & moveClaws(1)){
-            state = 1;
-            return true;
-        }
-        break;
     }
     return false;
 }
@@ -246,9 +239,9 @@ bool moveTribunePusher(int pos, bool slow){
     switch (pos)
     {
     case 0:
-        target = 110; break;
+        target = 130; break;
     case 1:
-        target = 30; break;
+        target = 50; break;
     case 2:
         target = 0; break;
     }
@@ -347,14 +340,15 @@ bool movePlatformElevator(int level, int offset){
     case -1:
         target = 0; break; //startpos
     case 0:
-        target = 4000; break; //sous la 1ère planche
+        target = 1000; break; //sous la 1ère planche
     case 1:
-        target = 8000; break; //milieux 1ère planche
+        target = 4000; break; //milieux 1ère planche
     case 2:
         target = 11500; break; //haut sous blocage
     case 3: 
-        target = 6000 /*+ offset*/; break; // milieux adaptatif 1ère planche
- 
+        target = 6000 + offset; break; // milieux adaptatif 1ère planche
+    case 4:
+        target = 6000; break; //soulager 2ème
     }
     if (previousLevel != level){
         previousLevel = level;
