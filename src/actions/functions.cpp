@@ -217,16 +217,16 @@ bool movePlatformLifts(int pos, bool slow){
         target_right= 0; 
         break;
     case 1: //milieu
-        target_left = 90;
-        target_right= 90; 
+        target_left = 50;
+        target_right= 130; 
         break;
     case 2: // totalement sortie
         target_left = 0;
         target_right= 180; 
         break;
     case 3: //un petit peu sortie
-        target_left = 150;
-        target_right= 30; 
+        target_left = 130;
+        target_right= 50; 
         break;
     }
     if (previousPos != pos){
@@ -345,15 +345,15 @@ bool movePlatformElevator(int level, int offset){
     switch (level)
     {
     case -1:
-        target = 0; break;
+        target = 0; break; //startpos
     case 0:
-        target = 700; break; //sous la 1ère planche
+        target = 4000; break; //sous la 1ère planche
     case 1:
-        target = 3500; break; //milieux 1ère planche
+        target = 8000; break; //milieux 1ère planche
     case 2:
         target = 11500; break; //haut sous blocage
     case 3: 
-        target = 6000 + offset; break; // milieux adaptatif 1ère planche
+        target = 6000 /*+ offset*/; break; // milieux adaptatif 1ère planche
  
     }
     if (previousLevel != level){
@@ -448,7 +448,6 @@ bool homeActuators(){
     moveClaws(1) & //0
     moveBannerDeploy(0, true) &
     moveBannerDeploy(0, false) &
-    movePlatformElevator(-1) &
     moveStringClaws(false)
     );
 }
