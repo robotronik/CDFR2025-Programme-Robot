@@ -196,9 +196,9 @@ bool ReleaseLow() {
             LOG_INFO("No columns to release");
         } 
         else if (lowArr[2] && lowArr[3]) {
-            readPusherSensors();
-            LOG_WARNING("Ignoring columns sensors");
-            if (emulateActuators || true){// || readPusherSensors()){    TODO Put back
+            //readPusherSensors();
+            //LOG_WARNING("Ignoring columns sensors");
+            if (emulateActuators || readPusherSensors()){
                 LOG_INFO("Pusher sensors ok");
                 lowArr[2] = 0; // left
                 lowArr[3] = 0; // right
