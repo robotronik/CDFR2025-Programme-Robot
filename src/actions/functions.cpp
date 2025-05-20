@@ -65,16 +65,18 @@ bool takeStockPlatforms(){
         break;
     case 2:
         if (movePlatformLifts(3) & movePlatformElevator(1) & moveClaws(0)){
+            startTime = _millis();
             state++;
         }
         break;
     case 3:
-        movePlatformLifts(1);
-        movePlatformElevator(2);
-        state = 1;
-        return true;
-        state = 1;
-        return true;
+    movePlatformLifts(1);
+    movePlatformElevator(2);
+        if (_millis() > startTime + 500){
+            moveClaws(1);
+            state = 1;
+            return true;
+        }
         break;
     }
     return false;
@@ -147,21 +149,34 @@ bool deployBanner(bool front){
 }
 
 bool liftAllColumns(){
-    static int state = 1;
+    static int state = 0;
+    static unsigned long startTime = _millis();
     switch (state)
     {
-    case 1:
-        if (moveColumnsElevator(0) & moveStringClaws(true))
+    case 0:
+        if (moveColumnsElevator(4)){
+            startTime = _millis();
             state++;
+        }
+        break;
+    case 1:
+        if (_millis() > startTime + 500){
+            if (moveColumnsElevator(0) & moveStringClaws(true))
+                state++;
+        }
         break;
     case 2:
-        if (moveStringClaws(false))
+        if (moveStringClaws(false)){
+            startTime = _millis();
             state++;
+        }
         break;
     case 3:
-        if (moveColumnsElevator(3)){
-            state = 1;
-            return true;
+        if (_millis() > startTime + 500){
+            if (moveColumnsElevator(3)){
+                state = 0;
+                return true;
+            }
         }
         break;
     }
@@ -180,11 +195,8 @@ bool releaseAllColumns(){
             state++;
         break;
     case 3:
-        if (moveColumnsElevator(1))
-            state++;
-        break;
-    case 4:
-        if (moveStringClaws(false)){
+        if (moveColumnsElevator(1)){
+            moveStringClaws(false);
             state = 1;
             return true;
         }
@@ -210,8 +222,8 @@ bool movePlatformLifts(int pos, bool slow){
         target_right= 0; 
         break;
     case 1: //milieu
-        target_left = 50;
-        target_right= 130; 
+        target_left = 40;
+        target_right= 140; 
         break;
     case 2: // totalement sortie
         target_left = 0;
@@ -239,15 +251,15 @@ bool moveTribunePusher(int pos, bool slow){
     switch (pos)
     {
     case 0:
-        target = 130; break;
+        target = 120; break;
     case 1:
-        target = 50; break;
+        target = 90; break;
     case 2:
         target = 0; break;
     }
     if (prevPos != pos){
         prevPos = pos;
-        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 75 : 400);
+        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 60 : 400);
     }
     int current = 0;
     if (!arduino.getServo(TRIBUNES_PUSH_SERVO_NUM, current)) return false;
@@ -266,8 +278,7 @@ bool moveClaws(int level){
     switch (level)
     {
     case 0:
-        target = 100; break;
-        target = 100; break;
+        target = 120; break;
     case 1:
         target = 90; break;
     case 2:
@@ -315,7 +326,7 @@ bool moveBannerDeploy(int position, bool front){
 }
 bool moveStringClaws(bool open){
     static bool previousOpen = !open;
-    int target = open ? 180 : 0;
+    int target = open ? 0 : 180;
     if (previousOpen != open){
         previousOpen = open;
         arduino.moveServoSpeed(STRING_CLAWS_SERVO_NUM, target, 200);
@@ -340,9 +351,9 @@ bool movePlatformElevator(int level, int offset){
     case -1:
         target = 0; break; //startpos
     case 0:
-        target = 1000; break; //sous la 1ère planche
+        target = 1500; break; //sous la 1ère planche
     case 1:
-        target = 4000; break; //milieux 1ère planche
+        target = 4500; break; //milieux 1ère planche
     case 2:
         target = 11500; break; //haut sous blocage
     case 3: 
@@ -412,11 +423,13 @@ bool moveColumnsElevator(int level){
     case 0:
         target = 0; break;
     case 1:
-        target = 4000; break;
+        target = 6000; break;
     case 2:
         target = 8000; break;
     case 3:
         target = 20000; break;
+    case 4:
+        target = 1000; break;
     }
     if (previousLevel != level){
         previousLevel = level;

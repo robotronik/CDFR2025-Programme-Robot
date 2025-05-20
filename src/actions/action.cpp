@@ -111,7 +111,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
             nav_ret = navigationGoToNoTurn(stockPos.x - stockOff.x/6, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
 
         bool revolverDone = false;
-        if (_millis() > startTime + 500)
+        if (_millis() > startTime + 650)
             revolverDone = RevolverLoadStock(stock_intake_dir, num);
         if ((nav_ret == NAV_DONE) & revolverDone){
             gatherStockState = FSM_GATHER_COLLECT;
