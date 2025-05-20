@@ -374,7 +374,6 @@ bool moveColumnsElevator(bool up){
 // Moves the tribune elevator to a predefined level
 bool moveTribuneElevator(){
     arduino.moveMotorDC(100, 30);
-    arduino.moveMotorDC(100, 30);
     return true;
 }
 
