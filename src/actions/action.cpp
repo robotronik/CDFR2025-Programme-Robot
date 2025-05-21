@@ -113,6 +113,8 @@ ReturnFSM_t ActionFSM::GatherStock(){
         bool revolverDone = false;
         if (_millis() > startTime + 650)
             revolverDone = RevolverLoadStock(stock_intake_dir, num);
+        if (_millis() > startTime + 1100)
+            moveClaws(4);
         if ((nav_ret == NAV_DONE) & revolverDone){
             gatherStockState = FSM_GATHER_COLLECT;
             asserv.set_linear_max_speed(10000, 300, 300);

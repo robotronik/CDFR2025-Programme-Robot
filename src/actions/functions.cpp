@@ -29,7 +29,7 @@ bool constructSingleTribuneP(int planks){
         }
         break;
     case 2:
-        if (movePlatformLifts(3, true) & movePlatformElevator(4) & moveTribunePusher(1, true)){
+        if (movePlatformLifts(3, true) & moveTribunePusher(1, true)){
             state++;
         }
         break;
@@ -251,7 +251,7 @@ bool moveTribunePusher(int pos, bool slow){
     switch (pos)
     {
     case 0:
-        target = 120; break;
+        target = 140; break;
     case 1:
         target = 90; break;
     case 2:
@@ -277,16 +277,16 @@ bool moveClaws(int level){
     int target = 0;
     switch (level)
     {
-    case 0:
+    case 0: //
         target = 120; break;
-    case 1:
+    case 1: //droit
         target = 90; break;
-    case 2:
+    case 2: //fermé
         target = 5; break;
-        target = 5; break;
-    case 3:
+    case 3: // collecting stock
         target = 70; break;
-        target = 70; break;
+    case 4: // collecting plank
+        target = 110; break;
     }
 
     if (previouslevel != level){
@@ -357,9 +357,7 @@ bool movePlatformElevator(int level, int offset){
     case 2:
         target = 11500; break; //haut sous blocage
     case 3: 
-        target = 6000 + offset; break; // milieux adaptatif 1ère planche
-    case 4:
-        target = 6000; break; //soulager 2ème
+        target = 7000 /*+ offset*/; break; // milieux adaptatif 1ère planche
     }
     if (previousLevel != level){
         previousLevel = level;
@@ -405,6 +403,7 @@ bool moveLowColumnsRevolverAbs(int N){
 
     if (prevAbsSteps != absSteps){
         prevAbsSteps = absSteps;
+        arduino.setStepperSpeed(COLUMNS_REVOLVER_LOW_STEPPER_NUM, 1800);
         arduino.moveStepper(absSteps, COLUMNS_REVOLVER_LOW_STEPPER_NUM);
     }
     int32_t currentValue;
@@ -489,7 +488,7 @@ void setStockAsRemoved(int num){
 
 bool returnToHome(){
     unsigned long time = _millis() - tableStatus.startTime;
-    int home_x = (time < 95000) ? -300 : -600;
+    int home_x = (time < 97000) ? -300 : -600;
     int home_y = (tableStatus.robot.colorTeam == BLUE) ? 1100 : -1100;
     nav_return_t res = navigationGoToNoTurn(home_x, home_y);
     return res == NAV_DONE && isRobotInArrivalZone(tableStatus.robot.pos);
