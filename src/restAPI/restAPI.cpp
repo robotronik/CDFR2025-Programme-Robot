@@ -513,6 +513,17 @@ void StartAPIServer(){
         return crow::response(response.dump(4));
     });
 
+    // Define a route for a stop request
+    CROW_ROUTE(app, "/stop").methods(crow::HTTPMethod::POST)([](const crow::request& req){
+
+        json response;
+        response["message"] = "Successfull";
+
+        // Apply the value
+        ctrl_c_pressed = true;
+
+        return crow::response(response.dump(4));
+    });
 
     // ------------------------------- Routes for serving files -------------------------------
 
