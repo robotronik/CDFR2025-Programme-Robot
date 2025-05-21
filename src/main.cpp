@@ -374,7 +374,12 @@ void EndSequence()
     arduino.RGB_Solid(0, 0, 0); // OFF
 
     for(int i = 0; i < 60; i++){
-        if (homeActuators() & moveColumnsElevator(0) & movePlatformElevator(-1))
+        bool endOfSeq = arduino.getSensor(3);
+        if (!endOfSeq)
+            movePlatformElevator(-1);
+        else
+            arduino.disableStepper(PLATFORMS_ELEVATOR_STEPPER_NUM);
+        if (homeActuators() & moveColumnsElevator(0) & endOfSeq)
             break;
         delay(100);
     };
