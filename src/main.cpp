@@ -132,7 +132,6 @@ int main(int argc, char *argv[])
                 arduino.setStepper(0, 2);
                 arduino.setStepper(0, 3);
                 arduino.setStepper(0, 4);
-                moveColumnsElevator(1);
                 movePlatformElevator(0);
                 homeActuators();
                 lidar.startSpin();
@@ -142,6 +141,16 @@ int main(int argc, char *argv[])
 
             // colorTeam_t color = readColorSensorSwitch();
             // switchTeamSide(color);
+
+            static bool endOfSeq = false; 
+            if (!endOfSeq && arduino.readSensor(3, endOfSeq)){
+                if (!endOfSeq)
+                    movePlatformElevator(-1);
+                else{
+                    arduino.setStepper(0, PLATFORMS_ELEVATOR_STEPPER_NUM);
+                    movePlatformElevator(1);
+                }
+            }
 
             if (readLatchSensor() && tableStatus.robot.colorTeam != NONE)
                 nextState = RUN;
@@ -158,6 +167,7 @@ int main(int argc, char *argv[])
                 tableStatus.reset();
                 tableStatus.startTime = _millis();
                 action.Reset();
+                moveColumnsElevator(1);
             }
             bool finished = action.RunFSM();
 
@@ -374,12 +384,7 @@ void EndSequence()
     arduino.RGB_Solid(0, 0, 0); // OFF
 
     for(int i = 0; i < 60; i++){
-        bool endOfSeq = arduino.getSensor(3);
-        if (!endOfSeq)
-            movePlatformElevator(-1);
-        else
-            arduino.disableStepper(PLATFORMS_ELEVATOR_STEPPER_NUM);
-        if (homeActuators() & moveColumnsElevator(0) & endOfSeq)
+        if (homeActuators() & moveColumnsElevator(0) & movePlatformElevator(-1))
             break;
         delay(100);
     };

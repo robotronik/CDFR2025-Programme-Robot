@@ -348,8 +348,10 @@ bool movePlatformElevator(int level, int offset){
     int target = 0;
     switch (level)
     {
+    case -2:
+        target = -20000; break;
     case -1:
-        target = -20000; break; //startpos
+        target = 0; break; //startpos
     case 0:
         target = 1500; break; //sous la 1ère planche
     case 1:
