@@ -653,10 +653,17 @@ bool readPusherSensors(){
     return readLeftPusherSensor() & readRightPusherSensor();
 }
 
-bool readPlankSensor(){
+bool readLeftPlankSensor(){
     bool state;
-    bool leftState = arduino.readSensor(LEFT_PLANK_SENSOR_NUM, state);
-    bool rightState = arduino.readSensor(RIGHT_PLANK_SENSOR_NUM, state);
-    if (!leftState || !rightState ) return false;
+    if (!arduino.readSensor(LEFT_PLANK_SENSOR_NUM, state)) return false;
     return state;
+}
+bool readRightPlankSensor(){
+    bool state;
+    if (!arduino.readSensor(RIGHT_PLANK_SENSOR_NUM, state)) return false;
+    return state;
+}
+// Returns true if 2 edge of plank are detected (good position)
+bool readPusherSensors(){
+    return readLeftPlankSensor() & readRightPlankSensor();
 }
