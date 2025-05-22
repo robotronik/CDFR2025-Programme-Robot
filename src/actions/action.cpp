@@ -106,17 +106,18 @@ ReturnFSM_t ActionFSM::GatherStock(){
     case FSM_GATHER_MOVE:
     {
         if (stockPos.theta == 0) // Horizontal stock
-            nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y - stockOff.y/6, stock_nav_dir, Rotation::SHORTEST, false);
+            nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y - stockOff.y*0.12, stock_nav_dir, Rotation::SHORTEST, false);
         else // Vertical stock
-            nav_ret = navigationGoToNoTurn(stockPos.x - stockOff.x/6, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
+            nav_ret = navigationGoToNoTurn(stockPos.x - stockOff.x*0.12, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
 
         bool revolverDone = false;
-        if (_millis() > startTime + 650)
+        if (_millis() > startTime + 800)
             revolverDone = RevolverLoadStock(stock_intake_dir, num);
-        if (_millis() > startTime + 1100)
-            moveClaws(4);
+        //if (_millis() > startTime + 2500)
+            //moveClaws(4);
         if ((nav_ret == NAV_DONE) & revolverDone){
             gatherStockState = FSM_GATHER_COLLECT;
+            //moveClaws(1);
             asserv.set_linear_max_speed(10000, 300, 300);
             LOG_INFO("Nav done and revolver done for FSM_GATHER_MOVE, going to FSM_GATHER_COLLECT");
         }
