@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
                 arduino.setStepper(0, 2);
                 arduino.setStepper(0, 3);
                 arduino.setStepper(0, 4);
-                movePlatformElevator(0);
+                moveColumnsElevator(1);
                 homeActuators();
                 lidar.startSpin();
                 if (tableStatus.robot.colorTeam == NONE)
@@ -145,10 +145,10 @@ int main(int argc, char *argv[])
             static bool endOfSeq = false; 
             if (!endOfSeq && arduino.readSensor(3, endOfSeq)){
                 if (!endOfSeq)
-                    movePlatformElevator(-1);
+                    movePlatformElevator(-2);
                 else{
                     arduino.setStepper(0, PLATFORMS_ELEVATOR_STEPPER_NUM);
-                    movePlatformElevator(1);
+                    movePlatformElevator(0);
                 }
             }
 
