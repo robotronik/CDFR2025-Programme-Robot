@@ -279,14 +279,14 @@ bool moveClaws(int level){
     {
     case 0: //
         target = 120; break;
-    case 1: //droit
-        target = 95; break;
-    case 2: //fermé
-        target = 0; break;
-    case 3: // collecting stock
-        target = 70; break;
-    case 4: // collecting plank
-        target = 110; break;
+    case 1:
+        target = 95; break;  //droit
+    case 2: 
+        target = 0; break; //fermé
+    case 3: 
+        target = 70; break; // collecting stock
+    case 4: 
+        target = 110; break; // collecting plank
     }
 
     if (previouslevel != level){
@@ -651,4 +651,12 @@ bool readRightPusherSensor(){
 // Returns true if 2 cans are detected in front of the pusher
 bool readPusherSensors(){
     return readLeftPusherSensor() & readRightPusherSensor();
+}
+
+bool readPlankSensor(){
+    bool state;
+    bool leftState = arduino.readSensor(LEFT_PLANK_SENSOR_NUM, state);
+    bool rightState = arduino.readSensor(RIGHT_PLANK_SENSOR_NUM, state);
+    if (!leftState || !rightState ) return false;
+    return state;
 }

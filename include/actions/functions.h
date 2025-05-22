@@ -52,5 +52,6 @@ bool readLatchSensor();
 bool readLeftPusherSensor();
 bool readRightPusherSensor();
 bool readPusherSensors();
+bool readPlankSensor();
 
 #endif // MYFUNCTION_H

@@ -34,6 +34,8 @@
 // Define the nums of the arduino for the SENSORS
 #define BUTTON_SENSOR_NUM                 1
 #define LATCH_SENSOR_NUM                  2
+#define LEFT_PLANK_SENSOR_NUM            4
+#define RIGHT_PLANK_SENSOR_NUM           5
 #define PUSHER_LEFT_SENSOR_NUM            5
 #define PUSHER_RIGHT_SENSOR_NUM           6
 
