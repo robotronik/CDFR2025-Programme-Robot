@@ -36,8 +36,8 @@
 #define LATCH_SENSOR_NUM                  2
 #define LEFT_PLANK_SENSOR_NUM            4
 #define RIGHT_PLANK_SENSOR_NUM           5
-#define PUSHER_LEFT_SENSOR_NUM            5
-#define PUSHER_RIGHT_SENSOR_NUM           6
+#define PUSHER_LEFT_SENSOR_NUM            6
+#define PUSHER_RIGHT_SENSOR_NUM           7
 
 #define SPEED_STOCK 8000 // Motor speed for collecting stock (mm/s)
 #define STEPPER_SPEED 1000 // Stepper motor speed for collecting stock (steps/s)
