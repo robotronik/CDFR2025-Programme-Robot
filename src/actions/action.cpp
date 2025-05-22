@@ -87,6 +87,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
     direction_t stock_intake_dir = (stock_dir == FORWARDS) ? FROM_LEFT : FROM_RIGHT;
     nav_return_t nav_ret;
     static unsigned long startTime; // Start time of revolverLoading
+    
     switch (gatherStockState){
     case FSM_GATHER_NAV:
         // TODO Highways should be enabled
@@ -104,18 +105,21 @@ ReturnFSM_t ActionFSM::GatherStock(){
         }
         break;
     case FSM_GATHER_MOVE:
-    {
+    {   
+        if (readPlankSensors()) {
+            static unsigned long startTime2 = _millis();
+            if (_millis() > startTime2 + 750)
+                moveClaws(0);
+        }
         if (stockPos.theta == 0) // Horizontal stock
-            nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y - stockOff.y*0.12, stock_nav_dir, Rotation::SHORTEST, false);
+            nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y - stockOff.y*0.4, stock_nav_dir, Rotation::SHORTEST, false);
         else // Vertical stock
-            nav_ret = navigationGoToNoTurn(stockPos.x - stockOff.x*0.12, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
+            nav_ret = navigationGoToNoTurn(stockPos.x - stockOff.x*0.4, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
 
         bool revolverDone = false;
-        if (_millis() > startTime + 800)
+        if (_millis() > startTime + 500)
             revolverDone = RevolverLoadStock(stock_intake_dir, num);
-        if (readPlankSensors()) {
-            moveClaws(0);
-        }
+        
         if ((nav_ret == NAV_DONE) & revolverDone){
             gatherStockState = FSM_GATHER_COLLECT;
             asserv.set_linear_max_speed(10000, 300, 300);
@@ -169,9 +173,10 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         // Nav to the tribune building location (zone)
         // TODO Highways should be enabled
         nav_ret = navigationGoTo(buildPos.x, buildPos.y, buildPos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
-        if (!liftReady && (_millis() > startTime + 1000))
+        if (!liftReady && (_millis() > startTime + 1000)){
             liftReady = liftSingleTribune();
             movePlatformElevator(3);
+        }
         if (nav_ret == NAV_DONE){
             revolverReady = false;
             constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;

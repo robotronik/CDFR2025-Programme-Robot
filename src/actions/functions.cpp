@@ -58,20 +58,26 @@ bool takeStockPlatforms(){
     {
     case 1 :
         // Move the platforms lifts inside and move elevator down
-        if (movePlatformLifts(0) & movePlatformElevator(0)){
+        if (movePlatformLifts(0) ){
+            state ++;
+        }
+        break;
+    case 2 :
+        // Move the platforms lifts inside and move elevator down
+        if (movePlatformElevator(0)){
             // Move the platforms lifts outside and move elevator up
             state ++;
         }
         break;
-    case 2:
+    case 3:
         if (movePlatformLifts(3) & movePlatformElevator(1) & moveClaws(0)){
             startTime = _millis();
             state++;
         }
         break;
-    case 3:
-    movePlatformLifts(1);
-    movePlatformElevator(2);
+    case 4:
+        movePlatformLifts(1);
+        movePlatformElevator(2);
         if (_millis() > startTime + 500){
             moveClaws(1);
             state = 1;
@@ -280,7 +286,7 @@ bool moveClaws(int level){
     case 0: //
         target = 120; break;
     case 1:
-        target = 95; break;  //droit
+        target = 93; break;  //droit
     case 2: 
         target = 0; break; //fermé
     case 3: 
@@ -665,5 +671,5 @@ bool readRightPlankSensor(){
 }
 // Returns true if 2 edge of plank are detected (good position)
 bool readPlankSensors(){
-    return readLeftPlankSensor() & readRightPlankSensor();
+    return readLeftPlankSensor() /*& readRightPlankSensor()*/;
 }
