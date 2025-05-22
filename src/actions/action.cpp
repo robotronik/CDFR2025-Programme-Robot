@@ -113,7 +113,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
         bool revolverDone = false;
         if (_millis() > startTime + 800)
             revolverDone = RevolverLoadStock(stock_intake_dir, num);
-        if (readPlankSensor) {
+        if (readPlankSensors()) {
             moveClaws(0);
         }
         if ((nav_ret == NAV_DONE) & revolverDone){

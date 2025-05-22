@@ -664,6 +664,6 @@ bool readRightPlankSensor(){
     return state;
 }
 // Returns true if 2 edge of plank are detected (good position)
-bool readPusherSensors(){
+bool readPlankSensors(){
     return readLeftPlankSensor() & readRightPlankSensor();
 }
