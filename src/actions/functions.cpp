@@ -20,7 +20,7 @@ bool constructSingleTribune(){
 bool constructSingleTribuneP(int planks){
     static int state = 1;
     static unsigned long startTime;
-    const int stepOffset = planks * 200;
+    const int stepOffset = planks * 150;
     switch (state)
     {
     case 1:
@@ -280,9 +280,9 @@ bool moveClaws(int level){
     case 0: //
         target = 120; break;
     case 1: //droit
-        target = 90; break;
+        target = 95; break;
     case 2: //fermé
-        target = 5; break;
+        target = 0; break;
     case 3: // collecting stock
         target = 70; break;
     case 4: // collecting plank
@@ -359,7 +359,7 @@ bool movePlatformElevator(int level, int offset){
     case 2:
         target = 11500; break; //haut sous blocage
     case 3: 
-        target = 7000 /*+ offset*/; break; // milieux adaptatif 1ère planche
+        target = 6000 + offset; break; // milieux adaptatif 1ère planche
     }
     if (previousLevel != level){
         previousLevel = level;
