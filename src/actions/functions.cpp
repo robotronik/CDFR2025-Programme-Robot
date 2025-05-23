@@ -102,7 +102,7 @@ bool liftSingleTribune(){
         }
         break;
     case 2:
-        if (_millis() > startTime + 650)
+        if (_millis() > startTime + 750)
             state ++;
         break;
     case 3:
@@ -288,7 +288,7 @@ bool moveClaws(int level){
     case 1:
         target = 93; break;  //droit
     case 2: 
-        target = 0; break; //fermé
+        target = 5; break; //fermé
     case 3: 
         target = 70; break; // collecting stock
     case 4: 
@@ -390,7 +390,7 @@ bool moveColumnsElevator(bool up){
 
 // Moves the tribune elevator to a predefined level
 bool moveTribuneElevator(){
-    arduino.moveMotorDC(100, 30);
+    arduino.moveMotorDC(80, 30);
     return true;
 }
 

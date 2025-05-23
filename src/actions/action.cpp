@@ -71,6 +71,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
 
     static int num = -1;
     static int offset;
+    static bool firstTime;
     if (num == -1){
         if (!StratGather(num, offset)){
             LOG_INFO("No more stocks to take, exiting GatherStock");
@@ -87,7 +88,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
     direction_t stock_intake_dir = (stock_dir == FORWARDS) ? FROM_LEFT : FROM_RIGHT;
     nav_return_t nav_ret;
     static unsigned long startTime; // Start time of revolverLoading
-    
+    static unsigned long startTime2;
     switch (gatherStockState){
     case FSM_GATHER_NAV:
         // TODO Highways should be enabled
@@ -98,6 +99,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
             moveClaws(3);
             startTime = _millis();
             LOG_INFO("Nav done and RevolverPrepareLowBarrel done for FSM_GATHER_NAV, going to FSM_GATHER_MOVE");
+            firstTime = true;
         }
         else if (nav_ret == NAV_ERROR){
             // TODO get another stock
@@ -106,10 +108,13 @@ ReturnFSM_t ActionFSM::GatherStock(){
         break;
     case FSM_GATHER_MOVE:
     {   
-        if (readPlankSensors()) {
-            static unsigned long startTime2 = _millis();
-            if (_millis() > startTime2 + 750)
-                moveClaws(0);
+        if (readPlankSensors() && firstTime){
+            firstTime = false;
+            startTime2 = _millis();
+        }
+        if (_millis() > startTime2 + 650 && !firstTime){
+            firstTime = true;
+            moveClaws(0);
         }
         if (stockPos.theta == 0) // Horizontal stock
             nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y - stockOff.y*0.4, stock_nav_dir, Rotation::SHORTEST, false);
@@ -119,7 +124,6 @@ ReturnFSM_t ActionFSM::GatherStock(){
         bool revolverDone = false;
         if (_millis() > startTime + 500)
             revolverDone = RevolverLoadStock(stock_intake_dir, num);
-        
         if ((nav_ret == NAV_DONE) & revolverDone){
             gatherStockState = FSM_GATHER_COLLECT;
             asserv.set_linear_max_speed(10000, 300, 300);
