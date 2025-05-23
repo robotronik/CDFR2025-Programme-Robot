@@ -363,7 +363,7 @@ bool movePlatformElevator(int level, int offset){
     case 1:
         target = 4500; break; //milieux 1ère planche
     case 2:
-        target = 11500; break; //haut sous blocage
+        target = 12000; break; //haut sous blocage
     case 3: 
         target = 6000 + offset; break; // milieux adaptatif 1ère planche
     }

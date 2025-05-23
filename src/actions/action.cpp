@@ -112,7 +112,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
             firstTime = false;
             startTime2 = _millis();
         }
-        if (_millis() > startTime2 + 650 && !firstTime){
+        if (_millis() > startTime2 + 550 && !firstTime){
             firstTime = true;
             moveClaws(0);
         }
@@ -179,7 +179,7 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         nav_ret = navigationGoTo(buildPos.x, buildPos.y, buildPos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
         if (!liftReady && (_millis() > startTime + 1000)){
             liftReady = liftSingleTribune();
-            movePlatformElevator(3);
+            movePlatformElevator(3,tableStatus.robot.plank_count*150);
         }
         if (nav_ret == NAV_DONE){
             revolverReady = false;
