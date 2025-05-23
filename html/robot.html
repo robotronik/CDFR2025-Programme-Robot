@@ -176,6 +176,12 @@
                 </div>
             </div>
             <div class="col-md-4" style="width: 90%;">
+                <!-- Stop Run Button Red -->
+                <button id="stop-run-btn" class="btn btn-danger w-100" onclick="sendStopRun()">
+                    STOP
+                </button>
+            </div>
+            <div class="col-md-4" style="width: 90%;">
                 <div id="status-label" class="label-section text-center">
                     Placeholder for a label here
                 </div>
@@ -289,6 +295,27 @@
             })
             .catch((error) => {
                 toggleStrat(0);
+                console.error('Error:', error); // Handle errors
+            });
+        }
+
+        // /stop GET method
+        function sendStopRun() {
+            fetch('/stop', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
                 console.error('Error:', error); // Handle errors
             });
         }

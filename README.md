@@ -210,7 +210,9 @@ In the code, these elements are referred to as *banner*, *stocks*, *columns*, *p
 - **Servo 2**: Left platforms lifter
 - **Servo 3**: Right platforms lifter
 - **Servo 4**: Clamps
-- **Servo 5**: Banner
+- **Servo 5**: String Claws
+- **Servo 6**: Banner Front
+- **Servo 7**: Banner Back
 - **DC Motor 1**: Tribunes elevator
 
 ## 🌈 RGB Light Signals
