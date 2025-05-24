@@ -111,6 +111,26 @@ bool liftSingleTribune(){
     }
     return false;
 }
+
+bool lowerSingleTribune(){
+    static int state = 1;
+    static unsigned long startTime = _millis();
+    switch (state)
+    {
+    case 1:
+        moveTribuneElevator();
+        if (_millis() > startTime + 750)
+            state ++;
+        break;
+    case 2:
+        moveClaws(1);
+        if (_millis() > startTime + 2000){
+            state = 1;
+            return true;
+        }
+    }
+    return false;
+}
 bool deployBannerFront(){
     return deployBanner(true);
 }

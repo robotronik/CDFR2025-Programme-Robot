@@ -62,8 +62,15 @@ bool isRevolverFull(){
     return false;
 }
 bool isRevolverEmpty(){
-    // TODO Add more logic to handle lost columns
-    return (lowBarrelCount <= 1);
+    const int n = REVOLVER_SIZE;
+    bool found = false;
+    for (int i = 0; i < n; i++) {
+        if (lowArr[i] && lowArr[(i + 1) % n]){
+            found = true;
+            break;
+        }
+    }
+    return !found;
 }
 void ShiftArray(bool arr[], int n, int size) {
     bool* temp = (bool*)malloc(sizeof(bool) * size);
@@ -182,6 +189,8 @@ bool RevolverPrepareLowBarrel(direction_t dir){
 // -------------------------------------------------
 
 bool RevolverRelease(){
+    if (isRevolverEmpty())
+        return false;
     // LOG_INFO("RevolverRelease"); //prepare release low barrel
     return ReleaseLow();
 }
