@@ -98,3 +98,5 @@ const int PROTECTED_BLUE_STOCK = 0;
 const int PROTECTED_YELLOW_STOCK = 5;
 
 const position_t TRIBUNE_CONSTRUCT_POSITION[] = {{700, 340, 0}, };
+
+const position_t TRIBUNE_BUILD_CENTER[] = {{800, 300, 0}, {100, 1400, 0}};

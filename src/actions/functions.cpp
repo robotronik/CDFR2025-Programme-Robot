@@ -506,7 +506,7 @@ bool m_isPointInsideRectangle(float px, float py, float cx, float cy, float w, f
     return (px >= left && px <= right && py >= bottom && py <= top);
 }
 
-void opponentInAction(position_t position){ //TODO : Check if this is correct
+void opponentInAction(position_t position){
     for (int i = 0; i < STOCK_COUNT; i++){
         if (tableStatus.avail_stocks[i] == false)
             continue;
@@ -516,6 +516,19 @@ void opponentInAction(position_t position){ //TODO : Check if this is correct
         if (m_isPointInsideRectangle(position.x, position.y, stock_pos.x, stock_pos.y, OPPONENT_ROBOT_RADIUS * 2 + w, OPPONENT_ROBOT_RADIUS * 2 + h)){
             setStockAsRemoved(i);
             LOG_GREEN_INFO("opponent has taken stock #", i, " / x = ", position.x , " / y = ", position.y);
+            break;
+        }
+    }
+    for (int i = 0; i < 2; i++){
+        if (tableStatus.opponent_built[i] == true)
+            continue;
+        position_t build_pos = TRIBUNE_BUILD_CENTER[i];
+        if (tableStatus.robot.colorTeam == BLUE)
+            build_pos.y = -build_pos.y;
+        if (m_isPointInsideRectangle(position.x, position.y, build_pos.x, build_pos.y, 400, 400)){
+            tableStatus.opponent_built[i] = true;
+            obs_obj_build[i].present = true;
+            LOG_GREEN_INFO("opponent has build in zone #", i, " / x = ", position.x , " / y = ", position.y);
             break;
         }
     }
