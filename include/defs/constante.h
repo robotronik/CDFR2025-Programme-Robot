@@ -42,7 +42,7 @@
 #define SPEED_STOCK 8000 // Motor speed for collecting stock (mm/s)
 #define STEPPER_SPEED 1000 // Stepper motor speed for collecting stock (steps/s)
 
-#define COL_OFFSET_STOCK 450
+#define COL_OFFSET_STOCK 470
 #define NO_COL_OFFSET_STOCK 175
 
 // Angle is either 0 for horizontal stock of 90 for vertical

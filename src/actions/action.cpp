@@ -122,7 +122,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
             nav_ret = navigationGoToNoTurn(stockPos.x - stockOff.x*0.4, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
 
         bool revolverDone = false;
-        if (_millis() > startTime + 500)
+        if (_millis() > startTime + 750)
             revolverDone = RevolverLoadStock(stock_intake_dir, num);
         if ((nav_ret == NAV_DONE) & revolverDone){
             gatherStockState = FSM_GATHER_COLLECT;
@@ -228,6 +228,8 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
     case FSM_CONSTRUCT_BUILD:
         if (constructSingleTribuneP(tableStatus.robot.plank_count)){
             tableStatus.builtTribuneHeights[num]++;
+            tableStatus.robot.plank_count--;
+            LOG_INFO("Building tribune #", num, " for FSM_CONSTRUCT_BUILD");
             if (isRevolverEmpty() || tableStatus.robot.plank_count == 0) {
                 if (tableStatus.robot.plank_count == 0)
                     LOG_GREEN_INFO("No more planks left, exiting");
