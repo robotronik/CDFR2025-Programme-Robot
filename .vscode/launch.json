@@ -6,7 +6,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/arm_bin/programCDFR",
-      "miDebuggerServerAddress": "192.168.0.133:1234",
+      "miDebuggerServerAddress": "raspitronik.local:1234",
       "miDebuggerPath": "/usr/bin/gdb-multiarch",
       "cwd": "${workspaceFolder}/arm_bin",
       "targetArchitecture": "arm",

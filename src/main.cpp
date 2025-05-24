@@ -74,7 +74,7 @@ void ctrlz(int signal)
 
 int main(int argc, char *argv[])
 {
-    LOG_ERROR("LOGGGG : ",log_asserv()->getLogID());
+    LOG_DEBUG("Log id is : ",log_asserv()->getLogID());
     if (StartSequence() != 0)
         return -1;
 
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
         case RUN:
         {
             if (initState){
-                log_asserv()->setLogStatus(stat);
+                log_asserv()->setLogStatus(true);
                 LOG_GREEN_INFO("RUN");
                 tableStatus.reset();
                 tableStatus.startTime = _millis();
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
         {
             if (initState){
                 LOG_GREEN_INFO("FIN");
-                log_asserv()->setLogStatus(stat);
+                log_asserv()->setLogStatus(false);
                 arduino.RGB_Solid(0, 255, 0);
                 disableActuators();
                 // Clear command buffer
@@ -228,6 +228,7 @@ int main(int argc, char *argv[])
             currentState = nextState;
         }
 
+        asserv.logAsserv();
         // Check if state machine is running above loop time
         unsigned long ms = _millis();
         if (ms > loopStartTime + LOOP_TIME_MS){
