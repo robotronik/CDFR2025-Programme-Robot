@@ -125,28 +125,24 @@ bool deployBannerBack(){
     return deployBanner(false);
 }
 bool deployBanner(bool front){
-    static int state = 0;
+    static int state = 1;
+    static unsigned long startTime;
     switch (state)
     {
-    case 0:
-        if (moveColumnsElevator(2)){
-            state++;
-        }
-        break;
     case 1:
         if (moveBannerDeploy(1, front)){
             state++;
-            moveColumnsElevator(1);
+            startTime = _millis();
         }
         break;
     case 2:
-        if (moveBannerDeploy(2, front)){
+        if (_millis() > startTime + 500 && moveBannerDeploy(2, front)){
             state++;
         }
         break;
     case 3:
         if (moveBannerDeploy(0, front)){
-            state = 0;
+            state = 1;
             return true;
         }
         break;
@@ -315,11 +311,11 @@ bool moveBannerDeploy(int position, bool front){
     switch (position)
     {
         case 0:
-            target = 120; break;
+            target = 0; break;
         case 1:
-            target = 160; break;
+            target = 60; break;
         case 2:
-            target = 180; break;
+            target = 90; break;
     }
     if ( (front && previousPositionFront != position) || (!front && previousPositionBack != position)){
         if (front) previousPositionFront = position;
