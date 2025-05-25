@@ -142,6 +142,16 @@ int main(int argc, char *argv[])
             // colorTeam_t color = readColorSensorSwitch();
             // switchTeamSide(color);
 
+            static bool endOfSeq = false; 
+            if (!endOfSeq && arduino.readSensor(3, endOfSeq)){
+                if (!endOfSeq)
+                    movePlatformElevator(-2);
+                else{
+                    arduino.setStepper(0, PLATFORMS_ELEVATOR_STEPPER_NUM);
+                    movePlatformElevator(0);
+                }
+            }
+
             if (readLatchSensor() && tableStatus.robot.colorTeam != NONE)
                 nextState = RUN;
             if (manual_ctrl)
@@ -157,6 +167,7 @@ int main(int argc, char *argv[])
                 tableStatus.reset();
                 tableStatus.startTime = _millis();
                 action.Reset();
+                moveColumnsElevator(1);
             }
             bool finished = action.RunFSM();
 
@@ -373,8 +384,8 @@ void EndSequence()
 
     arduino.RGB_Solid(0, 0, 0); // OFF
 
-    for(int i = 0; i < 40; i++){
-        if (homeActuators() & moveColumnsElevator(0))
+    for(int i = 0; i < 60; i++){
+        if (homeActuators() & moveColumnsElevator(0) & movePlatformElevator(-1))
             break;
         delay(100);
     };

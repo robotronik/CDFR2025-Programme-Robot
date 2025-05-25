@@ -20,36 +20,33 @@ bool constructSingleTribune(){
 bool constructSingleTribuneP(int planks){
     static int state = 1;
     static unsigned long startTime;
-    const int stepOffset = planks * 100;
+    const int stepOffset = planks * 150;
     switch (state)
     {
     case 1:
-        if (movePlatformLifts(0))
+        if (movePlatformElevator(1) & movePlatformLifts(0)){
             state ++;
+        }
         break;
     case 2:
-        if (movePlatformElevator(1, stepOffset)){
-            state ++;
-            startTime = _millis();
+        if (movePlatformLifts(3, true) & moveTribunePusher(1, true)){
+            state++;
         }
         break;
     case 3:
-        if (_millis() > startTime + 400){
+        if( movePlatformLifts(2, true) & moveTribunePusher(2, true) & movePlatformElevator(3, stepOffset)){
             state++;
+            startTime = _millis();
         }
         break;
     case 4:
-        if (movePlatformLifts(2, true) & moveTribunePusher(2, true) & movePlatformElevator(3)){
-            startTime = _millis();
-            state++;
+        if (_millis() > startTime + 500){
+            if (movePlatformLifts(1, false) & moveTribunePusher(0) & moveClaws(1)){
+                state = 1;
+                return true;
+            }
+            break;
         }
-        break;
-    case 5:
-        if (movePlatformLifts(1, false) & moveTribunePusher(0) & moveClaws(1)){
-            state = 1;
-            return true;
-        }
-        break;
     }
     return false;
 }
@@ -61,21 +58,31 @@ bool takeStockPlatforms(){
     {
     case 1 :
         // Move the platforms lifts inside and move elevator down
-        if (movePlatformLifts(0) & movePlatformElevator(0)){
+        if (movePlatformLifts(0) ){
+            state ++;
+        }
+        break;
+    case 2 :
+        // Move the platforms lifts inside and move elevator down
+        if (movePlatformElevator(0)){
             // Move the platforms lifts outside and move elevator up
             state ++;
         }
         break;
-    case 2:
+    case 3:
         if (movePlatformLifts(3) & movePlatformElevator(1) & moveClaws(0)){
+            startTime = _millis();
             state++;
         }
         break;
-    case 3:
+    case 4:
         movePlatformLifts(1);
         movePlatformElevator(2);
-        state = 1;
-        return true;
+        if (_millis() > startTime + 500){
+            moveClaws(1);
+            state = 1;
+            return true;
+        }
         break;
     }
     return false;
@@ -95,7 +102,7 @@ bool liftSingleTribune(){
         }
         break;
     case 2:
-        if (_millis() > startTime + 650)
+        if (_millis() > startTime + 750)
             state ++;
         break;
     case 3:
@@ -141,28 +148,24 @@ bool deployBannerBack(){
     return deployBanner(false);
 }
 bool deployBanner(bool front){
-    static int state = 0;
+    static int state = 1;
+    static unsigned long startTime;
     switch (state)
     {
-    case 0:
-        if (moveColumnsElevator(2)){
-            state++;
-        }
-        break;
     case 1:
         if (moveBannerDeploy(1, front)){
             state++;
-            moveColumnsElevator(1);
+            startTime = _millis();
         }
         break;
     case 2:
-        if (moveBannerDeploy(2, front)){
+        if (_millis() > startTime + 500 && moveBannerDeploy(2, front)){
             state++;
         }
         break;
     case 3:
         if (moveBannerDeploy(0, front)){
-            state = 0;
+            state = 1;
             return true;
         }
         break;
@@ -171,21 +174,34 @@ bool deployBanner(bool front){
 }
 
 bool liftAllColumns(){
-    static int state = 1;
+    static int state = 0;
+    static unsigned long startTime = _millis();
     switch (state)
     {
-    case 1:
-        if (moveColumnsElevator(0) & moveStringClaws(true))
+    case 0:
+        if (moveColumnsElevator(4)){
+            startTime = _millis();
             state++;
+        }
+        break;
+    case 1:
+        if (_millis() > startTime + 500){
+            if (moveColumnsElevator(0) & moveStringClaws(true))
+                state++;
+        }
         break;
     case 2:
-        if (moveStringClaws(false))
+        if (moveStringClaws(false)){
+            startTime = _millis();
             state++;
+        }
         break;
     case 3:
-        if (moveColumnsElevator(3)){
-            state = 1;
-            return true;
+        if (_millis() > startTime + 500){
+            if (moveColumnsElevator(3)){
+                state = 0;
+                return true;
+            }
         }
         break;
     }
@@ -204,11 +220,8 @@ bool releaseAllColumns(){
             state++;
         break;
     case 3:
-        if (moveColumnsElevator(1))
-            state++;
-        break;
-    case 4:
-        if (moveStringClaws(false)){
+        if (moveColumnsElevator(1)){
+            moveStringClaws(false);
             state = 1;
             return true;
         }
@@ -229,21 +242,21 @@ bool movePlatformLifts(int pos, bool slow){
     int target_right = 0;
     switch (pos)
     {
-    case 0:
-        target_left = 140;
+    case 0: //rentrée
+        target_left = 180;
         target_right= 0; 
         break;
-    case 1:
-        target_left = 60;
-        target_right= 75; 
+    case 1: //milieu
+        target_left = 40;
+        target_right= 140; 
         break;
-    case 2:
-        target_left = 35;
-        target_right= 100; 
+    case 2: // totalement sortie
+        target_left = 0;
+        target_right= 180; 
         break;
-    case 3:
-        target_left = 100;
-        target_right= 40; 
+    case 3: //un petit peu sortie
+        target_left = 130;
+        target_right= 50; 
         break;
     }
     if (previousPos != pos){
@@ -263,15 +276,15 @@ bool moveTribunePusher(int pos, bool slow){
     switch (pos)
     {
     case 0:
-        target = 0; break;
+        target = 140; break;
     case 1:
-        target = 70; break;
+        target = 90; break;
     case 2:
-        target = 110; break;
+        target = 0; break;
     }
     if (prevPos != pos){
         prevPos = pos;
-        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 75 : 400);
+        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 60 : 400);
     }
     int current = 0;
     if (!arduino.getServo(TRIBUNES_PUSH_SERVO_NUM, current)) return false;
@@ -289,14 +302,16 @@ bool moveClaws(int level){
     int target = 0;
     switch (level)
     {
-    case 0:
-        target = 100; break;
+    case 0: //
+        target = 120; break;
     case 1:
-        target = 90; break;
-    case 2:
-        target = 5; break;
-    case 3:
-        target = 70; break;
+        target = 93; break;  //droit
+    case 2: 
+        target = 5; break; //fermé
+    case 3: 
+        target = 70; break; // collecting stock
+    case 4: 
+        target = 110; break; // collecting plank
     }
 
     if (previouslevel != level){
@@ -319,11 +334,11 @@ bool moveBannerDeploy(int position, bool front){
     switch (position)
     {
         case 0:
-            target = 120; break;
+            target = 0; break;
         case 1:
-            target = 160; break;
+            target = 60; break;
         case 2:
-            target = 180; break;
+            target = 90; break;
     }
     if ( (front && previousPositionFront != position) || (!front && previousPositionBack != position)){
         if (front) previousPositionFront = position;
@@ -336,7 +351,7 @@ bool moveBannerDeploy(int position, bool front){
 }
 bool moveStringClaws(bool open){
     static bool previousOpen = !open;
-    int target = open ? 180 : 0;
+    int target = open ? 0 : 180;
     if (previousOpen != open){
         previousOpen = open;
         arduino.moveServoSpeed(STRING_CLAWS_SERVO_NUM, target, 200);
@@ -358,16 +373,18 @@ bool movePlatformElevator(int level, int offset){
     int target = 0;
     switch (level)
     {
+    case -2:
+        target = -20000; break;
     case -1:
-        target = 0; break;
+        target = 0; break; //startpos
     case 0:
-        target = 700; break;
+        target = 1500; break; //sous la 1ère planche
     case 1:
-        target = 4000 + offset; break;
+        target = 4500; break; //milieux 1ère planche
     case 2:
-        target = 11500; break;
-    case 3:
-        target = 7000; break;
+        target = 12000; break; //haut sous blocage
+    case 3: 
+        target = 6000 + offset; break; // milieux adaptatif 1ère planche
     }
     if (previousLevel != level){
         previousLevel = level;
@@ -392,7 +409,7 @@ bool moveColumnsElevator(bool up){
 
 // Moves the tribune elevator to a predefined level
 bool moveTribuneElevator(){
-    arduino.moveMotorDC(100, 30);
+    arduino.moveMotorDC(80, 30);
     return true;
 }
 
@@ -413,6 +430,7 @@ bool moveLowColumnsRevolverAbs(int N){
 
     if (prevAbsSteps != absSteps){
         prevAbsSteps = absSteps;
+        arduino.setStepperSpeed(COLUMNS_REVOLVER_LOW_STEPPER_NUM, 1800);
         arduino.moveStepper(absSteps, COLUMNS_REVOLVER_LOW_STEPPER_NUM);
     }
     int32_t currentValue;
@@ -431,11 +449,13 @@ bool moveColumnsElevator(int level){
     case 0:
         target = 0; break;
     case 1:
-        target = 4000; break;
+        target = 6000; break;
     case 2:
         target = 8000; break;
     case 3:
         target = 20000; break;
+    case 4:
+        target = 1000; break;
     }
     if (previousLevel != level){
         previousLevel = level;
@@ -460,7 +480,6 @@ bool homeActuators(){
     moveClaws(1) & //0
     moveBannerDeploy(0, true) &
     moveBannerDeploy(0, false) &
-    movePlatformElevator(-1) &
     moveStringClaws(false)
     );
 }
@@ -496,7 +515,7 @@ void setStockAsRemoved(int num){
 
 bool returnToHome(){
     unsigned long time = _millis() - tableStatus.startTime;
-    int home_x = (time < 95000) ? -300 : -600;
+    int home_x = (time < 97000) ? -300 : -600;
     int home_y = (tableStatus.robot.colorTeam == BLUE) ? 1100 : -1100;
     nav_return_t res = navigationGoToNoTurn(home_x, home_y);
     return res == NAV_DONE && isRobotInArrivalZone(tableStatus.robot.pos);
@@ -657,4 +676,19 @@ bool readRightPusherSensor(){
 // Returns true if 2 cans are detected in front of the pusher
 bool readPusherSensors(){
     return readLeftPusherSensor() & readRightPusherSensor();
+}
+
+bool readLeftPlankSensor(){
+    bool state;
+    if (!arduino.readSensor(LEFT_PLANK_SENSOR_NUM, state)) return false;
+    return state;
+}
+bool readRightPlankSensor(){
+    bool state;
+    if (!arduino.readSensor(RIGHT_PLANK_SENSOR_NUM, state)) return false;
+    return state;
+}
+// Returns true if 2 edge of plank are detected (good position)
+bool readPlankSensors(){
+    return readLeftPlankSensor() /*& readRightPlankSensor()*/;
 }

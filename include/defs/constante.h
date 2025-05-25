@@ -34,14 +34,16 @@
 // Define the nums of the arduino for the SENSORS
 #define BUTTON_SENSOR_NUM                 1
 #define LATCH_SENSOR_NUM                  2
-#define PUSHER_LEFT_SENSOR_NUM            5
-#define PUSHER_RIGHT_SENSOR_NUM           6
+#define LEFT_PLANK_SENSOR_NUM            5
+#define RIGHT_PLANK_SENSOR_NUM           4
+#define PUSHER_LEFT_SENSOR_NUM            6
+#define PUSHER_RIGHT_SENSOR_NUM           7
 
 #define SPEED_STOCK 8000 // Motor speed for collecting stock (mm/s)
 #define STEPPER_SPEED 1000 // Stepper motor speed for collecting stock (steps/s)
 
-#define COL_OFFSET_STOCK 410
-#define NO_COL_OFFSET_STOCK 145
+#define COL_OFFSET_STOCK 470
+#define NO_COL_OFFSET_STOCK 175
 
 // Angle is either 0 for horizontal stock of 90 for vertical
 const position_t STOCK_POSITION_ARRAY[] = {{-725, 675, 0}, {-325, 1425, 90}, {600, 1425, 90}, {750, 725, 0}, {50, 400, 0}, 
@@ -97,4 +99,4 @@ const int STOCK_COUNT = 10;
 const int PROTECTED_BLUE_STOCK = 0;
 const int PROTECTED_YELLOW_STOCK = 5;
 
-const position_t TRIBUNE_CONSTRUCT_POSITION[] = {{700, 340, 0}, };
+const position_t TRIBUNE_CONSTRUCT_POSITION[] = {{750, 370, 0}, };

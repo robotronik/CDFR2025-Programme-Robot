@@ -119,6 +119,19 @@ int ShiftListNumber(bool list[], int desired_position, bool choose_first) {//cho
     int shift = (desired_position - (choose_first ? first : last)) % n;
     return (shift > n / 2) ? shift - n : shift;
 }
+
+int ShiftListPairForRelease(bool list[], int desired_first_pos) {
+    const int n = 14;
+    for (int i = 0; i < n; ++i) {
+        if (list[i] == 1 && list[(i + 1) % n] == 1) {
+            // Positionner i et i+1 sur desired_first_pos et desired_first_pos + 1
+            int shift = (desired_first_pos - i + n) % n;
+            return (shift > n / 2) ? shift - n : shift;
+        }
+    }
+    return 0;
+}
+
     
 
 // Returns true when done
@@ -171,7 +184,7 @@ bool RevolverLoadStock(direction_t dir, int num){
 bool RevolverPrepareLowBarrel(direction_t dir){
     LOG_INFO("Prerare Low Barrel direction : ",((dir==FROM_RIGHT) ? "right" : "left"));
     if (lowBarrelCount == 0) return true; //no columns in Lowbarrel so position is good
-
+    
     if (!SpinLowBarrel(ShiftListNumber(lowArr, dir ? 4 : 1, dir==FROM_LEFT))) 
         return false;
 
@@ -198,16 +211,21 @@ bool RevolverRelease(){
 // Function to release all columns from the barrel
 bool ReleaseLow() {
     LOG_INFO("ReleaseLow");
-    
-    if (SpinLowBarrel(ShiftListNumber(lowArr, 3, false))){
+    int shift = ShiftListPairForRelease(lowArr, 2);
+    if (shift == 0) {
+        LOG_INFO("No columns to release");
+            // TODO : Pas de paire trouvée, descendre gradin
+        return false;
+    }
+    if (SpinLowBarrel(shift)){
         DisplayBarrel();
         if (lowBarrelCount == 0) { 
             LOG_INFO("No columns to release");
         } 
         else if (lowArr[2] && lowArr[3]) {
-            readPusherSensors();
-            LOG_WARNING("Ignoring columns sensors");
-            if (emulateActuators || true){// || readPusherSensors()){    TODO Put back
+            //readPusherSensors();
+            //LOG_WARNING("Ignoring columns sensors");
+            if (emulateActuators || readPusherSensors()){
                 LOG_INFO("Pusher sensors ok");
                 lowArr[2] = 0; // left
                 lowArr[3] = 0; // right

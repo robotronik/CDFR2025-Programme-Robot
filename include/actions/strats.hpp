@@ -23,7 +23,7 @@ inline position_t StratStartingPos(){
     case 1:
         pos = {125, -1500+75 + NO_COL_OFFSET_STOCK, 0}; break;
     case 2:
-        pos = {125, -1500+75 + NO_COL_OFFSET_STOCK, 0}; break;
+        pos = {206, -1275, -90}; break;
     case 3:
         pos = {0, 0, 0}; break;
     case 4:
@@ -60,14 +60,13 @@ inline bool StratGather(int& stockNum, int& stockOffset){
         todo_stocks[5] = 3;
         num = 6;
         break;
-    case 2: // Fais le tour en "longeant" le bord (si adversaire dans les backstages)
-        todo_stocks[0] = 7;
-        todo_stocks[1] = 8;
-        todo_stocks[2] = 3;
+    case 2: // passer par le milieu direct
+        todo_stocks[0] = 9;
+        todo_stocks[1] = 4;
+        todo_stocks[2] = 1;
         todo_stocks[3] = 2;
-        todo_stocks[4] = 1;
-        todo_stocks[5] = 0;
-        num = 6;
+        todo_stocks[4] = 3;
+        num = 1;
         break;
     case 3: // Safe one, petit tour de notre cote
         todo_stocks[0] = 3;
