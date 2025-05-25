@@ -114,10 +114,12 @@ bool liftSingleTribune(){
 
 bool lowerSingleTribune(){
     static int state = 1;
-    static unsigned long startTime = _millis();
+    static unsigned long startTime = 0;
     switch (state)
     {
     case 1:
+        if (startTime == 0)
+            startTime = _millis();
         moveTribuneElevator();
         if (_millis() > startTime + 750)
             state ++;
@@ -126,6 +128,7 @@ bool lowerSingleTribune(){
         moveClaws(1);
         if (_millis() > startTime + 2000){
             state = 1;
+            startTime = 0;
             return true;
         }
     }
