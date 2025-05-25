@@ -18,6 +18,7 @@ public:
 private:
     ReturnFSM_t GatherStock();
     ReturnFSM_t ConstructAllTribunesFSM();
+    ReturnFSM_t DeployBannerFSM(int pos);
 
     typedef enum
     {
@@ -48,4 +49,13 @@ private:
     } StateConstructTribunes_t;
 
     StateConstructTribunes_t constructAllTribunesState = FSM_CONSTRUCT_NAV;
+
+
+    typedef enum
+    {
+        FSM_DEPLOY_NAV,
+        FSM_DEPLOY_EXPL
+    } StateDeployBanner_t;
+
+    StateDeployBanner_t deployBannerState = FSM_DEPLOY_NAV;
 };

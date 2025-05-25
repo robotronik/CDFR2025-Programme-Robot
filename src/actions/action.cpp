@@ -269,3 +269,34 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
     }
     return FSM_RETURN_WORKING;
 }
+
+// pos  - 0 = middle, 1 = sides
+ReturnFSM_t ActionFSM::DeployBannerFSM(int pos){
+    nav_return_t nav_ret;
+    switch (deployBannerState){
+    case FSM_DEPLOY_NAV:
+        position_t deploy_pos;
+        if (pos == 0)
+            deploy_pos = tableStatus.robot.pos; // TODO
+        else if (pos == 1)
+            deploy_pos = tableStatus.pos_opponent; // TODO
+        deploy_pos.theta = 0;
+        
+        nav_ret = navigationGoTo(deploy_pos.x, deploy_pos.y, deploy_pos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST);
+        if (nav_ret == NAV_DONE){
+            deployBannerState = FSM_DEPLOY_EXPL;
+            LOG_INFO("Nav done for FSM_DEPLOY_NAV, going to FSM_DEPLOY_EXPL");
+        }
+        else if (nav_ret == NAV_ERROR)
+            return FSM_RETURN_ERROR;
+        break;
+    case FSM_DEPLOY_EXPL:
+        if (deployBanner(tableStatus.robot.colorTeam == BLUE)){ // TODO
+            deployBannerState = FSM_DEPLOY_NAV;
+            LOG_INFO("Banner deployed for FSM_DEPLOY_EXPL, done");
+            return FSM_RETURN_DONE;
+        }
+        break;
+    }
+    return FSM_RETURN_WORKING;
+}
