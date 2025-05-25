@@ -125,13 +125,15 @@ bool lowerSingleTribune(){
     switch (state)
     {
     case 1:
-        if (startTime == 0)
-            startTime = _millis();
+        startTime = _millis();
         moveTribuneElevator();
-        if (_millis() > startTime + 750)
-            state ++;
+        state ++;
         break;
     case 2:
+        if (_millis() > startTime + 650)
+            state ++;
+        break;
+    case 3:
         moveClaws(1);
         if (_millis() > startTime + 2000){
             state = 1;
