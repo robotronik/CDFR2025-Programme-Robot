@@ -20,6 +20,7 @@
 
         <button id="btn-control-enable" class="btn btn-primary mt-2" onclick="sendManualMode(true)">Enable Manual Control</button>
         <button id="btn-control-disable" class="btn btn-primary mt-2" onclick="sendManualMode(false)">Disable Manual Control</button>
+        <button id="btn-control-stop" class="btn btn-danger mt-2" onclick="sendStop()">STOP</button>
 
         <div id="status-label" class="label-section  mt-2">
             Placeholder for a label here
@@ -152,6 +153,9 @@
             </div>
             <div class="col">
                 <button type="button" class="btn btn-success w-100" onclick="sendAction('liftSingleTribune')">Lift Single Tribune</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success w-100" onclick="sendAction('lowerSingleTribune')">Lower Single Tribune</button>
             </div>
             <div class="col">
                 <button type="button" class="btn btn-success w-100" onclick="sendAction('deployBannerFront')">Deploy Front Banner</button>
@@ -474,6 +478,28 @@
                 appendAlert(error, 'danger');
             });
         }
+
+        // /stop GET method
+        function sendStop() {
+            fetch('/stop', {
+                method: 'POST', // HTTP method
+                headers: {
+                    'Content-Type': 'application/json' // Define the content type as JSON
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response will be JSON
+            })
+            .then(data => {
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+            });
+        }
+
 
         // Live alert implementation 
         const alertPlaceholder = document.getElementById('alertPlaceholder')

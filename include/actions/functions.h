@@ -18,6 +18,7 @@ bool takeStockPlatforms();
 bool constructSingleTribune();
 bool constructSingleTribuneP(int planks);
 bool liftSingleTribune();
+bool lowerSingleTribune();
 bool deployBannerFront();
 bool deployBannerBack();
 bool deployBanner(bool front);

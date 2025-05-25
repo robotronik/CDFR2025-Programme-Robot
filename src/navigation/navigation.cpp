@@ -7,7 +7,6 @@
 #include "lidar/lidarAnalize.h"
 
 static bool is_robot_stalled = false;
-static bool is_robot_slowed = false;
 static unsigned long robot_stall_start_time;
 typedef std::size_t nav_hash;
 static nav_hash currentInstructionHash;
@@ -122,7 +121,6 @@ void navigationOpponentDetection(){
 
     Direction dir = (Direction)(tableStatus.robot.direction_side);
     bool isEndangered = false;
-    bool isCareful = false;
 
     if (dir != Direction::NONE){
         // Using the braking distance to calculate a point in front of the robot andh checking if the opponent is in the way
@@ -132,32 +130,24 @@ void navigationOpponentDetection(){
         }
         // Check if the opponent is in the way
         isEndangered = opponent_collide_lidar(lidar.data, lidar.count, ROBOT_WIDTH, brakingDistance, OPPONENT_ROBOT_RADIUS);
-        isCareful = opponent_collide_lidar(lidar.data, lidar.count, ROBOT_WIDTH, brakingDistance, OPPONENT_ROBOT_RADIUS * 2.0);
-        LOG_DEBUG("isEndangered : ", isEndangered, " / isCareful : ", isCareful);
+        if (isEndangered)
+            LOG_INFO("Opponent is in the way");
+        else
+            LOG_DEBUG("No opponent in the way");
     }
     // stop the robot if it is endangered
-    if(isEndangered && !is_robot_stalled){
+    if (isEndangered && !is_robot_stalled){
         LOG_GREEN_INFO("Opponent is in the way, stopping the robot");
         asserv.pause();
         //asserv.set_brake_state(true);
         is_robot_stalled = true;
         robot_stall_start_time = _millis();
     }
-    else if (isCareful && !is_robot_slowed){
-        LOG_GREEN_INFO("Opponent is too close, slowing down the robot");
-        // asserv.set_linear_position_control(mid);
-        is_robot_slowed = true;
-    }
-    else if(!isEndangered && is_robot_stalled){
+    else if (!isEndangered && is_robot_stalled){
         LOG_GREEN_INFO("Opponent is no longer in the way, resuming the robot");
         //asserv.set_brake_state(false);
         asserv.resume();
         is_robot_stalled = false;
-    }
-    else if (!isCareful && is_robot_slowed){
-        LOG_GREEN_INFO("Opponent is no longer too close, resuming the robot");
-        // asserv.set_linear_position_control(max);
-        is_robot_slowed = false;
     }
 }
 
