@@ -161,11 +161,16 @@ bool deployBanner(bool front){
         }
         break;
     case 2:
-        if (_millis() > startTime + 500 && moveBannerDeploy(2, front)){
+        if (_millis() > startTime + 1000){
             state++;
         }
         break;
-    case 3:
+    case 3: 
+        if (moveBannerDeploy(2, front)){
+            state++;
+        }
+        break;
+    case 4:
         if (moveBannerDeploy(0, front)){
             state = 1;
             return true;
@@ -340,7 +345,7 @@ bool moveBannerDeploy(int position, bool front){
         case 1:
             target = 60; break;
         case 2:
-            target = 90; break;
+            target = 110; break;
     }
     if ( (front && previousPositionFront != position) || (!front && previousPositionBack != position)){
         if (front) previousPositionFront = position;
@@ -380,13 +385,13 @@ bool movePlatformElevator(int level, int offset){
     case -1:
         target = 0; break; //startpos
     case 0:
-        target = 1500; break; //sous la 1ère planche
+        target = 1500/2; break; //sous la 1ère planche
     case 1:
-        target = 4500; break; //milieux 1ère planche
+        target = 4500/2; break; //milieux 1ère planche
     case 2:
-        target = 12000; break; //haut sous blocage
+        target = 12000/2; break; //haut sous blocage
     case 3: 
-        target = 6000 + offset; break; // milieux adaptatif 1ère planche
+        target = (6000 + offset)/2; break; // milieux adaptatif 1ère planche
     }
     if (previousLevel != level){
         previousLevel = level;
@@ -519,7 +524,7 @@ bool returnToHome(){
     unsigned long time = _millis() - tableStatus.startTime;
     int home_x = (time < 97000) ? -300 : -600;
     int home_y = (tableStatus.robot.colorTeam == BLUE) ? 1100 : -1100;
-    nav_return_t res = navigationGoToNoTurn(home_x, home_y);
+    nav_return_t res = navigationGoToNoTurn(home_x, home_y, Direction::SHORTEST, Rotation::SHORTEST, false);
     return res == NAV_DONE && isRobotInArrivalZone(tableStatus.robot.pos);
 }
 
@@ -692,5 +697,5 @@ bool readRightPlankSensor(){
 }
 // Returns true if 2 edge of plank are detected (good position)
 bool readPlankSensors(){
-    return readLeftPlankSensor() /*& readRightPlankSensor()*/;
+    return readLeftPlankSensor() & readRightPlankSensor();
 }
