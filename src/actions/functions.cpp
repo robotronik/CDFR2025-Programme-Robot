@@ -94,9 +94,9 @@ bool liftSingleTribune(){
     switch (state)
     {
     case 1:
-        moveClaws(1);
+        moveTribuneElevator();
         if (_millis() > startTime + 500){
-            moveTribuneElevator();
+            moveClaws(1);
             startTime = _millis();
             state ++;
         }
@@ -110,7 +110,7 @@ bool liftSingleTribune(){
             state++;
         break;
     case 4:
-        if (_millis() > startTime + 2000){
+        if (_millis() > startTime + 1500){
             state = 1;
             return true;
         }
@@ -268,7 +268,7 @@ bool movePlatformLifts(int pos, bool slow){
     }
     if (previousPos != pos){
         previousPos = pos;
-        int speed = slow ? 75 : 400;
+        int speed = slow ? 150 : 400;
         arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left, speed);
         arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right,speed);
     }
@@ -291,7 +291,7 @@ bool moveTribunePusher(int pos, bool slow){
     }
     if (prevPos != pos){
         prevPos = pos;
-        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 60 : 400);
+        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 120 : 400);
     }
     int current = 0;
     if (!arduino.getServo(TRIBUNES_PUSH_SERVO_NUM, current)) return false;
