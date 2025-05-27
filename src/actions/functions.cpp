@@ -94,9 +94,9 @@ bool liftSingleTribune(){
     switch (state)
     {
     case 1:
-        moveClaws(1);
+        moveTribuneElevator();
         if (_millis() > startTime + 500){
-            moveTribuneElevator();
+            moveClaws(1);
             startTime = _millis();
             state ++;
         }
@@ -110,7 +110,7 @@ bool liftSingleTribune(){
             state++;
         break;
     case 4:
-        if (_millis() > startTime + 2000){
+        if (_millis() > startTime + 1500){
             state = 1;
             return true;
         }
@@ -161,11 +161,16 @@ bool deployBanner(bool front){
         }
         break;
     case 2:
-        if (_millis() > startTime + 500 && moveBannerDeploy(2, front)){
+        if (_millis() > startTime + 1000){
             state++;
         }
         break;
-    case 3:
+    case 3: 
+        if (moveBannerDeploy(2, front)){
+            state++;
+        }
+        break;
+    case 4:
         if (moveBannerDeploy(0, front)){
             state = 1;
             return true;
@@ -263,7 +268,7 @@ bool movePlatformLifts(int pos, bool slow){
     }
     if (previousPos != pos){
         previousPos = pos;
-        int speed = slow ? 75 : 400;
+        int speed = slow ? 150 : 400;
         arduino.moveServoSpeed(PLATFORMS_LIFT_LEFT_SERVO_NUM, target_left, speed);
         arduino.moveServoSpeed(PLATFORMS_LIFT_RIGHT_SERVO_NUM,target_right,speed);
     }
@@ -286,7 +291,7 @@ bool moveTribunePusher(int pos, bool slow){
     }
     if (prevPos != pos){
         prevPos = pos;
-        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 60 : 400);
+        arduino.moveServoSpeed(TRIBUNES_PUSH_SERVO_NUM, target, slow ? 120 : 400);
     }
     int current = 0;
     if (!arduino.getServo(TRIBUNES_PUSH_SERVO_NUM, current)) return false;
@@ -340,7 +345,7 @@ bool moveBannerDeploy(int position, bool front){
         case 1:
             target = 60; break;
         case 2:
-            target = 90; break;
+            target = 110; break;
     }
     if ( (front && previousPositionFront != position) || (!front && previousPositionBack != position)){
         if (front) previousPositionFront = position;
@@ -380,13 +385,13 @@ bool movePlatformElevator(int level, int offset){
     case -1:
         target = 0; break; //startpos
     case 0:
-        target = 1500; break; //sous la 1ère planche
+        target = 1500/2; break; //sous la 1ère planche
     case 1:
-        target = 4500; break; //milieux 1ère planche
+        target = 4500/2; break; //milieux 1ère planche
     case 2:
-        target = 12000; break; //haut sous blocage
+        target = 12000/2; break; //haut sous blocage
     case 3: 
-        target = 6000 + offset; break; // milieux adaptatif 1ère planche
+        target = (6000 + offset)/2; break; // milieux adaptatif 1ère planche
     }
     if (previousLevel != level){
         previousLevel = level;
@@ -692,5 +697,5 @@ bool readRightPlankSensor(){
 }
 // Returns true if 2 edge of plank are detected (good position)
 bool readPlankSensors(){
-    return readLeftPlankSensor() /*& readRightPlankSensor()*/;
+    return readLeftPlankSensor() & readRightPlankSensor();
 }

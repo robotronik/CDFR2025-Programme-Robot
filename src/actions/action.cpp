@@ -115,14 +115,14 @@ ReturnFSM_t ActionFSM::GatherStock(){
             firstTime = false;
             startTime2 = _millis();
         }
-        if (_millis() > startTime2 + 550 && !firstTime){
+        if (_millis() > startTime2 + 450 && !firstTime){
             firstTime = true;
             moveClaws(0);
         }
         if (stockPos.theta == 0) // Horizontal stock
-            nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y - stockOff.y*0.4, stock_nav_dir, Rotation::SHORTEST, false);
+            nav_ret = navigationGoToNoTurn(stockPos.x + stockOff.x, stockPos.y - stockOff.y*0.2, stock_nav_dir, Rotation::SHORTEST, false);
         else // Vertical stock
-            nav_ret = navigationGoToNoTurn(stockPos.x - stockOff.x*0.4, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
+            nav_ret = navigationGoToNoTurn(stockPos.x - stockOff.x*0.2, stockPos.y + stockOff.y, stock_nav_dir, Rotation::SHORTEST, false);
 
         bool revolverDone = false;
         if (_millis() > startTime + 750)
