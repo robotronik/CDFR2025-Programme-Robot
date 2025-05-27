@@ -38,7 +38,8 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
                 return NAV_ERROR;
             }else{
                 LOG_DEBUG("Going to point with highways : ", x, " ", y);
-                asserv.stop();
+                if (!asserv.get_command_buffer_size() != 0)
+                    asserv.stop();
                 for (int i = 0; i < currentPathLenght; i++){
                     asserv.go_to_point(currentPath[i].x,currentPath[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
                 }
@@ -47,7 +48,8 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
             }
         }else{
             LOG_DEBUG("Going to point without highways : ", x, " ", y);
-            asserv.stop();
+            if (!asserv.get_command_buffer_size() != 0)
+                asserv.stop();
             asserv.go_to_point(x,y, theta, rotationLookAt, direction, rotation);
             currentPath[0] = {x,y};
             currentPathLenght = 1;
@@ -85,7 +87,8 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
                 return NAV_ERROR;
             }else{
                 LOG_DEBUG("Going to point with highways : ", x, " ", y);
-                asserv.stop();
+                if (!asserv.get_command_buffer_size() != 0)
+                    asserv.stop();
                 for (int i = 0; i < currentPathLenght; i++){
                     asserv.go_to_point(currentPath[i].x,currentPath[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
                 }
@@ -94,7 +97,8 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
         }
         else{
             LOG_DEBUG("Going to point without highways : ", x, " ", y);
-            asserv.stop();
+            if (!asserv.get_command_buffer_size() != 0)
+                asserv.stop();
             //asserv.set_brake_state(false);
             asserv.go_to_point(x,y, rotationLookAt, direction);
             currentPath[0] = {x,y};
