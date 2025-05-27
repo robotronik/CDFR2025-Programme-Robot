@@ -76,6 +76,8 @@ ReturnFSM_t ActionFSM::GatherStock(){
     if (num == -1){
         if (!StratGather(num, offset)){
             LOG_INFO("No more stocks to take, exiting GatherStock");
+            num = -1;
+            gatherStockState = FSM_GATHER_NAV;
             return FSM_RETURN_DONE;
         }
     }
