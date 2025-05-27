@@ -52,8 +52,9 @@ bool ActionFSM::RunFSM(){
         break;
     //****************************************************************
     case FSM_ACTION_DEPLOY_BANNER:
-        runState = FSM_ACTION_NAV_HOME;
-        tableStatus.done_banderole = true;
+        ret = DeployBannerFSM(1);
+        if (ret == FSM_RETURN_DONE)
+            runState = FSM_ACTION_GATHER; // TODO Might need to change
         break;
     //****************************************************************
     case FSM_ACTION_NAV_HOME:
@@ -140,8 +141,14 @@ ReturnFSM_t ActionFSM::GatherStock(){
             gatherStockState = FSM_GATHER_NAV;
             setStockAsRemoved(num);
             tableStatus.robot.plank_count += 2;
-            num = -1;
             LOG_INFO("taking stock for FSM_GATHER_COLLECT");
+            if (!tableStatus.done_banderole && (num == 2 || num == 7)){
+                LOG_INFO("Going to deploy banderole");
+                runState = FSM_ACTION_DEPLOY_BANNER;
+            }
+
+            num = -1;
+
             return FSM_RETURN_WORKING;
         }
         break;
@@ -275,12 +282,13 @@ ReturnFSM_t ActionFSM::DeployBannerFSM(int pos){
     nav_return_t nav_ret;
     switch (deployBannerState){
     case FSM_DEPLOY_NAV:
-        position_t deploy_pos;
+        position_t deploy_pos; // Blue pos
         if (pos == 0)
-            deploy_pos = tableStatus.robot.pos; // TODO
+            deploy_pos = {800, 400, 0}; // TODO
         else if (pos == 1)
-            deploy_pos = tableStatus.pos_opponent; // TODO
-        deploy_pos.theta = 0;
+            deploy_pos = {800, -1300, 0}; // TODO
+        if (tableStatus.robot.colorTeam == YELLOW)
+            position_robot_flip(deploy_pos);
         
         nav_ret = navigationGoTo(deploy_pos.x, deploy_pos.y, deploy_pos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST);
         if (nav_ret == NAV_DONE){
@@ -291,9 +299,10 @@ ReturnFSM_t ActionFSM::DeployBannerFSM(int pos){
             return FSM_RETURN_ERROR;
         break;
     case FSM_DEPLOY_EXPL:
-        if (deployBanner(tableStatus.robot.colorTeam == BLUE)){ // TODO
+        if (deployBanner(tableStatus.robot.colorTeam == BLUE)){
             deployBannerState = FSM_DEPLOY_NAV;
             LOG_INFO("Banner deployed for FSM_DEPLOY_EXPL, done");
+            tableStatus.done_banderole = true;
             return FSM_RETURN_DONE;
         }
         break;
