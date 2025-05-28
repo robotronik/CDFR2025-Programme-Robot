@@ -114,6 +114,62 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
     return ireturn;
 }
 
+
+nav_return_t navigationPath(position_t path[], int pathLenght, Direction direction, Rotation rotationLookAt, Rotation rotation){
+    nav_hash hashValue = createHash(0, 0, 0, direction, rotationLookAt, (Rotation)0);
+    for (int i = 0; i < pathLenght; i++){
+        hashValue += createHash(path[i].x, path[i].y, 0, direction, rotationLookAt, (Rotation)0);
+    }
+    nav_return_t ireturn = NAV_IN_PROCESS;
+    if (hashValue == currentInstructionHash && is_robot_stalled){
+        ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_ERROR : NAV_PAUSED;
+        return ireturn;
+    }
+
+    if (hashValue != currentInstructionHash){
+        LOG_DEBUG("Following path");
+        if (asserv.get_command_buffer_size() != 0)
+            asserv.stop();
+        for (int i = 0; i < pathLenght; i++){
+            asserv.go_to_point(path[i].x, path[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
+        }
+        asserv.consigne_angulaire(path[pathLenght - 1].theta, rotationLookAt);
+        currentInstructionHash = hashValue;
+    }
+    else{
+        ireturn = (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
+                     ? NAV_DONE : NAV_IN_PROCESS;
+    }
+    return ireturn;
+}
+
+nav_return_t navigationPathNoTurn(position_t path[], int pathLenght, Direction direction, Rotation rotationLookAt){
+    nav_hash hashValue = createHash(0, 0, 0, direction, rotationLookAt, (Rotation)0);
+    for (int i = 0; i < pathLenght; i++){
+        hashValue += createHash(path[i].x, path[i].y, 0, direction, rotationLookAt, (Rotation)0);
+    }
+    nav_return_t ireturn = NAV_IN_PROCESS;
+    if (hashValue == currentInstructionHash && is_robot_stalled){
+        ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_ERROR : NAV_PAUSED;
+        return ireturn;
+    }
+
+    if (hashValue != currentInstructionHash){
+        LOG_DEBUG("Following path");
+        if (asserv.get_command_buffer_size() != 0)
+            asserv.stop();
+        for (int i = 0; i < pathLenght; i++){
+            asserv.go_to_point(path[i].x, path[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
+        }
+        currentInstructionHash = hashValue;
+    }
+    else{
+        ireturn = (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
+                     ? NAV_DONE : NAV_IN_PROCESS;
+    }
+    return ireturn;
+}
+
 void navigation_path_json(json& j){
     j = json::array();
     j.push_back({{"x", tableStatus.robot.pos.x}, {"y", tableStatus.robot.pos.y}});

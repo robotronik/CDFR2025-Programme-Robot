@@ -206,17 +206,21 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         break;
     }
     case FSM_CONSTRUCT_MOVE:
-        
-        nav_ret = navigationGoToNoTurn(real_build_pos.x - 400, real_build_pos.y, Direction::SHORTEST, Rotation::SHORTEST, false);
+    {
+        position_t arr[2] = {real_build_pos, buildPos};
+        arr[0].x -= 400;
+        nav_ret = navigationPath(arr, 2);
         if (nav_ret == NAV_DONE){
-            constructAllTribunesState = FSM_CONSTRUCT_NAV;
-            LOG_INFO("Nav done for FSM_CONSTRUCT_MOVE, going to FSM_CONSTRUCT_NAV");
+            constructAllTribunesState = FSM_CONSTRUCT_PREPREVOLVER;
+            real_build_pos = tableStatus.robot.pos;
+            LOG_INFO("Nav done for FSM_CONSTRUCT_MOVE, going to FSM_CONSTRUCT_PREPREVOLVER");
         }
         else if (nav_ret == NAV_ERROR){
             // TODO get another stock
             return FSM_RETURN_ERROR;
         }
         break;
+    }
     case FSM_CONSTRUCT_PREPREVOLVER:
     {
         if (!revolverReady && isRevolverEmpty()){
