@@ -7,6 +7,7 @@
 #include "lidar/lidarAnalize.h"
 
 static bool is_robot_stalled = false;
+bool override_no_stop = false; // If true, it ignores
 static unsigned long robot_stall_start_time;
 typedef std::size_t nav_hash;
 static nav_hash currentInstructionHash;
@@ -140,7 +141,7 @@ void navigationOpponentDetection(){
             LOG_DEBUG("No opponent in the way");
     }
     // stop the robot if it is endangered
-    if (isEndangered && !is_robot_stalled){
+    if (!override_no_stop && isEndangered && !is_robot_stalled){
         LOG_GREEN_INFO("Opponent is in the way, stopping the robot");
         asserv.pause();
         //asserv.set_brake_state(true);

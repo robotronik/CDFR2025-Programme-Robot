@@ -94,7 +94,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
     static unsigned long startTime2;
     switch (gatherStockState){
     case FSM_GATHER_NAV:
-        // TODO Highways should be enabled
+        // TODO Highways should be enabled for some takes
         nav_ret = navigationGoTo(stockPos.x + stockOff.x, stockPos.y + stockOff.y, stockOff.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
         if (RevolverPrepareLowBarrel(stock_intake_dir) && (nav_ret == NAV_DONE)){
             gatherStockState = FSM_GATHER_MOVE;
@@ -103,6 +103,8 @@ ReturnFSM_t ActionFSM::GatherStock(){
             startTime = _millis();
             LOG_INFO("Nav done and RevolverPrepareLowBarrel done for FSM_GATHER_NAV, going to FSM_GATHER_MOVE");
             firstTime = true;
+            override_no_stop = true;
+            // TODO Check if theres no opponent before starting the collect
         }
         else if (nav_ret == NAV_ERROR){
             // TODO get another stock
@@ -129,6 +131,7 @@ ReturnFSM_t ActionFSM::GatherStock(){
             revolverDone = RevolverLoadStock(stock_intake_dir, num);
         if ((nav_ret == NAV_DONE) & revolverDone){
             gatherStockState = FSM_GATHER_COLLECT;
+            override_no_stop = false;
             asserv.set_linear_max_speed(10000, 300, 300);
             LOG_INFO("Nav done and revolver done for FSM_GATHER_MOVE, going to FSM_GATHER_COLLECT");
         }
