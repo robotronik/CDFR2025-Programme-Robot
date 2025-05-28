@@ -157,10 +157,6 @@ int main(int argc, char *argv[])
 
                 }
             }
-            if (_millis() > startWaitstart + 2000){
-                moveBannerDeploy(1, true);
-                moveBannerDeploy(1, false);
-            }
 
             if (readLatchSensor() && tableStatus.robot.colorTeam != NONE)
                 nextState = RUN;
