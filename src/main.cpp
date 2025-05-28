@@ -166,6 +166,8 @@ int main(int argc, char *argv[])
         {
             if (initState){
                 log_asserv()->setLogStatus(true);
+                {int16_t x, y, theta;
+                asserv.get_coordinates(x, y, theta);}// for log
                 LOG_GREEN_INFO("RUN");
                 tableStatus.reset();
                 tableStatus.startTime = _millis();
