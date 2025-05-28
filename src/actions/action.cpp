@@ -190,7 +190,7 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         // TODO Highways should be enabled
 
         position_t arr[2] = {buildPos, buildPos};
-        arr[0].x -= 400;
+        arr[0].x -= 300;
         nav_ret = navigationPath(arr, 2);
         if (!liftReady && (_millis() > startTime + 1000)){
             liftReady = liftSingleTribune();

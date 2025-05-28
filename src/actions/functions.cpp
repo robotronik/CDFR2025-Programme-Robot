@@ -322,7 +322,7 @@ bool moveBannerDeploy(int position, bool front){
         case 1:
             target = 25; break;
         case 2:
-            target = 90; break;
+            target = 95; break;
     }
     if ( (front && previousPositionFront != position) || (!front && previousPositionBack != position)){
         if (front) previousPositionFront = position;
