@@ -310,7 +310,7 @@ bool moveClaws(int level){
     switch (level)
     {
     case 0: //
-        target = 120; break;
+        target = 150; break;
     case 1:
         target = 93; break;  //droit
     case 2: 
