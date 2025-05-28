@@ -282,15 +282,19 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
 // pos  - 0 = middle, 1 = sides
 ReturnFSM_t ActionFSM::DeployBannerFSM(int pos){
     nav_return_t nav_ret;
+    static bool init = false;
+    static position_t init_pos;
     switch (deployBannerState){
     case FSM_DEPLOY_NAV:
         position_t deploy_pos; // Blue pos
+        if (!init){
+            init_pos = tableStatus.robot.pos;
+            init = true;
+        }
         if (pos == 0)
-            deploy_pos = {800, 400, 0}; // TODO
+            deploy_pos = {800, (tableStatus.robot.colorTeam == YELLOW) ? -400 : 400, 0}; // TODO
         else if (pos == 1)
-            deploy_pos = {800, -1300, 0}; // TODO
-        if (tableStatus.robot.colorTeam == YELLOW)
-            position_robot_flip(deploy_pos);
+            deploy_pos = {800, init_pos.y, 0};
         
         nav_ret = navigationGoTo(deploy_pos.x, deploy_pos.y, deploy_pos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST);
         if (nav_ret == NAV_DONE){
