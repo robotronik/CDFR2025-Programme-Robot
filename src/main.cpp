@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
             currentState = nextState;
         }
 
-        asserv.logAsserv();
+        // asserv.logAsserv();
         // Check if state machine is running above loop time
         unsigned long ms = _millis();
         if (ms > loopStartTime + LOOP_TIME_MS){
@@ -343,7 +343,7 @@ void GetLidar()
         position_t position = tableStatus.robot.pos;
         convertAngularToAxial(lidar.data, lidar.count, position, 100);
         
-        if ((currentState == RUN || currentState == MANUAL) && (_millis() > tableStatus.startTime + 500))
+        if (currentState == RUN || currentState == MANUAL)
             navigationOpponentDetection();
         
         position_t pos_opponent;
@@ -365,7 +365,7 @@ void GetLidar()
             // Save the filtered position to tableStatus
             tableStatus.pos_opponent.x = pos_opponent_filtered.x;
             tableStatus.pos_opponent.y = pos_opponent_filtered.y;
-            if ((currentState == RUN || currentState == MANUAL) && (_millis() > tableStatus.startTime + 2000))
+            if ((currentState == RUN || currentState == MANUAL) && (_millis() > tableStatus.startTime + 1000))
                 opponentInAction(pos_opponent_filtered);            
         }
     }
