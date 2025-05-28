@@ -188,7 +188,10 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         static unsigned long startTime = _millis();
         // Nav to the tribune building location (zone)
         // TODO Highways should be enabled
-        nav_ret = navigationGoTo(buildPos.x, buildPos.y, buildPos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
+
+        position_t arr[2] = {buildPos, buildPos};
+        arr[0].x -= 400;
+        nav_ret = navigationPath(arr, 2);
         if (!liftReady && (_millis() > startTime + 1000)){
             liftReady = liftSingleTribune();
             movePlatformElevator(3,tableStatus.robot.plank_count*150);
