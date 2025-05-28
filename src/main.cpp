@@ -375,15 +375,13 @@ void EndSequence()
 {
     LOG_GREEN_INFO("Stopping");
     
-    // Stop the API server
-    StopAPIServer();
-    api_server_thread.join();
-
     // Stop the lidar
     lidar.Stop();
 
 #ifndef EMULATE_I2C
-    //asserv.stop();
+    asserv.stop();
+    asserv.set_motor_state(false);
+    asserv.set_brake_state(false);
 
     arduino.RGB_Solid(0, 0, 0); // OFF
 
@@ -394,6 +392,10 @@ void EndSequence()
     };
     disableActuators();
 #endif // EMULATE_I2C
+
+    // Stop the API server
+    StopAPIServer();
+    api_server_thread.join();
 
     LOG_GREEN_INFO("Stopped");
 }

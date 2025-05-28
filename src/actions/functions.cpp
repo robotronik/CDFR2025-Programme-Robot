@@ -504,9 +504,9 @@ void disableActuators(){
         arduino.disableStepper(i);
     }
     arduino.disableServos();
-    asserv.set_motor_state(false);
-    asserv.set_brake_state(true); 
     asserv.stop();
+    asserv.set_motor_state(false);
+    asserv.set_brake_state(false);    
 }
 
 
