@@ -125,6 +125,7 @@ int main(int argc, char *argv[])
         //****************************************************************
         case WAITSTART:
         {
+            static long int startWaitstart = _millis();
             if (initState){
                 LOG_GREEN_INFO("WAITSTART");  
                 enableActuators();
@@ -137,6 +138,7 @@ int main(int argc, char *argv[])
                 homeActuators();
                 lidar.startSpin();
                 arduino.setStepperSpeed(PLATFORMS_ELEVATOR_STEPPER_NUM, 1000);
+                startWaitstart = _millis();
                 if (tableStatus.robot.colorTeam == NONE)
                     arduino.RGB_Blinking(255, 0, 0); // Red Blinking
             }
@@ -154,6 +156,10 @@ int main(int argc, char *argv[])
                     movePlatformElevator(0);
 
                 }
+            }
+            if (_millis() > startWaitstart + 2000){
+                moveBannerDeploy(1, true);
+                moveBannerDeploy(1, false);
             }
 
             if (readLatchSensor() && tableStatus.robot.colorTeam != NONE)

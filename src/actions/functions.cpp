@@ -150,32 +150,9 @@ bool deployBannerBack(){
     return deployBanner(false);
 }
 bool deployBanner(bool front){
-    static int state = 1;
-    static unsigned long startTime;
-    switch (state)
-    {
-    case 1:
-        if (moveBannerDeploy(1, front)){
-            state++;
-            startTime = _millis();
-        }
-        break;
-    case 2:
-        if (_millis() > startTime + 1000){
-            state++;
-        }
-        break;
-    case 3: 
-        if (moveBannerDeploy(2, front)){
-            state++;
-        }
-        break;
-    case 4:
-        if (moveBannerDeploy(0, front)){
-            state = 1;
-            return true;
-        }
-        break;
+    if (moveBannerDeploy(2, front)){
+        moveBannerDeploy(0, front);
+        return true;
     }
     return false;
 }
@@ -332,7 +309,7 @@ bool moveClaws(int level){
 }
 
 // 0 : Fully inside
-// 1 : Weight deployed
+// 1 : Locked in
 // 2 : Fully outside
 bool moveBannerDeploy(int position, bool front){
     static int previousPositionFront = !position;
@@ -343,14 +320,14 @@ bool moveBannerDeploy(int position, bool front){
         case 0:
             target = 0; break;
         case 1:
-            target = 60; break;
+            target = 25; break;
         case 2:
-            target = 110; break;
+            target = 90; break;
     }
     if ( (front && previousPositionFront != position) || (!front && previousPositionBack != position)){
         if (front) previousPositionFront = position;
         else previousPositionBack = position;
-        arduino.moveServoSpeed(front ? BANNER_RELEASE_FRONT_SERVO_NUM : BANNER_RELEASE_BACK_SERVO_NUM, target, position == 1 ? 30 : 300);
+        arduino.moveServoSpeed(front ? BANNER_RELEASE_FRONT_SERVO_NUM : BANNER_RELEASE_BACK_SERVO_NUM, target, position == 0 ? 150 : 200);
     }
     int current = 0;
     if (!arduino.getServo(front ? BANNER_RELEASE_FRONT_SERVO_NUM : BANNER_RELEASE_BACK_SERVO_NUM, current)) return false;
