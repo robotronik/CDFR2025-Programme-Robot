@@ -133,6 +133,7 @@ int main(int argc, char *argv[])
                 arduino.setStepper(0, 3);
                 arduino.setStepper(0, 4);
                 moveColumnsElevator(1);
+                moveClaws(0);
                 homeActuators();
                 lidar.startSpin();
                 arduino.setStepperSpeed(PLATFORMS_ELEVATOR_STEPPER_NUM, 1000);

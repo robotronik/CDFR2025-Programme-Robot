@@ -484,7 +484,6 @@ bool homeActuators(){
     return (
     movePlatformLifts(0) &
     moveTribunePusher(0) &
-    moveClaws(0) &
     moveBannerDeploy(0, true) &
     moveBannerDeploy(0, false) &
     moveStringClaws(false)
