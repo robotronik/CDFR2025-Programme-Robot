@@ -343,7 +343,7 @@ void GetLidar()
         position_t position = tableStatus.robot.pos;
         convertAngularToAxial(lidar.data, lidar.count, position, 100);
         
-        if ((currentState == RUN || currentState == MANUAL) && (_millis() > tableStatus.startTime + 2000))
+        if ((currentState == RUN || currentState == MANUAL) && (_millis() > tableStatus.startTime + 500))
             navigationOpponentDetection();
         
         position_t pos_opponent;
