@@ -150,9 +150,23 @@ bool deployBannerBack(){
     return deployBanner(false);
 }
 bool deployBanner(bool front){
-    if (moveBannerDeploy(2, front)){
-        moveBannerDeploy(0, front);
-        return true;
+    static int state = 1;
+    switch (state){
+        case 1:
+            if (moveBannerDeploy(2, front))
+                state++;
+            break;
+        case 2:
+            if (moveBannerDeploy(0, front))
+                state++;
+            break;
+        case 3:
+            if (moveBannerDeploy(2, front)){
+                state = 1;
+                moveBannerDeploy(0, front);
+                return true;
+            }
+            break;
     }
     return false;
 }
@@ -322,12 +336,12 @@ bool moveBannerDeploy(int position, bool front){
         case 1:
             target = 25; break;
         case 2:
-            target = 95; break;
+            target = 105; break;
     }
     if ( (front && previousPositionFront != position) || (!front && previousPositionBack != position)){
         if (front) previousPositionFront = position;
         else previousPositionBack = position;
-        arduino.moveServoSpeed(front ? BANNER_RELEASE_FRONT_SERVO_NUM : BANNER_RELEASE_BACK_SERVO_NUM, target, position == 0 ? 150 : 200);
+        arduino.moveServoSpeed(front ? BANNER_RELEASE_FRONT_SERVO_NUM : BANNER_RELEASE_BACK_SERVO_NUM, target, 200);
     }
     int current = 0;
     if (!arduino.getServo(front ? BANNER_RELEASE_FRONT_SERVO_NUM : BANNER_RELEASE_BACK_SERVO_NUM, current)) return false;
