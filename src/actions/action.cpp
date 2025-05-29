@@ -207,7 +207,7 @@ ReturnFSM_t ActionFSM::ConstructAllTribunesFSM(){
         nav_ret = navigationPath(arr, 2);
         if (!liftReady && (_millis() > startTime + 1000)){
             liftReady = liftSingleTribune();
-            movePlatformElevator(3,tableStatus.robot.plank_count*150);
+            movePlatformElevator(3,tableStatus.robot.plank_count * 250);
         }
         if (nav_ret == NAV_DONE){
             revolverReady = false;

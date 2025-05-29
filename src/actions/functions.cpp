@@ -20,7 +20,7 @@ bool constructSingleTribune(){
 bool constructSingleTribuneP(int planks){
     static int state = 1;
     static unsigned long startTime;
-    const int stepOffset = planks * 150;
+    const int stepOffset = planks * 250;
     switch (state)
     {
     case 1:
