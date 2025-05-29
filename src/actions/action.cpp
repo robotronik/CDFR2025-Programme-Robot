@@ -315,9 +315,11 @@ ReturnFSM_t ActionFSM::DeployBannerFSM(int pos){
             init = true;
         }
         if (pos == 0)
-            deploy_pos = {850, (tableStatus.robot.colorTeam == YELLOW) ? -400 : 400, (tableStatus.robot.colorTeam == YELLOW) ? 180 : 0}; // TODO
+            deploy_pos = {850, 400, 0}; // TODO
         else if (pos == 1)
-            deploy_pos = {850, init_pos.y, (tableStatus.robot.colorTeam == YELLOW) ? 180 : 0};
+            deploy_pos = {810, init_pos.y, -15};
+        if  (tableStatus.robot.colorTeam == YELLOW)
+            position_robot_flip(deploy_pos);
         
         nav_ret = navigationGoTo(deploy_pos.x, deploy_pos.y, deploy_pos.theta, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST);
         if (nav_ret == NAV_DONE){
