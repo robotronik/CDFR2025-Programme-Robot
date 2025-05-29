@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
                 moveClaws(0);
                 homeActuators();
                 lidar.startSpin();
-                arduino.setStepperSpeed(PLATFORMS_ELEVATOR_STEPPER_NUM, 1000);
+                arduino.setStepperSpeed(PLATFORMS_ELEVATOR_STEPPER_NUM, 500);
                 startWaitstart = _millis();
                 if (tableStatus.robot.colorTeam == NONE)
                     arduino.RGB_Blinking(255, 0, 0); // Red Blinking
