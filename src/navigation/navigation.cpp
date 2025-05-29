@@ -38,8 +38,8 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
         else
             new_pos = {tableStatus.robot.pos.x + dir_vector.x, tableStatus.robot.pos.y + dir_vector.y, 0};
         // Clamp the position around the table 20cm
-        new_pos.x = clamp(new_pos.x, -1000 + 200, 1000 - 200);
-        new_pos.y = clamp(new_pos.y, -1500 + 200, 1500 - 200);
+        new_pos.x = clamp(new_pos.x, -1000 + 250, 1000 - 250);
+        new_pos.y = clamp(new_pos.y, -1500 + 250, 1500 - 250);
         // Go to the new position
         LOG_WARNING("Robot is stalled, going to new position : ", new_pos.x, " ", new_pos.y);
 
@@ -108,8 +108,8 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
         else
             new_pos = {tableStatus.robot.pos.x + dir_vector.x, tableStatus.robot.pos.y + dir_vector.y, 0};
         // Clamp the position around the table 20cm
-        new_pos.x = clamp(new_pos.x, -1000 + 200, 1000 - 200);
-        new_pos.y = clamp(new_pos.y, -1500 + 200, 1500 - 200);
+        new_pos.x = clamp(new_pos.x, -1000 + 250, 1000 - 250);
+        new_pos.y = clamp(new_pos.y, -1500 + 250, 1500 - 250);
         // Go to the new position
         LOG_WARNING("Robot is stalled, going to new position : ", new_pos.x, " ", new_pos.y);
 
@@ -184,8 +184,8 @@ nav_return_t navigationPath(position_t path[], int pathLenght, Direction directi
         else
             new_pos = {tableStatus.robot.pos.x + dir_vector.x, tableStatus.robot.pos.y + dir_vector.y, 0};
         // Clamp the position around the table 20cm
-        new_pos.x = clamp(new_pos.x, -1000 + 200, 1000 - 200);
-        new_pos.y = clamp(new_pos.y, -1500 + 200, 1500 - 200);
+        new_pos.x = clamp(new_pos.x, -1000 + 250, 1000 - 250);
+        new_pos.y = clamp(new_pos.y, -1500 + 250, 1500 - 250);
         // Go to the new position
         LOG_WARNING("Robot is stalled, going to new position : ", new_pos.x, " ", new_pos.y);
 
@@ -240,8 +240,8 @@ nav_return_t navigationPathNoTurn(position_t path[], int pathLenght, Direction d
         else
             new_pos = {tableStatus.robot.pos.x + dir_vector.x, tableStatus.robot.pos.y + dir_vector.y, 0};
         // Clamp the position around the table 20cm
-        new_pos.x = clamp(new_pos.x, -1000 + 200, 1000 - 200);
-        new_pos.y = clamp(new_pos.y, -1500 + 200, 1500 - 200);
+        new_pos.x = clamp(new_pos.x, -1000 + 250, 1000 - 250);
+        new_pos.y = clamp(new_pos.y, -1500 + 250, 1500 - 250);
         // Go to the new position
         LOG_WARNING("Robot is stalled, going to new position : ", new_pos.x, " ", new_pos.y);
 
