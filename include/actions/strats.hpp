@@ -27,7 +27,7 @@ inline position_t StratStartingPos(){
     case 3:
         pos = {125, -1500+75 + NO_COL_OFFSET_STOCK, 0}; break;
     case 4:
-        pos = {125, -1500+75 + NO_COL_OFFSET_STOCK, 0}; break;
+        pos = {1000-225, 50+450-203, 0}; break; //275
     }
     if (color == YELLOW)
         position_robot_flip(pos);
@@ -77,17 +77,9 @@ inline bool StratGather(int& stockNum, int& stockOffset){
         num = 5;
         break;
     case 4:
-        int middleIndex = 2;
-        todo_stocks[0] = 7;
-        todo_stocks[1] = 6;
-        for (int stock : {9, 4, 1, 0}) { // Ajouter les 2 stocks intermediaires disponibles (9 → 4 → 1 → 0)
-            if (tableStatus.avail_stocks[stock] && middleIndex < 4) {
-                todo_stocks[middleIndex++] = stock;
-            }
-        }
-        todo_stocks[4] = 2;
-        todo_stocks[5] = 3;
-        num = 6;
+        todo_stocks[0] = 3;
+        todo_stocks[1] = 4;
+        num = 2;
         break;
     }
     if (color == YELLOW){

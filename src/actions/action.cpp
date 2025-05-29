@@ -17,7 +17,7 @@ ActionFSM::ActionFSM(){
 ActionFSM::~ActionFSM(){}
 
 void ActionFSM::Reset(){
-    runState = FSM_ACTION_GATHER;
+    runState = (tableStatus.strategy == 4) ? FSM_ACTION_DEPLOY_BANNER : FSM_ACTION_GATHER;
     gatherStockState = FSM_GATHER_NAV;
     constructAllTribunesState = FSM_CONSTRUCT_NAV;
     initRevolver();
@@ -52,7 +52,7 @@ bool ActionFSM::RunFSM(){
         break;
     //****************************************************************
     case FSM_ACTION_DEPLOY_BANNER:
-        ret = DeployBannerFSM(1);
+        ret = DeployBannerFSM((tableStatus.strategy == 4) ? 0 : 1);
         if (ret == FSM_RETURN_DONE)
             runState = FSM_ACTION_GATHER; // TODO Might need to change
         break;
@@ -315,7 +315,7 @@ ReturnFSM_t ActionFSM::DeployBannerFSM(int pos){
             init = true;
         }
         if (pos == 0)
-            deploy_pos = {850, 400, 0}; // TODO
+            deploy_pos = {850, 0, 0}; // TODO
         else if (pos == 1)
             deploy_pos = {810, 0, -15};
         if  (tableStatus.robot.colorTeam == YELLOW)
