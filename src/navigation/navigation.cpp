@@ -49,6 +49,7 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
         currentPath[0] = {new_pos.x,new_pos.y};
         currentPath[1] = {x,y};
         currentPathLenght = 2;
+        is_robot_stalled = false;
         return (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
                      ? NAV_DONE : NAV_IN_PROCESS;
     }
@@ -118,6 +119,7 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
         currentPath[0] = {new_pos.x,new_pos.y};
         currentPath[1] = {x,y};
         currentPathLenght = 2;
+        is_robot_stalled = false;
         return (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
                      ? NAV_DONE : NAV_IN_PROCESS;
     }
@@ -196,6 +198,7 @@ nav_return_t navigationPath(position_t path[], int pathLenght, Direction directi
         }
         asserv.consigne_angulaire(path[pathLenght - 1].theta, rotationLookAt);
         currentPathLenght = pathLenght + 1;
+        is_robot_stalled = false;
         return (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
                      ? NAV_DONE : NAV_IN_PROCESS;
     }
@@ -250,6 +253,7 @@ nav_return_t navigationPathNoTurn(position_t path[], int pathLenght, Direction d
             currentPath[i+1] = {path[i].x,path[i].y};
         }
         currentPathLenght = pathLenght + 1;
+        is_robot_stalled = false;
         return (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
                      ? NAV_DONE : NAV_IN_PROCESS;
     }
