@@ -5,7 +5,7 @@
 #include <utils/json.hpp>
 using json = nlohmann::json;
 
-#define NAV_MAX_STALL_TIME_MS 5000
+#define NAV_MAX_STALL_TIME_MS 2000
 
 // Navigation return type
 typedef enum {

@@ -6,7 +6,12 @@
 #include "utils/logger.hpp"
 #include "lidar/lidarAnalize.h"
 
+#define clamp(x, min, max) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
+
+#define HOLD_BACK_DIST 200.0
+
 static bool is_robot_stalled = false;
+static bool is_opponent_front = false;
 bool override_no_stop = false; // If true, it ignores
 static unsigned long robot_stall_start_time;
 typedef std::size_t nav_hash;
@@ -22,8 +27,30 @@ nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotati
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
     if (hashValue == currentInstructionHash && is_robot_stalled && !useHighways){
-        ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_ERROR : NAV_PAUSED;
-        return ireturn;
+        if (_millis() < robot_stall_start_time + NAV_MAX_STALL_TIME_MS)
+            return NAV_PAUSED;
+        // Calculate a new position which is behind the robot
+        position_t dir_vector = {(int)(cos(tableStatus.robot.pos.theta * DEG_TO_RAD) * HOLD_BACK_DIST), 
+                                (int)(sin(tableStatus.robot.pos.theta * DEG_TO_RAD) * HOLD_BACK_DIST), 0};
+        position_t new_pos;
+        if (is_opponent_front)
+            new_pos = {tableStatus.robot.pos.x - dir_vector.x, tableStatus.robot.pos.y - dir_vector.y, 0};
+        else
+            new_pos = {tableStatus.robot.pos.x + dir_vector.x, tableStatus.robot.pos.y + dir_vector.y, 0};
+        // Clamp the position around the table 20cm
+        new_pos.x = clamp(new_pos.x, -1000 + 200, 1000 - 200);
+        new_pos.y = clamp(new_pos.y, -1500 + 200, 1500 - 200);
+        // Go to the new position
+        LOG_WARNING("Robot is stalled, going to new position : ", new_pos.x, " ", new_pos.y);
+
+        asserv.stop();
+        asserv.go_to_point(new_pos.x, new_pos.y, Rotation::SHORTEST, Direction::SHORTEST);
+        asserv.go_to_point(x,y, theta, rotationLookAt, direction, rotation);
+        currentPath[0] = {new_pos.x,new_pos.y};
+        currentPath[1] = {x,y};
+        currentPathLenght = 2;
+        return (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
+                     ? NAV_DONE : NAV_IN_PROCESS;
     }
     else if (hashValue == currentInstructionHash && is_robot_stalled && useHighways){
         LOG_WARNING("Robot is stalled, but using highways to recalculate path");
@@ -69,8 +96,30 @@ nav_return_t navigationGoToNoTurn(int x, int y, Direction direction, Rotation ro
     nav_return_t ireturn = NAV_IN_PROCESS;
     // TODO : Add security for position (ex: outside, scene, opponent protected zones, ...)
     if (hashValue == currentInstructionHash && is_robot_stalled && !useHighways){
-        ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_ERROR : NAV_PAUSED;
-        return ireturn;
+        if (_millis() < robot_stall_start_time + NAV_MAX_STALL_TIME_MS)
+            return NAV_PAUSED;
+        // Calculate a new position which is behind the robot
+        position_t dir_vector = {(int)(cos(tableStatus.robot.pos.theta * DEG_TO_RAD) * HOLD_BACK_DIST), 
+                                (int)(sin(tableStatus.robot.pos.theta * DEG_TO_RAD) * HOLD_BACK_DIST), 0};
+        position_t new_pos;
+        if (is_opponent_front)
+            new_pos = {tableStatus.robot.pos.x - dir_vector.x, tableStatus.robot.pos.y - dir_vector.y, 0};
+        else
+            new_pos = {tableStatus.robot.pos.x + dir_vector.x, tableStatus.robot.pos.y + dir_vector.y, 0};
+        // Clamp the position around the table 20cm
+        new_pos.x = clamp(new_pos.x, -1000 + 200, 1000 - 200);
+        new_pos.y = clamp(new_pos.y, -1500 + 200, 1500 - 200);
+        // Go to the new position
+        LOG_WARNING("Robot is stalled, going to new position : ", new_pos.x, " ", new_pos.y);
+
+        asserv.stop();
+        asserv.go_to_point(new_pos.x, new_pos.y, Rotation::SHORTEST, Direction::SHORTEST);
+        asserv.go_to_point(x,y, rotationLookAt, direction);
+        currentPath[0] = {new_pos.x,new_pos.y};
+        currentPath[1] = {x,y};
+        currentPathLenght = 2;
+        return (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
+                     ? NAV_DONE : NAV_IN_PROCESS;
     }
     else if (hashValue == currentInstructionHash && is_robot_stalled && useHighways){
         LOG_WARNING("Robot is stalled, but using highways to recalculate path");
@@ -122,8 +171,33 @@ nav_return_t navigationPath(position_t path[], int pathLenght, Direction directi
     }
     nav_return_t ireturn = NAV_IN_PROCESS;
     if (hashValue == currentInstructionHash && is_robot_stalled){
-        ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_ERROR : NAV_PAUSED;
-        return ireturn;
+        if (_millis() < robot_stall_start_time + NAV_MAX_STALL_TIME_MS)
+            return NAV_PAUSED;
+        // Calculate a new position which is behind the robot
+        position_t dir_vector = {(int)(cos(tableStatus.robot.pos.theta * DEG_TO_RAD) * HOLD_BACK_DIST), 
+                                (int)(sin(tableStatus.robot.pos.theta * DEG_TO_RAD) * HOLD_BACK_DIST), 0};
+        position_t new_pos;
+        if (is_opponent_front)
+            new_pos = {tableStatus.robot.pos.x - dir_vector.x, tableStatus.robot.pos.y - dir_vector.y, 0};
+        else
+            new_pos = {tableStatus.robot.pos.x + dir_vector.x, tableStatus.robot.pos.y + dir_vector.y, 0};
+        // Clamp the position around the table 20cm
+        new_pos.x = clamp(new_pos.x, -1000 + 200, 1000 - 200);
+        new_pos.y = clamp(new_pos.y, -1500 + 200, 1500 - 200);
+        // Go to the new position
+        LOG_WARNING("Robot is stalled, going to new position : ", new_pos.x, " ", new_pos.y);
+
+        asserv.stop();
+        asserv.go_to_point(new_pos.x, new_pos.y, Rotation::SHORTEST, Direction::SHORTEST);
+        currentPath[0] = {new_pos.x,new_pos.y};
+        for (int i = 0; i < pathLenght; i++){
+            asserv.go_to_point(path[i].x, path[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
+            currentPath[i+1] = {path[i].x,path[i].y};
+        }
+        asserv.consigne_angulaire(path[pathLenght - 1].theta, rotationLookAt);
+        currentPathLenght = pathLenght + 1;
+        return (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
+                     ? NAV_DONE : NAV_IN_PROCESS;
     }
 
     if (hashValue != currentInstructionHash){
@@ -132,8 +206,10 @@ nav_return_t navigationPath(position_t path[], int pathLenght, Direction directi
             asserv.stop();
         for (int i = 0; i < pathLenght; i++){
             asserv.go_to_point(path[i].x, path[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
+            currentPath[i] = {path[i].x,path[i].y};
         }
         asserv.consigne_angulaire(path[pathLenght - 1].theta, rotationLookAt);
+        currentPathLenght = pathLenght;
         currentInstructionHash = hashValue;
     }
     else{
@@ -150,8 +226,32 @@ nav_return_t navigationPathNoTurn(position_t path[], int pathLenght, Direction d
     }
     nav_return_t ireturn = NAV_IN_PROCESS;
     if (hashValue == currentInstructionHash && is_robot_stalled){
-        ireturn = (_millis() > robot_stall_start_time + NAV_MAX_STALL_TIME_MS) ? NAV_ERROR : NAV_PAUSED;
-        return ireturn;
+        if (_millis() < robot_stall_start_time + NAV_MAX_STALL_TIME_MS)
+            return NAV_PAUSED;
+        // Calculate a new position which is behind the robot
+        position_t dir_vector = {(int)(cos(tableStatus.robot.pos.theta * DEG_TO_RAD) * HOLD_BACK_DIST), 
+                                (int)(sin(tableStatus.robot.pos.theta * DEG_TO_RAD) * HOLD_BACK_DIST), 0};
+        position_t new_pos;
+        if (is_opponent_front)
+            new_pos = {tableStatus.robot.pos.x - dir_vector.x, tableStatus.robot.pos.y - dir_vector.y, 0};
+        else
+            new_pos = {tableStatus.robot.pos.x + dir_vector.x, tableStatus.robot.pos.y + dir_vector.y, 0};
+        // Clamp the position around the table 20cm
+        new_pos.x = clamp(new_pos.x, -1000 + 200, 1000 - 200);
+        new_pos.y = clamp(new_pos.y, -1500 + 200, 1500 - 200);
+        // Go to the new position
+        LOG_WARNING("Robot is stalled, going to new position : ", new_pos.x, " ", new_pos.y);
+
+        asserv.stop();
+        asserv.go_to_point(new_pos.x, new_pos.y, Rotation::SHORTEST, Direction::SHORTEST);
+        currentPath[0] = {new_pos.x,new_pos.y};
+        for (int i = 0; i < pathLenght; i++){
+            asserv.go_to_point(path[i].x, path[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
+            currentPath[i+1] = {path[i].x,path[i].y};
+        }
+        currentPathLenght = pathLenght + 1;
+        return (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
+                     ? NAV_DONE : NAV_IN_PROCESS;
     }
 
     if (hashValue != currentInstructionHash){
@@ -160,8 +260,10 @@ nav_return_t navigationPathNoTurn(position_t path[], int pathLenght, Direction d
             asserv.stop();
         for (int i = 0; i < pathLenght; i++){
             asserv.go_to_point(path[i].x, path[i].y, i == 0 ? rotationLookAt : Rotation::SHORTEST, direction);
+            currentPath[i] = {path[i].x,path[i].y};
         }
         currentInstructionHash = hashValue;
+        currentPathLenght = pathLenght;
     }
     else{
         ireturn = (asserv.get_moving_is_done() && asserv.get_command_buffer_size() == 0)
@@ -199,6 +301,7 @@ void navigationOpponentDetection(){
     // stop the robot if it is endangered
     if (!override_no_stop && isEndangered && !is_robot_stalled){
         LOG_GREEN_INFO("Opponent is in the way, stopping the robot");
+        is_opponent_front = dir == Direction::FORWARD;
         asserv.pause();
         //asserv.set_brake_state(true);
         is_robot_stalled = true;
