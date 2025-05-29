@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
             }
             bool finished = action.RunFSM();
 
-            if (_millis() > tableStatus.startTime + 100000 || finished)
+            if (_millis() > tableStatus.startTime + 100000 || finished || readButtonSensor())
                 nextState = FIN;
             break;
         }
