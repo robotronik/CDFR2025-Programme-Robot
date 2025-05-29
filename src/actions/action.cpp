@@ -130,10 +130,23 @@ ReturnFSM_t ActionFSM::GatherStock(){
         if (_millis() > startTime + 750)
             revolverDone = RevolverLoadStock(stock_intake_dir, num);
         if ((nav_ret == NAV_DONE) & revolverDone){
-            gatherStockState = FSM_GATHER_COLLECT;
             override_no_stop = false;
             asserv.set_linear_max_speed(10000, 300, 300);
-            LOG_INFO("Nav done and revolver done for FSM_GATHER_MOVE, going to FSM_GATHER_COLLECT");
+            if (readPusherSensors()){
+                gatherStockState = FSM_GATHER_COLLECT;
+                LOG_INFO("Nav done and revolver done for FSM_GATHER_MOVE, going to FSM_GATHER_COLLECT");
+            }
+            else{
+                LOG_WARNING("No columns detected to be taken, something must have gone wrong, exiting");
+                gatherStockState = FSM_GATHER_NAV;
+                setStockAsRemoved(num);
+                if (!tableStatus.done_banderole && (num == 2 || num == 7)){
+                    LOG_INFO("Going to deploy banderole");
+                    runState = FSM_ACTION_DEPLOY_BANNER;
+                }
+                num = -1;
+                return FSM_RETURN_WORKING;
+            }
         }
         else if (nav_ret == NAV_ERROR){
             return FSM_RETURN_ERROR;
