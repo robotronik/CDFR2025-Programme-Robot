@@ -323,15 +323,25 @@ ReturnFSM_t ActionFSM::DeployBannerFSM(int pos){
         if (nav_ret == NAV_DONE){
             deployBannerState = FSM_DEPLOY_EXPL;
             LOG_INFO("Nav done for FSM_DEPLOY_NAV, going to FSM_DEPLOY_EXPL");
+            init = false;
         }
         else if (nav_ret == NAV_ERROR)
             return FSM_RETURN_ERROR;
         break;
     case FSM_DEPLOY_EXPL:
         if (deployBanner(tableStatus.robot.colorTeam == BLUE)){
-            deployBannerState = FSM_DEPLOY_NAV;
+            deployBannerState = pos == 1 ? FSM_DEPLOY_BACK : FSM_DEPLOY_NAV;
             LOG_INFO("Banner deployed for FSM_DEPLOY_EXPL, done");
             tableStatus.done_banderole = true;
+            if (pos == 0)
+                return FSM_RETURN_DONE;
+        }
+        break;
+    case FSM_DEPLOY_BACK:
+        nav_ret = navigationGoToNoTurn(300, init_pos.y, Direction::SHORTEST, Rotation::SHORTEST);
+        if (nav_ret == NAV_DONE){
+            deployBannerState = FSM_DEPLOY_NAV;
+            LOG_INFO("Nav done for FSM_DEPLOY_NAV, going to FSM_DEPLOY_EXPL");
             return FSM_RETURN_DONE;
         }
         break;

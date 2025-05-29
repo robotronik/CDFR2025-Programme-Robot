@@ -25,7 +25,7 @@ inline position_t StratStartingPos(){
     case 2:
         pos = {206, -1275, -90}; break;
     case 3:
-        pos = {0, 0, 0}; break;
+        pos = {125, -1500+75 + NO_COL_OFFSET_STOCK, 0}; break;
     case 4:
         pos = {125, -1500+75 + NO_COL_OFFSET_STOCK, 0}; break;
     }
@@ -68,14 +68,13 @@ inline bool StratGather(int& stockNum, int& stockOffset){
         todo_stocks[4] = 3;
         num = 1;
         break;
-    case 3: // Safe one, petit tour de notre cote
-        todo_stocks[0] = 3;
-        todo_stocks[1] = 2;
-        todo_stocks[2] = 1;
-        //todo_stocks[3] = 0;
-        todo_stocks[3] = 4;
-        
-        num = 4;
+    case 3: // Prends le long du mur puis de l'autre cote (adversaire cote banderole) sans passer par pamis
+        todo_stocks[0] = 7;
+        todo_stocks[1] = 9;
+        todo_stocks[2] = 4;
+        todo_stocks[3] = 2;
+        todo_stocks[4] = 3;
+        num = 5;
         break;
     case 4:
         int middleIndex = 2;

@@ -54,7 +54,8 @@ private:
     typedef enum
     {
         FSM_DEPLOY_NAV,
-        FSM_DEPLOY_EXPL
+        FSM_DEPLOY_EXPL,
+        FSM_DEPLOY_BACK
     } StateDeployBanner_t;
 
     StateDeployBanner_t deployBannerState = FSM_DEPLOY_NAV;
