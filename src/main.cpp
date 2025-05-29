@@ -158,9 +158,9 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (readLatchSensor() && tableStatus.robot.colorTeam != NONE)
+            if (readLatchSensor() && tableStatus.robot.colorTeam != NONE && endOfSeq)
                 nextState = RUN;
-            if (manual_ctrl)
+            if (manual_ctrl && endOfSeq)
                 nextState = MANUAL;
             break;
         }

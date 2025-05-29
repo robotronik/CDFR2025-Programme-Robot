@@ -62,17 +62,17 @@ const position_t STOCK_OFFSETS[] = {
     {-COL_OFFSET_STOCK,-NO_COL_OFFSET_STOCK, 180}, //7 : Offset for vertical gauche haut   bwrd
 }; 
 const int STOCK_OFFSET_MAPPING[10][4] = {
-    {0, -1, -1,-1}, // Stock 0 utilise les offsets 0
-    {6, -1, -1,-1},  // Stock 1 utilise les offsets 6 et 7
-    {6, 7, -1,-1},  // Stock 2 utilise les offsets 6 et 7
-    {1, 3, -1,-1},  // Stock 3 utilise les offsets 1 et 3
-    {0, 1, 2, 3},   // Stock 4 utilise les offsets 0,1,2 et 3
+    {0,-1,-1,-1}, // Stock 0 utilise les offsets 0
+    {6,-1,-1,-1}, // Stock 1 utilise les offsets 6
+    {7,-1,-1,-1}, // Stock 2 utilise les offsets 7
+    {1, 3,-1,-1}, // Stock 3 utilise les offsets 1 et 3
+    {0, 1, 2, 3}, // Stock 4 utilise les offsets 0,1,2 et 3
 
-    {2, -1, -1,-1}, // Stock 5 utilise les offsets 2
-    {4, -1, -1,-1},  // Stock 6 utilise les offsets 4 et 5
-    {4, 5, -1,-1},  // Stock 7 utilise les offsets 4 et 5    
-    {1, 3, -1,-1},  // Stock 8 utilise les offsets 1 et 3
-    {0, 1, 2, 3},   // Stock 9 utilise les offsets 0,1,2 et 3
+    {2,-1,-1,-1}, // Stock 5 utilise les offsets 2
+    {4,-1,-1,-1}, // Stock 6 utilise les offsets 4
+    {5,-1,-1,-1}, // Stock 7 utilise les offsets 5
+    {1, 3,-1,-1}, // Stock 8 utilise les offsets 1 et 3
+    {0, 1, 2, 3}, // Stock 9 utilise les offsets 0,1,2 et 3
 };
 
 typedef enum {
@@ -83,14 +83,14 @@ typedef enum {
 
 const stock_direction_t STOCK_DIRECTION[10][4] = {
     {FORWARDS, NO, NO, NO},
-    {FORWARDS, BACKWARDS, NO, NO},
-    {FORWARDS, BACKWARDS, NO, NO},
+    {FORWARDS, NO, NO, NO},
+    {BACKWARDS, NO, NO, NO},
     {BACKWARDS, FORWARDS, NO, NO},
     {FORWARDS, BACKWARDS, BACKWARDS, FORWARDS},
 
     {BACKWARDS, NO, NO, NO},
-    {BACKWARDS, FORWARDS, NO, NO},
-    {BACKWARDS, FORWARDS, NO, NO},
+    {BACKWARDS, NO, NO, NO},
+    {FORWARDS, NO, NO, NO},
     {BACKWARDS, FORWARDS, NO, NO},
     {FORWARDS, BACKWARDS, BACKWARDS, FORWARDS},
 };
