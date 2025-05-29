@@ -19,6 +19,7 @@ bool MoveColumns(int direction, int sens);
 bool ReleaseLow();
 bool isRevolverFull();
 bool isRevolverEmpty();
+bool LoadHigh();
 
 // Initialize the revolver when the game starts
 void initRevolver(){
