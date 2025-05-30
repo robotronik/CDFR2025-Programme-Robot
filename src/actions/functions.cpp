@@ -512,7 +512,7 @@ void setStockAsRemoved(int num){
 
 bool returnToHome(){
     unsigned long time = _millis() - tableStatus.startTime;
-    int home_x = (time < 98000) ? -300 : -600;
+    int home_x = (time < 98000) ? -200 : -600;
     int home_y = (tableStatus.robot.colorTeam == BLUE) ? 1100 : -1100;
     nav_return_t res = navigationGoTo(home_x, home_y, 180, Direction::SHORTEST, Rotation::SHORTEST, Rotation::SHORTEST, false);
     return res == NAV_DONE && isRobotInArrivalZone(tableStatus.robot.pos);
