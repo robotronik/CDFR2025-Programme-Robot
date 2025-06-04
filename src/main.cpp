@@ -10,6 +10,7 @@
 #include "actions/functions.h"
 #include "lidar/lidarAnalize.h"
 #include "navigation/navigation.h"
+#include "navigation/nav.h"
 #include "utils/utils.h"
 #include "utils/logger.hpp"
 #include "restAPI/restAPI.hpp"
@@ -20,7 +21,7 @@
 #define EMULATE_CAM
 #ifndef __CROSS_COMPILE_ARM__
     #define DISABLE_LIDAR
-    // #define TEST_API_ONLY
+    #define TEST_API_ONLY
     #define EMULATE_I2C
 #endif
 
@@ -276,41 +277,47 @@ int StartSequence()
 
 #ifdef TEST_API_ONLY
     TestAPIServer();
-    sleep(4);
-    init_highways();
+    sleep(2);
+    
     LOG_DEBUG("Starting main debug loop");
-    int i = 0;
+    
     while(!ctrl_c_pressed){
-        sleep(0.1);
+        sleep(2);
 //#ifndef DISABLE_LIDAR
         //getData(lidarData, lidar_count);
 //#endif
-        if (i % 1000 == 0){
-            int x; int y; int t;
-            if (arucoCam1.getPos(x,y,t)){
-                tableStatus.robot.pos.x = x;
-                tableStatus.robot.pos.y = y;
-                tableStatus.robot.pos.theta = t;
-            }
-        }
-        if (i % 10000 == 0){
-            // randomly change the position of highway obstacles
-            for (int i = 0; i < 10; i++)
-                obs_obj_stocks[i].present = rand() % 2;
-            // and the pos of the opponent obstacle
-            obs_obj_opponent.pos.x = rand() % 1500 - 750;
-            obs_obj_opponent.pos.y = rand() % 2200 - 1100;
-            tableStatus.pos_opponent.x = obs_obj_opponent.pos.x;
-            tableStatus.pos_opponent.y = obs_obj_opponent.pos.y;
+    initialize_costmap();
 
-            // randomly change the position of the robot
-            // tableStatus.robot.pos.x = rand() % 1500 - 750;
-            // tableStatus.robot.pos.y = rand() % 2200 - 1100;
+    const int STOCK_WIDTH_MM = 400;
+    const int STOCK_HEIGHT_MM = 100;
+    const int INFLATION_RADIUS_MM = 10;
 
-            // goto a random position
-            navigationGoTo(rand() % 1500 - 750, rand() % 2200 - 1100, 0, Direction::FORWARD, Rotation::SHORTEST, Rotation::SHORTEST, true);
-        }
-        i++;
+    place_obstacle_rect_with_inflation(675, 725, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation(1425, 325, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation(1425, -600, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation(725, -750, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation(400, -50, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation(-675, 725, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation(-1425, 325, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation(-1425, -600, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation(-725, -750, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation(-400, -50, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+
+
+    /*
+    int start_x = 0, start_y = 0;
+    int goal_x = 29, goal_y = 29;
+
+    a_star(start_x, start_y, goal_x, goal_y);
+
+    Point path[HEIGHT * WIDTH];
+    int path_len = reconstruct_path_points(start_x, start_y, goal_x, goal_y, path, HEIGHT * WIDTH);
+    print_costmap_with_path(path, path_len);
+
+    Point smoothed_path[HEIGHT * WIDTH];
+    int smoothed_len = smooth_path(path, path_len, smoothed_path, HEIGHT * WIDTH);
+    print_costmap_with_path(smoothed_path, smoothed_len);
+    */ 
     }
     StopAPIServer();
     api_server_thread.join();

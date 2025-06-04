@@ -10,6 +10,7 @@
 #include "navigation/navigation.h"
 #include "navigation/highways.h"
 #include "actions/functions.h" //for state machine functions
+#include "navigation/nav.h"
 
 #include "restAPI/crow.hpp"
 #include "utils/json.hpp" // For handling JSON
@@ -126,6 +127,24 @@ void StartAPIServer(){
         
         response["target_pos"] = tableStatus.robot.target;
 
+        json costmap_json = json::array();
+
+        for (int y = 0; y < HEIGHT; ++y) {
+            for (int x = 0; x < WIDTH; ++x) {
+                int cost = costmap[y][x];
+                if (cost > 0) {
+                    costmap_json.push_back({
+                        {"x", x},
+                        {"y", y},
+                        {"cost", cost}
+                    });
+                }
+            }
+        }
+
+        response["costmap"] = costmap_json;
+
+
         return crow::response(response.dump());
     });
 
@@ -189,6 +208,30 @@ void StartAPIServer(){
         response["message"] = "Success to fetch Arduino data";
         return crow::response(response.dump(4));
     });
+
+    CROW_ROUTE(app, "/get_costmap")
+    ([](){
+    json response;
+    json costmap_json = json::array();
+
+    // Remplace cette boucle par ton accès réel à la costmap
+    for (int y = 0; y < HEIGHT; ++y) {
+        for (int x = 0; x < WIDTH; ++x) {
+            int cost = costmap[y][x]; // remplace avec ton tableau réel
+            if (cost > 0) { // Filtrage pour alléger la réponse
+                costmap_json.push_back({
+                    {"x", x},
+                    {"y", y},
+                    {"cost", cost}
+                });
+            }
+        }
+    }
+
+    response["costmap"] = costmap_json;
+    return crow::response(response.dump());
+});
+
 
     // ------------------------------- POST Routes -------------------------------
 
