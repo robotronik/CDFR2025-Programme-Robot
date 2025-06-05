@@ -103,32 +103,36 @@ void StartAPIServer(){
     CROW_ROUTE(app, "/get_global")
     ([](){
         json response;
+
         response["status"] = currentState;
         response["table"] = tableStatus;
         response["score"] = tableStatus.getScore();
-        
-        json limitedAbsoluteLidarData = json::array();
-
-        // Add the first lidar.count elements to the new array
-        for (int i = 0; i < lidar.count; ++i) {
-            limitedAbsoluteLidarData.push_back({{"x", lidar.data[i].x}, {"y", lidar.data[i].y}});
-        }
-        response["lidar"] = limitedAbsoluteLidarData;
-
-        json highway_segments;
-        highway_segments_json(highway_segments);
-        response["highway-segments"] = highway_segments;
-        json highway_obstacles;
-        highway_obstacles_json(highway_obstacles);
-        response["highway-obstacles"] = highway_obstacles;
-        json current_navigation_path;
-        navigation_path_json(current_navigation_path);
-        response["navigation"] = current_navigation_path;
-        
         response["target_pos"] = tableStatus.robot.target;
 
-        json costmap_json = json::array();
+        // Lidar filtré
+        json lidar_json = json::array();
+        for (int i = 0; i < lidar.count; ++i) {
+            lidar_json.push_back({
+                {"x", lidar.data[i].x},
+                {"y", lidar.data[i].y}
+            });
+        }
+        response["lidar"] = lidar_json;
 
+        // Highways
+        json segments, obstacles;
+        highway_segments_json(segments);
+        highway_obstacles_json(obstacles);
+        response["highway-segments"] = segments;
+        response["highway-obstacles"] = obstacles;
+
+        // Navigation path
+        json path_json;
+        navigation_path_json(path_json);
+        response["navigation"] = path_json;
+
+        // Costmap
+        json costmap_json = json::array();
         for (int y = 0; y < HEIGHT; ++y) {
             for (int x = 0; x < WIDTH; ++x) {
                 int cost = costmap[y][x];
@@ -141,12 +145,11 @@ void StartAPIServer(){
                 }
             }
         }
-
         response["costmap"] = costmap_json;
-
 
         return crow::response(response.dump());
     });
+
 
     // Define a route for an simple GET request that returns the lidar data
     CROW_ROUTE(app, "/get_lidar")
@@ -230,7 +233,7 @@ void StartAPIServer(){
 
     response["costmap"] = costmap_json;
     return crow::response(response.dump());
-});
+    });
 
 
     // ------------------------------- POST Routes -------------------------------

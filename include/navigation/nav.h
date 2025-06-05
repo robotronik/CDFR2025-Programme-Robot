@@ -10,13 +10,13 @@
 #include "defs/constante.h" 
 using json = nlohmann::json;
 
-//#define ROBOT_WIDTH 200     // mm
-#define RESOLUTION 40       // mm par cellule
+#define RESOLUTION 20       // mm par cellule
 #define OBSTACLE_COST 20
 #define FREE_SPACE 0
+#define HEIGHT 2000/RESOLUTION +1           // x vertical = lignes
+#define WIDTH 3000/RESOLUTION + 1         // y horizontal = colonnes
 #define MAX_OPEN_SIZE (HEIGHT * WIDTH)
-#define HEIGHT 50
-#define WIDTH 75
+const int INFLATION_RADIUS_MM = 20;
 
 extern unsigned char costmap[HEIGHT][WIDTH];
 
@@ -31,17 +31,17 @@ typedef struct {
 
 extern Node nodes[HEIGHT][WIDTH];
 
-typedef struct {
-    int x, y;
-} Point;
 
 // navigation/nav.h
 
 void initialize_costmap();
 void place_obstacle_rect_with_inflation(int x, int y, int width, int height, int inflation);
 void print_costmap();
-int reconstruct_path_points(int start_x, int start_y, int goal_x, int goal_y, Point *points, int max_points);
-void print_costmap_with_path(Point *path, int path_len);
-int smooth_path(Point *in_path, int in_length, Point *out_path, int max_points);
+int reconstruct_path_points(int start_x, int start_y, int goal_x, int goal_y, position_t *points, int max_points);
+void print_costmap_with_path(position_t *path, int path_len);
+int smooth_path(position_t *in_path, int in_length, position_t *out_path, int max_points);
 void a_star(int start_x, int start_y, int goal_x, int goal_y);
+int convert_x_to_index(int x);
+int convert_y_to_index(int y);
+void convert_path_to_coordinates(position_t *path, int path_len);
 #endif

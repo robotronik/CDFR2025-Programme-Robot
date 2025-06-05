@@ -22,6 +22,14 @@ static int currentPathLenght = 0;
 
 nav_hash createHash(int x, int y, int theta, Direction direction, Rotation rotationLookAt, Rotation rotation);
 
+void fillCurrentPath(position_t path[], int pathLength) {
+    currentPath[0] = {path[0].x, path[0].y};
+    for (int i = 0; i < pathLength; i++) {
+        currentPath[i] = {path[i].x, path[i].y};
+    }
+    currentPathLenght = pathLength;
+}
+
 nav_return_t navigationGoTo(int x, int y, int theta, Direction direction, Rotation rotationLookAt, Rotation rotation, bool useHighways){
     nav_hash hashValue = createHash(x, y, theta, direction, rotationLookAt, rotation);
     nav_return_t ireturn = NAV_IN_PROCESS;
@@ -278,7 +286,7 @@ nav_return_t navigationPathNoTurn(position_t path[], int pathLenght, Direction d
 
 void navigation_path_json(json& j){
     j = json::array();
-    j.push_back({{"x", tableStatus.robot.pos.x}, {"y", tableStatus.robot.pos.y}});
+    //j.push_back({{"x", tableStatus.robot.pos.x}, {"y", tableStatus.robot.pos.y}});
     for (int i = 0; i < currentPathLenght; i++){
         j.push_back({{"x", currentPath[i].x}, {"y", currentPath[i].y}});
     }

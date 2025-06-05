@@ -84,7 +84,6 @@
                 let data = await response.json();
                 draw(data); // Pass the fetched data   
                 drawCostmap(data["costmap"]);
-                drawAStar(data["a_star"]);
                 let robotStatus = data["status"];
                 if (robotStatus == 0)
                     stateLabel.innerHTML = "Robot State : Init";
@@ -301,7 +300,7 @@
             ctx.stroke();
         }
         function drawCostmap(costmap) {
-            const scale = 40;
+            const scale = 20;
 
             costmap.forEach(cell => {
                 const { x, y, cost } = cell;

@@ -15,7 +15,7 @@
 #define RETURN_HOME 10 //Points for coming back home action
 #define MAX_SPEED 20000
 
-#define ROBOT_WIDTH 470
+#define ROBOT_WIDTH 400
 #define OPPONENT_ROBOT_RADIUS 250
 
 // Define the nums of the arduino for the STEPPERS
@@ -44,6 +44,8 @@
 
 #define COL_OFFSET_STOCK 470
 #define NO_COL_OFFSET_STOCK 175
+const int STOCK_WIDTH_MM = 100;
+const int STOCK_HEIGHT_MM = 400;
 
 // Angle is either 0 for horizontal stock of 90 for vertical
 const position_t STOCK_POSITION_ARRAY[] = {{-725, 675, 0}, {-325, 1425, 90}, {600, 1425, 90}, {750, 725, 0}, {50, 400, 0}, 

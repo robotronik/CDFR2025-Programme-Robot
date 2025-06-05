@@ -277,47 +277,40 @@ int StartSequence()
 
 #ifdef TEST_API_ONLY
     TestAPIServer();
-    sleep(2);
+    sleep(3);
     
     LOG_DEBUG("Starting main debug loop");
-    
+    initialize_costmap();
+
+    place_obstacle_rect_with_inflation( -725,675, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation( -325,1425, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation( 600,1425, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation( 750,725, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation( 50,400, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation( -725,-675, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation( -325,-1425, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation(600,-1425,  STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation( 750,-725, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+    place_obstacle_rect_with_inflation(50,-400,  STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+
     while(!ctrl_c_pressed){
-        sleep(2);
+        sleep(0.1);
 //#ifndef DISABLE_LIDAR
         //getData(lidarData, lidar_count);
 //#endif
-    initialize_costmap();
-
-    const int STOCK_WIDTH_MM = 400;
-    const int STOCK_HEIGHT_MM = 100;
-    const int INFLATION_RADIUS_MM = 10;
-
-    place_obstacle_rect_with_inflation(675, 725, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation(1425, 325, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation(1425, -600, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation(725, -750, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation(400, -50, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation(-675, 725, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation(-1425, 325, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation(-1425, -600, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation(-725, -750, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation(-400, -50, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
-
-
-    /*
-    int start_x = 0, start_y = 0;
-    int goal_x = 29, goal_y = 29;
-
+    
+    int start_x = convert_x_to_index(-800);    int start_y = convert_y_to_index(-1300);
+    int goal_x = convert_x_to_index(800);    int goal_y = convert_y_to_index(1300);
+    position_t path[HEIGHT * WIDTH], path_smooth[HEIGHT * WIDTH];
+    
     a_star(start_x, start_y, goal_x, goal_y);
-
-    Point path[HEIGHT * WIDTH];
     int path_len = reconstruct_path_points(start_x, start_y, goal_x, goal_y, path, HEIGHT * WIDTH);
-    print_costmap_with_path(path, path_len);
+    int smooth_path_len = smooth_path(path, path_len, path_smooth, HEIGHT * WIDTH);
 
-    Point smoothed_path[HEIGHT * WIDTH];
-    int smoothed_len = smooth_path(path, path_len, smoothed_path, HEIGHT * WIDTH);
-    print_costmap_with_path(smoothed_path, smoothed_len);
-    */ 
+    convert_path_to_coordinates(path, path_len);
+    convert_path_to_coordinates(path_smooth, smooth_path_len);
+
+    fillCurrentPath(path_smooth, smooth_path_len);
     }
     StopAPIServer();
     api_server_thread.join();

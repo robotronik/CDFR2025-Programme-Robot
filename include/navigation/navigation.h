@@ -24,3 +24,4 @@ nav_return_t navigationPath(position_t path[], int pathLenght, Direction directi
 nav_return_t navigationPathNoTurn(position_t path[], int pathLenght, Direction direction = Direction::SHORTEST, Rotation rotationLookAt = Rotation::SHORTEST);
 void navigation_path_json(json& j);
 void navigationOpponentDetection();
+void fillCurrentPath(position_t path[], int pathLength);
