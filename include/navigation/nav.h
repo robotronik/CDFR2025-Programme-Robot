@@ -45,4 +45,5 @@ void a_star(int start_x, int start_y, int goal_x, int goal_y);
 int convert_x_to_index(int x);
 int convert_y_to_index(int y);
 void convert_path_to_coordinates(position_t *path, int path_len);
+void print_costmap_around_point(int x, int y);
 #endif

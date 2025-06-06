@@ -8,6 +8,7 @@ typedef struct
     int  x;
     int  y;
     int  theta;
+    int cost;
 }position_t; 
 
 //Define serialization for position_t

@@ -312,16 +312,10 @@ int StartSequence()
         //getData(lidarData, lidar_count);
 //#endif
     // Generate random start and goal positions within the map boundaries
-    int rand2 = rand() % (2700) - 2700 / 2;
-    int rand1 = rand() % (1700) - 1700 / 2;
-    int rand4 = rand() % (2700) - 2700 / 2;
-    int rand3 = rand() % (1700) - 1700 / 2;
-    
-    int start_x = convert_x_to_index(rand1);
-    int start_y = convert_y_to_index(rand2);
-    int goal_x = convert_x_to_index(rand3);
-    int goal_y = convert_y_to_index(rand4);
-    while (costmap[start_y][start_x] == OBSTACLE_COST || costmap[goal_y][goal_x] == OBSTACLE_COST){
+    int rand2,rand1,rand4,rand3;
+    int start_x = 0, start_y = 0, goal_x = 0, goal_y = 0;
+
+    while (costmap[start_x][start_y] == OBSTACLE_COST || costmap[goal_x][goal_y] == OBSTACLE_COST){
         rand2 = rand() % (2700) - 2700 / 2;
         rand1 = rand() % (1700) - 1700 / 2;
         rand4 = rand() % (2700) - 2700 / 2;
@@ -332,20 +326,22 @@ int StartSequence()
         goal_x = convert_x_to_index(rand3);
         goal_y = convert_y_to_index(rand4);
     }
-    LOG_DEBUG("Start position: (", start_x, ", ", start_y, "), Goal position: (", goal_x, ", ", goal_y, ")");
+
     position_t path[HEIGHT * WIDTH], path_smooth[HEIGHT * WIDTH];
-    
     a_star(start_x, start_y, goal_x, goal_y);
     int path_len = reconstruct_path_points(start_x, start_y, goal_x, goal_y, path, HEIGHT * WIDTH);
     int smooth_path_len = smooth_path(path, path_len, path_smooth, HEIGHT * WIDTH);
 
     convert_path_to_coordinates(path, path_len);
     convert_path_to_coordinates(path_smooth, smooth_path_len);
-
+    LOG_GREEN_INFO("Smooth Path with Costs:");
+    for (int i = 0; i < smooth_path_len; ++i) {
+        LOG_INFO("Point ", i, ": (x = ", path_smooth[i].x, ", y = ", path_smooth[i].y, ", cost = ", path_smooth[i].cost, ")");
+    }
     fillCurrentPath(path, path_len);
-    sleep(1);
+    usleep(250000); // Sleep for 250 milliseconds
     fillCurrentPath(path_smooth, smooth_path_len);
-    sleep(3);
+    usleep(500000);
     
     }
     StopAPIServer();
