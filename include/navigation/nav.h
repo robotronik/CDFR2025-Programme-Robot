@@ -10,13 +10,14 @@
 #include "defs/constante.h" 
 using json = nlohmann::json;
 
-#define RESOLUTION 20       // mm par cellule
+#define RESOLUTION 40       // mm par cellule
 #define OBSTACLE_COST 20
 #define FREE_SPACE 0
 #define HEIGHT 2000/RESOLUTION +1           // x vertical = lignes
 #define WIDTH 3000/RESOLUTION + 1         // y horizontal = colonnes
 #define MAX_OPEN_SIZE (HEIGHT * WIDTH)
-const int INFLATION_RADIUS_MM = 20;
+const int SECURITE_PLANK = 20;
+const int SECURITE_OPPONENT = 100;
 
 extern unsigned char costmap[HEIGHT][WIDTH];
 

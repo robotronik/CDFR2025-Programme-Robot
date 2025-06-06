@@ -278,29 +278,42 @@ int StartSequence()
 #ifdef TEST_API_ONLY
     TestAPIServer();
     sleep(3);
+    tableStatus.robot.pos.x = 0;
+    tableStatus.robot.pos.y = 0;
+    tableStatus.robot.pos.theta = 0;
+    tableStatus.pos_opponent.x = -1000;
+    tableStatus.pos_opponent.y = -1000;
+    
+    
     
     LOG_DEBUG("Starting main debug loop");
     initialize_costmap();
-
-    place_obstacle_rect_with_inflation( -725,675, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation( -325,1425, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation( 600,1425, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation( 750,725, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation( 50,400, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation( -725,-675, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation( -325,-1425, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation(600,-1425,  STOCK_HEIGHT_MM, STOCK_WIDTH_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation( 750,-725, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
-    place_obstacle_rect_with_inflation(50,-400,  STOCK_WIDTH_MM, STOCK_HEIGHT_MM, INFLATION_RADIUS_MM);
+    
+    place_obstacle_rect_with_inflation( -725,675, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, SECURITE_PLANK);
+    place_obstacle_rect_with_inflation( -325,1425, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, SECURITE_PLANK);
+    place_obstacle_rect_with_inflation( 600,1425, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, SECURITE_PLANK);
+    place_obstacle_rect_with_inflation( 750,725, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, SECURITE_PLANK);
+    place_obstacle_rect_with_inflation( 50,400, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, SECURITE_PLANK);
+    place_obstacle_rect_with_inflation( -725,-675, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, SECURITE_PLANK);
+    place_obstacle_rect_with_inflation( -325,-1425, STOCK_HEIGHT_MM, STOCK_WIDTH_MM, SECURITE_PLANK);
+    place_obstacle_rect_with_inflation(600,-1425,  STOCK_HEIGHT_MM, STOCK_WIDTH_MM, SECURITE_PLANK);
+    place_obstacle_rect_with_inflation( 750,-725, STOCK_WIDTH_MM, STOCK_HEIGHT_MM, SECURITE_PLANK);
+    place_obstacle_rect_with_inflation(50,-400,  STOCK_WIDTH_MM, STOCK_HEIGHT_MM, SECURITE_PLANK);
+    
+    // Place the opponent obstacle
+    int opponent_x = 0;
+    int opponent_y = 0;
+    place_obstacle_rect_with_inflation(opponent_x, opponent_y, 300, 300, SECURITE_OPPONENT);
+    
 
     while(!ctrl_c_pressed){
-        sleep(0.1);
+        sleep(2);
 //#ifndef DISABLE_LIDAR
         //getData(lidarData, lidar_count);
 //#endif
     
-    int start_x = convert_x_to_index(-800);    int start_y = convert_y_to_index(-1300);
-    int goal_x = convert_x_to_index(800);    int goal_y = convert_y_to_index(1300);
+    int start_x = convert_x_to_index(-750);    int start_y = convert_y_to_index(-1250);
+    int goal_x = convert_x_to_index(500);    int goal_y = convert_y_to_index(1250);
     position_t path[HEIGHT * WIDTH], path_smooth[HEIGHT * WIDTH];
     
     a_star(start_x, start_y, goal_x, goal_y);
@@ -310,10 +323,13 @@ int StartSequence()
     convert_path_to_coordinates(path, path_len);
     convert_path_to_coordinates(path_smooth, smooth_path_len);
 
-    fillCurrentPath(path_smooth, smooth_path_len);
+    fillCurrentPath(path, path_len);
+    //fillCurrentPath(path_smooth, smooth_path_len);
+    
     }
     StopAPIServer();
     api_server_thread.join();
+    initialize_costmap();
     return -1;
 #endif
 
