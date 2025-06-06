@@ -38,7 +38,7 @@ int reconstruct_path_points(int start_x, int start_y, int goal_x, int goal_y, po
 }
 
 void a_star(int start_x, int start_y, int goal_x, int goal_y) {
-    for (int x = 0; x < HEIGHT; x++)
+    for (int x = 0; x < HEIGHT; x++) {
         for (int y = 0; y < WIDTH; y++) {
             nodes[x][y].x = x;
             nodes[x][y].y = y;
@@ -46,6 +46,7 @@ void a_star(int start_x, int start_y, int goal_x, int goal_y) {
             nodes[x][y].f = INT_MAX;
             nodes[x][y].visited = false;
         }
+    }
 
     nodes[start_x][start_y].g = 0;
     nodes[start_x][start_y].h = heuristic(start_x, start_y, goal_x, goal_y);
@@ -56,29 +57,30 @@ void a_star(int start_x, int start_y, int goal_x, int goal_y) {
     open[open_size++] = (position_t){start_x, start_y};
 
     while (open_size > 0) {
-        // Trouver le noeud avec le plus petit f dans open
+        // Trouver le nœud avec le plus petit f
         int best_idx = 0;
         for (int i = 1; i < open_size; i++) {
             position_t p = open[i];
-            if (nodes[p.x][p.y].f < nodes[open[best_idx].x][open[best_idx].y].f)
+            if (nodes[p.x][p.y].f < nodes[open[best_idx].x][open[best_idx].y].f) {
                 best_idx = i;
+            }
         }
 
         position_t current = open[best_idx];
-
-        // Retirer current de open
+        // Retirer le nœud de open
         open[best_idx] = open[--open_size];
 
         int cx = current.x, cy = current.y;
+
+        // Objectif atteint
         if (cx == goal_x && cy == goal_y) {
+            printf("Taille de open: %d\n", open_size);
             return;
         }
 
         nodes[cx][cy].visited = true;
 
-        // Voisinage en 4 directions (NSEW)
         int directions[4][2] = {{1,0}, {-1,0}, {0,1}, {0,-1}};
-
         for (int d = 0; d < 4; d++) {
             int nx = cx + directions[d][0];
             int ny = cy + directions[d][1];
@@ -87,12 +89,11 @@ void a_star(int start_x, int start_y, int goal_x, int goal_y) {
                 continue;
 
             if (costmap[nx][ny] >= OBSTACLE_COST)
-                continue;  // Obstacle impassable
-
-            if (nodes[nx][ny].visited)
                 continue;
 
-            int tentative_g = nodes[cx][cy].g + costmap[nx][ny] + 1;
+            // NOTE IMPORTANTE : on n'ignore plus les nœuds visités ici
+
+            int tentative_g = nodes[cx][cy].g + 1 + costmap[nx][ny] ;
 
             if (tentative_g < nodes[nx][ny].g) {
                 nodes[nx][ny].g = tentative_g;
@@ -103,11 +104,19 @@ void a_star(int start_x, int start_y, int goal_x, int goal_y) {
 
                 // Ajouter à open si pas déjà dedans
                 bool in_open = false;
-                for (int i = 0; i < open_size; i++)
-                    if (open[i].x == nx && open[i].y == ny)
+                for (int i = 0; i < open_size; i++) {
+                    if (open[i].x == nx && open[i].y == ny) {
                         in_open = true;
-                if (!in_open && open_size < MAX_OPEN_SIZE)
+                        break;
+                    }
+                }
+                if (!in_open) {
+                    if (open_size >= MAX_OPEN_SIZE) {
+                        printf("Erreur : dépassement de la taille de open (MAX_OPEN_SIZE=%d)\n", MAX_OPEN_SIZE);
+                        return;
+                    }
                     open[open_size++] = (position_t){nx, ny};
+                }
             }
         }
     }

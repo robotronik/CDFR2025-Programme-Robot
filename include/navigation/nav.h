@@ -15,9 +15,9 @@ using json = nlohmann::json;
 #define FREE_SPACE 0
 #define HEIGHT 2000/RESOLUTION +1           // x vertical = lignes
 #define WIDTH 3000/RESOLUTION + 1         // y horizontal = colonnes
-#define MAX_OPEN_SIZE (HEIGHT * WIDTH)
+#define MAX_OPEN_SIZE (4096)
 const int SECURITE_PLANK = 20;
-const int SECURITE_OPPONENT = 100;
+const int SECURITE_OPPONENT = 200;
 
 extern unsigned char costmap[HEIGHT][WIDTH];
 

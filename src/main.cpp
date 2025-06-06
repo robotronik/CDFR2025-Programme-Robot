@@ -304,16 +304,35 @@ int StartSequence()
     int opponent_x = 0;
     int opponent_y = 0;
     place_obstacle_rect_with_inflation(opponent_x, opponent_y, 300, 300, SECURITE_OPPONENT);
-    
+    srand(time(NULL));
 
     while(!ctrl_c_pressed){
-        sleep(2);
+        sleep(0.1);
 //#ifndef DISABLE_LIDAR
         //getData(lidarData, lidar_count);
 //#endif
+    // Generate random start and goal positions within the map boundaries
+    int rand2 = rand() % (2700) - 2700 / 2;
+    int rand1 = rand() % (1700) - 1700 / 2;
+    int rand4 = rand() % (2700) - 2700 / 2;
+    int rand3 = rand() % (1700) - 1700 / 2;
     
-    int start_x = convert_x_to_index(-750);    int start_y = convert_y_to_index(-1250);
-    int goal_x = convert_x_to_index(500);    int goal_y = convert_y_to_index(1250);
+    int start_x = convert_x_to_index(rand1);
+    int start_y = convert_y_to_index(rand2);
+    int goal_x = convert_x_to_index(rand3);
+    int goal_y = convert_y_to_index(rand4);
+    while (costmap[start_y][start_x] == OBSTACLE_COST || costmap[goal_y][goal_x] == OBSTACLE_COST){
+        rand2 = rand() % (2700) - 2700 / 2;
+        rand1 = rand() % (1700) - 1700 / 2;
+        rand4 = rand() % (2700) - 2700 / 2;
+        rand3 = rand() % (1700) - 1700 / 2;
+        
+        start_x = convert_x_to_index(rand1);
+        start_y = convert_y_to_index(rand2);
+        goal_x = convert_x_to_index(rand3);
+        goal_y = convert_y_to_index(rand4);
+    }
+    LOG_DEBUG("Start position: (", start_x, ", ", start_y, "), Goal position: (", goal_x, ", ", goal_y, ")");
     position_t path[HEIGHT * WIDTH], path_smooth[HEIGHT * WIDTH];
     
     a_star(start_x, start_y, goal_x, goal_y);
@@ -324,7 +343,9 @@ int StartSequence()
     convert_path_to_coordinates(path_smooth, smooth_path_len);
 
     fillCurrentPath(path, path_len);
-    //fillCurrentPath(path_smooth, smooth_path_len);
+    sleep(1);
+    fillCurrentPath(path_smooth, smooth_path_len);
+    sleep(3);
     
     }
     StopAPIServer();
