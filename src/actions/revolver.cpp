@@ -7,8 +7,10 @@
 bool emulateActuators = false;
 
 bool lowArr[REVOLVER_SIZE] = {0};   // false = Empty,  true = Occupied
+bool highArr[REVOLVER_SIZE] = {0};   // false = Empty,  true = Occupied
 int lowBarrelCount = 0;
 int lowBarrelShift = 0;
+int highBarrelCount = 0;
 
 // Internal prototypes
 void DisplayRobot();
@@ -17,13 +19,17 @@ bool MoveColumns(int direction, int sens);
 bool ReleaseLow();
 bool isRevolverFull();
 bool isRevolverEmpty();
+bool LoadHigh();
 
 // Initialize the revolver when the game starts
 void initRevolver(){
-    for (int i = 0; i < REVOLVER_SIZE; i++)
+    for (int i = 0; i < REVOLVER_SIZE; i++){
         lowArr[i] = 0;
+        highArr[i] = 0;
+    }
     lowBarrelCount = 0;
     lowBarrelShift  = 0;
+    highBarrelCount = 0;
 }
 
 // -------------------------------------------------
@@ -55,7 +61,7 @@ void DisplayBarrel(){
 // Functions to handle revolver
 // -------------------------------------------------
 bool isRevolverFull(){
-    if (lowBarrelCount + 4 > REVOLVER_SIZE) {
+    if (lowBarrelCount + 4 > REVOLVER_SIZE && (highBarrelCount != 0)) {
         LOG_WARNING("No more space in revolver !");
         return true;
     }
@@ -66,6 +72,10 @@ bool isRevolverEmpty(){
     bool found = false;
     for (int i = 0; i < n; i++) {
         if (lowArr[i] && lowArr[(i + 1) % n]){
+            found = true;
+            break;
+        }
+        if (highArr[i] && highArr[(i + 1) % n]){
             found = true;
             break;
         }
@@ -185,15 +195,14 @@ bool RevolverPrepareLowBarrel(direction_t dir){
     LOG_INFO("Prerare Low Barrel direction : ",((dir==FROM_RIGHT) ? "right" : "left"));
     if (lowBarrelCount == 0) return true; //no columns in Lowbarrel so position is good
     
+    if (lowBarrelCount >= 12) {
+        LOG_WARNING("Lower revolver is full, I'll raise the elevator");
+        if (highBarrelCount == 0)
+            LoadHigh();
+    }
+
     if (!SpinLowBarrel(ShiftListNumber(lowArr, dir ? 4 : 1, dir==FROM_LEFT))) 
         return false;
-
-    // TODO Check on that
-    if(lowBarrelCount >= 12) {
-        LOG_WARNING("Lower revolver is full, I'll raise the elevator");
-        return false;
-        // TODO Call moveColumnsElevator        
-    }    
     return true;
 }
 
@@ -208,14 +217,58 @@ bool RevolverRelease(){
     return ReleaseLow();
 }
 
+bool LoadHigh(){
+    int state = 1;
+    switch (state){
+    case 1 :
+        //align
+        if (true)
+            state ++;
+        break;
+    case 2:
+        LOG_INFO("LoadHigh");
+        if (liftAllColumns()){
+            DisplayBarrel();
+            int count = 0;
+            for (int i = 4; i < REVOLVER_SIZE; i++){
+                count += lowArr[i];
+                highArr[i] = lowArr[i];
+                lowArr[i] = false;
+            }
+            lowBarrelCount -= count;
+            highBarrelCount += count;
+            DisplayBarrel();
+            state = 1;
+            return true;
+        }
+        break;
+    }
+}
+
+bool ReleaseHigh(){
+    LOG_INFO("ReleaseHigh");
+    if (releaseAllColumns()){
+        DisplayBarrel();
+        int count = 0;
+        for (int i = 4; i < REVOLVER_SIZE; i++){
+            count += highArr[i];
+            lowArr[i] = highArr[i];
+            highArr[i] = false;
+        }
+        lowBarrelCount += count;
+        highBarrelCount -= count;
+        DisplayBarrel();
+        return true;
+    }
+}
+
 // Function to release all columns from the barrel
 bool ReleaseLow() {
     LOG_INFO("ReleaseLow");
     int shift = ShiftListPairForRelease(lowArr, 2);
     if (shift == 0) {
-        LOG_INFO("No columns to release");
-            // TODO : Pas de paire trouvée, descendre gradin
-        return false;
+        LOG_INFO("No Low columns to release");
+        return ReleaseHigh();
     }
     if (SpinLowBarrel(shift)){
         DisplayBarrel();
